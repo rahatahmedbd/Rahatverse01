@@ -1,51 +1,121 @@
 @import "tailwindcss";
 
-/* ── Custom Properties ──────────────────────────────────── */
-:root {
-  /* Cinematic Color System */
+/* ════════════════════════════════════════════════════════
+   RahatVerse — Cinematic Design System
+   Phase 02: প্রিজম (Prism)
+   ════════════════════════════════════════════════════════ */
+
+/* ── Theme Variables ──────────────────────────────────── */
+@theme inline {
+  /* Colors — Dark Theme (Default) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Brand Colors */
   --color-void: #050a15;
   --color-deep-ocean: #0a1628;
   --color-crystal-navy: #111b2e;
-  --color-border: #1e3a5f;
   --color-amber: #f59e0b;
   --color-amber-light: #fbbf24;
+  --color-amber-dark: #d97706;
   --color-blue: #3b82f6;
+  --color-blue-light: #60a5fa;
   --color-orange: #f97316;
   --color-red: #ef4444;
-  --color-text: #ffffff;
-  --color-text-muted: #94a3b8;
-  --color-text-dim: #64748b;
+  --color-green: #10b981;
+  --color-purple: #8b5cf6;
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #f59e0b, #f97316, #ef4444);
-  --gradient-glow: radial-gradient(
-    circle,
-    rgba(245, 158, 11, 0.15) 0%,
-    transparent 70%
-  );
-  --gradient-surface: linear-gradient(
-    180deg,
-    var(--color-deep-ocean),
-    var(--color-void)
-  );
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
-  /* Font Families */
+  /* Font */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-bengali: "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
-/* ── Base Styles ────────────────────────────────────────── */
+/* ── Dark Theme (Default) ─────────────────────────────── */
+:root {
+  --radius: 0.75rem;
+
+  /* Cinematic Dark Palette */
+  --background: #050a15;
+  --foreground: #f8fafc;
+  --card: #0a1628;
+  --card-foreground: #f8fafc;
+  --popover: #0a1628;
+  --popover-foreground: #f8fafc;
+  --primary: #f59e0b;
+  --primary-foreground: #050a15;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e3a5f;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #f8fafc;
+  --border: #1e3a5f;
+  --input: #1e293b;
+  --ring: #f59e0b;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #f59e0b, #f97316, #ef4444);
+  --gradient-surface: linear-gradient(180deg, #0a1628, #050a15);
+  --gradient-glow: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+  --gradient-aurora: linear-gradient(135deg, #0a1628 0%, #1e3a5f 25%, #0a1628 50%, #1a1f3c 75%, #050a15 100%);
+}
+
+/* ── Light Theme ──────────────────────────────────────── */
+.light {
+  --background: #f8fafc;
+  --foreground: #050a15;
+  --card: #ffffff;
+  --card-foreground: #050a15;
+  --popover: #ffffff;
+  --popover-foreground: #050a15;
+  --primary: #d97706;
+  --primary-foreground: #ffffff;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #050a15;
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --accent: #dbeafe;
+  --accent-foreground: #050a15;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #cbd5e1;
+  --input: #e2e8f0;
+  --ring: #d97706;
+}
+
+/* ── Base Styles ──────────────────────────────────────── */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  border-color: var(--border);
 }
 
 html {
@@ -55,49 +125,51 @@ html {
 }
 
 body {
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans);
-  background-color: var(--color-void);
-  color: var(--color-text);
   overflow-x: hidden;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ── Bengali Text ───────────────────────────────────────── */
+/* ── Bengali Text ─────────────────────────────────────── */
 .bn {
   font-family: var(--font-bengali);
 }
 
-/* ── Scrollbar Styling ──────────────────────────────────── */
+/* ── Scrollbar ────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-void);
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-amber);
+  background: var(--primary);
 }
 
-/* ── Selection ──────────────────────────────────────────── */
+/* ── Selection ────────────────────────────────────────── */
 ::selection {
   background-color: rgba(245, 158, 11, 0.3);
-  color: var(--color-text);
+  color: var(--foreground);
 }
 
-/* ── Focus Visible ──────────────────────────────────────── */
+/* ── Focus ────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--color-amber);
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
-/* ── Reduced Motion ─────────────────────────────────────── */
+/* ── Reduced Motion ───────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -109,7 +181,7 @@ body {
   }
 }
 
-/* ── Utility Classes ────────────────────────────────────── */
+/* ── Utility Classes ──────────────────────────────────── */
 .text-gradient {
   background: var(--gradient-primary);
   -webkit-background-clip: text;
@@ -118,28 +190,128 @@ body {
 }
 
 .glass {
-  background: rgba(17, 27, 46, 0.6);
+  background: rgba(10, 22, 40, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(30, 58, 95, 0.3);
 }
 
+.light .glass {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(203, 213, 225, 0.5);
+}
+
 .glow-amber {
   box-shadow: 0 0 20px rgba(245, 158, 11, 0.3),
-    0 0 60px rgba(245, 158, 11, 0.1);
+              0 0 60px rgba(245, 158, 11, 0.1);
 }
 
-.animate-fade-in {
-  animation: fadeIn var(--transition-base) ease-out forwards;
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3),
+              0 0 60px rgba(59, 130, 246, 0.1);
 }
 
+.bg-gradient-surface {
+  background: var(--gradient-surface);
+}
+
+.bg-gradient-aurora {
+  background: var(--gradient-aurora);
+}
+
+/* ── Animations ───────────────────────────────────────── */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideInDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.6); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+.animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+.animate-fade-in-down { animation: fadeInDown 0.6s ease-out forwards; }
+.animate-fade-in-left { animation: fadeInLeft 0.6s ease-out forwards; }
+.animate-fade-in-right { animation: fadeInRight 0.6s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.4s ease-out forwards; }
+.animate-slide-in-up { animation: slideInUp 0.5s ease-out forwards; }
+.animate-slide-in-down { animation: slideInDown 0.5s ease-out forwards; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+.animate-spin-slow { animation: spin-slow 8s linear infinite; }
+
+/* ── Stagger delays ───────────────────────────────────── */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* ── Keyframes for shadcn components ──────────────────── */
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
 }

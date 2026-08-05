@@ -11,3 +11,5 @@ export { ServicesPreview } from "./ServicesPreview";
 export { ExperienceSection } from "./ExperienceSection";
 export { BloodSocietySection } from "./BloodSocietySection";
 export { MemorialSection } from "./MemorialSection";
+export { GallerySection } from "./GallerySection";
+export { VideoPortfolio } from "./VideoPortfolio";

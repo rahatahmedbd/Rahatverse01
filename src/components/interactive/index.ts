@@ -1,1 +1,3 @@
-// Interactive Components (Gamification, Cursor)
+// ── Interactive Components ─────────────────────────────
+export { TypingAnimation } from "./TypingAnimation";
+export { QuickActions } from "./QuickActions";

@@ -5,7 +5,7 @@ import { ServicesPreview } from "@/components/sections/ServicesPreview";
 import { QuickActions } from "@/components/interactive/QuickActions";
 
 // ── Home Page ──────────────────────────────────────────
-// Phase 04: Cinematic Hero + App-like Navigation
+// Phase 05: Hero + About + Services (full pages linked)
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;

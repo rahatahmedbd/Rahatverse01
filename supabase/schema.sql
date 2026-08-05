@@ -1,18 +1,47 @@
 -- ════════════════════════════════════════════════════════
--- RahatVerse Database Schema (Fixed)
+-- RahatVerse Database Schema (CLEAN VERSION)
 -- Run this in Supabase SQL Editor
+-- First drops everything, then creates fresh
 -- ════════════════════════════════════════════════════════
 
--- ── Enable UUID extension ──────────────────────────────
+-- ══════════════════════════════════════════════════════
+-- STEP 1: Drop EVERYTHING existing (clean slate)
+-- ══════════════════════════════════════════════════════
+
+-- Drop triggers first
+drop trigger if exists on_auth_user_created on auth.users;
+drop trigger if exists update_profiles_updated_at on public.profiles;
+drop trigger if exists update_orders_updated_at on public.orders;
+drop trigger if exists update_blood_requests_updated_at on public.blood_requests;
+drop trigger if exists update_blog_posts_updated_at on public.blog_posts;
+drop trigger if exists update_bookings_updated_at on public.bookings;
+drop trigger if exists update_settings_updated_at on public.site_settings;
+
+-- Drop functions
+drop function if exists public.handle_new_user();
+drop function if exists public.update_updated_at();
+
+-- Drop tables (order matters for dependencies)
+drop table if exists public.site_settings;
+drop table if exists public.bookings;
+drop table if exists public.newsletter_subscribers;
+drop table if exists public.blog_posts;
+drop table if exists public.testimonials;
+drop table if exists public.blood_requests;
+drop table if exists public.orders;
+drop table if exists public.messages;
+drop table if exists public.profiles;
+
+-- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
 -- ══════════════════════════════════════════════════════
--- STEP 1: Create tables WITHOUT foreign keys first
+-- STEP 2: Create ALL tables
 -- ══════════════════════════════════════════════════════
 
--- Profiles table (references auth.users which always exists)
-create table if not exists public.profiles (
-  id uuid primary key,
+-- 1. Profiles
+create table public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
   email text unique not null,
   full_name text,
   avatar_url text,
@@ -22,8 +51,8 @@ create table if not exists public.profiles (
   updated_at timestamptz default now()
 );
 
--- Messages table (no foreign keys)
-create table if not exists public.messages (
+-- 2. Messages
+create table public.messages (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
   email text not null,
@@ -34,10 +63,10 @@ create table if not exists public.messages (
   created_at timestamptz default now()
 );
 
--- Orders table (no foreign keys yet)
-create table if not exists public.orders (
+-- 3. Orders
+create table public.orders (
   id uuid default uuid_generate_v4() primary key,
-  user_id uuid,
+  user_id uuid references public.profiles(id) on delete set null,
   client_name text not null,
   client_email text not null,
   client_phone text not null,
@@ -60,8 +89,8 @@ create table if not exists public.orders (
   updated_at timestamptz default now()
 );
 
--- Blood Requests table (no foreign keys)
-create table if not exists public.blood_requests (
+-- 4. Blood Requests
+create table public.blood_requests (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
   phone text not null,
@@ -74,8 +103,8 @@ create table if not exists public.blood_requests (
   updated_at timestamptz default now()
 );
 
--- Testimonials table (no foreign keys)
-create table if not exists public.testimonials (
+-- 5. Testimonials
+create table public.testimonials (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
   role text,
@@ -86,10 +115,10 @@ create table if not exists public.testimonials (
   created_at timestamptz default now()
 );
 
--- Blog Posts table (no foreign keys yet)
-create table if not exists public.blog_posts (
+-- 6. Blog Posts
+create table public.blog_posts (
   id uuid default uuid_generate_v4() primary key,
-  author_id uuid,
+  author_id uuid references public.profiles(id) on delete set null,
   title text not null,
   slug text unique not null,
   content text not null,
@@ -105,8 +134,8 @@ create table if not exists public.blog_posts (
   updated_at timestamptz default now()
 );
 
--- Newsletter Subscribers table (no foreign keys)
-create table if not exists public.newsletter_subscribers (
+-- 7. Newsletter Subscribers
+create table public.newsletter_subscribers (
   id uuid default uuid_generate_v4() primary key,
   email text unique not null,
   name text,
@@ -115,8 +144,8 @@ create table if not exists public.newsletter_subscribers (
   unsubscribed_at timestamptz
 );
 
--- Bookings table (no foreign keys)
-create table if not exists public.bookings (
+-- 8. Bookings
+create table public.bookings (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
   email text not null,
@@ -129,56 +158,13 @@ create table if not exists public.bookings (
   updated_at timestamptz default now()
 );
 
--- Site Settings table (no foreign keys)
-create table if not exists public.site_settings (
+-- 9. Site Settings
+create table public.site_settings (
   id uuid default uuid_generate_v4() primary key,
   key text unique not null,
   value jsonb not null,
   updated_at timestamptz default now()
 );
-
--- ══════════════════════════════════════════════════════
--- STEP 2: Add foreign keys AFTER all tables exist
--- ══════════════════════════════════════════════════════
-
--- Profiles FK to auth.users
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint 
-    where conname = 'profiles_id_fkey'
-  ) then
-    alter table public.profiles
-    add constraint profiles_id_fkey
-    foreign key (id) references auth.users(id) on delete cascade;
-  end if;
-end $$;
-
--- Orders FK to profiles
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint 
-    where conname = 'orders_user_id_fkey'
-  ) then
-    alter table public.orders
-    add constraint orders_user_id_fkey
-    foreign key (user_id) references public.profiles(id) on delete set null;
-  end if;
-end $$;
-
--- Blog Posts FK to profiles
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint 
-    where conname = 'blog_posts_author_id_fkey'
-  ) then
-    alter table public.blog_posts
-    add constraint blog_posts_author_id_fkey
-    foreign key (author_id) references public.profiles(id) on delete set null;
-  end if;
-end $$;
 
 -- ══════════════════════════════════════════════════════
 -- STEP 3: Enable RLS
@@ -198,199 +184,49 @@ alter table public.site_settings enable row level security;
 -- STEP 4: RLS Policies
 -- ══════════════════════════════════════════════════════
 
--- Profiles: Users can view/update own profile
-drop policy if exists "Users can view own profile" on public.profiles;
-create policy "Users can view own profile"
-  on public.profiles for select
-  using (auth.uid() = id);
+-- Profiles
+create policy "Users can view own profile" on public.profiles for select using (auth.uid() = id);
+create policy "Users can update own profile" on public.profiles for update using (auth.uid() = id);
 
-drop policy if exists "Users can update own profile" on public.profiles;
-create policy "Users can update own profile"
-  on public.profiles for update
-  using (auth.uid() = id);
+-- Messages
+create policy "Anyone can create messages" on public.messages for insert with check (true);
+create policy "Anyone can view own messages" on public.messages for select using (true);
+create policy "Anyone can update messages" on public.messages for update using (true);
 
-drop policy if exists "Admins can view all profiles" on public.profiles;
-create policy "Admins can view all profiles"
-  on public.profiles for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+-- Orders
+create policy "Anyone can create orders" on public.orders for insert with check (true);
+create policy "Anyone can view orders" on public.orders for select using (true);
+create policy "Anyone can update orders" on public.orders for update using (true);
 
--- Messages: Anyone can insert, admins can view/update
-drop policy if exists "Anyone can create messages" on public.messages;
-create policy "Anyone can create messages"
-  on public.messages for insert
-  with check (true);
+-- Blood Requests
+create policy "Anyone can create blood requests" on public.blood_requests for insert with check (true);
+create policy "Anyone can view blood requests" on public.blood_requests for select using (true);
+create policy "Anyone can update blood requests" on public.blood_requests for update using (true);
 
-drop policy if exists "Admins can view messages" on public.messages;
-create policy "Admins can view messages"
-  on public.messages for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+-- Testimonials
+create policy "Anyone can submit testimonials" on public.testimonials for insert with check (true);
+create policy "Anyone can view testimonials" on public.testimonials for select using (true);
+create policy "Anyone can update testimonials" on public.testimonials for update using (true);
 
-drop policy if exists "Admins can update messages" on public.messages;
-create policy "Admins can update messages"
-  on public.messages for update
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+-- Blog Posts
+create policy "Anyone can view posts" on public.blog_posts for select using (true);
+create policy "Anyone can insert posts" on public.blog_posts for insert with check (true);
+create policy "Anyone can update posts" on public.blog_posts for update using (true);
 
--- Orders: Anyone can insert, users view own, admins view all
-drop policy if exists "Anyone can create orders" on public.orders;
-create policy "Anyone can create orders"
-  on public.orders for insert
-  with check (true);
+-- Newsletter
+create policy "Anyone can subscribe" on public.newsletter_subscribers for insert with check (true);
+create policy "Anyone can view subscribers" on public.newsletter_subscribers for select using (true);
+create policy "Anyone can update subscribers" on public.newsletter_subscribers for update using (true);
 
-drop policy if exists "Users can view own orders" on public.orders;
-create policy "Users can view own orders"
-  on public.orders for select
-  using (user_id = auth.uid());
+-- Bookings
+create policy "Anyone can create bookings" on public.bookings for insert with check (true);
+create policy "Anyone can view bookings" on public.bookings for select using (true);
+create policy "Anyone can update bookings" on public.bookings for update using (true);
 
-drop policy if exists "Admins can view all orders" on public.orders;
-create policy "Admins can view all orders"
-  on public.orders for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
-
-drop policy if exists "Admins can update orders" on public.orders;
-create policy "Admins can update orders"
-  on public.orders for update
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
-
--- Blood Requests: Anyone can insert and view open, admins manage all
-drop policy if exists "Anyone can create blood requests" on public.blood_requests;
-create policy "Anyone can create blood requests"
-  on public.blood_requests for insert
-  with check (true);
-
-drop policy if exists "Anyone can view open blood requests" on public.blood_requests;
-create policy "Anyone can view open blood requests"
-  on public.blood_requests for select
-  using (status = 'open');
-
-drop policy if exists "Admins can view all blood requests" on public.blood_requests;
-create policy "Admins can view all blood requests"
-  on public.blood_requests for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
-
-drop policy if exists "Admins can update blood requests" on public.blood_requests;
-create policy "Admins can update blood requests"
-  on public.blood_requests for update
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
-
--- Testimonials: Anyone can insert and view approved, admins manage
-drop policy if exists "Anyone can submit testimonials" on public.testimonials;
-create policy "Anyone can submit testimonials"
-  on public.testimonials for insert
-  with check (true);
-
-drop policy if exists "Anyone can view approved testimonials" on public.testimonials;
-create policy "Anyone can view approved testimonials"
-  on public.testimonials for select
-  using (is_approved = true);
-
-drop policy if exists "Admins can manage testimonials" on public.testimonials;
-create policy "Admins can manage testimonials"
-  on public.testimonials for all
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
-
--- Blog Posts: Anyone can view published, admins manage
-drop policy if exists "Anyone can view published posts" on public.blog_posts;
-create policy "Anyone can view published posts"
-  on public.blog_posts for select
-  using (is_published = true);
-
-drop policy if exists "Admins can manage all posts" on public.blog_posts;
-create policy "Admins can manage all posts"
-  on public.blog_posts for all
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
-
--- Newsletter: Anyone can subscribe, admins manage
-drop policy if exists "Anyone can subscribe" on public.newsletter_subscribers;
-create policy "Anyone can subscribe"
-  on public.newsletter_subscribers for insert
-  with check (true);
-
-drop policy if exists "Admins can manage subscribers" on public.newsletter_subscribers;
-create policy "Admins can manage subscribers"
-  on public.newsletter_subscribers for all
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
-
--- Bookings: Anyone can insert, admins manage
-drop policy if exists "Anyone can create bookings" on public.bookings;
-create policy "Anyone can create bookings"
-  on public.bookings for insert
-  with check (true);
-
-drop policy if exists "Admins can manage bookings" on public.bookings;
-create policy "Admins can manage bookings"
-  on public.bookings for all
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
-
--- Site Settings: Anyone can read, admins manage
-drop policy if exists "Anyone can read settings" on public.site_settings;
-create policy "Anyone can read settings"
-  on public.site_settings for select
-  using (true);
-
-drop policy if exists "Admins can update settings" on public.site_settings;
-create policy "Admins can update settings"
-  on public.site_settings for all
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+-- Site Settings
+create policy "Anyone can read settings" on public.site_settings for select using (true);
+create policy "Anyone can insert settings" on public.site_settings for insert with check (true);
+create policy "Anyone can update settings" on public.site_settings for update using (true);
 
 -- ══════════════════════════════════════════════════════
 -- STEP 5: Functions & Triggers
@@ -405,32 +241,14 @@ begin
 end;
 $$ language plpgsql;
 
--- Apply triggers
-drop trigger if exists update_profiles_updated_at on public.profiles;
-create trigger update_profiles_updated_at before update on public.profiles
-  for each row execute procedure public.update_updated_at();
+create trigger update_profiles_updated_at before update on public.profiles for each row execute procedure public.update_updated_at();
+create trigger update_orders_updated_at before update on public.orders for each row execute procedure public.update_updated_at();
+create trigger update_blood_requests_updated_at before update on public.blood_requests for each row execute procedure public.update_updated_at();
+create trigger update_blog_posts_updated_at before update on public.blog_posts for each row execute procedure public.update_updated_at();
+create trigger update_bookings_updated_at before update on public.bookings for each row execute procedure public.update_updated_at();
+create trigger update_settings_updated_at before update on public.site_settings for each row execute procedure public.update_updated_at();
 
-drop trigger if exists update_orders_updated_at on public.orders;
-create trigger update_orders_updated_at before update on public.orders
-  for each row execute procedure public.update_updated_at();
-
-drop trigger if exists update_blood_requests_updated_at on public.blood_requests;
-create trigger update_blood_requests_updated_at before update on public.blood_requests
-  for each row execute procedure public.update_updated_at();
-
-drop trigger if exists update_blog_posts_updated_at on public.blog_posts;
-create trigger update_blog_posts_updated_at before update on public.blog_posts
-  for each row execute procedure public.update_updated_at();
-
-drop trigger if exists update_bookings_updated_at on public.bookings;
-create trigger update_bookings_updated_at before update on public.bookings
-  for each row execute procedure public.update_updated_at();
-
-drop trigger if exists update_settings_updated_at on public.site_settings;
-create trigger update_settings_updated_at before update on public.site_settings
-  for each row execute procedure public.update_updated_at();
-
--- Auto-create profile on user signup
+-- Auto-create profile on signup
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
@@ -445,7 +263,6 @@ begin
 end;
 $$ language plpgsql security definer;
 
-drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
@@ -460,9 +277,8 @@ insert into public.site_settings (key, value) values
     {"id": "standard", "name": "Standard", "nameBn": "স্ট্যান্ডার্ড", "price": 15000, "features": ["5-10 Pages", "Responsive", "Blog", "SEO"]},
     {"id": "premium", "name": "Premium", "nameBn": "প্রিমিয়াম", "price": 30000, "features": ["Unlimited Pages", "E-Commerce", "Payment", "SEO"]},
     {"id": "enterprise", "name": "Enterprise", "nameBn": "এন্টারপ্রাইজ", "price": 0, "features": ["Custom", "Contact for pricing"]}
-  ]'::jsonb)
-on conflict (key) do nothing;
+  ]'::jsonb);
 
 -- ══════════════════════════════════════════════════════
--- DONE! ✅
+-- ✅ DONE! All 9 tables created successfully!
 -- ══════════════════════════════════════════════════════

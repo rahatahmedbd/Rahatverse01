@@ -1,6 +1,10 @@
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
+import { BottomNavBar } from "@/components/layout/bottom-nav";
+
 // ── Locale-based Layout ────────────────────────────────
 // This layout wraps all locale-specific pages
-// In Phase 09 (i18n), this will handle language switching
+// Phase 09 will add i18n provider here
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -15,9 +19,19 @@ export default async function LocaleLayout({
 
   return (
     <div lang={locale} className="flex min-h-screen flex-col">
-      {/* Navigation placeholder - will be built in Phase 04 */}
-      <main className="flex-1">{children}</main>
-      {/* Footer placeholder - will be built in Phase 04 */}
+      {/* Glass Navigation Bar */}
+      <Navbar />
+
+      {/* Main Content */}
+      <main className="flex-1 pt-24 pb-24 lg:pb-8">
+        {children}
+      </main>
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNavBar />
     </div>
   );
 }

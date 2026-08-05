@@ -26,7 +26,13 @@ export const PERSONAL_INFO = {
   bnccCadetNo: "25071152",
 } as const;
 
-export const NAVIGATION_ITEMS = [
+export interface NavItemConfig {
+  key: string;
+  path: string;
+  icon: string;
+}
+
+export const NAVIGATION_ITEMS: NavItemConfig[] = [
   { key: "home", path: "/", icon: "Home" },
   { key: "about", path: "/about", icon: "User" },
   { key: "achievements", path: "/achievements", icon: "Trophy" },
@@ -35,4 +41,4 @@ export const NAVIGATION_ITEMS = [
   { key: "order", path: "/order", icon: "ShoppingCart" },
   { key: "blog", path: "/blog", icon: "BookOpen" },
   { key: "contact", path: "/contact", icon: "Phone" },
-] as const;
+];

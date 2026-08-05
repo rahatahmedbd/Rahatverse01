@@ -8,3 +8,6 @@ export { AboutFull } from "./AboutFull";
 export { EducationTimeline } from "./EducationTimeline";
 export { AchievementsSection } from "./AchievementsSection";
 export { ServicesPreview } from "./ServicesPreview";
+export { ExperienceSection } from "./ExperienceSection";
+export { BloodSocietySection } from "./BloodSocietySection";
+export { MemorialSection } from "./MemorialSection";

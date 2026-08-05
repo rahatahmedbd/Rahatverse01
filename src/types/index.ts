@@ -132,9 +132,22 @@ export const SUPPORTED_LOCALES: Locale[] = ["bn", "en"];
 export const DEFAULT_LOCALE: Locale = "bn";
 
 // ── Navigation Types ───────────────────────────────────
-export interface NavItem {
-  label: string;
-  href: string;
-  icon?: string;
-  children?: NavItem[];
+export interface NavItemConfig {
+  key: string;
+  path: string;
+  icon: string;
 }
+
+export const NAVIGATION_ITEMS: NavItemConfig[] = [
+  { key: "home", path: "/", icon: "Home" },
+  { key: "about", path: "/about", icon: "User" },
+  { key: "achievements", path: "/achievements", icon: "Trophy" },
+  { key: "services", path: "/services", icon: "Briefcase" },
+  { key: "gallery", path: "/gallery", icon: "Image" },
+  { key: "order", path: "/order", icon: "ShoppingCart" },
+  { key: "blog", path: "/blog", icon: "BookOpen" },
+  { key: "contact", path: "/contact", icon: "Phone" },
+];
+
+// ── Database Types ─────────────────────────────────────
+export * from "./database";

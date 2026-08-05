@@ -19,21 +19,22 @@ export default async function LocaleLayout({
 
   return (
     <div lang={locale} className="flex min-h-screen flex-col">
-      {/* Global Animation Providers */}
-      <AnimationProviders>
-        <Navbar />
+      {/* Global Animation Effects (rendered alongside, not wrapping) */}
+      <AnimationProviders />
 
-        {/* Main Content */}
-        <main className="flex-1 pt-24 pb-24 lg:pb-8">
-          {children}
-        </main>
+      {/* Glass Navigation Bar */}
+      <Navbar />
 
-        {/* Footer */}
-        <Footer />
+      {/* Main Content */}
+      <main className="relative flex-1 pt-24 pb-24 lg:pb-8">
+        {children}
+      </main>
 
-        {/* Mobile Bottom Navigation */}
-        <BottomNavBar />
-      </AnimationProviders>
+      {/* Footer */}
+      <Footer />
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNavBar />
     </div>
   );
 }

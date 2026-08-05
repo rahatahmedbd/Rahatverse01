@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // ── Animated Counter ───────────────────────────────────
@@ -27,15 +27,17 @@ export function Counter({
   const [count, setCount] = useState(from);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || hasAnimated.current) return;
+    hasAnimated.current = true;
 
-    let startTime: number;
+    let startTime: number | null = null;
     let animationFrame: number;
 
     const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
+      if (startTime === null) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
 
       // Ease out cubic
@@ -63,17 +65,14 @@ export function Counter({
   };
 
   return (
-    <motion.span
+    <span
       ref={ref}
       className={cn("tabular-nums", className)}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
     >
       {prefix}
       {formatNumber(count)}
       {suffix}
-    </motion.span>
+    </span>
   );
 }
 
@@ -94,21 +93,23 @@ export function PercentageCounter({
   const [count, setCount] = useState(0);
   const ref = useRef<SVGSVGElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const hasAnimated = useRef(false);
 
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (count / 100) * circumference;
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || hasAnimated.current) return;
+    hasAnimated.current = true;
 
-    let startTime: number;
+    let startTime: number | null = null;
     let animationFrame: number;
-    const duration = 1.5;
+    const dur = 1.5;
 
     const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+      if (startTime === null) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / (dur * 1000), 1);
       const eased = 1 - Math.pow(1 - progress, 3);
 
       setCount(Math.floor(value * eased));
@@ -136,7 +137,7 @@ export function PercentageCounter({
           strokeWidth={strokeWidth}
           className="text-border"
         />
-        <motion.circle
+        <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -146,7 +147,7 @@ export function PercentageCounter({
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          className="text-primary"
+          className="text-primary transition-all duration-100"
         />
       </svg>
       <span className="absolute text-xl font-bold">{count}%</span>

@@ -1,27 +1,9 @@
 -- ════════════════════════════════════════════════════════
--- RahatVerse Database Schema (CLEAN VERSION)
--- Run this in Supabase SQL Editor
--- First drops everything, then creates fresh
+-- RahatVerse — Clean Database Schema
+-- Copy-paste this ENTIRE SQL into Supabase SQL Editor and Run
 -- ════════════════════════════════════════════════════════
 
--- ══════════════════════════════════════════════════════
--- STEP 1: Drop EVERYTHING existing (clean slate)
--- ══════════════════════════════════════════════════════
-
--- Drop triggers first
-drop trigger if exists on_auth_user_created on auth.users;
-drop trigger if exists update_profiles_updated_at on public.profiles;
-drop trigger if exists update_orders_updated_at on public.orders;
-drop trigger if exists update_blood_requests_updated_at on public.blood_requests;
-drop trigger if exists update_blog_posts_updated_at on public.blog_posts;
-drop trigger if exists update_bookings_updated_at on public.bookings;
-drop trigger if exists update_settings_updated_at on public.site_settings;
-
--- Drop functions
-drop function if exists public.handle_new_user();
-drop function if exists public.update_updated_at();
-
--- Drop tables (order matters for dependencies)
+-- STEP 1: Clean up (tables first, then functions)
 drop table if exists public.site_settings;
 drop table if exists public.bookings;
 drop table if exists public.newsletter_subscribers;
@@ -31,15 +13,10 @@ drop table if exists public.blood_requests;
 drop table if exists public.orders;
 drop table if exists public.messages;
 drop table if exists public.profiles;
+drop function if exists public.handle_new_user();
+drop function if exists public.update_updated_at();
 
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
-
--- ══════════════════════════════════════════════════════
--- STEP 2: Create ALL tables
--- ══════════════════════════════════════════════════════
-
--- 1. Profiles
+-- STEP 2: Create tables
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text unique not null,
@@ -51,7 +28,6 @@ create table public.profiles (
   updated_at timestamptz default now()
 );
 
--- 2. Messages
 create table public.messages (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
@@ -63,7 +39,6 @@ create table public.messages (
   created_at timestamptz default now()
 );
 
--- 3. Orders
 create table public.orders (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references public.profiles(id) on delete set null,
@@ -89,7 +64,6 @@ create table public.orders (
   updated_at timestamptz default now()
 );
 
--- 4. Blood Requests
 create table public.blood_requests (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
@@ -103,7 +77,6 @@ create table public.blood_requests (
   updated_at timestamptz default now()
 );
 
--- 5. Testimonials
 create table public.testimonials (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
@@ -115,7 +88,6 @@ create table public.testimonials (
   created_at timestamptz default now()
 );
 
--- 6. Blog Posts
 create table public.blog_posts (
   id uuid default uuid_generate_v4() primary key,
   author_id uuid references public.profiles(id) on delete set null,
@@ -134,7 +106,6 @@ create table public.blog_posts (
   updated_at timestamptz default now()
 );
 
--- 7. Newsletter Subscribers
 create table public.newsletter_subscribers (
   id uuid default uuid_generate_v4() primary key,
   email text unique not null,
@@ -144,7 +115,6 @@ create table public.newsletter_subscribers (
   unsubscribed_at timestamptz
 );
 
--- 8. Bookings
 create table public.bookings (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
@@ -158,7 +128,6 @@ create table public.bookings (
   updated_at timestamptz default now()
 );
 
--- 9. Site Settings
 create table public.site_settings (
   id uuid default uuid_generate_v4() primary key,
   key text unique not null,
@@ -166,10 +135,7 @@ create table public.site_settings (
   updated_at timestamptz default now()
 );
 
--- ══════════════════════════════════════════════════════
--- STEP 3: Enable RLS
--- ══════════════════════════════════════════════════════
-
+-- STEP 3: RLS
 alter table public.profiles enable row level security;
 alter table public.messages enable row level security;
 alter table public.orders enable row level security;
@@ -180,59 +146,44 @@ alter table public.newsletter_subscribers enable row level security;
 alter table public.bookings enable row level security;
 alter table public.site_settings enable row level security;
 
--- ══════════════════════════════════════════════════════
--- STEP 4: RLS Policies
--- ══════════════════════════════════════════════════════
+-- STEP 4: Policies
+create policy "select_profiles" on public.profiles for select using (true);
+create policy "insert_profiles" on public.profiles for insert with check (true);
+create policy "update_profiles" on public.profiles for update using (true);
 
--- Profiles
-create policy "Users can view own profile" on public.profiles for select using (auth.uid() = id);
-create policy "Users can update own profile" on public.profiles for update using (auth.uid() = id);
+create policy "select_messages" on public.messages for select using (true);
+create policy "insert_messages" on public.messages for insert with check (true);
+create policy "update_messages" on public.messages for update using (true);
 
--- Messages
-create policy "Anyone can create messages" on public.messages for insert with check (true);
-create policy "Anyone can view own messages" on public.messages for select using (true);
-create policy "Anyone can update messages" on public.messages for update using (true);
+create policy "select_orders" on public.orders for select using (true);
+create policy "insert_orders" on public.orders for insert with check (true);
+create policy "update_orders" on public.orders for update using (true);
 
--- Orders
-create policy "Anyone can create orders" on public.orders for insert with check (true);
-create policy "Anyone can view orders" on public.orders for select using (true);
-create policy "Anyone can update orders" on public.orders for update using (true);
+create policy "select_blood" on public.blood_requests for select using (true);
+create policy "insert_blood" on public.blood_requests for insert with check (true);
+create policy "update_blood" on public.blood_requests for update using (true);
 
--- Blood Requests
-create policy "Anyone can create blood requests" on public.blood_requests for insert with check (true);
-create policy "Anyone can view blood requests" on public.blood_requests for select using (true);
-create policy "Anyone can update blood requests" on public.blood_requests for update using (true);
+create policy "select_testimonials" on public.testimonials for select using (true);
+create policy "insert_testimonials" on public.testimonials for insert with check (true);
+create policy "update_testimonials" on public.testimonials for update using (true);
 
--- Testimonials
-create policy "Anyone can submit testimonials" on public.testimonials for insert with check (true);
-create policy "Anyone can view testimonials" on public.testimonials for select using (true);
-create policy "Anyone can update testimonials" on public.testimonials for update using (true);
+create policy "select_blog" on public.blog_posts for select using (true);
+create policy "insert_blog" on public.blog_posts for insert with check (true);
+create policy "update_blog" on public.blog_posts for update using (true);
 
--- Blog Posts
-create policy "Anyone can view posts" on public.blog_posts for select using (true);
-create policy "Anyone can insert posts" on public.blog_posts for insert with check (true);
-create policy "Anyone can update posts" on public.blog_posts for update using (true);
+create policy "select_newsletter" on public.newsletter_subscribers for select using (true);
+create policy "insert_newsletter" on public.newsletter_subscribers for insert with check (true);
+create policy "update_newsletter" on public.newsletter_subscribers for update using (true);
 
--- Newsletter
-create policy "Anyone can subscribe" on public.newsletter_subscribers for insert with check (true);
-create policy "Anyone can view subscribers" on public.newsletter_subscribers for select using (true);
-create policy "Anyone can update subscribers" on public.newsletter_subscribers for update using (true);
+create policy "select_bookings" on public.bookings for select using (true);
+create policy "insert_bookings" on public.bookings for insert with check (true);
+create policy "update_bookings" on public.bookings for update using (true);
 
--- Bookings
-create policy "Anyone can create bookings" on public.bookings for insert with check (true);
-create policy "Anyone can view bookings" on public.bookings for select using (true);
-create policy "Anyone can update bookings" on public.bookings for update using (true);
+create policy "select_settings" on public.site_settings for select using (true);
+create policy "insert_settings" on public.site_settings for insert with check (true);
+create policy "update_settings" on public.site_settings for update using (true);
 
--- Site Settings
-create policy "Anyone can read settings" on public.site_settings for select using (true);
-create policy "Anyone can insert settings" on public.site_settings for insert with check (true);
-create policy "Anyone can update settings" on public.site_settings for update using (true);
-
--- ══════════════════════════════════════════════════════
--- STEP 5: Functions & Triggers
--- ══════════════════════════════════════════════════════
-
--- Auto-update updated_at
+-- STEP 5: Functions
 create or replace function public.update_updated_at()
 returns trigger as $$
 begin
@@ -243,42 +194,23 @@ $$ language plpgsql;
 
 create trigger update_profiles_updated_at before update on public.profiles for each row execute procedure public.update_updated_at();
 create trigger update_orders_updated_at before update on public.orders for each row execute procedure public.update_updated_at();
-create trigger update_blood_requests_updated_at before update on public.blood_requests for each row execute procedure public.update_updated_at();
-create trigger update_blog_posts_updated_at before update on public.blog_posts for each row execute procedure public.update_updated_at();
+create trigger update_blood_updated_at before update on public.blood_requests for each row execute procedure public.update_updated_at();
+create trigger update_blog_updated_at before update on public.blog_posts for each row execute procedure public.update_updated_at();
 create trigger update_bookings_updated_at before update on public.bookings for each row execute procedure public.update_updated_at();
 create trigger update_settings_updated_at before update on public.site_settings for each row execute procedure public.update_updated_at();
 
--- Auto-create profile on signup
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
   insert into public.profiles (id, email, full_name, avatar_url)
-  values (
-    new.id,
-    new.email,
-    coalesce(new.raw_user_meta_data->>'full_name', ''),
-    coalesce(new.raw_user_meta_data->>'avatar_url', '')
-  );
+  values (new.id, new.email, coalesce(new.raw_user_meta_data->>'full_name', ''), coalesce(new.raw_user_meta_data->>'avatar_url', ''));
   return new;
 end;
 $$ language plpgsql security definer;
 
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure public.handle_new_user();
+create trigger on_auth_user_created after insert on auth.users for each row execute procedure public.handle_new_user();
 
--- ══════════════════════════════════════════════════════
--- STEP 6: Seed Data
--- ══════════════════════════════════════════════════════
+-- STEP 6: Seed
+insert into public.site_settings (key, value) values ('packages', '[{"id":"basic","name":"Basic","nameBn":"বেসিক","price":5000},{"id":"standard","name":"Standard","nameBn":"স্ট্যান্ডার্ড","price":15000},{"id":"premium","name":"Premium","nameBn":"প্রিমিয়াম","price":30000},{"id":"enterprise","name":"Enterprise","nameBn":"এন্টারপ্রাইজ","price":0}]'::jsonb);
 
-insert into public.site_settings (key, value) values
-  ('packages', '[
-    {"id": "basic", "name": "Basic", "nameBn": "বেসিক", "price": 5000, "features": ["1-3 Pages", "Responsive", "Contact Form"]},
-    {"id": "standard", "name": "Standard", "nameBn": "স্ট্যান্ডার্ড", "price": 15000, "features": ["5-10 Pages", "Responsive", "Blog", "SEO"]},
-    {"id": "premium", "name": "Premium", "nameBn": "প্রিমিয়াম", "price": 30000, "features": ["Unlimited Pages", "E-Commerce", "Payment", "SEO"]},
-    {"id": "enterprise", "name": "Enterprise", "nameBn": "এন্টারপ্রাইজ", "price": 0, "features": ["Custom", "Contact for pricing"]}
-  ]'::jsonb);
-
--- ══════════════════════════════════════════════════════
--- ✅ DONE! All 9 tables created successfully!
--- ══════════════════════════════════════════════════════
+-- ✅ DONE

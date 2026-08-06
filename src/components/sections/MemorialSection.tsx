@@ -4,6 +4,8 @@ import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";
 import { FadeInUp } from "@/components/animations/FadeIn";
+import { CloudinaryImage } from "@/components/ui/cloudinary-image";
+import { IMAGE_IDS } from "@/lib/cloudinary/utils";
 import { motion } from "framer-motion";
 import {
   Building,
@@ -28,7 +30,7 @@ export function MemorialSection({ locale = "bn" }: MemorialSectionProps) {
       icon: Building,
       title: isBn ? "সাবেক চেয়ারম্যান" : "Former Chairman",
       description: isBn ? "শিমুলবাঁক ইউনিয়ন পরিষদ" : "Shimulbank Union Parishad",
-      period: "০৩/০৫/২০০৩ — ০২/০৮/২০১১ (৯ বছর)",
+      period: "০৩/০৫/২০০৩ — ০২/০৮/২০১১",
     },
     {
       icon: GraduationCap,
@@ -109,12 +111,18 @@ export function MemorialSection({ locale = "bn" }: MemorialSectionProps) {
         {/* Main Tribute Card */}
         <FadeInUp>
           <GlassCard className="border-t-4 border-t-amber-500/50 text-center">
-            {/* Photo placeholder */}
             <motion.div
-              className="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full border-4 border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-600/10"
+              className="mx-auto mb-6 h-28 w-28 overflow-hidden rounded-full border-4 border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-600/10"
               whileHover={{ scale: 1.05 }}
             >
-              <span className="text-3xl font-bold text-amber-400/60">FA</span>
+              <CloudinaryImage
+                publicId={IMAGE_IDS.FATHER_PHOTO}
+                alt={isBn ? "মরহুম জনাব ফরিদ আহমেদ" : "Late Md. Farid Ahmed"}
+                width={112}
+                height={112}
+                className="h-full w-full object-cover"
+                priority
+              />
             </motion.div>
 
             <h3 className="text-2xl font-bold bn">

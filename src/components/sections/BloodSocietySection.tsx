@@ -104,19 +104,21 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
                 <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
                   {[
                     { value: 4, suffix: "", label: isBn ? "বার রক্তদান" : "Donations" },
-                    { value: 0, suffix: "", label: "A+", labelExtra: isBn ? "আমার গ্রুপ" : "My Group" },
+                    { value: "A+", label: isBn ? "আমার রক্তের গ্রুপ" : "My Blood Group" },
                     { value: 2025, suffix: "", label: isBn ? "প্রতিষ্ঠার সাল" : "Founded" },
                     { value: 100, suffix: "+", label: isBn ? "জীবন বাঁচানোর অঙ্গীকার" : "Lives Committed" },
-                  ].map((stat, i) => (
-                    <div key={i} className="text-center">
-                      <Counter
-                        to={stat.value}
-                        suffix={stat.suffix}
-                        className="text-2xl font-bold text-red-400"
-                      />
-                      <p className="mt-1 text-xs text-muted-foreground bn">
-                        {stat.labelExtra || stat.label}
-                      </p>
+                  ].map((stat) => (
+                    <div key={stat.label} className="text-center">
+                      {typeof stat.value === "number" ? (
+                        <Counter
+                          to={stat.value}
+                          suffix={stat.suffix}
+                          className="text-2xl font-bold text-red-400"
+                        />
+                      ) : (
+                        <p className="text-2xl font-bold text-red-400">{stat.value}</p>
+                      )}
+                      <p className="mt-1 text-xs text-muted-foreground bn">{stat.label}</p>
                     </div>
                   ))}
                 </div>

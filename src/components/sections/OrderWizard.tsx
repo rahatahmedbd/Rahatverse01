@@ -89,6 +89,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const [data, setData] = useState<OrderData>({
     packageType: preselectedPackage || "basic",
@@ -140,27 +141,55 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   };
 
   const handleSubmit = async () => {
+    setSubmitError("");
     setIsSubmitting(true);
+
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          package_type: data.packageType,
+          website_type: data.websiteType,
+          num_pages: data.numPages ? Number(data.numPages) : 1,
+          description: data.description,
+          color_preference: data.colorPreference,
+          reference_sites: data.referenceSites
+            .split(/[\n,]/)
+            .map((site) => site.trim())
+            .filter(Boolean),
+          features: data.features,
+          client_name: data.clientName,
+          client_email: data.clientEmail,
+          client_phone: data.clientPhone,
+          client_whatsapp: data.clientWhatsapp,
+          client_company: data.clientCompany,
+          budget_range: data.budgetRange,
+          timeline: data.timeline,
+        }),
       });
+      const result = await response.json().catch(() => null);
 
-      if (response.ok) {
-        setIsSubmitted(true);
+      if (!response.ok || !result?.success) {
+        setSubmitError(
+          isBn
+            ? "অর্ডার জমা দেওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।"
+            : "We could not submit your order. Please try again."
+        );
+        return;
       }
+
+      setIsSubmitted(true);
     } catch {
-      // Handle error silently
+      setSubmitError(
+        isBn
+          ? "নেটওয়ার্ক সমস্যার কারণে অর্ডার জমা দেওয়া যায়নি।"
+          : "Your order could not be submitted because of a network problem."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  const [orderId] = useState(
-    () => Math.random().toString(36).substring(2, 8).toUpperCase()
-  );
 
   if (isSubmitted) {
     return (
@@ -180,8 +209,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   : "We received your order. We will contact you shortly."}
               </p>
               <Badge variant="success" className="mt-4">
-                {isBn ? "অর্ডার ID: #" : "Order ID: #"}
-                {orderId}
+                {isBn ? "অর্ডারটি নিরাপদে গ্রহণ করা হয়েছে" : "Your order was received securely"}
               </Badge>
             </GlassCard>
           </FadeInUp>
@@ -481,6 +509,12 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 </div>
               )}
             </div>
+          )}
+
+          {submitError && (
+            <p className="mt-6 text-center text-sm text-destructive" role="alert">
+              {submitError}
+            </p>
           )}
 
           {/* Navigation Buttons */}

@@ -21,8 +21,10 @@ import {
   Users
 } from "lucide-react"
 import Link from "next/link"
+import { useLocale } from "next-intl"
 
 export default function ServicesPage() {
+  const locale = useLocale();
 
   const services = [
     {
@@ -283,7 +285,7 @@ export default function ServicesPage() {
                           {service.price}
                         </span>
                         <Button asChild>
-                          <Link href="/order">
+                          <Link href={`/${locale}/order`}>
                             অর্ডার করুন
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Link>
@@ -366,13 +368,13 @@ export default function ServicesPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" asChild>
-                  <Link href="/order">
+                  <Link href={`/${locale}/order`}>
                     অর্ডার করুন
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="/contact">
+                  <Link href={`/${locale}/contact`}>
                     যোগাযোগ করুন
                   </Link>
                 </Button>

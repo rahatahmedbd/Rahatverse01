@@ -90,10 +90,14 @@ export interface DbTestimonial {
 export interface DbBlogPost {
   id: string;
   author_id: string | null;
+  author: string | null;
   title: string;
+  title_bn: string | null;
   slug: string;
   content: string;
+  content_bn: string | null;
   excerpt: string | null;
+  excerpt_bn: string | null;
   cover_image: string | null;
   category: string | null;
   tags: string[];

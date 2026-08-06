@@ -7,11 +7,11 @@ import { NextRequest } from "next/server";
 
 const intlMiddleware = createMiddleware(routing);
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip locale redirect for PWA and static routes
-  const publicRoutes = ["/manifest.json", "/offline", "/icons/", "/sitemap.xml", "/robots.txt"];
+  const publicRoutes = ["/manifest.json", "/offline", "/icons/", "/sitemap.xml", "/robots.txt", "/auth/"];
   if (publicRoutes.some((route) => pathname.startsWith(route))) {
     return;
   }

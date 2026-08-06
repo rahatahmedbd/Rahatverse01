@@ -2,6 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+const CATEGORY_PATTERN = /^[a-z0-9-]{1,50}$/;
+
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -42,11 +46,26 @@ export async function POST(request: NextRequest) {
     const description = formData.get("description") as string;
     const descriptionBn = formData.get("description_bn") as string;
 
-    if (!file || !category) {
+    if (!(file instanceof File) || !category) {
       return NextResponse.json(
         { error: "File and category are required" },
         { status: 400 }
       );
+    }
+
+    if (!CATEGORY_PATTERN.test(category)) {
+      return NextResponse.json({ error: "Invalid image category" }, { status: 400 });
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.has(file.type) || file.size <= 0 || file.size > MAX_IMAGE_BYTES) {
+      return NextResponse.json(
+        { error: "Upload a JPEG, PNG, WebP, or AVIF image smaller than 10 MB" },
+        { status: 400 }
+      );
+    }
+
+    if (!process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET || !process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) {
+      return NextResponse.json({ error: "Media service unavailable" }, { status: 503 });
     }
 
     // Convert file to buffer
@@ -112,10 +131,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Upload error:", error);
-    return NextResponse.json(
-      { error: "Upload failed", details: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }
 

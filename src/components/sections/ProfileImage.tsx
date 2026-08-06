@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { CloudinaryImage } from "@/components/ui/cloudinary-image";
+import { IMAGE_IDS } from "@/lib/cloudinary/utils";
 
 // ── Profile Image with Glowing Frame ───────────────────
 interface ProfileImageProps {
@@ -28,6 +30,9 @@ export function ProfileImage({
     md: "h-40 w-40",
     lg: "h-48 w-48",
   };
+
+  // Use Cloudinary image if no src provided
+  const useCloudinary = !src;
 
   return (
     <div className={cn("relative inline-flex items-center justify-center", className)}>
@@ -80,18 +85,22 @@ export function ProfileImage({
         whileHover={{ scale: 1.05 }}
         transition={{ type: "spring", stiffness: 300 }}
       >
-        {src ? (
+        {useCloudinary ? (
+          <CloudinaryImage
+            publicId={IMAGE_IDS.PROFILE}
+            alt={alt}
+            width={size === "lg" ? 176 : size === "md" ? 144 : 96}
+            height={size === "lg" ? 176 : size === "md" ? 144 : 96}
+            className="h-full w-full object-cover"
+            priority
+          />
+        ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={src}
             alt={alt}
             className="h-full w-full object-cover"
           />
-        ) : (
-          // Placeholder with initials
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-500/30 to-orange-600/30">
-            <span className="text-4xl font-bold text-white">RA</span>
-          </div>
         )}
       </motion.div>
 

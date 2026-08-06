@@ -50,7 +50,7 @@ export function AboutPreview({ locale = "bn" }: AboutPreviewProps) {
     {
       icon: Award,
       label: isBn ? "অর্জন" : "Achievements",
-      value: isBn ? "১০+ পুরস্কার" : "10+ Awards",
+      value: isBn ? "৯ পুরস্কার" : "9 Awards",
     },
   ];
 

@@ -90,6 +90,16 @@
     "contactInfo": "Contact",
     "social": "Social",
     "rights": "All rights reserved",
-    "madeWith": "Made with"
+    "madeWith": "Made with",
+    "tagline": "My goal is to stand by people through education, social service, and technology.",
+    "about": "About",
+    "achievements": "Achievements",
+    "services": "Services",
+    "projects": "Projects",
+    "contact": "Contact",
+    "orderWebsite": "Order Website",
+    "pricing": "Pricing",
+    "process": "Process",
+    "by": "by"
   }
 }

@@ -11,7 +11,7 @@ export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip locale redirect for PWA and static routes
-  const publicRoutes = ["/manifest.json", "/offline", "/icons/"];
+  const publicRoutes = ["/manifest.json", "/offline", "/icons/", "/sitemap.xml", "/robots.txt"];
   if (publicRoutes.some((route) => pathname.startsWith(route))) {
     return;
   }

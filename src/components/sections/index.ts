@@ -15,3 +15,6 @@ export { GallerySection } from "./GallerySection";
 export { VideoPortfolio } from "./VideoPortfolio";
 export { PricingSection } from "./PricingSection";
 export { OrderWizard } from "./OrderWizard";
+export { ContactSection } from "./ContactSection";
+export { TestimonialsSection } from "./TestimonialsSection";
+export { FAQSection } from "./FAQSection";

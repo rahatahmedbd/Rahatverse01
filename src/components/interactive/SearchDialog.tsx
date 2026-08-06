@@ -1,60 +1,66 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { GlassCard } from "@/components/ui/card";
-import { Search, X, ArrowRight } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Search, X, FileText } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
-// ── Site Search Component ──────────────────────────────
+interface SearchResult {
+  id: string;
+  type: "blog" | "project" | "page";
+  title: string;
+  titleBn?: string;
+  excerpt?: string;
+  excerptBn?: string;
+  slug: string;
+  category?: string;
+  url: string;
+  publishedAt?: string;
+}
+
 interface SearchDialogProps {
   locale?: string;
 }
 
-interface SearchItem {
-  title: string;
-  titleBn: string;
-  url: string;
-  category: string;
-  categoryBn: string;
-}
-
-const siteContent: SearchItem[] = [
-  { title: "Home", titleBn: "হোম", url: "/", category: "Page", categoryBn: "পেজ" },
-  { title: "About Me", titleBn: "আমার সম্পর্কে", url: "/about", category: "Page", categoryBn: "পেজ" },
-  { title: "Education", titleBn: "শিক্ষাজীবন", url: "/about", category: "Page", categoryBn: "পেজ" },
-  { title: "Achievements", titleBn: "অর্জনসমূহ", url: "/achievements", category: "Page", categoryBn: "পেজ" },
-  { title: "SSC GPA 5.00", titleBn: "SSC জিপিএ ৫.০০", url: "/achievements", category: "Achievement", categoryBn: "অর্জন" },
-  { title: "Science Fair", titleBn: "বিজ্ঞান মেলা", url: "/achievements", category: "Achievement", categoryBn: "অর্জন" },
-  { title: "Experience", titleBn: "অভিজ্ঞতা", url: "/experience", category: "Page", categoryBn: "পেজ" },
-  { title: "FS Coaching Center", titleBn: "FS কোচিং সেন্টার", url: "/experience", category: "Experience", categoryBn: "অভিজ্ঞতা" },
-  { title: "Shantichakra Blood Society", titleBn: "শান্তিচক্র ব্লাড সোসাইটি", url: "/experience", category: "Organization", categoryBn: "সংগঠন" },
-  { title: "Memorial - Late Md. Farid Ahmed", titleBn: "শ্রদ্ধাঞ্জলি - ফরিদ আহমেদ", url: "/experience", category: "Page", categoryBn: "পেজ" },
-  { title: "Gallery", titleBn: "গ্যালারি", url: "/gallery", category: "Page", categoryBn: "পেজ" },
-  { title: "Order a Website", titleBn: "ওয়েবসাইট অর্ডার", url: "/order", category: "Service", categoryBn: "সার্ভিস" },
-  { title: "Pricing - Basic ৳5,000", titleBn: "বেসিক প্যাকেজ ৳৫,০০০", url: "/order", category: "Pricing", categoryBn: "প্যাকেজ" },
-  { title: "Pricing - Standard ৳15,000", titleBn: "স্ট্যান্ডার্ড প্যাকেজ ৳১৫,০০০", url: "/order", category: "Pricing", categoryBn: "প্যাকেজ" },
-  { title: "Pricing - Premium ৳30,000", titleBn: "প্রিমিয়াম প্যাকেজ ৳৩০,০০০", url: "/order", category: "Pricing", categoryBn: "প্যাকেজ" },
-  { title: "Contact", titleBn: "যোগাযোগ", url: "/contact", category: "Page", categoryBn: "পেজ" },
-  { title: "Blog", titleBn: "ব্লগ", url: "/blog", category: "Page", categoryBn: "পেজ" },
-  { title: "Link Hub", titleBn: "সংযুক্ত হোন", url: "/links", category: "Page", categoryBn: "পেজ" },
-  { title: "Web Development", titleBn: "ওয়েব ডেভেলপমেন্ট", url: "/order", category: "Service", categoryBn: "সার্ভিস" },
-  { title: "Portfolio Website", titleBn: "পোর্টফোলিও ওয়েবসাইট", url: "/order", category: "Service", categoryBn: "সার্ভিস" },
-  { title: "E-Commerce", titleBn: "ই-কমার্স", url: "/order", category: "Service", categoryBn: "সার্ভিস" },
-  { title: "Blood Donation", titleBn: "রক্তদান", url: "/contact", category: "Topic", categoryBn: "বিষয়" },
-  { title: "Tutoring", titleBn: "টিউশন / পড়াশোনা", url: "/contact", category: "Service", categoryBn: "সার্ভিস" },
-  { title: "BNCC Cadet", titleBn: "BNCC ক্যাডেট", url: "/about", category: "Achievement", categoryBn: "অর্জন" },
-];
-
 export function SearchDialog({ locale = "bn" }: SearchDialogProps) {
-  const isBn = locale === "bn";
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const isBn = locale === "bn";
 
-  // Keyboard shortcut (Ctrl+K or /)
+  const performSearch = useCallback(async (searchQuery: string) => {
+    if (searchQuery.trim().length === 0) {
+      setResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
+      const data = await response.json();
+      setResults(data.results || []);
+    } catch (error) {
+      console.error("Search error:", error);
+      setResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      performSearch(query);
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [query, performSearch]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey && e.key === "k") || (e.key === "/" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName))) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setIsOpen(true);
       }
@@ -62,85 +68,110 @@ export function SearchDialog({ locale = "bn" }: SearchDialogProps) {
         setIsOpen(false);
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isOpen]);
-
-  const filtered = query.length > 0
-    ? siteContent.filter((item) => {
-        const searchIn = isBn ? item.titleBn : item.title;
-        return searchIn.toLowerCase().includes(query.toLowerCase());
-      })
-    : [];
-
-  if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground transition-all hover:border-primary/30"
-      >
-        <Search className="h-4 w-4" />
-        <span className="hidden sm:inline bn">{isBn ? "খুঁজুন..." : "Search..."}</span>
-        <kbd className="hidden rounded bg-muted px-1.5 py-0.5 text-xs sm:inline">⌘K</kbd>
-      </button>
-    );
-  }
+  const handleResultClick = () => {
+    setIsOpen(false);
+    setQuery("");
+    setResults([]);
+  };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/50 pt-20" onClick={() => setIsOpen(false)}>
-      <GlassCard className="w-full max-w-lg mx-4" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-        {/* Search Input */}
-        <div className="flex items-center gap-3 border-b border-border pb-3">
-          <Search className="h-5 w-5 text-muted-foreground" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={isBn ? "কী খুঁজছেন..." : "What are you looking for?"}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          />
-          <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+      >
+        <Search className="h-4 w-4" />
+        <span className="hidden sm:inline">
+          {isBn ? "খুঁজুন..." : "Search..."}
+        </span>
+        <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+          <span className="text-xs">⌘</span>K
+        </kbd>
+      </button>
 
-        {/* Results */}
-        <div className="mt-3 max-h-80 overflow-y-auto">
-          {query.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground bn">
-              {isBn ? "টাইপ করে খুঁজুন..." : "Start typing to search..."}
-            </p>
-          ) : filtered.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground bn">
-              {isBn ? "কিছু পাওয়া যায়নি" : "No results found"}
-            </p>
-          ) : (
-            <div className="space-y-1">
-              {filtered.map((item, i) => (
-                <Link
-                  key={i}
-                  href={`/${locale}${item.url}`}
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-lg p-3 transition-all hover:bg-accent/50"
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[600px] p-0">
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              {isBn ? "খুঁজুন" : "Search"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-4 pt-2">
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder={isBn ? "ব্লগ পোস্ট খুঁজুন..." : "Search blog posts..."}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pr-10"
+                autoFocus
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  <div>
-                    <p className="text-sm font-medium bn">{isBn ? item.titleBn : item.title}</p>
-                    <p className="text-xs text-muted-foreground bn">{isBn ? item.categoryBn : item.category}</p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
-              ))}
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
-          )}
-        </div>
-      </GlassCard>
-    </div>
+          </div>
+
+          <div className="max-h-[400px] overflow-y-auto p-4 pt-0">
+            {isSearching ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              </div>
+            ) : results.length === 0 && query.length > 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {isBn ? "কোনো ফলাফল পাওয়া যায়নি" : "No results found"}
+              </div>
+            ) : results.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {isBn ? "খুঁজতে শুরু করুন..." : "Start typing to search..."}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {results.map((result) => (
+                  <Link
+                    key={result.id}
+                    href={`/${locale}${result.url}`}
+                    onClick={handleResultClick}
+                    className="block rounded-lg border border-border p-3 hover:bg-accent hover:border-primary/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <FileText className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-sm truncate">
+                            {isBn && result.titleBn ? result.titleBn : result.title}
+                          </h3>
+                          {result.category && (
+                            <Badge variant="outline" className="text-xs flex-shrink-0">
+                              {result.category}
+                            </Badge>
+                          )}
+                        </div>
+                        {(isBn ? result.excerptBn : result.excerpt) && (
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {isBn ? result.excerptBn : result.excerpt}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

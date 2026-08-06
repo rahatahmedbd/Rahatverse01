@@ -2,25 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import {
-  Home,
-  Trophy,
-  ShoppingCart,
-  Phone,
-} from "lucide-react";
+import { Home, Trophy, ShoppingCart, Phone } from "lucide-react";
 
-// ── Bottom Navigation Items (Mobile) ───────────────────
+// ── Bottom Navigation Items ────────────────────────────
 const bottomNavItems = [
-  { key: "home", path: "/", icon: Home, labelBn: "হোম", labelEn: "Home" },
-  { key: "achievements", path: "/achievements", icon: Trophy, labelBn: "অর্জন", labelEn: "Awards" },
-  { key: "order", path: "/order", icon: ShoppingCart, labelBn: "অর্ডার", labelEn: "Order" },
-  { key: "contact", path: "/contact", icon: Phone, labelBn: "যোগাযোগ", labelEn: "Contact" },
+  { key: "home", path: "/", icon: Home },
+  { key: "achievements", path: "/achievements", icon: Trophy },
+  { key: "order", path: "/order", icon: ShoppingCart },
+  { key: "contact", path: "/contact", icon: Phone },
 ];
 
 // ── Bottom Navigation Bar (App-like) ───────────────────
 export function BottomNavBar() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
   const locale = pathname.startsWith("/en") ? "en" : "bn";
   const basePath = `/${locale}`;
 
@@ -38,6 +35,7 @@ export function BottomNavBar() {
           const href = `${basePath}${item.path}`;
           const isActive = pathname === href;
           const Icon = item.icon;
+          const label = t(item.key as "home" | "achievements" | "order" | "contact");
 
           return (
             <Link
@@ -58,9 +56,7 @@ export function BottomNavBar() {
               >
                 <Icon className={cn("h-5 w-5", isActive && "scale-110")} />
               </div>
-              <span className="text-[10px] font-medium">
-                {locale === "bn" ? item.labelBn : item.labelEn}
-              </span>
+              <span className="text-[10px] font-medium">{label}</span>
             </Link>
           );
         })}

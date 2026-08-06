@@ -1,10 +1,14 @@
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
 import { AnimationProviders } from "@/components/animations/Providers";
+import { routing } from "@/i18n/routing";
+import { notFound } from "next/navigation";
 
 // ── Locale-based Layout ────────────────────────────────
-// Phase 09 will add i18n provider here
+// Wraps app with next-intl provider for translations
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -17,24 +21,50 @@ export default async function LocaleLayout({
 }: LocaleLayoutProps) {
   const { locale } = await params;
 
+  // Ensure locale is valid
+  if (!routing.locales.includes(locale as "bn" | "en")) {
+    notFound();
+  }
+
+  // Set locale for next-intl
+  setRequestLocale(locale);
+
+  // Get messages for this locale
+  const messages = await getMessages();
+
   return (
-    <div lang={locale} className="flex min-h-screen flex-col">
-      {/* Global Animation Effects (rendered alongside, not wrapping) */}
-      <AnimationProviders />
+    <html lang={locale} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="antialiased">
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <div className="flex min-h-screen flex-col">
+            {/* Global Animation Effects */}
+            <AnimationProviders />
 
-      {/* Glass Navigation Bar */}
-      <Navbar />
+            {/* Glass Navigation Bar */}
+            <Navbar />
 
-      {/* Main Content */}
-      <main className="relative flex-1 pt-24 pb-24 lg:pb-8">
-        {children}
-      </main>
+            {/* Main Content */}
+            <main className="relative flex-1 pt-24 pb-24 lg:pb-8">
+              {children}
+            </main>
 
-      {/* Footer */}
-      <Footer />
+            {/* Footer */}
+            <Footer />
 
-      {/* Mobile Bottom Navigation */}
-      <BottomNavBar />
-    </div>
+            {/* Mobile Bottom Navigation */}
+            <BottomNavBar />
+          </div>
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }

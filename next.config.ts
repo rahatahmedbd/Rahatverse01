@@ -1,7 +1,9 @@
+import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
 
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
 const nextConfig: NextConfig = {
-  // Image optimization - allow Cloudinary domains
   images: {
     remotePatterns: [
       {
@@ -16,11 +18,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-
-  // Experimental features
-  experimental: {
-    // typedRoutes: true, // Enable when i18n is set up
-  },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

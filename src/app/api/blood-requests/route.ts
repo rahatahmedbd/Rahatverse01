@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     const input = body as Record<string, unknown>;
     const name = requiredText(input.name, 100);
-    const phone = validPhone(input.phone, true);
+    const phone = validPhone(input.phone);
     const blood_group = enumValue(input.blood_group, bloodGroups);
     const location = requiredText(input.location, 200);
     const urgency = enumValue(input.urgency ?? "normal", urgencyLevels);

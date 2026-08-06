@@ -5,6 +5,7 @@ import { ServicesPreview } from "@/components/sections/ServicesPreview";
 import { QuickActions } from "@/components/interactive/QuickActions";
 import FeaturedGallery from "@/components/gallery/FeaturedGallery";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
+import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 
 // ── Home Page ──────────────────────────────────────────
 // Phase 22: Enhanced with Featured Gallery and Testimonials
@@ -43,7 +44,10 @@ export default async function HomePage({ params }: HomePageProps) {
         <TestimonialsSection locale={locale} limit={6} />
       </div>
 
-      {/* More sections will be added in future phases */}
+      {/* Newsletter — Phase 27 */}
+      <div id="newsletter" className="container mx-auto px-4 py-12">
+        <NewsletterSignup locale={locale} source="homepage" />
+      </div>
     </>
   );
 }

@@ -8,6 +8,7 @@ The repository now has versioned migrations:
 
 - `supabase/migrations/006_security_and_blog_schema_hardening.sql`
 - `supabase/migrations/007_create_analytics_tables.sql` (Phase 26 — analytics)
+- `supabase/migrations/008_newsletter_double_optin.sql` (Phase 27 — newsletter)
 
 It does the following without deleting tables or rows:
 
@@ -24,16 +25,25 @@ Migration `007_create_analytics_tables.sql` adds first-party analytics storage:
 - restricts select/delete to administrators via the existing `is_admin()` helper;
 - is non-destructive and safe to run once on the production database.
 
+Migration `008_newsletter_double_optin.sql` (Phase 27) adds double opt-in newsletter:
+
+- extends `newsletter_subscribers` with `is_confirmed`, `confirmation_token`, `unsubscribe_token`, `preferences`, `source`, `bounce_count`, `last_email_sent_at`, `updated_at`;
+- backfills `unsubscribe_token` for legacy rows and migrates active rows to `is_confirmed=true`;
+- creates `newsletter_campaigns` (subject, content, status, counts, scheduled_at) and `newsletter_sends` (per-subscriber delivery tracking);
+- indexes on `lower(email)`, `is_active`, `is_confirmed`, tokens; RLS admin-only for campaigns/sends;
+- is non-destructive, idempotent, and safe to run once.
+
 ## Apply the migration
 
 1. Back up the Supabase database first.
 2. Open the relevant Supabase project’s **SQL Editor**.
-3. Copy the complete contents of `supabase/migrations/006_security_and_blog_schema_hardening.sql`, run it once, then repeat the same steps for `supabase/migrations/007_create_analytics_tables.sql` (order matters).
+3. Copy the complete contents of `supabase/migrations/006_security_and_blog_schema_hardening.sql`, run it once, then repeat the same steps for `supabase/migrations/007_create_analytics_tables.sql` and `supabase/migrations/008_newsletter_double_optin.sql` (order matters: 006 → 007 → 008).
 4. Verify the following:
    - An anonymous visitor cannot select `messages`, `orders`, `blood_requests`, or `newsletter_subscribers`.
    - A visitor can submit a contact message and website order.
-   - An authenticated administrator can access `/bn/dashboard` and read dashboard data.
+   - An authenticated administrator can access `/bn/dashboard` and read dashboard data, including `/bn/dashboard/newsletter` and `/bn/dashboard/analytics`.
    - Public visitors can read only published blog posts and approved testimonials.
+   - New newsletter signup at `/bn#newsletter` creates a pending subscriber and logs a mock confirmation email (check Vercel logs). Confirm via `/bn/newsletter/confirm?token=...` sets `is_confirmed=true`.
 
 ## Fresh installations
 
@@ -50,5 +60,6 @@ Configure these in Vercel before enabling forms or media uploads:
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID` (optional — Google Analytics 4; first-party analytics work without it)
+- `ENABLE_EMAIL_LOG` (optional — set `true` to keep mock newsletter email logs in production until Phase 29 provider `RESEND_API_KEY`/`EMAIL_FROM` is configured)
 
-Do not expose `SUPABASE_SERVICE_ROLE_KEY`, `CLOUDINARY_API_SECRET`, or any email-provider secret to the browser.
+Do not expose `SUPABASE_SERVICE_ROLE_KEY`, `CLOUDINARY_API_SECRET`, `RESEND_API_KEY`, or any email-provider secret to the browser.

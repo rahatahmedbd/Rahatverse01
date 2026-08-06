@@ -13,3 +13,5 @@ export { BloodSocietySection } from "./BloodSocietySection";
 export { MemorialSection } from "./MemorialSection";
 export { GallerySection } from "./GallerySection";
 export { VideoPortfolio } from "./VideoPortfolio";
+export { PricingSection } from "./PricingSection";
+export { OrderWizard } from "./OrderWizard";

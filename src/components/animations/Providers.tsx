@@ -3,6 +3,7 @@
 import { CustomCursor } from "./CustomCursor";
 import { ScrollProgress } from "./ScrollProgress";
 import { ScrollToTop } from "./ScrollProgress";
+import { PWAInstallPrompt } from "../interactive/PWAInstallPrompt";
 
 // ── Animation Providers ────────────────────────────────
 // Renders global animation effects (cursor, progress, scroll-top)
@@ -24,6 +25,7 @@ export function AnimationProviders({
       {showProgress && <ScrollProgress />}
       {showCursor && <CustomCursor />}
       {showScrollTop && <ScrollToTop />}
+      <PWAInstallPrompt />
     </>
   );
 }

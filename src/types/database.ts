@@ -109,14 +109,55 @@ export interface DbBlogPost {
   updated_at: string;
 }
 
-// ── Newsletter Subscriber ──────────────────────────────
+// ── Newsletter Subscriber (Phase 27) ─────────────────
 export interface DbNewsletterSubscriber {
   id: string;
   email: string;
   name: string | null;
   is_active: boolean;
+  is_confirmed: boolean;
+  confirmation_token: string | null;
+  confirmation_sent_at: string | null;
+  confirmed_at: string | null;
+  unsubscribe_token: string | null;
+  preferences: Record<string, unknown>;
+  source: string | null;
+  bounce_count: number;
+  last_email_sent_at: string | null;
   subscribed_at: string;
   unsubscribed_at: string | null;
+  updated_at: string;
+}
+
+export type CampaignStatus = "draft" | "scheduled" | "sending" | "sent" | "cancelled";
+
+export interface DbNewsletterCampaign {
+  id: string;
+  subject: string;
+  subject_bn: string | null;
+  content: string;
+  content_bn: string | null;
+  status: CampaignStatus;
+  recipient_count: number;
+  sent_count: number;
+  created_by: string | null;
+  scheduled_at: string | null;
+  sent_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbNewsletterSend {
+  id: string;
+  campaign_id: string | null;
+  subscriber_id: string | null;
+  email: string;
+  status: "pending" | "sent" | "delivered" | "bounced" | "failed" | "opened";
+  sent_at: string | null;
+  delivered_at: string | null;
+  opened_at: string | null;
+  error: string | null;
+  created_at: string;
 }
 
 // ── Booking ────────────────────────────────────────────

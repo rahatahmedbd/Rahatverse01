@@ -17,6 +17,8 @@ import {
   BarChart3,
   Eye,
   Clock,
+  Mail,
+  CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -32,6 +34,12 @@ interface AnalyticsOverview {
   avgSessionSeconds: number;
 }
 
+interface NewsletterOverview {
+  total: number;
+  confirmed: number;
+  pending: number;
+}
+
 export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
   const isBn = locale === "bn";
   const [stats, setStats] = useState({
@@ -41,6 +49,7 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
     testimonials: 0,
   });
   const [analytics, setAnalytics] = useState<AnalyticsOverview | null>(null);
+  const [newsletter, setNewsletter] = useState<NewsletterOverview | null>(null);
 
   useEffect(() => {
     // Fetch counts from APIs
@@ -50,7 +59,8 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
       fetch("/api/blood-requests").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/testimonials").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/analytics?range=30").then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    ]).then(([orders, messages, blood, testimonials, analyticsSummary]) => {
+      fetch("/api/newsletter").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]).then(([orders, messages, blood, testimonials, analyticsSummary, newsletterSummary]) => {
       setStats({
         orders: orders?.data?.length || 0,
         messages: messages?.data?.length || 0,
@@ -65,6 +75,14 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
           sessions: totals.sessions ?? 0,
           bounceRate: totals.bounceRate ?? null,
           avgSessionSeconds: totals.avgSessionSeconds ?? 0,
+        });
+      }
+
+      if (newsletterSummary?.stats) {
+        setNewsletter({
+          total: newsletterSummary.stats.total ?? 0,
+          confirmed: newsletterSummary.stats.confirmed ?? 0,
+          pending: newsletterSummary.stats.pending ?? 0,
         });
       }
     });
@@ -187,11 +205,50 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
           </FadeInUp>
         )}
 
+        {/* Newsletter Statistics Strip */}
+        {newsletter && (
+          <FadeInUp delay={0.16}>
+            <Link href={`/${locale}/dashboard/newsletter`} className="mt-4 block">
+              <GlassCard className="group flex flex-col gap-4 p-5 transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
+                    <Mail className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="font-bold bn">{isBn ? "নিউজলেটার পরিসংখ্যান" : "Newsletter Statistics"}</p>
+                    <p className="text-xs text-muted-foreground bn">
+                      {isBn ? "সাবস্ক্রাইবার ম্যানেজ করতে ক্লিক করুন" : "Click to manage subscribers"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6">
+                  <span className="flex items-center gap-2 text-sm">
+                    <Users className="h-4 w-4 text-blue-400" />
+                    <span className="font-bold">{newsletter.total.toLocaleString()}</span>
+                    <span className="text-muted-foreground bn">{isBn ? "মোট" : "total"}</span>
+                  </span>
+                  <span className="flex items-center gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-green-400" />
+                    <span className="font-bold">{newsletter.confirmed.toLocaleString()}</span>
+                    <span className="text-muted-foreground bn">{isBn ? "কনফার্মড" : "confirmed"}</span>
+                  </span>
+                  <span className="flex items-center gap-2 text-sm">
+                    <Clock className="h-4 w-4 text-amber-400" />
+                    <span className="font-bold">{newsletter.pending.toLocaleString()}</span>
+                    <span className="text-muted-foreground bn">{isBn ? "পেন্ডিং" : "pending"}</span>
+                  </span>
+                  <ArrowUpRight className="hidden h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 sm:block" />
+                </div>
+              </GlassCard>
+            </Link>
+          </FadeInUp>
+        )}
+
         {/* Quick Actions */}
         <FadeInUp delay={0.2}>
           <div className="mt-8">
             <h3 className="mb-4 text-lg font-bold bn">{isBn ? "দ্রুত কাজ" : "Quick Actions"}</h3>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <Link href={`/${locale}/dashboard/orders`}>
                 <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
                   <TrendingUp className="h-5 w-5 text-primary" />
@@ -210,16 +267,22 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
                   <span className="font-medium bn">{isBn ? "ছবি ম্যানেজ" : "Manage Images"}</span>
                 </GlassCard>
               </Link>
-              <Link href={`/${locale}/contact`}>
+              <Link href={`/${locale}/dashboard/newsletter`}>
                 <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
-                  <Users className="h-5 w-5 text-green-400" />
-                  <span className="font-medium bn">{isBn ? "যোগাযোগ পেজ" : "Contact Page"}</span>
+                  <Mail className="h-5 w-5 text-blue-400" />
+                  <span className="font-medium bn">{isBn ? "নিউজলেটার" : "Newsletter"}</span>
                 </GlassCard>
               </Link>
               <Link href={`/${locale}/dashboard/analytics`}>
                 <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
                   <BarChart3 className="h-5 w-5 text-amber-400" />
                   <span className="font-medium bn">{isBn ? "অ্যানালিটিক্স" : "Analytics"}</span>
+                </GlassCard>
+              </Link>
+              <Link href={`/${locale}/contact`}>
+                <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
+                  <Users className="h-5 w-5 text-green-400" />
+                  <span className="font-medium bn">{isBn ? "যোগাযোগ পেজ" : "Contact Page"}</span>
                 </GlassCard>
               </Link>
             </div>

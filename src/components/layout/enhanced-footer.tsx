@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Heart, Mail, Phone, MapPin } from "lucide-react";
 import { GlowEffect } from "@/components/animations/GlowEffect";
+import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 
 const socialLinks = [
   { href: "https://www.facebook.com/rahat.ahmed.948943", label: "Facebook", symbol: "f" },
@@ -35,7 +36,7 @@ export function EnhancedFooter() {
       <GlowEffect color="amber" size="lg" className="top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30" />
 
       <div className="container mx-auto px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-4">
             <Link href={`/${locale}`} className="inline-block">
               <h3 className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-2xl font-bold text-transparent">
@@ -108,6 +109,10 @@ export function EnhancedFooter() {
                 </div>
               </li>
             </ul>
+          </div>
+
+          <div>
+            <NewsletterSignup locale={locale} variant="footer" source="footer" />
           </div>
         </div>
 

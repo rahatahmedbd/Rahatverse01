@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const input = body as Record<string, unknown>;
     const client_name = requiredText(input.client_name, 100);
     const client_email = validEmail(input.client_email);
-    const client_phone = validPhone(input.client_phone, true);
+    const client_phone = validPhone(input.client_phone);
     const client_whatsapp = optionalText(input.client_whatsapp, 25);
     const client_company = optionalText(input.client_company, 150);
     const package_type = enumValue(input.package_type, packageTypes);

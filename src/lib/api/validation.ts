@@ -18,9 +18,14 @@ export function validEmail(value: unknown) {
   return email && EMAIL_PATTERN.test(email) ? email.toLowerCase() : null;
 }
 
-export function validPhone(value: unknown, required = false) {
+/**
+ * Validates a phone number and returns the trimmed value, or `null` when the
+ * value is absent or invalid. Callers that require a phone simply reject a
+ * `null` result (the same contract used by `validEmail` / `requiredText`).
+ */
+export function validPhone(value: unknown) {
   if (value === undefined || value === null || value === "") {
-    return required ? null : null;
+    return null;
   }
 
   const phone = requiredText(value, 25);

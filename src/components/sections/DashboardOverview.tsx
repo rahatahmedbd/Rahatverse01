@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Users,
   ArrowUpRight,
+  Image as ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -118,7 +119,7 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
         <FadeInUp delay={0.2}>
           <div className="mt-8">
             <h3 className="mb-4 text-lg font-bold bn">{isBn ? "দ্রুত কাজ" : "Quick Actions"}</h3>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Link href={`/${locale}/dashboard/orders`}>
                 <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
                   <TrendingUp className="h-5 w-5 text-primary" />
@@ -129,6 +130,12 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
                 <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
                   <MessageSquare className="h-5 w-5 text-blue-400" />
                   <span className="font-medium bn">{isBn ? "বার্তা দেখুন" : "View Messages"}</span>
+                </GlassCard>
+              </Link>
+              <Link href={`/${locale}/dashboard/images`}>
+                <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
+                  <ImageIcon className="h-5 w-5 text-purple-400" />
+                  <span className="font-medium bn">{isBn ? "ছবি ম্যানেজ" : "Manage Images"}</span>
                 </GlassCard>
               </Link>
               <Link href={`/${locale}/contact`}>

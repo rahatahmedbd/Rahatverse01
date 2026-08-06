@@ -1,0 +1,41 @@
+{
+  "name": "RahatVerse — রাহাত আহমেদ",
+  "short_name": "RahatVerse",
+  "description": "শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।",
+  "start_url": "/bn",
+  "display": "standalone",
+  "background_color": "#050a15",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait-primary",
+  "lang": "bn",
+  "categories": ["education", "portfolio", "social"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "অর্ডার করুন",
+      "short_name": "Order",
+      "url": "/bn/order",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "যোগাযোগ",
+      "short_name": "Contact",
+      "url": "/bn/contact",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    }
+  ]
+}

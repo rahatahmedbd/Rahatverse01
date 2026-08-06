@@ -605,7 +605,7 @@ npm run type-check (if available)
   - Calendar view
   - Approve/reject bookings
   - Send reminders
-- [ ] **Analytics Dashboard:**
+- [x] **Analytics Dashboard:** (delivered in Phase 26)
   - Visitor chart (line)
   - Popular pages (bar)
   - Conversion rate

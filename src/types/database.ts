@@ -142,3 +142,30 @@ export interface DbSiteSetting {
   value: unknown;
   updated_at: string;
 }
+
+// ── Analytics (Phase 26) ───────────────────────────────
+export type DeviceType = "mobile" | "tablet" | "desktop" | "unknown";
+
+export interface DbAnalyticsPageView {
+  id: string;
+  session_id: string;
+  path: string;
+  referrer: string | null;
+  referrer_source: string | null;
+  country: string | null;
+  device_type: DeviceType;
+  screen_width: number | null;
+  created_at: string;
+}
+
+export interface DbAnalyticsEvent {
+  id: string;
+  session_id: string;
+  event_name: string;
+  event_category: string;
+  event_label: string | null;
+  path: string | null;
+  value: number | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}

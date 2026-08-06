@@ -5,6 +5,8 @@ import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
 import { AnimationProviders } from "@/components/animations/Providers";
 import { WebVitalsReporter } from "@/components/seo/web-vitals-reporter";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 
@@ -54,7 +56,9 @@ export default async function LocaleLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="antialiased">
+        <GoogleAnalytics />
         <WebVitalsReporter />
+        <AnalyticsProvider />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <div className="flex min-h-screen flex-col">
             {/* Global Animation Effects */}

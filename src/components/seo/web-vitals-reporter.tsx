@@ -1,77 +1,27 @@
 "use client";
 
-import { useEffect } from "react";
+import { useReportWebVitals } from "next/web-vitals";
+import { trackEvent } from "@/lib/analytics/tracker";
 
 // ── Web Vitals Reporter ────────────────────────────────
-// Reports Core Web Vitals for performance monitoring
-
-interface PerformanceEntryWithProcessing extends PerformanceEntry {
-  processingStart: number;
-}
-
-interface LayoutShiftEntry extends PerformanceEntry {
-  hadRecentInput: boolean;
-  value: number;
-}
+// Reports Core Web Vitals (LCP, INP/INP, CLS, TTFB, FCP) to the first-party
+// analytics pipeline and GA4. Timing metrics are stored in milliseconds;
+// CLS is stored as its unitless raw score (3 decimals).
 
 export function WebVitalsReporter() {
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  useReportWebVitals((metric) => {
+    const { id, name, value, rating } = metric;
 
-    // Report LCP (Largest Contentful Paint)
-    const observer = new PerformanceObserver((entryList) => {
-      const entries = entryList.getEntries();
-      const lastEntry = entries[entries.length - 1];
-      console.log("LCP:", lastEntry.startTime);
+    const normalized =
+      name === "CLS" ? Math.round(value * 1000) / 1000 : Math.round(value);
+
+    trackEvent("web_vital", {
+      category: "performance",
+      label: name,
+      value: normalized,
+      metadata: { metric_id: id, rating, raw_value: value },
     });
-
-    try {
-      observer.observe({ type: "largest-contentful-paint", buffered: true });
-    } catch {
-      // Browser doesn't support this API
-    }
-
-    // Report FID (First Input Delay)
-    const fidObserver = new PerformanceObserver((entryList) => {
-      const entries = entryList.getEntries();
-      entries.forEach((entry) => {
-        const perfEntry = entry as PerformanceEntryWithProcessing;
-        const fid = perfEntry.processingStart - entry.startTime;
-        console.log("FID:", fid);
-      });
-    });
-
-    try {
-      fidObserver.observe({ type: "first-input", buffered: true });
-    } catch {
-      // Browser doesn't support this API
-    }
-
-    // Report CLS (Cumulative Layout Shift)
-    let clsValue = 0;
-    const clsObserver = new PerformanceObserver((entryList) => {
-      const entries = entryList.getEntries();
-      entries.forEach((entry) => {
-        const layoutShiftEntry = entry as LayoutShiftEntry;
-        if (!layoutShiftEntry.hadRecentInput) {
-          clsValue += layoutShiftEntry.value;
-          console.log("CLS:", clsValue);
-        }
-      });
-    });
-
-    try {
-      clsObserver.observe({ type: "layout-shift", buffered: true });
-    } catch {
-      // Browser doesn't support this API
-    }
-
-    return () => {
-      observer.disconnect();
-      fidObserver.disconnect();
-      clsObserver.disconnect();
-    };
-  }, []);
+  });
 
   return null;
 }

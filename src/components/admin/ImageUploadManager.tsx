@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,7 +35,7 @@ export default function ImageUploadManager() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
 
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     setLoading(true)
     try {
       const url = selectedCategory === "all" 
@@ -53,11 +53,12 @@ export default function ImageUploadManager() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedCategory])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchImages()
-  }, [selectedCategory])
+  }, [fetchImages])
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Separator } from "@/components/ui/separator";
 import { SOCIAL_LINKS, APP_NAME } from "@/lib/constants";
 import {
@@ -7,7 +10,7 @@ import {
   Heart,
 } from "lucide-react";
 
-// ── Social Icon Component ──────────────────────────────
+// ── Social Icons ───────────────────────────────────────
 function FacebookIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -42,12 +45,12 @@ function TikTokIcon({ className }: { className?: string }) {
 
 // ── Footer ─────────────────────────────────────────────
 export function Footer() {
+  const t = useTranslations("footer");
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="border-t border-border bg-card/50">
       <div className="mx-auto max-w-7xl px-4 py-12">
-        {/* Top Section */}
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="space-y-4">
@@ -59,14 +62,12 @@ export function Footer() {
                 <span className="text-gradient">{APP_NAME.split(" ")[0]}</span>
               </span>
             </div>
-            <p className="text-sm text-muted-foreground bn">
-              শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।
-            </p>
+            <p className="text-sm text-muted-foreground bn">{t("description")}</p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Quick Links</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("quickLinks")}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="/bn" className="hover:text-primary transition-colors">Home</Link></li>
               <li><Link href="/bn/about" className="hover:text-primary transition-colors">About</Link></li>
@@ -77,7 +78,7 @@ export function Footer() {
 
           {/* Contact */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Contact</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("contactInfo")}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary" />
@@ -92,42 +93,18 @@ export function Footer() {
 
           {/* Social */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Social</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("social")}</h3>
             <div className="flex gap-3">
-              <a
-                href={SOCIAL_LINKS.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-all hover:border-blue-500/50 hover:text-blue-400 hover:shadow-md hover:shadow-blue-500/10"
-                aria-label="Facebook"
-              >
+              <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-all hover:border-blue-500/50 hover:text-blue-400" aria-label="Facebook">
                 <FacebookIcon className="h-5 w-5" />
               </a>
-              <a
-                href={SOCIAL_LINKS.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-all hover:border-pink-500/50 hover:text-pink-400 hover:shadow-md hover:shadow-pink-500/10"
-                aria-label="Instagram"
-              >
+              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-all hover:border-pink-500/50 hover:text-pink-400" aria-label="Instagram">
                 <InstagramIcon className="h-5 w-5" />
               </a>
-              <a
-                href={SOCIAL_LINKS.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-all hover:border-red-500/50 hover:text-red-400 hover:shadow-md hover:shadow-red-500/10"
-                aria-label="YouTube"
-              >
+              <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-all hover:border-red-500/50 hover:text-red-400" aria-label="YouTube">
                 <YoutubeIcon className="h-5 w-5" />
               </a>
-              <a
-                href={SOCIAL_LINKS.tiktok}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-all hover:border-white/50 hover:text-white hover:shadow-md"
-                aria-label="TikTok"
-              >
+              <a href={SOCIAL_LINKS.tiktok} target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-all hover:border-white/50 hover:text-white" aria-label="TikTok">
                 <TikTokIcon className="h-5 w-5" />
               </a>
             </div>
@@ -136,13 +113,12 @@ export function Footer() {
 
         <Separator className="my-8" />
 
-        {/* Bottom */}
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} {APP_NAME}. All rights reserved.
+            © {currentYear} {APP_NAME}. {t("rights")}.
           </p>
           <p className="flex items-center gap-1 text-sm text-muted-foreground">
-            Made with <Heart className="h-4 w-4 text-red-500 fill-red-500" /> by Rahat Ahmed
+            {t("madeWith")} <Heart className="h-4 w-4 text-red-500 fill-red-500" /> by Rahat Ahmed
           </p>
         </div>
       </div>

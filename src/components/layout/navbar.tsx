@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageToggle } from "./language-toggle";
@@ -13,10 +14,23 @@ import { NAVIGATION_ITEMS } from "@/lib/constants";
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const t = useTranslations("nav");
 
   // Extract locale from pathname
   const locale = pathname.startsWith("/en") ? "en" : "bn";
   const basePath = `/${locale}`;
+
+  // Translation key map
+  const navLabels: Record<string, string> = {
+    home: t("home"),
+    about: t("about"),
+    achievements: t("achievements"),
+    services: t("services"),
+    gallery: t("gallery"),
+    order: t("order"),
+    blog: t("blog"),
+    contact: t("contact"),
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -57,15 +71,7 @@ export function Navbar() {
                     : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                 )}
               >
-                {item.key === "home" ? (locale === "bn" ? "হোম" : "Home") :
-                 item.key === "about" ? (locale === "bn" ? "সম্পর্কে" : "About") :
-                 item.key === "achievements" ? (locale === "bn" ? "অর্জন" : "Achievements") :
-                 item.key === "services" ? (locale === "bn" ? "সার্ভিস" : "Services") :
-                 item.key === "gallery" ? (locale === "bn" ? "গ্যালারি" : "Gallery") :
-                 item.key === "order" ? (locale === "bn" ? "অর্ডার" : "Order") :
-                 item.key === "blog" ? (locale === "bn" ? "ব্লগ" : "Blog") :
-                 item.key === "contact" ? (locale === "bn" ? "যোগাযোগ" : "Contact") :
-                 item.key}
+                {navLabels[item.key] || item.key}
                 {isActive && (
                   <span className="absolute bottom-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-primary" />
                 )}
@@ -113,15 +119,7 @@ export function Navbar() {
                       : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                   )}
                 >
-                  {item.key === "home" ? (locale === "bn" ? "হোম" : "Home") :
-                   item.key === "about" ? (locale === "bn" ? "সম্পর্কে" : "About") :
-                   item.key === "achievements" ? (locale === "bn" ? "অর্জন" : "Achievements") :
-                   item.key === "services" ? (locale === "bn" ? "সার্ভিস" : "Services") :
-                   item.key === "gallery" ? (locale === "bn" ? "গ্যালারি" : "Gallery") :
-                   item.key === "order" ? (locale === "bn" ? "অর্ডার" : "Order") :
-                   item.key === "blog" ? (locale === "bn" ? "ব্লগ" : "Blog") :
-                   item.key === "contact" ? (locale === "bn" ? "যোগাযোগ" : "Contact") :
-                   item.key}
+                  {navLabels[item.key] || item.key}
                 </Link>
               );
             })}

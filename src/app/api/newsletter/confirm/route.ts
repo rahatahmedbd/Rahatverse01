@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { welcomeEmail, sendEmailMock } from "@/lib/email/templates";
+import { welcomeEmail } from "@/lib/email/templates";
+import { sendEmail } from "@/lib/email/service";
 import { isTokenExpired } from "@/lib/newsletter/tokens";
 
 function getSiteUrl(request: Request): string {
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
   const unsubscribeUrl = `${siteUrl}/${locale}/newsletter/unsubscribe?token=${subscriber.unsubscribe_token}`;
   const preferencesUrl = `${siteUrl}/${locale}/newsletter/preferences?token=${subscriber.unsubscribe_token}`;
   const template = welcomeEmail({ name: subscriber.name, unsubscribeUrl, preferencesUrl, locale });
-  await sendEmailMock({ to: subscriber.email, template, tag: "newsletter-welcome" });
+  await sendEmail({ to: subscriber.email, template, tag: "newsletter-welcome" });
 
   return NextResponse.json({
     success: true,

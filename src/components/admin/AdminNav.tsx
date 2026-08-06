@@ -32,6 +32,7 @@ const sections = [
   { href: "overview", icon: LayoutDashboard, labelBn: "ওভারভিউ", labelEn: "Overview" },
   { href: "analytics", icon: BarChart3, labelBn: "অ্যানালিটিক্স", labelEn: "Analytics" },
   { href: "newsletter", icon: Mail, labelBn: "নিউজলেটার", labelEn: "Newsletter" },
+  { href: "email", icon: Mail, labelBn: "ইমেইল ডেলিভারি", labelEn: "Email Delivery" },
   { href: "orders", icon: ShoppingCart, labelBn: "অর্ডার", labelEn: "Orders" },
   { href: "messages", icon: MessageSquare, labelBn: "বার্তা", labelEn: "Messages" },
   { href: "images", icon: ImageIcon, labelBn: "মিডিয়া লাইব্রেরি", labelEn: "Media Library" },

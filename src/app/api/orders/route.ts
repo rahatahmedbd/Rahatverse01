@@ -10,6 +10,8 @@ import {
   validPhone,
 } from "@/lib/api/validation";
 import { NextResponse } from "next/server";
+import { orderConfirmationEmail } from "@/lib/email/templates";
+import { sendEmail } from "@/lib/email/service";
 
 const packageTypes = ["basic", "standard", "premium", "enterprise"] as const;
 const websiteTypes = [
@@ -72,7 +74,7 @@ export async function POST(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const { error } = await supabase
+    const { data: order, error } = await supabase
       .from("orders")
       .insert({
         user_id: user?.id || null,
@@ -90,14 +92,22 @@ export async function POST(request: Request) {
         reference_sites,
         budget_range,
         timeline,
-      });
+      })
+      .select("id")
+      .single();
 
     if (error) {
       console.error("Order creation failed", error);
       return NextResponse.json({ error: "Unable to submit order" }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true }, { status: 201 });
+    const delivery = await sendEmail({
+      to: client_email,
+      tag: "order-confirmation",
+      template: orderConfirmationEmail({ name: client_name, orderId: order.id }),
+    });
+    if (delivery.status === "failed") console.error("Order confirmation email failed", delivery.error);
+    return NextResponse.json({ success: true, orderId: order.id }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }

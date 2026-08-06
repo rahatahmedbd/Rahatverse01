@@ -1,7 +1,7 @@
 import { getCurrentUserContext } from "@/lib/supabase/guards";
 import { NextResponse } from "next/server";
 import { optionalText, requiredText } from "@/lib/api/validation";
-import { newsletterCampaignEmail, sendEmailMock } from "@/lib/email/templates";
+import { sendNewsletterCampaign } from "@/lib/newsletter/sendCampaign";
 
 function getSiteUrl(request: Request): string {
   const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
@@ -74,54 +74,15 @@ export async function PATCH(request: Request) {
     const id = typeof body.id === "string" ? body.id : null;
     if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
-    // If action === "send", perform bulk send to all confirmed subscribers (mock)
+    // Manual delivery is admin-only; scheduled delivery uses the protected cron route.
     if (body.action === "send") {
-      const { data: campaign, error: campErr } = await supabase.from("newsletter_campaigns").select("*").eq("id", id).single();
-      if (campErr || !campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
-      if (campaign.status === "sent") return NextResponse.json({ error: "Already sent" }, { status: 409 });
-
-      const { data: subscribers, error: subErr } = await supabase
-        .from("newsletter_subscribers")
-        .select("id, email, name, unsubscribe_token, preferences")
-        .eq("is_active", true)
-        .eq("is_confirmed", true)
-        .limit(2000);
-
-      if (subErr) return NextResponse.json({ error: subErr.message }, { status: 500 });
-
-      const siteUrl = getSiteUrl(request);
-      let sentCount = 0;
-      for (const sub of subscribers || []) {
-        const unsubscribeUrl = `${siteUrl}/bn/newsletter/unsubscribe?token=${sub.unsubscribe_token}`;
-        const preferencesUrl = `${siteUrl}/bn/newsletter/preferences?token=${sub.unsubscribe_token}`;
-        const template = newsletterCampaignEmail({
-          subject: campaign.subject,
-          htmlContent: campaign.content,
-          name: sub.name,
-          unsubscribeUrl,
-          preferencesUrl,
-        });
-        await sendEmailMock({ to: sub.email, template, tag: `campaign-${campaign.id}` });
-
-        // Record send
-        await supabase.from("newsletter_sends").insert({
-          campaign_id: campaign.id,
-          subscriber_id: sub.id,
-          email: sub.email,
-          status: "sent",
-          sent_at: new Date().toISOString(),
-        });
-        sentCount++;
+      try {
+        const result = await sendNewsletterCampaign(supabase, id, getSiteUrl(request));
+        return NextResponse.json({ success: true, ...result });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Campaign delivery failed";
+        return NextResponse.json({ error: message }, { status: message.includes("not found") ? 404 : 409 });
       }
-
-      await supabase
-        .from("newsletter_campaigns")
-        .update({ status: "sent", sent_at: new Date().toISOString(), sent_count: sentCount, recipient_count: subscribers?.length || 0 })
-        .eq("id", id);
-
-      await supabase.from("newsletter_subscribers").update({ last_email_sent_at: new Date().toISOString() }).eq("is_active", true).eq("is_confirmed", true);
-
-      return NextResponse.json({ success: true, sent: sentCount });
     }
 
     // Otherwise normal update

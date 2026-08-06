@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { unsubscribeEmail, sendEmailMock } from "@/lib/email/templates";
+import { unsubscribeEmail } from "@/lib/email/templates";
+import { sendEmail } from "@/lib/email/service";
 
 function getSiteUrl(request: Request): string {
   const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
@@ -16,11 +17,10 @@ function getSiteUrl(request: Request): string {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("token")?.trim();
-  const email = searchParams.get("email")?.trim().toLowerCase();
   const locale = searchParams.get("locale") === "en" ? "en" : "bn";
 
-  if (!token && !email) {
-    return NextResponse.json({ error: "token or email required" }, { status: 400 });
+  if (!token || token.length < 24) {
+    return NextResponse.json({ error: "A valid unsubscribe token is required" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -28,19 +28,11 @@ export async function GET(request: Request) {
 
   let subscriber: { id: string; email: string; is_active: boolean; unsubscribed_at: string | null } | null = null;
 
-  if (token) {
+  {
     const { data, error } = await supabase
       .from("newsletter_subscribers")
       .select("id, email, is_active, unsubscribed_at")
       .eq("unsubscribe_token", token)
-      .maybeSingle();
-    if (error) return NextResponse.json({ error: "Database error" }, { status: 500 });
-    subscriber = data;
-  } else if (email) {
-    const { data, error } = await supabase
-      .from("newsletter_subscribers")
-      .select("id, email, is_active, unsubscribed_at")
-      .eq("email", email)
       .maybeSingle();
     if (error) return NextResponse.json({ error: "Database error" }, { status: 500 });
     subscriber = data;
@@ -63,7 +55,7 @@ export async function GET(request: Request) {
   const siteUrl = getSiteUrl(request);
   const resubscribeUrl = `${siteUrl}/${locale}/#newsletter`;
   const template = unsubscribeEmail({ resubscribeUrl, locale });
-  await sendEmailMock({ to: subscriber.email, template, tag: "newsletter-unsubscribe" });
+  await sendEmail({ to: subscriber.email, template, tag: "newsletter-unsubscribe" });
 
   return NextResponse.json({
     success: true,
@@ -75,14 +67,12 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const token = typeof body?.token === "string" ? body.token.trim() : null;
-    const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : null;
     const locale = body?.locale === "en" ? "en" : "bn";
 
-    if (!token && !email) return NextResponse.json({ error: "token or email required" }, { status: 400 });
+    if (!token) return NextResponse.json({ error: "token required" }, { status: 400 });
 
     const url = new URL(request.url);
     if (token) url.searchParams.set("token", token);
-    if (email) url.searchParams.set("email", email);
     url.searchParams.set("locale", locale);
 
     return GET(new Request(url.toString(), { headers: request.headers }));

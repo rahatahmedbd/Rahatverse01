@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserContext } from "@/lib/supabase/guards";
 import { enumValue, optionalText, requiredText, validEmail, validPhone } from "@/lib/api/validation";
 import { NextResponse } from "next/server";
+import { contactNotificationEmail } from "@/lib/email/templates";
+import { sendEmail } from "@/lib/email/service";
 
 const subjects = ["web_dev", "tutoring", "blood", "collaboration", "general", "other"] as const;
 
@@ -38,6 +40,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unable to send message" }, { status: 500 });
     }
 
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      const delivery = await sendEmail({
+        to: adminEmail,
+        replyTo: email,
+        tag: "contact-notification",
+        template: contactNotificationEmail({ name, email, subject, message }),
+      });
+      if (delivery.status === "failed") console.error("Contact notification email failed", delivery.error);
+    }
     return NextResponse.json({ success: true }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });

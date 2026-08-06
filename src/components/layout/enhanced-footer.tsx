@@ -38,15 +38,14 @@ export function EnhancedFooter() {
   const quickLinks = [
     { href: "/about", label: t("about") },
     { href: "/achievements", label: t("achievements") },
-    { href: "/services", label: t("services") },
-    { href: "/projects", label: t("projects") },
+    { href: "/experience", label: t("services") },
+    { href: "/gallery", label: t("gallery") },
     { href: "/contact", label: t("contact") },
   ];
 
   const serviceLinks = [
     { href: "/order", label: t("orderWebsite") },
-    { href: "/pricing", label: t("pricing") },
-    { href: "/process", label: t("process") },
+    { href: "/contact", label: t("contact") },
   ];
 
   return (
@@ -68,31 +67,40 @@ export function EnhancedFooter() {
             </p>
             <div className="flex gap-3">
               <a
-                href="https://github.com/rahatahmedbd"
+                href="https://www.facebook.com/rahat.ahmed.948943"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg border border-border/50 p-2 transition-all hover:border-primary hover:text-primary hover:shadow-glow"
-                aria-label="GitHub"
+                aria-label="Facebook"
               >
                 <GithubIcon className="h-5 w-5" />
               </a>
               <a
-                href="https://linkedin.com/in/rahatahmedbd"
+                href="https://www.tiktok.com/@rahatvives"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg border border-border/50 p-2 transition-all hover:border-primary hover:text-primary hover:shadow-glow"
-                aria-label="LinkedIn"
+                aria-label="TikTok"
               >
                 <LinkedinIcon className="h-5 w-5" />
               </a>
               <a
-                href="https://twitter.com/rahatahmedbd"
+                href="https://www.youtube.com/@RahatAhmedOfficial0"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg border border-border/50 p-2 transition-all hover:border-primary hover:text-primary hover:shadow-glow"
-                aria-label="Twitter"
+                aria-label="YouTube"
               >
                 <TwitterIcon className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/rahatahm6d/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg border border-border/50 p-2 transition-all hover:border-primary hover:text-primary hover:shadow-glow"
+                aria-label="Instagram"
+              >
+                <Mail className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -137,26 +145,28 @@ export function EnhancedFooter() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="mailto:rahat@example.com"
+                  href="mailto:rahatbd20505@gmail.com"
                   className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   <Mail className="h-4 w-4" />
-                  <span>rahat@example.com</span>
+                  <span>rahatbd20505@gmail.com</span>
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+8801234567890"
+                  href="https://wa.me/8801626224878"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   <Phone className="h-4 w-4" />
-                  <span>+880 1234 567890</span>
+                  <span>+880 1626-224878</span>
                 </a>
               </li>
               <li>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  <span>Dhaka, Bangladesh</span>
+                  <span>সুনামগঞ্জ, বাংলাদেশ</span>
                 </div>
               </li>
             </ul>

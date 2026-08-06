@@ -24,37 +24,44 @@ export function Counter({
   prefix = "",
   separator = "",
 }: CounterProps) {
-  const [count, setCount] = useState(from);
+  const [count, setCount] = useState(to); // Start with target value
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const hasAnimated = useRef(false);
+  const hasMounted = useRef(false);
 
   useEffect(() => {
-    if (!isInView || hasAnimated.current) return;
-    hasAnimated.current = true;
+    // On first mount, if in view, animate from 0 to target
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      if (isInView && !hasAnimated.current) {
+        setCount(from); // Reset to from value to start animation
+        hasAnimated.current = true;
 
-    let startTime: number | null = null;
-    let animationFrame: number;
+        let startTime: number | null = null;
+        let animationFrame: number;
 
-    const animate = (timestamp: number) => {
-      if (startTime === null) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+        const animate = (timestamp: number) => {
+          if (startTime === null) startTime = timestamp;
+          const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
 
-      // Ease out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = Math.floor(from + (to - from) * eased);
+          // Ease out cubic
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = Math.floor(from + (to - from) * eased);
 
-      setCount(current);
+          setCount(current);
 
-      if (progress < 1) {
+          if (progress < 1) {
+            animationFrame = requestAnimationFrame(animate);
+          } else {
+            setCount(to);
+          }
+        };
+
         animationFrame = requestAnimationFrame(animate);
-      } else {
-        setCount(to);
+        return () => cancelAnimationFrame(animationFrame);
       }
-    };
-
-    animationFrame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrame);
+    }
   }, [isInView, from, to, duration]);
 
   const formatNumber = (num: number) => {

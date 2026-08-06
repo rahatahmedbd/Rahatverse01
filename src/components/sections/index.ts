@@ -20,3 +20,6 @@ export { TestimonialsSection } from "./TestimonialsSection";
 export { FAQSection } from "./FAQSection";
 export { BlogListSection } from "./BlogListSection";
 export { LinkHubSection } from "./LinkHubSection";
+export { DashboardOverview } from "./DashboardOverview";
+export { OrdersManagement } from "./OrdersManagement";
+export { MessagesInbox } from "./MessagesInbox";

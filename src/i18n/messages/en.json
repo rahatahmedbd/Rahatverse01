@@ -1,0 +1,105 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "achievements": "Achievements",
+    "services": "Services",
+    "gallery": "Gallery",
+    "order": "Order",
+    "blog": "Blog",
+    "contact": "Contact"
+  },
+  "hero": {
+    "badge": "Welcome to my digital world",
+    "name": "Rahat Ahmed",
+    "nameBn": "রাহাত আহমেদ",
+    "prefix": "I am a ",
+    "roles": ["Web Developer", "Student", "Teacher", "Blood Donor", "BNCC Cadet"],
+    "description": "My goal is to stand by people through education, social service, and technology. From Sunamganj, I dream of building a better digital world.",
+    "cta": {
+      "order": "Order a Website",
+      "projects": "View Projects",
+      "contact": "Contact"
+    },
+    "stats": {
+      "achievements": "Achievements",
+      "firstPlace": "1st Places",
+      "bloodDonation": "Blood Donations",
+      "gpa": "GPA 5.00"
+    }
+  },
+  "about": {
+    "badge": "👤 My Story",
+    "title": "About Me",
+    "subtitle": "From village to city, dream to reality — a continuous journey",
+    "story1": "I am Rahat Ahmed. I was born on June 21, 2006 in Jibdara village, Shantiganj, Sunamganj. This village, raised in the lap of nature, taught me to dream and to fight.",
+    "story2": "Currently I am a 2nd year HSC student in the Science department at Sunamganj Government College. Alongside studies, I am a teacher, co-founder and General Secretary of Shantichakra Blood Society, and an active BNCC cadet.",
+    "story3": "I love working on web development, artificial intelligence, content creation, and social service. My goal is to bring positive change in society through education and technology.",
+    "interests": "My Interests",
+    "interestWebDev": "Web Development",
+    "interestSocial": "Social Service",
+    "interestEducation": "Education",
+    "interestBlood": "Blood Donation",
+    "quote": "Standing by people, learning, and teaching — these three things drive me forward.",
+    "quoteBy": "— Rahat Ahmed",
+    "info": {
+      "birthDate": "Birth Date",
+      "location": "Location",
+      "bloodGroup": "Blood Group",
+      "education": "Education",
+      "institution": "Institution",
+      "bnccNo": "BNCC Cadet No"
+    }
+  },
+  "services": {
+    "badge": "💻 Services",
+    "title": "Web Development Services",
+    "subtitle": "Modern, fast, and responsive websites",
+    "types": {
+      "portfolio": "Portfolio",
+      "business": "Business",
+      "ecommerce": "E-Commerce",
+      "education": "Education",
+      "news": "News Portal",
+      "landing": "Landing Page"
+    },
+    "features": {
+      "fast": "Lightning Fast",
+      "responsive": "Fully Responsive",
+      "seo": "SEO Friendly",
+      "secure": "Secure & Protected"
+    },
+    "cta": "Start Your Project"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "readMore": "Read More",
+    "viewAll": "View All",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "footer": {
+    "description": "My goal is to stand by people through education, social service, and technology.",
+    "quickLinks": "Quick Links",
+    "contactInfo": "Contact",
+    "social": "Social",
+    "rights": "All rights reserved",
+    "madeWith": "Made with",
+    "tagline": "My goal is to stand by people through education, social service, and technology.",
+    "about": "About",
+    "achievements": "Achievements",
+    "services": "Experience",
+    "gallery": "Gallery",
+    "contact": "Contact",
+    "orderWebsite": "Order Website",
+    "pricing": "Pricing",
+    "process": "Process",
+    "by": "by"
+  }
+}

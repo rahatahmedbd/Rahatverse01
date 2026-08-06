@@ -1,0 +1,83 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+// ── Section Title Component ────────────────────────────
+interface SectionTitleProps {
+  badge?: string;
+  title: string;
+  titleBn?: string;
+  subtitle?: string;
+  subtitleBn?: string;
+  className?: string;
+  align?: "left" | "center" | "right";
+  locale?: string;
+}
+
+export function SectionTitle({
+  badge,
+  title,
+  titleBn,
+  subtitle,
+  subtitleBn,
+  className,
+  align = "center",
+  locale = "bn",
+}: SectionTitleProps) {
+  const displayTitle = locale === "bn" && titleBn ? titleBn : title;
+  const displaySubtitle = locale === "bn" && subtitleBn ? subtitleBn : subtitle;
+
+  const alignMap = {
+    left: "text-left",
+    center: "text-center",
+    right: "text-right",
+  };
+
+  return (
+    <motion.div
+      className={cn("mb-12", alignMap[align], className)}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6 }}
+    >
+      {badge && (
+        <motion.span
+          className="mb-3 inline-block rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
+          {badge}
+        </motion.span>
+      )}
+
+      <motion.h2
+        className={cn(
+          "text-3xl font-bold sm:text-4xl",
+          locale === "bn" && "bn"
+        )}
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+      >
+        {displayTitle}
+      </motion.h2>
+
+      {displaySubtitle && (
+        <motion.p
+          className="mt-3 text-muted-foreground"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          {displaySubtitle}
+        </motion.p>
+      )}
+    </motion.div>
+  );
+}

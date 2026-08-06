@@ -1,9 +1,10 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
+import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
 import { AnimationProviders } from "@/components/animations/Providers";
+import { WebVitalsReporter } from "@/components/seo/web-vitals-reporter";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 
@@ -53,6 +54,7 @@ export default async function LocaleLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="antialiased">
+        <WebVitalsReporter />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <div className="flex min-h-screen flex-col">
             {/* Global Animation Effects */}
@@ -66,8 +68,8 @@ export default async function LocaleLayout({
               {children}
             </main>
 
-            {/* Footer */}
-            <Footer />
+            {/* Enhanced Footer */}
+            <EnhancedFooter />
 
             {/* Mobile Bottom Navigation */}
             <BottomNavBar />

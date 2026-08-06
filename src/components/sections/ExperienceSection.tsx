@@ -44,8 +44,8 @@ export function ExperienceSection({ locale = "bn" }: ExperienceSectionProps) {
       titleBn: "FS কোচিং সেন্টার",
       role: "Founder & Director",
       roleBn: "প্রতিষ্ঠাতা ও পরিচালক",
-      period: "Dec 2024 — Temporarily Paused",
-      periodBn: "ডিসেম্বর ২০২৪ — সাময়িক বন্ধ",
+      period: "Established Dec 31, 2024 — Temporarily Paused",
+      periodBn: "প্রতিষ্ঠিত ৩১ ডিসেম্বর, ২০২৪ — সাময়িক বন্ধ",
       status: "paused",
       description:
         "Founded FS Coaching Center to provide quality education at affordable prices for underprivileged students in Jibdara Bazar.",

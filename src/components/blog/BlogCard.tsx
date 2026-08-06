@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,10 +35,12 @@ export default function BlogCard({ post, locale = "bn" }: BlogCardProps) {
       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
         {post.cover_image && (
           <div className="relative h-48 overflow-hidden rounded-t-lg">
-            <img
+            <Image
               src={post.cover_image}
               alt={title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
             {post.category && (
               <Badge className="absolute top-3 right-3" variant="secondary">

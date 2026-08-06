@@ -5,10 +5,12 @@ import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ExternalLink, Code, Palette, ShoppingBag, GraduationCap, Globe } from "lucide-react"
+import { ExternalLink, Code, Palette, ShoppingBag, GraduationCap } from "lucide-react"
 import Link from "next/link"
+import { useLocale } from "next-intl"
 
 export default function PortfolioPage() {
+  const locale = useLocale();
   const projects = [
     {
       title: "RahatVerse - Personal Portfolio",
@@ -118,7 +120,7 @@ export default function PortfolioPage() {
 
         {/* Projects Grid */}
         <StaggerContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project, index) => {
+          {projects.filter((project) => project.liveUrl !== "#" || project.githubUrl !== "#").map((project, index) => {
             const CategoryIcon = getCategoryIcon(project.category)
             
             return (
@@ -190,7 +192,7 @@ export default function PortfolioPage() {
                 আপনার আইডিয়াকে বাস্তবে রূপ দিতে আজই যোগাযোগ করুন
               </p>
               <Button size="lg" asChild>
-                <Link href="/contact">
+                <Link href={`/${locale}/contact`}>
                   যোগাযোগ করুন
                 </Link>
               </Button>

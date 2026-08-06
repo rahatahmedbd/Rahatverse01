@@ -1,8 +1,11 @@
+import { absoluteUrl, SITE_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
+
 // ── JSON-LD Structured Data ────────────────────────────
-// Provides search engines with structured information
+// Schema.org type names are intentionally case-sensitive.
+type SchemaType = "Person" | "Organization" | "WebSite" | "LocalBusiness" | "BlogPosting";
 
 interface JsonLdProps {
-  type: "person" | "organization" | "website" | "localBusiness";
+  type: SchemaType;
   data: Record<string, unknown>;
 }
 
@@ -13,26 +16,27 @@ export function JsonLd({ type, data }: JsonLdProps) {
     ...data,
   };
 
+  // Prevent a value containing `<` from prematurely ending the script element.
+  const serializedJson = JSON.stringify(jsonLd).replace(/</g, "\\u003c");
+
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: serializedJson }}
     />
   );
 }
-
-// ── Pre-defined Schema Generators ──────────────────────
 
 export function getPersonSchema() {
   return {
     name: "রাহাত আহমেদ",
     alternateName: "Rahat Ahmed",
-    url: "https://rahatverse01.vercel.app",
-    image: "https://rahatverse01.vercel.app/icons/icon-512.svg",
+    url: SITE_URL,
+    image: SITE_IMAGE,
     jobTitle: "Web Developer",
     worksFor: {
       "@type": "Organization",
-      name: "RahatVerse",
+      name: SITE_NAME,
     },
     alumniOf: {
       "@type": "EducationalOrganization",
@@ -65,28 +69,25 @@ export function getPersonSchema() {
 export function getWebsiteSchema() {
   return {
     name: "RahatVerse — রাহাত আহমেদ",
-    alternateName: "RahatVerse",
-    url: "https://rahatverse01.vercel.app",
+    alternateName: SITE_NAME,
+    url: SITE_URL,
     description:
       "শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য। ওয়েব ডেভেলপমেন্ট সার্ভিস।",
-    inLanguage: ["bn", "en"],
-    potentialAction: {
-      "@type": "SearchAction",
-      target: "https://rahatverse01.vercel.app/{search_term_string}",
-      "query-input": "required name=search_term_string",
-    },
+    inLanguage: ["bn-BD", "en"],
     publisher: {
       "@type": "Person",
       name: "রাহাত আহমেদ",
+      url: absoluteUrl("/bn"),
     },
   };
 }
 
 export function getLocalBusinessSchema() {
   return {
-    name: "RahatVerse",
+    name: SITE_NAME,
     description: "ওয়েব ডেভেলপমেন্ট সার্ভিস",
-    url: "https://rahatverse01.vercel.app",
+    url: SITE_URL,
+    image: SITE_IMAGE,
     telephone: "+8801626224878",
     email: "rahatbd20505@gmail.com",
     address: {

@@ -1,48 +1,78 @@
-// ── API: Orders (Website Orders) ───────────────────────
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserContext } from "@/lib/supabase/guards";
+import {
+  enumValue,
+  optionalText,
+  positiveInteger,
+  requiredText,
+  stringArray,
+  validEmail,
+  validPhone,
+} from "@/lib/api/validation";
 import { NextResponse } from "next/server";
 
-// POST — Create a new order
+const packageTypes = ["basic", "standard", "premium", "enterprise"] as const;
+const websiteTypes = [
+  "portfolio",
+  "business",
+  "ecommerce",
+  "education",
+  "blood_org",
+  "ngo",
+  "news_portal",
+  "landing_page",
+  "event",
+  "custom",
+] as const;
+
+// POST — Create a new website order.
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const {
-      client_name,
-      client_email,
-      client_phone,
-      client_whatsapp,
-      client_company,
-      package_type,
-      website_type,
-      description,
-      num_pages,
-      features,
-      color_preference,
-      reference_sites,
-      budget_range,
-      timeline,
-    } = body;
+    const body: unknown = await request.json();
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
 
-    // Validation
-    if (!client_name || !client_email || !client_phone || !package_type || !website_type) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    const input = body as Record<string, unknown>;
+    const client_name = requiredText(input.client_name, 100);
+    const client_email = validEmail(input.client_email);
+    const client_phone = validPhone(input.client_phone, true);
+    const client_whatsapp = optionalText(input.client_whatsapp, 25);
+    const client_company = optionalText(input.client_company, 150);
+    const package_type = enumValue(input.package_type, packageTypes);
+    const website_type = enumValue(input.website_type, websiteTypes);
+    const description = optionalText(input.description, 5_000);
+    const num_pages = positiveInteger(input.num_pages, 1, 100);
+    const features = stringArray(input.features ?? [], 30, 80);
+    const color_preference = optionalText(input.color_preference, 100);
+    const reference_sites = stringArray(input.reference_sites ?? [], 10, 2_000);
+    const budget_range = optionalText(input.budget_range, 50);
+    const timeline = optionalText(input.timeline, 50);
+
+    if (
+      !client_name ||
+      !client_email ||
+      !client_phone ||
+      !package_type ||
+      !website_type ||
+      num_pages === null ||
+      features === null ||
+      reference_sites === null ||
+      (input.client_whatsapp && !validPhone(input.client_whatsapp))
+    ) {
+      return NextResponse.json({ error: "Invalid or missing fields" }, { status: 400 });
     }
 
     const supabase = await createClient();
     if (!supabase) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      );
+      return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
     }
 
-    // Get current user if logged in
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("orders")
       .insert({
         user_id: user?.id || null,
@@ -54,79 +84,50 @@ export async function POST(request: Request) {
         package_type,
         website_type,
         description,
-        num_pages: num_pages || 1,
-        features: features || [],
+        num_pages,
+        features,
         color_preference,
-        reference_sites: reference_sites || [],
+        reference_sites,
         budget_range,
         timeline,
-      })
-      .select()
-      .single();
+      });
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
+      console.error("Order creation failed", error);
+      return NextResponse.json({ error: "Unable to submit order" }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, data }, { status: 201 });
+    return NextResponse.json({ success: true }, { status: 201 });
   } catch {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
 
-// GET — List orders (admin or user's own)
+// GET — List every order for an administrator or only the caller's own orders.
 export async function GET() {
-  try {
-    const supabase = await createClient();
-    if (!supabase) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      );
-    }
+  const { supabase, user, isAdmin } = await getCurrentUserContext();
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Check if admin
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    let query = supabase
-      .from("orders")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    // If not admin, only show user's own orders
-    if (profile?.role !== "admin") {
-      query = query.eq("user_id", user.id);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ data });
-  } catch {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+  if (!supabase) {
+    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
   }
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let query = supabase
+    .from("orders")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (!isAdmin) {
+    query = query.eq("user_id", user.id);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("Order retrieval failed", error);
+    return NextResponse.json({ error: "Unable to retrieve orders" }, { status: 500 });
+  }
+
+  return NextResponse.json({ data });
 }

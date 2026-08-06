@@ -150,7 +150,7 @@ export function AchievementsSection({ locale = "bn" }: AchievementsSectionProps)
         <FadeInUp>
           <div className="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <GlassCard className="text-center">
-              <Counter to={10} suffix="+" className="text-3xl font-bold text-primary" />
+              <Counter to={achievements.length} className="text-3xl font-bold text-primary" />
               <p className="mt-1 text-xs text-muted-foreground bn">{isBn ? "মোট অর্জন" : "Total"}</p>
             </GlassCard>
             <GlassCard className="text-center">
@@ -158,11 +158,11 @@ export function AchievementsSection({ locale = "bn" }: AchievementsSectionProps)
               <p className="mt-1 text-xs text-muted-foreground bn">{isBn ? "১ম স্থান" : "1st Places"}</p>
             </GlassCard>
             <GlassCard className="text-center">
-              <Counter to={3} suffix="×" className="text-3xl font-bold text-primary" />
+              <Counter to={2} suffix="×" className="text-3xl font-bold text-primary" />
               <p className="mt-1 text-xs text-muted-foreground">GPA 5.00</p>
             </GlassCard>
             <GlassCard className="text-center">
-              <Counter to={6} suffix="+" className="text-3xl font-bold text-primary" />
+              <Counter to={4} className="text-3xl font-bold text-primary" />
               <p className="mt-1 text-xs text-muted-foreground bn">{isBn ? "বিজ্ঞান মেলা" : "Science Fairs"}</p>
             </GlassCard>
           </div>

@@ -1,60 +1,66 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
+import { createClient } from "@/lib/supabase/server";
+import { absoluteUrl, localePath } from "@/lib/seo";
 
-// ── Dynamic Sitemap ────────────────────────────────────
-// Generates sitemap.xml for all pages
+const locales = ["bn", "en"];
+const staticPages = [
+  "",
+  "/about",
+  "/achievements",
+  "/experience",
+  "/gallery",
+  "/services",
+  "/portfolio",
+  "/order",
+  "/contact",
+  "/blog",
+  "/links",
+  "/privacy",
+  "/terms",
+  "/sitemap",
+  "/summary",
+];
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://rahatverse01.vercel.app";
-  const locales = ["bn", "en"];
+  const staticUrls = locales.flatMap((locale) =>
+    staticPages.map((page) => ({
+      url: absoluteUrl(localePath(locale, page)),
+      changeFrequency: getChangeFrequency(page),
+      priority: getPriority(page),
+    }))
+  );
 
-  // Static pages
-  const staticPages = [
-    "",
-    "/about",
-    "/achievements",
-    "/experience",
-    "/gallery",
-    "/order",
-    "/contact",
-    "/blog",
-    "/links",
-    "/dashboard",
-    "/dashboard/orders",
-    "/dashboard/messages",
-    "/privacy",
-    "/terms",
-    "/sitemap",
-  ];
+  const supabase = await createClient();
+  if (!supabase) return staticUrls;
 
-  // Generate URLs for all locales
-  const urls: MetadataRoute.Sitemap = [];
+  const { data: posts } = await supabase
+    .from("blog_posts")
+    .select("slug, published_at, updated_at")
+    .eq("is_published", true)
+    .order("published_at", { ascending: false });
 
-  locales.forEach((locale) => {
-    staticPages.forEach((page) => {
-      urls.push({
-        url: `${baseUrl}/${locale}${page}`,
-        lastModified: new Date(),
-        changeFrequency: getChangeFrequency(page),
-        priority: getPriority(page),
-      });
-    });
-  });
+  const blogUrls = (posts || []).flatMap((post) =>
+    locales.map((locale) => ({
+      url: absoluteUrl(localePath(locale, `/blog/${post.slug}`)),
+      lastModified: post.updated_at || post.published_at || undefined,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    }))
+  );
 
-  return urls;
+  return [...staticUrls, ...blogUrls];
 }
 
 function getChangeFrequency(page: string): MetadataRoute.Sitemap[0]["changeFrequency"] {
-  if (page === "") return "daily";
-  if (page === "/blog") return "daily";
-  if (page === "/achievements") return "weekly";
-  if (page === "/gallery") return "weekly";
-  return "monthly";
+  if (page === "" || page === "/blog") return "weekly";
+  if (page === "/achievements" || page === "/gallery" || page === "/portfolio") return "monthly";
+  return "yearly";
 }
 
 function getPriority(page: string): number {
-  if (page === "") return 1.0;
-  if (page === "/about" || page === "/order") return 0.9;
-  if (page === "/achievements" || page === "/experience") return 0.8;
-  if (page === "/gallery" || page === "/contact") return 0.7;
-  if (page === "/blog" || page === "/links") return 0.6;
+  if (page === "") return 1;
+  if (page === "/about" || page === "/services" || page === "/order") return 0.9;
+  if (page === "/achievements" || page === "/experience" || page === "/portfolio") return 0.8;
+  if (page === "/gallery" || page === "/contact" || page === "/blog") return 0.7;
   return 0.5;
 }

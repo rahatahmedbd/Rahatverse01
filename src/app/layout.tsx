@@ -6,10 +6,12 @@ import {
   getWebsiteSchema,
   getLocalBusinessSchema,
 } from "@/components/seo/JsonLd";
+import { localeAlternates, SITE_IMAGE, SITE_URL } from "@/lib/seo";
 
-// ── Root Metadata ──────────────────────────────────────
+const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://rahatverse01.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "RahatVerse — রাহাত আহমেদ | Student, Teacher & Web Developer",
     template: "%s | RahatVerse",
@@ -27,7 +29,7 @@ export const metadata: Metadata = {
     "ওয়েব ডেভেলপার",
     "সুনামগঞ্জ",
   ],
-  authors: [{ name: "Rahat Ahmed", url: "https://rahatverse01.vercel.app" }],
+  authors: [{ name: "Rahat Ahmed", url: SITE_URL }],
   creator: "Rahat Ahmed",
   publisher: "RahatVerse",
   formatDetection: {
@@ -43,13 +45,13 @@ export const metadata: Metadata = {
     title: "RahatVerse — রাহাত আহমেদ",
     description:
       "শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।",
-    url: "https://rahatverse01.vercel.app",
+    url: SITE_URL,
     images: [
       {
-        url: "/icons/icon-512.svg",
-        width: 512,
-        height: 512,
-        alt: "RahatVerse",
+        url: SITE_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "Rahat Ahmed — RahatVerse",
       },
     ],
   },
@@ -58,7 +60,7 @@ export const metadata: Metadata = {
     title: "RahatVerse — রাহাত আহমেদ",
     description:
       "শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।",
-    images: ["/icons/icon-512.svg"],
+    images: [SITE_IMAGE],
   },
   robots: {
     index: true,
@@ -71,31 +73,22 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  alternates: {
-    languages: {
-      bn: "/bn",
-      en: "/en",
-    },
-  },
-  verification: {
-    google: "google-site-verification-code",
-  },
+  alternates: localeAlternates("bn"),
+  verification: googleVerification ? { google: googleVerification } : undefined,
   category: "technology",
 };
 
-// ── Root Layout ────────────────────────────────────────
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <>
       {children}
-      {/* JSON-LD Structured Data */}
-      <JsonLd type="person" data={getPersonSchema()} />
-      <JsonLd type="website" data={getWebsiteSchema()} />
-      <JsonLd type="localBusiness" data={getLocalBusinessSchema()} />
+      <JsonLd type="Person" data={getPersonSchema()} />
+      <JsonLd type="WebSite" data={getWebsiteSchema()} />
+      <JsonLd type="LocalBusiness" data={getLocalBusinessSchema()} />
     </>
   );
 }

@@ -9,9 +9,15 @@ export async function GET(request: NextRequest) {
   }
   
   const { searchParams } = new URL(request.url);
-  const query = searchParams.get("q");
+  const rawQuery = searchParams.get("q");
+  const query = rawQuery
+    ?.trim()
+    .replace(/[(),]/g, " ")
+    .replace(/[%_]/g, " ")
+    .replace(/\s+/g, " ")
+    .slice(0, 80);
 
-  if (!query || query.trim().length === 0) {
+  if (!query) {
     return NextResponse.json({ results: [] });
   }
 

@@ -105,7 +105,7 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
         <FadeInUp delay={1.2}>
           <p className="mx-auto mt-6 max-w-xl text-muted-foreground bn">
             শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।
-            সুনামগঞ্জ থেকে স্বপ্ন দেখি একটিbetter digital world গড়ার।
+            সুনামগঞ্জ থেকে স্বপ্ন দেখি একটি better digital world গড়ার।
           </p>
         </FadeInUp>
 
@@ -119,7 +119,7 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
               </Link>
             </Button>
             <Button variant="glass" size="lg" asChild>
-              <Link href={`/${locale}/#projects`}>
+              <Link href={`/${locale}/portfolio`}>
                 <Eye className="h-4 w-4" />
                 {isBn ? "প্রজেক্ট দেখুন" : "View Projects"}
               </Link>
@@ -137,10 +137,10 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
         <FadeInUp delay={1.8}>
           <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {[
-              { value: 10, suffix: "+", label: isBn ? "অর্জন" : "Achievements" },
+              { value: 9, suffix: "", label: isBn ? "অর্জন" : "Achievements" },
               { value: 5, suffix: "×", label: isBn ? "১ম স্থান" : "1st Places" },
               { value: 4, suffix: "", label: isBn ? "রক্তদান" : "Blood Donations" },
-              { value: 3, suffix: "×", label: "GPA 5.00", labelBn: "GPA 5.00" },
+              { value: 2, suffix: "×", label: "GPA 5.00", labelBn: "GPA 5.00" },
             ].map((stat) => (
               <div
                 key={stat.label}

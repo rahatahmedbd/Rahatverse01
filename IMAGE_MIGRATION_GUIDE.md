@@ -1,92 +1,58 @@
-# 📸 Image Migration Guide
+# Image migration guide
 
-## Phase 19: Image Migration Infrastructure
+## Purpose
 
-This phase sets up the Cloudinary infrastructure for managing images.
+RahatVerse serves portfolio media from Cloudinary and stores image metadata in Supabase. The gallery, profile image, and memorial image use the public IDs declared in:
 
-## ✅ What's Been Done:
+`src/lib/cloudinary/utils.ts`
 
-1. ✅ Installed `next-cloudinary` package
-2. ✅ Created Cloudinary utilities (`src/lib/cloudinary/images.ts`)
-3. ✅ Created image data configuration (`scripts/image-data.js`)
-4. ✅ Updated `ProfileImage` component to use Cloudinary
-5. ✅ Added Cloudinary credentials to `.env.local`
+## Required Cloudinary uploads
 
-## 📋 What You Need to Do:
+Upload the following assets to the `rahatverse` folder in Cloudinary using these exact public IDs:
 
-### Step 1: Upload Images to Cloudinary
+| Asset | Public ID |
+|---|---|
+| Profile photo | `rahatverse/profile` |
+| Shantichakra logo | `rahatverse/shantichakra-logo` |
+| Late Md. Farid Ahmed’s photo | `rahatverse/father-photo` |
+| SSC 2025 achievement | `rahatverse/ssc-2025` |
+| SSC honour ceremony | `rahatverse/ssc-songbordhona` |
+| Shantichakra crest | `rahatverse/ssc-crest-shantichakra` |
+| Shantichakra activities | `rahatverse/shantichakra-blood-society` |
+| 46th Science Fair | `rahatverse/46-science-fair-2025` |
+| Creative Talent Search | `rahatverse/srijonshil-medha-2024` |
+| 44th Science Exhibition | `rahatverse/44-science-fair-2024` |
+| 45th Science Fair | `rahatverse/45-science-fair-2023` |
+| 42nd Science Fair | `rahatverse/42-science-fair-2020` |
+| FS Coaching Center | `rahatverse/fs-coaching-center` |
+| Helping Hand Organization | `rahatverse/helping-hand-org` |
 
-You need to manually upload 14 images to your Cloudinary account:
+## Source material
 
-1. **Go to Cloudinary Dashboard**: https://cloudinary.com/console
-2. **Upload images** with the following public IDs (in `rahatverse` folder):
+The legacy public site contains the approved historic media:
 
-| Image | Public ID | Source |
-|-------|-----------|--------|
-| Profile Photo | `rahatverse/profile` | Download from old site |
-| Shantichakra Logo | `rahatverse/shantichakra-logo` | Download from old site |
-| Father's Photo | `rahatverse/father-photo` | Download from old site |
-| SSC 2025 | `rahatverse/ssc-2025` | Download from old site |
-| SSC Songbordhona | `rahatverse/ssc-songbordhona` | Download from old site |
-| SSC Crest | `rahatverse/ssc-crest-shantichakra` | Download from old site |
-| Shantichakra Activities | `rahatverse/shantichakra-blood-society` | Download from old site |
-| 46th Science Fair | `rahatverse/46-science-fair-2025` | Download from old site |
-| 45th Science Fair | `rahatverse/45-science-fair-2023` | Download from old site |
-| 44th Science Fair | `rahatverse/44-science-fair-2024` | Download from old site |
-| 42nd Science Fair | `rahatverse/42-science-fair-2020` | Download from old site |
-| Srijonshil Medha | `rahatverse/srijonshil-medha-2024` | Download from old site |
-| FS Coaching Center | `rahatverse/fs-coaching-center` | Download from old site |
-| Helping Hand Org | `rahatverse/helping-hand-org` | Download from old site |
+- https://rahatahmedbd.github.io/assets/images/profile.jpg
+- https://rahatahmedbd.github.io/assets/images/logo.png
+- https://rahatahmedbd.github.io/assets/images/baba-farid-ahmed.jpg
 
-### Step 2: Download Images from Old Site
+Only upload media that you own or have permission to use.
 
-Download these images from: https://rahatahmedbd.github.io/
+## Vercel configuration
 
-- Profile: https://rahatahmedbd.github.io/assets/images/profile.jpg
-- Logo: https://rahatahmedbd.github.io/assets/images/logo.png
-- Father: https://rahatahmedbd.github.io/assets/images/baba-farid-ahmed.jpg
-- Gallery images: All images from the gallery section
+Set the following environment variables for **Production**, **Preview**, and local development as appropriate:
 
-### Step 3: Verify Upload
-
-After uploading, test that images are accessible:
-- Visit: https://res.cloudinary.com/kbc3dfnj/image/upload/rahatverse/profile.jpg
-- Should show your profile image
-
-## 🔧 Technical Details:
-
-### Cloudinary Configuration:
-- **Cloud Name**: kbc3dfnj
-- **Upload Preset**: rahatverse
-- **Folder**: rahatverse
-
-### Image URLs Format:
-```
-https://res.cloudinary.com/{cloud-name}/image/upload/{transformations}/{public-id}
+```text
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 ```
 
-### Example:
-```
-https://res.cloudinary.com/kbc3dfnj/image/upload/w_400,h_400,c_fill/rahatverse/profile.jpg
-```
+Without a Cloudinary cloud name, RahatVerse now renders an accessible fallback instead of failing the page. The actual media will appear only after Cloudinary is configured and the public ID exists.
 
-## 📦 Next Steps:
+## Verification
 
-After uploading images:
-1. Test the live site to verify images load
-2. Update gallery component to use Cloudinary images (Phase 21)
-3. Update memorial section with father's photo (Phase 20)
-
-## 🎯 Phase 19 Completion Criteria:
-
-- [x] Cloudinary infrastructure set up
-- [x] Image utilities created
-- [x] ProfileImage component updated
-- [ ] Images uploaded to Cloudinary (manual step)
-- [ ] Build validation passed
-- [ ] Deployed to Vercel
-- [ ] Live site verified
-
----
-
-**Note**: This phase focuses on infrastructure. The actual image uploads are a manual step that requires access to the old website images.
+1. Deploy after setting the variables.
+2. Open `/bn`, `/bn/experience`, and `/bn/gallery`.
+3. Verify the profile image, memorial portrait, and gallery assets load.
+4. As an admin, upload one test image smaller than 10 MB in JPEG, PNG, WebP, or AVIF format.
+5. Confirm a non-admin cannot upload or delete media.

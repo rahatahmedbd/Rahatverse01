@@ -31,6 +31,8 @@
     "next-intl": "^4.13.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "resend": "^6.18.1",
+    "svix": "^1.99.1",
     "tailwind-merge": "^3.6.0",
     "zustand": "^5.0.14"
   },

@@ -100,6 +100,7 @@ npm run type-check
 | 26 | Advanced Analytics | GA4 + first-party tracking + dashboard |
 | 27 | Newsletter System | Double opt-in + campaigns + admin |
 | 28 | Admin Dashboard | Real-time stats, health, RBAC, CMS, comments, notifications, export, logs |
+| 29 | Email Notification System | Resend transactional delivery, signed webhooks, delivery dashboard, scheduled campaigns |
 
 ## 👤 Author
 

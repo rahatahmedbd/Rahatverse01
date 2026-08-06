@@ -169,20 +169,13 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 2000);
 }
 
-// Mock send — logs in development, will be replaced by Resend/SendGrid in Phase 29
-export async function sendEmailMock(params: {
-  to: string;
-  template: EmailTemplate;
-  tag?: string;
-}): Promise<{ id: string; mocked: boolean }> {
-  const id = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const shouldLog = process.env.NODE_ENV !== "production" || process.env.ENABLE_EMAIL_LOG === "true";
-  if (shouldLog) {
-    console.log(`[Email:${params.tag || "general"}] to=${params.to} subject="${params.template.subject}" id=${id}`);
-    // In dev we also log html preview length to verify templates render
-    console.log(`[Email] html_len=${params.template.html.length} text_len=${params.template.text.length}`);
-  }
-  // If a real provider is configured in Phase 29, this function will be upgraded to call it.
-  // For now, consider all sends as delivered.
-  return { id, mocked: true };
+export function contactNotificationEmail(params: { name: string; email: string; subject: string; message: string }): EmailTemplate {
+  const content = `<p>New contact message from <strong>${escapeHtml(params.name)}</strong> (${escapeHtml(params.email)}).</p><p><strong>Topic:</strong> ${escapeHtml(params.subject)}</p><p>${escapeHtml(params.message).replace(/\n/g, "<br>")}</p>`;
+  return { subject: `New RahatVerse contact: ${params.subject}`, html: layout(content, "New contact form submission"), text: `From: ${params.name} <${params.email}>\nTopic: ${params.subject}\n\n${params.message}` };
+}
+
+export function orderConfirmationEmail(params: { name: string; orderId: string; locale?: string }): EmailTemplate {
+  const bn = params.locale === "bn";
+  const content = bn ? `<p>হ্যালো ${escapeHtml(params.name)},</p><p>আপনার অর্ডার অনুরোধটি সফলভাবে পেয়েছি। রেফারেন্স: <strong>${escapeHtml(params.orderId)}</strong></p><p>শিগগিরই আপনার সঙ্গে যোগাযোগ করা হবে।</p>` : `<p>Hi ${escapeHtml(params.name)},</p><p>Your order request has been received. Reference: <strong>${escapeHtml(params.orderId)}</strong></p><p>We will be in touch soon.</p>`;
+  return { subject: bn ? "আপনার অর্ডার অনুরোধ গ্রহণ করা হয়েছে" : "Your RahatVerse order request was received", html: layout(content), text: bn ? `আপনার অর্ডার অনুরোধ গ্রহণ করা হয়েছে। রেফারেন্স: ${params.orderId}` : `Your order request was received. Reference: ${params.orderId}` };
 }

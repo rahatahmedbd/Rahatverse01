@@ -3,7 +3,8 @@ import { getCurrentUserContext } from "@/lib/supabase/guards";
 import { optionalText, validEmail } from "@/lib/api/validation";
 import { NextResponse } from "next/server";
 import { generateConfirmationToken, generateUnsubscribeToken } from "@/lib/newsletter/tokens";
-import { confirmationEmail, sendEmailMock } from "@/lib/email/templates";
+import { confirmationEmail } from "@/lib/email/templates";
+import { sendEmail } from "@/lib/email/service";
 
 // In-memory rate limiting (per IP/email) — resets on server restart; sufficient for Phase 27.
 // Phase 29 will replace with Upstash/Redis if needed.
@@ -194,7 +195,7 @@ export async function POST(request: Request) {
         const confirmUrl = `${siteUrl}/bn/newsletter/confirm?token=${confirmationToken}`;
         const unsubscribeUrl = `${siteUrl}/bn/newsletter/unsubscribe?token=${unsubscribeToken}`;
         const template = confirmationEmail({ name, confirmUrl, unsubscribeUrl, locale });
-        await sendEmailMock({ to: email, template, tag: "newsletter-confirm-resend" });
+        await sendEmail({ to: email, template, tag: "newsletter-confirm-resend" });
 
         // Also mark last_email_sent
         await supabase.from("newsletter_subscribers").update({ last_email_sent_at: new Date().toISOString() }).eq("id", existing.id);
@@ -232,7 +233,7 @@ export async function POST(request: Request) {
         const confirmUrl = `${siteUrl}/bn/newsletter/confirm?token=${confirmationToken}`;
         const unsubscribeUrl = `${siteUrl}/bn/newsletter/unsubscribe?token=${unsubscribeToken}`;
         const template = confirmationEmail({ name, confirmUrl, unsubscribeUrl, locale });
-        await sendEmailMock({ to: email, template, tag: "newsletter-confirm-reactivate" });
+        await sendEmail({ to: email, template, tag: "newsletter-confirm-reactivate" });
         await supabase.from("newsletter_subscribers").update({ last_email_sent_at: new Date().toISOString() }).eq("id", existing.id);
 
         lastSubscribeByIp.set(ip, Date.now());
@@ -275,7 +276,7 @@ export async function POST(request: Request) {
     const enConfirmUrl = `${siteUrl}/en/newsletter/confirm?token=${confirmationToken}`;
     // Use locale-specific confirm link but email contains both? Use locale one
     const template = confirmationEmail({ name, confirmUrl: locale === "en" ? enConfirmUrl : confirmUrl, unsubscribeUrl, locale });
-    await sendEmailMock({ to: email, template, tag: "newsletter-confirm" });
+    await sendEmail({ to: email, template, tag: "newsletter-confirm" });
 
     if (inserted?.id) {
       await supabase.from("newsletter_subscribers").update({ last_email_sent_at: new Date().toISOString() }).eq("id", inserted.id);

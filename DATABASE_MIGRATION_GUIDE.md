@@ -77,3 +77,11 @@ Configure these in Vercel before enabling forms or media uploads:
 - `ENABLE_EMAIL_LOG` (optional — set `true` to keep mock newsletter email logs in production until Phase 29 provider `RESEND_API_KEY`/`EMAIL_FROM` is configured)
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY`, `CLOUDINARY_API_SECRET`, `RESEND_API_KEY`, or any email-provider secret to the browser.
+
+## Phase 29 — Email notification delivery tracking
+
+Apply `supabase/migrations/010_email_notification_system.sql` after migration 009.
+It creates the admin-only `email_deliveries` audit table used by the Resend
+webhook. Configure `RESEND_API_KEY`, `EMAIL_FROM`, `RESEND_WEBHOOK_SECRET`,
+`SUPABASE_SERVICE_ROLE_KEY`, and `CRON_SECRET` in Vercel before enabling real
+email delivery and scheduled campaigns.

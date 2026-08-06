@@ -16,7 +16,7 @@ export { VideoPortfolio } from "./VideoPortfolio";
 export { PricingSection } from "./PricingSection";
 export { OrderWizard } from "./OrderWizard";
 export { ContactSection } from "./ContactSection";
-export { TestimonialsSection } from "./TestimonialsSection";
+export { default as TestimonialsSection } from "./TestimonialsSection";
 export { FAQSection } from "./FAQSection";
 export { BlogListSection } from "./BlogListSection";
 export { LinkHubSection } from "./LinkHubSection";

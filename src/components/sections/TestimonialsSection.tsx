@@ -1,228 +1,135 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { GlassCard } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { SectionTitle } from "@/components/sections/SectionTitle";
-import { FadeInUp } from "@/components/animations/FadeIn";
-import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
-import { Star, Quote, Send, Loader2, CheckCircle2 } from "lucide-react";
-
-// ── Testimonials Section ───────────────────────────────
-interface TestimonialsSectionProps {
-  locale?: string;
-}
+import { useState, useEffect, useCallback } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { FadeInUp } from "@/components/animations/FadeIn"
+import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger"
+import { Star, Quote } from "lucide-react"
 
 interface Testimonial {
-  id: string;
-  name: string;
-  role: string | null;
-  company: string | null;
-  content: string;
-  rating: number;
-  created_at: string;
+  id: string
+  name: string
+  role?: string
+  company?: string
+  content: string
+  rating: number
+  created_at: string
 }
 
-export function TestimonialsSection({ locale = "bn" }: TestimonialsSectionProps) {
-  const isBn = locale === "bn";
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+interface TestimonialsSectionProps {
+  locale?: string
+  limit?: number
+}
 
-  const [form, setForm] = useState({
-    name: "",
-    role: "",
-    company: "",
-    content: "",
-    rating: 5,
-  });
+export default function TestimonialsSection({ locale = "bn", limit = 6 }: TestimonialsSectionProps) {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const isBn = locale === "bn"
+
+  const fetchTestimonials = useCallback(async () => {
+    try {
+      const res = await fetch("/api/testimonials")
+      const data = await res.json()
+      
+      if (data.data) {
+        // Sort by rating (highest first) and limit
+        const sorted = data.data
+          .sort((a: Testimonial, b: Testimonial) => b.rating - a.rating)
+          .slice(0, limit)
+        setTestimonials(sorted)
+      }
+    } catch (error) {
+      console.error("Failed to fetch testimonials:", error)
+    } finally {
+      setLoading(false)
+    }
+  }, [limit])
 
   useEffect(() => {
-    fetch("/api/testimonials")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.data) setTestimonials(data.data);
-      })
-      .catch(() => {});
-  }, []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchTestimonials()
+  }, [fetchTestimonials])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
-    try {
-      const res = await fetch("/api/testimonials", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      if (res.ok) {
-        setIsSubmitted(true);
-        setForm({ name: "", role: "", company: "", content: "", rating: 5 });
-        setTimeout(() => {
-          setShowForm(false);
-          setIsSubmitted(false);
-        }, 3000);
-      }
-    } catch {
-      // silent
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  if (testimonials.length === 0) {
+    return null
+  }
 
   return (
-    <section className="py-20">
-      <div className="mx-auto max-w-7xl px-4">
-        <SectionTitle
-          badge={isBn ? "⭐ মতামত" : "⭐ Testimonials"}
-          title="What People Say"
-          titleBn="মানুষ কী বলছে"
-          subtitle={
-            isBn
-              ? "আমার সাথে কাজ করা মানুষদের অভিজ্ঞতা ও মতামত"
-              : "Experiences and feedback from people who worked with me"
-          }
-          locale={locale}
-        />
+    <div className="py-12">
+      <FadeInUp>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">
+            {isBn ? "ক্লায়েন্টদের মতামত" : "Client Testimonials"}
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            {isBn 
+              ? "আমার ক্লায়েন্টরা কী বলছেন" 
+              : "What my clients say about my work"}
+          </p>
+        </div>
+      </FadeInUp>
 
-        {/* Existing testimonials */}
-        {testimonials.length > 0 ? (
-          <StaggerContainer className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {testimonials.map((t) => (
-              <StaggerItem key={t.id}>
-                <GlassCard className="h-full">
-                  <Quote className="mb-3 h-6 w-6 text-primary/40" />
-                  <p className="text-sm text-muted-foreground bn">{t.content}</p>
-                  <div className="mt-4 flex items-center gap-1">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${i < t.rating ? "text-amber-400 fill-amber-400" : "text-border"}`}
-                      />
-                    ))}
+      <StaggerContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {testimonials.map((testimonial) => (
+          <StaggerItem key={testimonial.id}>
+            <Card className="h-full hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                {/* Quote Icon */}
+                <div className="mb-4">
+                  <Quote className="h-8 w-8 text-primary/30" />
+                </div>
+
+                {/* Content */}
+                <p className="text-muted-foreground mb-4 italic">
+                  &ldquo;{testimonial.content}&rdquo;
+                </p>
+
+                {/* Rating */}
+                <div className="flex gap-1 mb-4">
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <Star
+                      key={idx}
+                      className={`h-4 w-4 ${
+                        idx < testimonial.rating
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "fill-gray-200 text-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Author */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-sm font-semibold text-primary">
+                      {testimonial.name.charAt(0).toUpperCase()}
+                    </span>
                   </div>
-                  <div className="mt-3 border-t border-border/50 pt-3">
-                    <p className="font-semibold bn">{t.name}</p>
-                    {t.role && (
-                      <p className="text-xs text-muted-foreground bn">
-                        {t.role}{t.company ? ` — ${t.company}` : ""}
+                  <div>
+                    <p className="font-semibold">{testimonial.name}</p>
+                    {(testimonial.role || testimonial.company) && (
+                      <p className="text-sm text-muted-foreground">
+                        {testimonial.role}
+                        {testimonial.role && testimonial.company && " • "}
+                        {testimonial.company}
                       </p>
                     )}
                   </div>
-                </GlassCard>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        ) : (
-          <FadeInUp>
-            <div className="text-center py-8 text-muted-foreground">
-              <p className="bn">{isBn ? "এখনো কোনো মতামত নেই। প্রথম হোন!" : "No testimonials yet. Be the first!"}</p>
-            </div>
-          </FadeInUp>
-        )}
-
-        {/* Submit button or form */}
-        <FadeInUp delay={0.2}>
-          <div className="mt-8 text-center">
-            {!showForm ? (
-              <Button variant="glass" onClick={() => setShowForm(true)}>
-                <Star className="h-4 w-4" />
-                {isBn ? "আপনার মতামত দিন" : "Leave a Testimonial"}
-              </Button>
-            ) : (
-              <GlassCard className="mx-auto max-w-lg mt-4">
-                {isSubmitted ? (
-                  <div className="py-6 text-center">
-                    <CheckCircle2 className="mx-auto h-12 w-12 text-green-400" />
-                    <p className="mt-3 font-semibold bn">
-                      {isBn ? "ধন্যবাদ! আপনার মতামত জমা হয়েছে।" : "Thank you! Your testimonial has been submitted."}
-                    </p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <h3 className="text-lg font-bold bn">{isBn ? "আপনার মতামত" : "Your Testimonial"}</h3>
-
-                    <div>
-                      <label className="mb-1 block text-sm font-medium bn">{isBn ? "নাম *" : "Name *"}</label>
-                      <input
-                        type="text"
-                        required
-                        value={form.name}
-                        onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-background p-3 text-sm"
-                      />
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <label className="mb-1 block text-sm font-medium bn">{isBn ? "পদবি" : "Role"}</label>
-                        <input
-                          type="text"
-                          value={form.role}
-                          onChange={(e) => setForm({ ...form, role: e.target.value })}
-                          placeholder={isBn ? "যেমন: ছাত্র" : "e.g., Student"}
-                          className="w-full rounded-lg border border-border bg-background p-3 text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="mb-1 block text-sm font-medium bn">{isBn ? "কোম্পানি" : "Company"}</label>
-                        <input
-                          type="text"
-                          value={form.company}
-                          onChange={(e) => setForm({ ...form, company: e.target.value })}
-                          className="w-full rounded-lg border border-border bg-background p-3 text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="mb-1 block text-sm font-medium bn">{isBn ? "রেটিং" : "Rating"}</label>
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setForm({ ...form, rating: star })}
-                            className="transition-transform hover:scale-110"
-                          >
-                            <Star
-                              className={`h-6 w-6 ${star <= form.rating ? "text-amber-400 fill-amber-400" : "text-border"}`}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="mb-1 block text-sm font-medium bn">{isBn ? "আপনার মতামত *" : "Your Feedback *"}</label>
-                      <textarea
-                        required
-                        value={form.content}
-                        onChange={(e) => setForm({ ...form, content: e.target.value })}
-                        rows={3}
-                        className="w-full rounded-lg border border-border bg-background p-3 text-sm resize-none"
-                      />
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button type="submit" variant="gradient" disabled={isSubmitting} className="flex-1">
-                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        {isBn ? "জমা দিন" : "Submit"}
-                      </Button>
-                      <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
-                        {isBn ? "বাতিল" : "Cancel"}
-                      </Button>
-                    </div>
-                  </form>
-                )}
-              </GlassCard>
-            )}
-          </div>
-        </FadeInUp>
-      </div>
-    </section>
-  );
+                </div>
+              </CardContent>
+            </Card>
+          </StaggerItem>
+        ))}
+      </StaggerContainer>
+    </div>
+  )
 }

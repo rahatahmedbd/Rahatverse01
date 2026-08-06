@@ -14,9 +14,5 @@ export const metadata = {
 export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
   const { locale } = await params;
 
-  return (
-    <div className="mx-auto max-w-7xl px-4">
-      <AnalyticsDashboard locale={locale} />
-    </div>
-  );
+  return <AnalyticsDashboard locale={locale} />;
 }

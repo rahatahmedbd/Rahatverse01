@@ -8,9 +8,5 @@ interface MessagesPageProps {
 export default async function MessagesPage({ params }: MessagesPageProps) {
   const { locale } = await params;
 
-  return (
-    <div className="mx-auto max-w-7xl px-4">
-      <MessagesInbox locale={locale} />
-    </div>
-  );
+  return <MessagesInbox locale={locale} />;
 }

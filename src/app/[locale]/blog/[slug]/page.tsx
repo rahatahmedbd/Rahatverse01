@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import BlogPostContent from "@/components/blog/BlogPostContent";
+import { BlogComments } from "@/components/blog/BlogComments";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getBlogPostingSchema, localeAlternates, SITE_IMAGE } from "@/lib/seo";
@@ -13,6 +14,7 @@ interface BlogPostPageProps {
 }
 
 interface BlogPostRecord {
+  id: string;
   title: string;
   title_bn?: string | null;
   content: string;
@@ -134,6 +136,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           tags={post.tags || undefined}
           locale={locale}
         />
+
+        <BlogComments postId={post.id} locale={locale} />
       </div>
     </div>
   );

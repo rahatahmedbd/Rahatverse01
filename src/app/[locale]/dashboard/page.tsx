@@ -8,9 +8,5 @@ interface DashboardPageProps {
 export default async function DashboardPage({ params }: DashboardPageProps) {
   const { locale } = await params;
 
-  return (
-    <div className="mx-auto max-w-7xl px-4">
-      <DashboardOverview locale={locale} />
-    </div>
-  );
+  return <DashboardOverview locale={locale} />;
 }

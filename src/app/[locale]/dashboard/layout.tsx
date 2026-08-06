@@ -1,5 +1,6 @@
 import { getCurrentUserContext } from "@/lib/supabase/guards";
 import { redirect } from "next/navigation";
+import { AdminNav } from "@/components/admin/AdminNav";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -18,5 +19,10 @@ export default async function DashboardLayout({
     redirect(`/${locale}/login?next=/${locale}/dashboard`);
   }
 
-  return children;
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      <AdminNav locale={locale} />
+      {children}
+    </div>
+  );
 }

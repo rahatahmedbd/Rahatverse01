@@ -9,6 +9,7 @@ The repository now has versioned migrations:
 - `supabase/migrations/006_security_and_blog_schema_hardening.sql`
 - `supabase/migrations/007_create_analytics_tables.sql` (Phase 26 — analytics)
 - `supabase/migrations/008_newsletter_double_optin.sql` (Phase 27 — newsletter)
+- `supabase/migrations/009_admin_dashboard_enhancement.sql` (Phase 28 — admin dashboard)
 
 It does the following without deleting tables or rows:
 
@@ -33,17 +34,30 @@ Migration `008_newsletter_double_optin.sql` (Phase 27) adds double opt-in newsle
 - indexes on `lower(email)`, `is_active`, `is_confirmed`, tokens; RLS admin-only for campaigns/sends;
 - is non-destructive, idempotent, and safe to run once.
 
+Migration `009_admin_dashboard_enhancement.sql` (Phase 28) adds the admin
+dashboard foundation:
+
+- creates `audit_logs`, `admin_notifications`, `blog_comments`,
+  `system_logs` and `system_backups` with supporting indexes;
+- RLS: audit logs / notifications / system logs / backups are admin-only;
+  blog comments are public-insert (pending), public-read (approved only),
+  admin-moderation;
+- seeds one welcome notification (idempotent);
+- is non-destructive, idempotent, and safe to run once.
+
 ## Apply the migration
 
 1. Back up the Supabase database first.
 2. Open the relevant Supabase project’s **SQL Editor**.
-3. Copy the complete contents of `supabase/migrations/006_security_and_blog_schema_hardening.sql`, run it once, then repeat the same steps for `supabase/migrations/007_create_analytics_tables.sql` and `supabase/migrations/008_newsletter_double_optin.sql` (order matters: 006 → 007 → 008).
+3. Copy the complete contents of `supabase/migrations/006_security_and_blog_schema_hardening.sql`, run it once, then repeat the same steps for `supabase/migrations/007_create_analytics_tables.sql`, `supabase/migrations/008_newsletter_double_optin.sql` and `supabase/migrations/009_admin_dashboard_enhancement.sql` (order matters: 006 → 007 → 008 → 009).
 4. Verify the following:
    - An anonymous visitor cannot select `messages`, `orders`, `blood_requests`, or `newsletter_subscribers`.
    - A visitor can submit a contact message and website order.
    - An authenticated administrator can access `/bn/dashboard` and read dashboard data, including `/bn/dashboard/newsletter` and `/bn/dashboard/analytics`.
    - Public visitors can read only published blog posts and approved testimonials.
    - New newsletter signup at `/bn#newsletter` creates a pending subscriber and logs a mock confirmation email (check Vercel logs). Confirm via `/bn/newsletter/confirm?token=...` sets `is_confirmed=true`.
+   - An administrator can open `/bn/dashboard` and see real-time stats, and use the new admin pages: `/bn/dashboard/users`, `/bn/dashboard/audit`, `/bn/dashboard/settings`, `/bn/dashboard/blog`, `/bn/dashboard/comments`, `/bn/dashboard/notifications`, `/bn/dashboard/health`, `/bn/dashboard/logs`, `/bn/dashboard/export`.
+   - A visitor can comment on a published blog post at `/bn/blog/<slug>`; the comment stays hidden until an admin approves it in `/bn/dashboard/comments`.
 
 ## Fresh installations
 

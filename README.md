@@ -90,6 +90,16 @@ npm run type-check
 | 16 | মিশন কন্ট্রোল | SEO + Deploy |
 | 17 | ম্যাজিক টাচ | Interactive Extras |
 | 18 | ক্রাউন জুয়েল | Final Launch |
+| 19 | Image Migration | Cloudinary image infrastructure |
+| 20 | Profile Images | Profile photo integration |
+| 21 | Gallery Upload | Gallery images upload |
+| 22 | Services & Portfolio | Services/portfolio enhancement |
+| 23 | Blog System | Bilingual blog system |
+| 24 | Search Functionality | Site-wide real-time search |
+| 25 | Security & SEO | RLS hardening + SEO fixes |
+| 26 | Advanced Analytics | GA4 + first-party tracking + dashboard |
+| 27 | Newsletter System | Double opt-in + campaigns + admin |
+| 28 | Admin Dashboard | Real-time stats, health, RBAC, CMS, comments, notifications, export, logs |
 
 ## 👤 Author
 

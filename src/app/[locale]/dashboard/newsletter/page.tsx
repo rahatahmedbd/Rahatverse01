@@ -6,9 +6,5 @@ interface PageProps {
 
 export default async function NewsletterAdminPage({ params }: PageProps) {
   const { locale } = await params;
-  return (
-    <div className="mx-auto max-w-7xl px-4">
-      <NewsletterDashboard locale={locale} />
-    </div>
-  );
+  return <NewsletterDashboard locale={locale} />;
 }

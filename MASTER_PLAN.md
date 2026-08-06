@@ -772,6 +772,11 @@ npm run type-check (if available)
 
 ## 📊 আপডেটেড টাইমলাইন (18 Phases)
 
+> **স্ট্যাটাস আপডেট:** মূল ১৮টি Phase সম্পন্ন ✅ — এরপর Phase 19–28 সম্পন্ন হয়েছে
+> (Image Migration, Profile/Gallery Upload, Services/Portfolio, Blog, Search,
+> Security/SEO, Advanced Analytics, Newsletter, Admin Dashboard Enhancement)।
+> প্রতিটি Phase-এর বিস্তারিত `PHASE_XX_COMPLETION.md` ফাইলে আছে।
+
 | # | নাম | বিষয় | সময় |
 |---|-----|-------|------|
 | 🌑 01 | জেনেসিস | Foundation | 1 দিন |

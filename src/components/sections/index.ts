@@ -18,3 +18,5 @@ export { OrderWizard } from "./OrderWizard";
 export { ContactSection } from "./ContactSection";
 export { TestimonialsSection } from "./TestimonialsSection";
 export { FAQSection } from "./FAQSection";
+export { BlogListSection } from "./BlogListSection";
+export { LinkHubSection } from "./LinkHubSection";

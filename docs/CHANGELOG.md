@@ -4,6 +4,27 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] — Phase 31 — "প্রিমিয়াম UI কিট" Premium Form & Feedback System
+
+### Added
+- New unified form field kit (`src/components/ui/form.tsx`): `FormField`,
+  `TextField`, `TextAreaField`, `SelectField`, `ChipGroup` with inline validation,
+  error/success states, focus rings and micro-interactions. Exported from the UI
+  barrel.
+- Inline per-step validation on the **Order Wizard** and **Contact form**
+  (Bengali + English), with error clearing on edit and richer review/success
+  presentation.
+- Live feature-count hints and feature badges on the order review step.
+- Unit tests for the email/phone validation contracts used by both forms.
+
+### Changed
+- Order Wizard and Contact form now use the shared premium form kit instead of
+  ad-hoc raw inputs (consistent styling, accessibility, feedback).
+
+### Docs
+- `docs/ENHANCEMENT_PHASES.md` — new roadmap (Phase 31+) for UI/UX & order-system
+  polish; `PHASE_31_COMPLETION.md` added.
+
 ## [0.4.0] — Phase 30 — Final Testing & Documentation (in progress)
 
 ### Added

@@ -16,6 +16,15 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import {
+  FormField,
+  TextField,
+  TextAreaField,
+  SelectField,
+} from "@/components/ui/form";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^[+\d][\d\s()-]{5,24}$/;
 
 // ── Contact Section ────────────────────────────────────
 interface ContactSectionProps {
@@ -27,6 +36,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [form, setForm] = useState({
     name: "",
@@ -36,8 +46,38 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
     message: "",
   });
 
+  const updateField = (field: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!form.name.trim()) errs.name = isBn ? "আপনার নাম লিখুন" : "Please enter your name";
+    if (!form.email.trim()) {
+      errs.email = isBn ? "ইমেইল লিখুন" : "Please enter your email";
+    } else if (!EMAIL_RE.test(form.email.trim())) {
+      errs.email = isBn ? "সঠিক ইমেইল দিন" : "Enter a valid email address";
+    }
+    if (form.phone && !PHONE_RE.test(form.phone.trim())) {
+      errs.phone = isBn ? "সঠিক ফোন নম্বর দিন" : "Enter a valid phone number";
+    }
+    if (!form.subject) errs.subject = isBn ? "বিষয় বেছে নিন" : "Please choose a subject";
+    if (!form.message.trim()) errs.message = isBn ? "বার্তা লিখুন" : "Please write your message";
+    return errs;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+
     setIsSubmitting(true);
     setError("");
 
@@ -158,70 +198,90 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                     <h3 className="text-lg font-bold bn">{isBn ? "বার্তা পাঠান" : "Send a Message"}</h3>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <label className="mb-1 block text-sm font-medium bn">{isBn ? "নাম *" : "Name *"}</label>
-                        <input
-                          type="text"
-                          required
+                      <FormField
+                        id="contact-name"
+                        label={isBn ? "নাম" : "Name"}
+                        required
+                        error={errors.name}
+                      >
+                        <TextField
+                          id="contact-name"
                           value={form.name}
-                          onChange={(e) => setForm({ ...form, name: e.target.value })}
+                          onChange={(e) => updateField("name", e.target.value)}
                           placeholder={isBn ? "আপনার নাম" : "Your name"}
-                          className="w-full rounded-lg border border-border bg-background p-3 text-sm"
+                          invalid={!!errors.name}
                         />
-                      </div>
-                      <div>
-                        <label className="mb-1 block text-sm font-medium bn">{isBn ? "ইমেইল *" : "Email *"}</label>
-                        <input
+                      </FormField>
+                      <FormField
+                        id="contact-email"
+                        label={isBn ? "ইমেইল" : "Email"}
+                        required
+                        error={errors.email}
+                      >
+                        <TextField
+                          id="contact-email"
                           type="email"
-                          required
                           value={form.email}
-                          onChange={(e) => setForm({ ...form, email: e.target.value })}
+                          onChange={(e) => updateField("email", e.target.value)}
                           placeholder="email@example.com"
-                          className="w-full rounded-lg border border-border bg-background p-3 text-sm"
+                          invalid={!!errors.email}
                         />
-                      </div>
+                      </FormField>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <label className="mb-1 block text-sm font-medium bn">{isBn ? "ফোন" : "Phone"}</label>
-                        <input
+                      <FormField
+                        id="contact-phone"
+                        label={isBn ? "ফোন" : "Phone"}
+                        hint={isBn ? "ঐচ্ছিক" : "Optional"}
+                        error={errors.phone}
+                      >
+                        <TextField
+                          id="contact-phone"
                           type="tel"
                           value={form.phone}
-                          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                          onChange={(e) => updateField("phone", e.target.value)}
                           placeholder="+880 1XXX-XXXXXX"
-                          className="w-full rounded-lg border border-border bg-background p-3 text-sm"
+                          invalid={!!errors.phone}
                         />
-                      </div>
-                      <div>
-                        <label className="mb-1 block text-sm font-medium bn">{isBn ? "বিষয় *" : "Subject *"}</label>
-                        <select
-                          required
+                      </FormField>
+                      <FormField
+                        id="contact-subject"
+                        label={isBn ? "বিষয়" : "Subject"}
+                        required
+                        error={errors.subject}
+                      >
+                        <SelectField
+                          id="contact-subject"
                           value={form.subject}
-                          onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                          className="w-full rounded-lg border border-border bg-background p-3 text-sm bn"
+                          onChange={(e) => updateField("subject", e.target.value)}
+                          placeholder={isBn ? "বিষয় বেছে নিন" : "Select subject"}
+                          invalid={!!errors.subject}
                         >
-                          <option value="">{isBn ? "বিষয় বেছে নিন" : "Select subject"}</option>
                           <option value="web_dev">{isBn ? "ওয়েব ডেভেলপমেন্ট" : "Web Development"}</option>
                           <option value="tutoring">{isBn ? "টিউশন / পড়াশোনা" : "Tutoring"}</option>
                           <option value="blood">{isBn ? "রক্তদান সংক্রান্ত" : "Blood Donation"}</option>
                           <option value="collaboration">{isBn ? "সহযোগিতা" : "Collaboration"}</option>
                           <option value="general">{isBn ? "সাধারণ জিজ্ঞাসা" : "General Inquiry"}</option>
-                        </select>
-                      </div>
+                        </SelectField>
+                      </FormField>
                     </div>
 
-                    <div>
-                      <label className="mb-1 block text-sm font-medium bn">{isBn ? "বার্তা *" : "Message *"}</label>
-                      <textarea
-                        required
+                    <FormField
+                      id="contact-message"
+                      label={isBn ? "বার্তা" : "Message"}
+                      required
+                      error={errors.message}
+                    >
+                      <TextAreaField
+                        id="contact-message"
                         value={form.message}
-                        onChange={(e) => setForm({ ...form, message: e.target.value })}
+                        onChange={(e) => updateField("message", e.target.value)}
                         placeholder={isBn ? "বিস্তারিত লিখুন..." : "Write your message..."}
                         rows={4}
-                        className="w-full rounded-lg border border-border bg-background p-3 text-sm resize-none"
+                        invalid={!!errors.message}
                       />
-                    </div>
+                    </FormField>
 
                     {error && (
                       <div className="flex items-center gap-2 text-sm text-red-400">

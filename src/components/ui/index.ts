@@ -18,3 +18,20 @@ export type { BadgeProps } from "./badge";
 export { Separator } from "./separator";
 
 export { Skeleton, CardSkeleton, PageLoader } from "./skeleton";
+
+// Phase 31 — Premium form field system
+export {
+  FormField,
+  TextField,
+  TextAreaField,
+  SelectField,
+  ChipGroup,
+} from "./form";
+export type {
+  FormFieldProps,
+  TextFieldProps,
+  TextAreaFieldProps,
+  SelectFieldProps,
+  ChipGroupProps,
+  ChipOption,
+} from "./form";

@@ -1,22 +1,26 @@
 import createMiddleware from "next-intl/middleware";
 import { routing } from "@/i18n/routing";
+import { NextRequest } from "next/server";
 
 // ── Middleware ──────────────────────────────────────────
 // Handles locale routing via next-intl
-// Supabase session refresh will be integrated in future phases
 
-export default createMiddleware(routing);
+const intlMiddleware = createMiddleware(routing);
+
+export default function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Skip locale redirect for PWA and static routes
+  const publicRoutes = ["/manifest.json", "/offline", "/icons/"];
+  if (publicRoutes.some((route) => pathname.startsWith(route))) {
+    return;
+  }
+
+  return intlMiddleware(request);
+}
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - public files
-     * - api routes (handled separately)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json)$).*)",
   ],
 };

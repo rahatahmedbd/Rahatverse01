@@ -14,12 +14,22 @@ import {
   Users,
   ArrowUpRight,
   Image as ImageIcon,
+  BarChart3,
+  Eye,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 
 // ── Dashboard Overview ─────────────────────────────────
 interface DashboardOverviewProps {
   locale?: string;
+}
+
+interface AnalyticsOverview {
+  pageViews: number;
+  sessions: number;
+  bounceRate: number | null;
+  avgSessionSeconds: number;
 }
 
 export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
@@ -30,6 +40,7 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
     bloodRequests: 0,
     testimonials: 0,
   });
+  const [analytics, setAnalytics] = useState<AnalyticsOverview | null>(null);
 
   useEffect(() => {
     // Fetch counts from APIs
@@ -38,13 +49,24 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
       fetch("/api/messages").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/blood-requests").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/testimonials").then((r) => r.json()).catch(() => ({ data: [] })),
-    ]).then(([orders, messages, blood, testimonials]) => {
+      fetch("/api/analytics?range=30").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]).then(([orders, messages, blood, testimonials, analyticsSummary]) => {
       setStats({
         orders: orders?.data?.length || 0,
         messages: messages?.data?.length || 0,
         bloodRequests: blood?.data?.length || 0,
         testimonials: testimonials?.data?.length || 0,
       });
+
+      const totals = analyticsSummary?.totals;
+      if (totals) {
+        setAnalytics({
+          pageViews: totals.pageViews ?? 0,
+          sessions: totals.sessions ?? 0,
+          bounceRate: totals.bounceRate ?? null,
+          avgSessionSeconds: totals.avgSessionSeconds ?? 0,
+        });
+      }
     });
   }, []);
 
@@ -115,11 +137,61 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
           ))}
         </StaggerContainer>
 
+        {/* Visitor Statistics Strip (last 30 days) */}
+        {analytics && (
+          <FadeInUp delay={0.15}>
+            <Link href={`/${locale}/dashboard/analytics`} className="mt-6 block">
+              <GlassCard className="group flex flex-col gap-4 p-5 transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
+                    <BarChart3 className="h-6 w-6 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="font-bold bn">{isBn ? "ভিজিটর পরিসংখ্যান (৩০ দিন)" : "Visitor Statistics (30 days)"}</p>
+                    <p className="text-xs text-muted-foreground bn">
+                      {isBn ? "বিস্তারিত অ্যানালিটিক্স দেখতে ক্লিক করুন" : "Click to open the full analytics dashboard"}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-2 sm:flex sm:items-center sm:gap-6">
+                  <span className="flex items-center gap-2 text-sm">
+                    <Eye className="h-4 w-4 text-amber-400" />
+                    <span className="font-bold">{analytics.pageViews.toLocaleString()}</span>
+                    <span className="text-muted-foreground bn">{isBn ? "ভিউ" : "views"}</span>
+                  </span>
+                  <span className="flex items-center gap-2 text-sm">
+                    <Users className="h-4 w-4 text-blue-400" />
+                    <span className="font-bold">{analytics.sessions.toLocaleString()}</span>
+                    <span className="text-muted-foreground bn">{isBn ? "সেশন" : "sessions"}</span>
+                  </span>
+                  <span className="flex items-center gap-2 text-sm">
+                    <TrendingUp className="h-4 w-4 text-red-400" />
+                    <span className="font-bold">
+                      {analytics.bounceRate !== null ? `${(analytics.bounceRate * 100).toFixed(1)}%` : "—"}
+                    </span>
+                    <span className="text-muted-foreground bn">{isBn ? "বাউন্স" : "bounce"}</span>
+                  </span>
+                  <span className="flex items-center gap-2 text-sm">
+                    <Clock className="h-4 w-4 text-purple-400" />
+                    <span className="font-bold">
+                      {analytics.avgSessionSeconds > 0
+                        ? `${Math.floor(analytics.avgSessionSeconds / 60)}m ${analytics.avgSessionSeconds % 60}s`
+                        : "0s"}
+                    </span>
+                    <span className="text-muted-foreground bn">{isBn ? "গড় সময়" : "avg. time"}</span>
+                  </span>
+                  <ArrowUpRight className="hidden h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 sm:block" />
+                </div>
+              </GlassCard>
+            </Link>
+          </FadeInUp>
+        )}
+
         {/* Quick Actions */}
         <FadeInUp delay={0.2}>
           <div className="mt-8">
             <h3 className="mb-4 text-lg font-bold bn">{isBn ? "দ্রুত কাজ" : "Quick Actions"}</h3>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <Link href={`/${locale}/dashboard/orders`}>
                 <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
                   <TrendingUp className="h-5 w-5 text-primary" />
@@ -142,6 +214,12 @@ export function DashboardOverview({ locale = "bn" }: DashboardOverviewProps) {
                 <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
                   <Users className="h-5 w-5 text-green-400" />
                   <span className="font-medium bn">{isBn ? "যোগাযোগ পেজ" : "Contact Page"}</span>
+                </GlassCard>
+              </Link>
+              <Link href={`/${locale}/dashboard/analytics`}>
+                <GlassCard className="flex items-center gap-3 transition-all hover:border-primary/30">
+                  <BarChart3 className="h-5 w-5 text-amber-400" />
+                  <span className="font-medium bn">{isBn ? "অ্যানালিটিক্স" : "Analytics"}</span>
                 </GlassCard>
               </Link>
             </div>

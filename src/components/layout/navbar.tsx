@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageToggle } from "./language-toggle";
 import { SearchDialog } from "@/components/interactive/SearchDialog";
+import { AccentCustomizer } from "@/components/interactive/AccentCustomizer";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { NAVIGATION_ITEMS } from "@/lib/constants";
@@ -85,6 +86,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <SearchDialog locale={locale} />
           <LanguageToggle />
+          <AccentCustomizer locale={locale} />
           <ThemeToggle />
 
           {/* Mobile Menu Button */}

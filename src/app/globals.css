@@ -102,6 +102,7 @@
   --border: #1e3a5f;
   --input: #1e293b;
   --ring: #f59e0b;
+  --selection-bg: rgba(16, 185, 129, 0.35);
 
   /* Phase B — unified gradient palette */
   --gradient-start: #fbbf24;
@@ -172,8 +173,9 @@
   --secondary: #e2e8f0;
   --secondary-foreground: #050a15;
   --muted: #e2e8f0;
-  --muted-foreground: #64748b;
+  --muted-foreground: #475569;
   --accent: #dbeafe;
+  --selection-bg: rgba(16, 185, 129, 0.25);
   --accent-foreground: #050a15;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
@@ -864,4 +866,68 @@ html[lang="bn"] .heading-kicker,
 @keyframes accordion-up {
   from { height: var(--radix-accordion-content-height); }
   to { height: 0; }
+}
+
+/* ── Phase H — Theme Polish & Customization Styles ─────────── */
+
+/* 1. Custom Text Selection Color (Dark & Light) */
+::selection {
+  background-color: var(--selection-bg, rgba(16, 185, 129, 0.35));
+  color: var(--foreground);
+}
+
+::-moz-selection {
+  background-color: var(--selection-bg, rgba(16, 185, 129, 0.35));
+  color: var(--foreground);
+}
+
+/* 2. Custom Scrollbar Styling (Dark & Light themes) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) var(--background);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 8px;
+  border: 2px solid var(--background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* 3. Theme Crossfade & Color Morph Transition */
+.theme-morph-transition,
+.theme-morph-transition *,
+.theme-morph-transition *::before,
+.theme-morph-transition *::after {
+  transition: background-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.45s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* 4. Native View Transitions API support for cinematic theme crossfade */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 999;
 }

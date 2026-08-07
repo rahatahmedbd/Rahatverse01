@@ -24,6 +24,8 @@ import {
   Settings2,
   Building2,
   Droplets,
+  Images,
+  Video,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +50,8 @@ const sections = [
   { href: "blood-requests", icon: Droplets, labelBn: "রক্ত অনুরোধ", labelEn: "Blood Requests" },
   { href: "messages", icon: MessageSquare, labelBn: "বার্তা", labelEn: "Messages" },
   { href: "images", icon: ImageIcon, labelBn: "মিডিয়া লাইব্রেরি", labelEn: "Media Library" },
+  { href: "gallery", icon: Images, labelBn: "গ্যালারি CMS", labelEn: "Gallery CMS" },
+  { href: "videos", icon: Video, labelBn: "ভিডিও CMS", labelEn: "Video CMS" },
   { href: "blog", icon: FileText, labelBn: "CMS / ব্লগ", labelEn: "CMS / Blog" },
   { href: "comments", icon: MessageCircle, labelBn: "কমেন্ট", labelEn: "Comments" },
   { href: "users", icon: Users, labelBn: "ইউজার", labelEn: "Users" },

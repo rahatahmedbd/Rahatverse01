@@ -11,6 +11,20 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/gallery-config`
+Public, validated photo-gallery configuration endpoint (Phase 7). Returns
+`{ data }` — the `gallery_config` document in `site_settings` (albums with
+featured cover public_ids, ordering, visibility, section headings, default
+mosaic/grid layout). Falls back to built-in defaults when the database is
+unavailable or the value fails validation.
+
+### `GET /api/video-config`
+Public, validated video-portfolio configuration endpoint (Phase 7). Returns
+`{ data }` — the `video_config` document in `site_settings` (YouTube/Vimeo/direct
+videos with video ids for modal embeds, categories, ordering, visibility, social
+links). Falls back to built-in defaults when the database is unavailable or the
+value fails validation.
+
 ### `GET /api/experience-config`
 Public, validated Experience / Blood Society / Memorial configuration endpoint
 (Phase 6). Returns `{ data }` — the `experience_config` document in

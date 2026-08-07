@@ -4,6 +4,25 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.10.0] — Phase 7 — Cloudinary Media Library, Photo Gallery & Video Showcase CMS
+
+### Added
+- **Photo Gallery CMS** — `site_settings.gallery_config` (migration
+  `016_media_admin_control.sql`) drives albums (name/slug/description/featured
+  cover public_id/ordering/visibility), section headings and the default
+  mosaic/grid layout.
+- **Video Portfolio CMS** — `site_settings.video_config` drives
+  YouTube/Vimeo/direct videos (title, description, category, video id for modal
+  embeds, thumbnail, ordering, visibility) plus social links.
+- Public `/api/gallery-config` and `/api/video-config` endpoints with resilient
+  defaults.
+- `GalleryControlPanel` at `/[locale]/dashboard/gallery` and `VideoControlPanel`
+  at `/[locale]/dashboard/videos` (new "Gallery CMS" and "Video CMS" nav entries).
+- Refactored home `GallerySection` into a config-driven album browser, updated the
+  dedicated `Gallery` page to use album-driven filters (and `?album=` deep links),
+  and made `VideoPortfolio` config-driven with an in-page video modal preview.
+- Twelve unit tests covering the new CMS validation contracts.
+
 ## [0.9.0] — Phase 6 — Experience, Shantichakra Blood Society & Memorial CMS
 
 ### Added

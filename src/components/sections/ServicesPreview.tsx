@@ -4,6 +4,7 @@ import { GlassCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "./SectionTitle";
 import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 import {
   Globe,
   ShoppingBag,
@@ -62,10 +63,12 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
         <StaggerGrid columns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" gap="gap-4">
           {websiteTypes.map((type) => (
             <StaggerItem key={type.label}>
-              <GlassCard className="h-full text-center transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
-                <type.icon className="mx-auto mb-2 h-8 w-8 text-primary" />
-                <p className="text-sm font-medium bn">{type.label}</p>
-              </GlassCard>
+              <HoverCard3D className="h-full">
+                <GlassCard className="h-full text-center transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
+                  <type.icon className="mx-auto mb-2 h-8 w-8 text-primary" />
+                  <p className="text-sm font-medium bn">{type.label}</p>
+                </GlassCard>
+              </HoverCard3D>
             </StaggerItem>
           ))}
         </StaggerGrid>

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 // ── Button Variants ────────────────────────────────────
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "button-ripple magnetic-target inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
   {
     variants: {
       variant: {
@@ -49,15 +49,49 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  /** Enables the shared pointer magnet. It safely falls back to a normal button on touch/reduced-motion devices. */
+  magnetic?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      magnetic = true,
+      onPointerDown,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button";
+
+    const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+      onPointerDown?.(event);
+
+      if (event.defaultPrevented || disabled) return;
+
+      const target = event.currentTarget;
+      const bounds = target.getBoundingClientRect();
+      target.style.setProperty("--ripple-x", `${event.clientX - bounds.left}px`);
+      target.style.setProperty("--ripple-y", `${event.clientY - bounds.top}px`);
+      target.dataset.rippling = "true";
+
+      window.setTimeout(() => {
+        delete target.dataset.rippling;
+      }, 650);
+    };
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        data-magnetic={magnetic && !disabled ? "true" : undefined}
+        onPointerDown={handlePointerDown}
+        disabled={disabled}
         {...props}
       />
     );

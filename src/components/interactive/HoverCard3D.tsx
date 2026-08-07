@@ -1,10 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
+import { useFinePointer, useMotionPreference } from "@/components/animations/motion-preferences";
 
 // ── 3D Hover Card ──────────────────────────────────────
-// Card with 3D tilt effect on hover
+// Uses CSS variables instead of React state so pointer movement never causes
+// component re-renders. The effect is reserved for fine pointers and honours
+// reduced-motion preferences.
 
 interface HoverCard3DProps {
   children: React.ReactNode;
@@ -15,50 +18,50 @@ interface HoverCard3DProps {
 export function HoverCard3D({
   children,
   className,
-  intensity = 10,
+  intensity = 7,
 }: HoverCard3DProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState("perspective(1000px) rotateX(0deg) rotateY(0deg)");
-  const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
+  const hasFinePointer = useFinePointer();
+  const prefersReducedMotion = useMotionPreference();
+  const isEnabled = hasFinePointer && !prefersReducedMotion;
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+  const reset = () => {
+    const card = cardRef.current;
+    if (!card) return;
 
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * -intensity;
-    const rotateY = ((x - centerX) / centerX) * intensity;
-
-    setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
-    setGlare({ x: (x / rect.width) * 100, y: (y / rect.height) * 100, opacity: 0.15 });
+    card.style.setProperty("--tilt-x", "0deg");
+    card.style.setProperty("--tilt-y", "0deg");
+    card.style.setProperty("--tilt-glare-x", "50%");
+    card.style.setProperty("--tilt-glare-y", "50%");
+    card.style.setProperty("--tilt-glare-opacity", "0");
   };
 
-  const handleMouseLeave = () => {
-    setTransform("perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
-    setGlare({ x: 50, y: 50, opacity: 0 });
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isEnabled || !cardRef.current) return;
+
+    const bounds = cardRef.current.getBoundingClientRect();
+    if (!bounds.width || !bounds.height) return;
+
+    const x = (event.clientX - bounds.left) / bounds.width;
+    const y = (event.clientY - bounds.top) / bounds.height;
+    const rotateX = (0.5 - y) * intensity;
+    const rotateY = (x - 0.5) * intensity;
+
+    cardRef.current.style.setProperty("--tilt-x", `${rotateX.toFixed(2)}deg`);
+    cardRef.current.style.setProperty("--tilt-y", `${rotateY.toFixed(2)}deg`);
+    cardRef.current.style.setProperty("--tilt-glare-x", `${(x * 100).toFixed(1)}%`);
+    cardRef.current.style.setProperty("--tilt-glare-y", `${(y * 100).toFixed(1)}%`);
+    cardRef.current.style.setProperty("--tilt-glare-opacity", "0.16");
   };
 
   return (
     <div
       ref={cardRef}
-      className={cn("relative overflow-hidden transition-transform duration-200", className)}
-      style={{ transform }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      className={cn("tilt-card rounded-xl", className)}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={reset}
     >
       {children}
-      {/* Glare effect */}
-      <div
-        className="pointer-events-none absolute inset-0 transition-opacity duration-200"
-        style={{
-          background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255,255,255,${glare.opacity}), transparent 50%)`,
-        }}
-      />
     </div>
   );
 }

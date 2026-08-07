@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "@/components/animations/motion-preferences";
 import { MessageCircle, ShoppingCart, ArrowUp, Mail, Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -16,6 +17,7 @@ interface QuickActionsProps {
 export function QuickActions({ className }: QuickActionsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const prefersReducedMotion = useMotionPreference();
   const locale = pathname.startsWith("/en") ? "en" : "bn";
   const basePath = `/${locale}`;
 
@@ -49,7 +51,7 @@ export function QuickActions({ className }: QuickActionsProps) {
       label: locale === "en" ? "Scroll to Top" : "উপরে যান",
       icon: ArrowUp,
       onClick: () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
         setIsOpen(false);
       },
       color: "glass glass-interactive text-primary border-primary/20 shadow-md shadow-primary/10",

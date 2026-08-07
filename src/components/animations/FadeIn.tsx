@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "./motion-preferences";
 
-// ── Fade In Up ─────────────────────────────────────────
+// ── Shared viewport reveal ─────────────────────────────
 interface FadeInUpProps {
   children: React.ReactNode;
   className?: string;
@@ -12,125 +13,70 @@ interface FadeInUpProps {
   distance?: number;
 }
 
-export function FadeInUp({
+type RevealDirection = "up" | "down" | "left" | "right" | "scale" | "blur";
+
+function FadeIn({
   children,
   className,
   delay = 0,
   duration = 0.5,
   distance = 20,
-}: FadeInUpProps) {
+  direction,
+}: FadeInUpProps & { direction: RevealDirection }) {
+  const prefersReducedMotion = useMotionPreference();
+
+  const initialByDirection = {
+    up: { opacity: 0, y: distance },
+    down: { opacity: 0, y: -distance },
+    left: { opacity: 0, x: -distance },
+    right: { opacity: 0, x: distance },
+    scale: { opacity: 0, scale: 0.9 },
+    blur: { opacity: 0, filter: "blur(10px)" },
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: distance }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={prefersReducedMotion ? false : initialByDirection[direction]}
+      whileInView={
+        prefersReducedMotion
+          ? undefined
+          : { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)" }
+      }
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration, delay, ease: [0.25, 0.4, 0.25, 1] }}
+      transition={prefersReducedMotion ? { duration: 0 } : { duration, delay, ease: [0.16, 1, 0.3, 1] }}
       className={cn(className)}
     >
       {children}
     </motion.div>
   );
+}
+
+// ── Fade In Up ─────────────────────────────────────────
+export function FadeInUp(props: FadeInUpProps) {
+  return <FadeIn {...props} direction="up" />;
 }
 
 // ── Fade In Down ───────────────────────────────────────
-export function FadeInDown({
-  children,
-  className,
-  delay = 0,
-  duration = 0.5,
-  distance = 20,
-}: FadeInUpProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -distance }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration, delay, ease: [0.25, 0.4, 0.25, 1] }}
-      className={cn(className)}
-    >
-      {children}
-    </motion.div>
-  );
+export function FadeInDown(props: FadeInUpProps) {
+  return <FadeIn {...props} direction="down" />;
 }
 
 // ── Fade In Left ───────────────────────────────────────
-export function FadeInLeft({
-  children,
-  className,
-  delay = 0,
-  duration = 0.5,
-  distance = 20,
-}: FadeInUpProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -distance }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration, delay, ease: [0.25, 0.4, 0.25, 1] }}
-      className={cn(className)}
-    >
-      {children}
-    </motion.div>
-  );
+export function FadeInLeft(props: FadeInUpProps) {
+  return <FadeIn {...props} direction="left" />;
 }
 
 // ── Fade In Right ──────────────────────────────────────
-export function FadeInRight({
-  children,
-  className,
-  delay = 0,
-  duration = 0.5,
-  distance = 20,
-}: FadeInUpProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: distance }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration, delay, ease: [0.25, 0.4, 0.25, 1] }}
-      className={cn(className)}
-    >
-      {children}
-    </motion.div>
-  );
+export function FadeInRight(props: FadeInUpProps) {
+  return <FadeIn {...props} direction="right" />;
 }
 
 // ── Scale In ───────────────────────────────────────────
-export function ScaleIn({
-  children,
-  className,
-  delay = 0,
-  duration = 0.4,
-}: FadeInUpProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration, delay, ease: [0.25, 0.4, 0.25, 1] }}
-      className={cn(className)}
-    >
-      {children}
-    </motion.div>
-  );
+export function ScaleIn(props: Omit<FadeInUpProps, "distance">) {
+  return <FadeIn {...props} direction="scale" />;
 }
 
 // ── Blur In ────────────────────────────────────────────
-export function BlurIn({
-  children,
-  className,
-  delay = 0,
-  duration = 0.6,
-}: FadeInUpProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, filter: "blur(10px)" }}
-      whileInView={{ opacity: 1, filter: "blur(0px)" }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration, delay, ease: "easeOut" }}
-      className={cn(className)}
-    >
-      {children}
-    </motion.div>
-  );
+export function BlurIn(props: Omit<FadeInUpProps, "distance">) {
+  return <FadeIn {...props} direction="blur" />;
 }

@@ -2,6 +2,9 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "./motion-preferences";
+
+const revealEase = [0.16, 1, 0.3, 1] as const;
 
 // ── Stagger Container ──────────────────────────────────
 interface StaggerContainerProps {
@@ -15,10 +18,12 @@ export function StaggerContainer({
   className,
   staggerDelay = 0.1,
 }: StaggerContainerProps) {
+  const prefersReducedMotion = useMotionPreference();
+
   return (
     <motion.div
-      initial="hidden"
-      whileInView="visible"
+      initial={prefersReducedMotion ? false : "hidden"}
+      whileInView={prefersReducedMotion ? undefined : "visible"}
       viewport={{ once: true, margin: "-50px" }}
       variants={{
         visible: {
@@ -63,7 +68,7 @@ export function StaggerItem({
           x: 0,
           y: 0,
           scale: 1,
-          transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] },
+          transition: { duration: 0.5, ease: revealEase },
         },
       }}
       className={cn(className)}

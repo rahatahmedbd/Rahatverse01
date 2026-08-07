@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { useMotionPreference } from "@/components/animations/motion-preferences";
 
 // ── Check if intro already played ──────────────────────
 function shouldPlayIntro(): boolean {
@@ -15,15 +16,18 @@ function shouldPlayIntro(): boolean {
 
 export function CinematicIntro() {
   const [isPlaying, setIsPlaying] = useState(shouldPlayIntro);
+  const prefersReducedMotion = useMotionPreference();
 
   const handleComplete = () => {
     setIsPlaying(false);
     localStorage.setItem("rahatverse-intro-played", "true");
   };
 
+  // Never block content behind a cinematic sequence for visitors who request
+  // reduced motion. The normal interactive completion persists the skip.
   return (
     <AnimatePresence>
-      {isPlaying && (
+      {isPlaying && !prefersReducedMotion && (
         <motion.div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-void"
           initial={{ opacity: 1 }}

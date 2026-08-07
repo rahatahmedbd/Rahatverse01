@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "./motion-preferences";
 
 // ── Scroll Progress Bar ────────────────────────────────
 interface ScrollProgressProps {
@@ -43,17 +44,19 @@ export function ScrollProgress({
 
 // ── Scroll Indicator (Arrow) ───────────────────────────
 export function ScrollIndicator({ className }: { className?: string }) {
+  const prefersReducedMotion = useMotionPreference();
+
   return (
     <motion.div
       className={cn("flex flex-col items-center gap-2", className)}
-      initial={{ opacity: 0 }}
+      initial={prefersReducedMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 1, duration: 0.5 }}
+      transition={prefersReducedMotion ? { duration: 0 } : { delay: 1, duration: 0.5 }}
     >
       <span className="text-xs text-muted-foreground">Scroll</span>
       <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        animate={prefersReducedMotion ? undefined : { y: [0, 8, 0] }}
+        transition={prefersReducedMotion ? { duration: 0 } : { duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
       >
         <svg
           width="20"
@@ -78,6 +81,7 @@ export function ScrollIndicator({ className }: { className?: string }) {
 // ── Scroll to Top Button ───────────────────────────────
 export function ScrollToTop({ className }: { className?: string }) {
   const [isVisible, setIsVisible] = useState(false);
+  const prefersReducedMotion = useMotionPreference();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -89,7 +93,7 @@ export function ScrollToTop({ className }: { className?: string }) {
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
   };
 
   return (

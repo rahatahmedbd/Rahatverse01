@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 // ── Section Title Component ────────────────────────────
 interface SectionTitleProps {
   badge?: string;
+  kicker?: string;
   title: string;
   titleBn?: string;
   subtitle?: string;
@@ -13,10 +14,12 @@ interface SectionTitleProps {
   className?: string;
   align?: "left" | "center" | "right";
   locale?: string;
+  underline?: boolean;
 }
 
 export function SectionTitle({
   badge,
+  kicker,
   title,
   titleBn,
   subtitle,
@@ -24,6 +27,7 @@ export function SectionTitle({
   className,
   align = "center",
   locale = "bn",
+  underline = true,
 }: SectionTitleProps) {
   const displayTitle = locale === "bn" && titleBn ? titleBn : title;
   const displaySubtitle = locale === "bn" && subtitleBn ? subtitleBn : subtitle;
@@ -42,6 +46,18 @@ export function SectionTitle({
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6 }}
     >
+      {kicker && (
+        <motion.p
+          className={cn("type-kicker mb-2", locale === "bn" && "bn")}
+          initial={{ opacity: 0, y: 8 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.05, duration: 0.4 }}
+        >
+          {kicker}
+        </motion.p>
+      )}
+
       {badge && (
         <motion.span
           className="mb-3 inline-block rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
@@ -56,8 +72,9 @@ export function SectionTitle({
 
       <motion.h2
         className={cn(
-          "text-3xl font-bold sm:text-4xl",
-          locale === "bn" && "bn"
+          "font-display text-h2",
+          locale === "bn" && "bn",
+          underline && cn("gradient-underline", align === "center" && "gradient-underline-center")
         )}
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}

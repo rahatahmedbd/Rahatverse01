@@ -67,10 +67,10 @@ export default function TestimonialsSection({ locale = "bn", limit = 6 }: Testim
     <div className="py-12">
       <FadeInUp>
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">
+          <h2 className={`font-display text-h2 gradient-underline gradient-underline-center inline-block pb-3 ${isBn ? "bn" : ""}`}>
             {isBn ? "ক্লায়েন্টদের মতামত" : "Client Testimonials"}
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className={`mt-4 text-lg text-muted-foreground ${isBn ? "bn" : ""}`}>
             {isBn 
               ? "আমার ক্লায়েন্টরা কী বলছেন" 
               : "What my clients say about my work"}

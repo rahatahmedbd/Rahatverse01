@@ -78,7 +78,7 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
 
         {/* Name */}
         <FadeInUp delay={0.6}>
-          <h1 className="bn text-4xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="bn font-display text-display">
             <span className="text-gradient-animated">রাহাত আহমেদ</span>
           </h1>
           <p className="mt-1 text-lg text-muted-foreground sm:text-xl">

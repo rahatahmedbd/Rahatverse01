@@ -47,6 +47,7 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
+          kicker={isBn ? "আমার দক্ষতা" : "What I offer"}
           badge={isBn ? "💻 সার্ভিস" : "💻 Services"}
           title="Web Development Services"
           titleBn="ওয়েব ডেভেলপমেন্ট সার্ভিস"

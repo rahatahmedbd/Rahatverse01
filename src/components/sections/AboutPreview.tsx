@@ -58,6 +58,7 @@ export function AboutPreview({ locale = "bn" }: AboutPreviewProps) {
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
+          kicker={isBn ? "কে আমি" : "Who I am"}
           badge={isBn ? "👤 পরিচয়" : "👤 Introduction"}
           title="About Me"
           titleBn="আমার সম্পর্কে"

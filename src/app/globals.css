@@ -50,7 +50,9 @@
 
   /* Font */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Sora", "Inter", system-ui, -apple-system, sans-serif;
   --font-bengali: "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
+  --font-bengali-display: "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
   /* Animations */
@@ -88,6 +90,18 @@
   --gradient-surface: linear-gradient(180deg, #0a1628, #050a15);
   --gradient-glow: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
   --gradient-aurora: linear-gradient(135deg, #0a1628 0%, #1e3a5f 25%, #0a1628 50%, #1a1f3c 75%, #050a15 100%);
+
+  /* ── Fluid Type Scale — Phase C "টাইপোগ্রাফি সিম্ফনি" ── */
+  --text-xs: clamp(0.75rem, 0.72rem + 0.14vw, 0.8125rem);
+  --text-sm: clamp(0.875rem, 0.83rem + 0.22vw, 0.9375rem);
+  --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  --text-lg: clamp(1.125rem, 1.06rem + 0.34vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.15rem + 0.5vw, 1.4375rem);
+  --text-2xl: clamp(1.5rem, 1.33rem + 0.9vw, 1.875rem);
+  --text-3xl: clamp(1.875rem, 1.55rem + 1.7vw, 2.375rem);
+  --text-4xl: clamp(2.25rem, 1.78rem + 2.4vw, 3.125rem);
+  --text-5xl: clamp(2.75rem, 2.05rem + 3.6vw, 4.25rem);
+  --text-display: clamp(3rem, 2rem + 5vw, 5.5rem);
 }
 
 /* ── Light Theme ──────────────────────────────────────── */
@@ -136,6 +150,117 @@ body {
 /* ── Bengali Text ─────────────────────────────────────── */
 .bn {
   font-family: var(--font-bengali);
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+}
+
+/* ── Typography System — Phase C ─────────────────────── */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Fluid display / heading / body scale utilities */
+.text-display {
+  font-size: var(--text-display);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+.text-h1 {
+  font-size: var(--text-5xl);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  font-weight: 800;
+}
+.text-h2 {
+  font-size: var(--text-4xl);
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  font-weight: 700;
+}
+.text-h3 {
+  font-size: var(--text-2xl);
+  line-height: 1.2;
+  letter-spacing: -0.008em;
+  font-weight: 700;
+}
+.text-h4 {
+  font-size: var(--text-xl);
+  line-height: 1.28;
+  letter-spacing: -0.005em;
+  font-weight: 600;
+}
+.text-body {
+  font-size: var(--text-base);
+  line-height: 1.7;
+  letter-spacing: 0;
+}
+.text-small {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+/* Default heading rhythm & body readability (overridable by utilities) */
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+p {
+  text-wrap: pretty;
+}
+.bn.text-display,
+.bn.text-h1,
+.bn.text-h2,
+.bn.text-h3 {
+  font-family: var(--font-bengali-display);
+  letter-spacing: 0;
+}
+
+/* Gradient kicker (uppercase accent label) */
+.type-kicker {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.bn .type-kicker,
+.type-kicker.bn {
+  font-family: var(--font-bengali-display);
+  text-transform: none;
+  letter-spacing: 0.06em;
+}
+
+/* Animated gradient accent underline */
+.gradient-underline {
+  position: relative;
+}
+.gradient-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.28em;
+  height: 3px;
+  width: 3.2em;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    #f59e0b, #f97316, #ef4444, #8b5cf6, #3b82f6
+  );
+  background-size: 200% 100%;
+  animation: gradient-shift 6s ease infinite;
+}
+.gradient-underline-center::after {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.gradient-underline-center.bn::after {
+  transform: translateX(-50%);
 }
 
 /* ── Scrollbar ────────────────────────────────────────── */

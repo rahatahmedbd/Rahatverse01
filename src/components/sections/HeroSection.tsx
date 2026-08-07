@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProfileImage } from "./ProfileImage";
-import { TypingAnimation } from "@/components/interactive/TypingAnimation";
 import {
   ParallaxOrb,
   OrbitingRings,
@@ -14,9 +13,8 @@ import {
 import { FadeInUp, FadeInDown } from "@/components/animations/FadeIn";
 import { ParticleBackground } from "@/components/animations/ParticleBackground";
 import { ScrollIndicator } from "@/components/animations/ScrollProgress";
-import { Sparkles, Zap, Eye, MessageCircle, Star, Award, Heart, Code, Users, ShoppingCart, Briefcase, GraduationCap, Droplets, Trophy, Mail, Quote } from "lucide-react";
+import { Sparkles, Zap, Eye, MessageCircle, Star, Award, Heart, Code, Users, ShoppingCart, Briefcase, GraduationCap, Droplets, Trophy, Mail } from "lucide-react";
 import { Counter } from "@/components/animations/Counter";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { HeroConfig } from "@/types/hero";
 import type { AboutConfig } from "@/types/about";
@@ -47,8 +45,9 @@ function getIcon(name: string) {
 
 // ── Hero Section ───────────────────────────────────────
 // Phase 2: 100% admin-controllable via site_settings.hero_config (with fallback)
-// Phase K: Premium "product" hero — motto first, Order CTA before the
-// profile image, and a professional 3D-floating avatar presentation.
+// Phase K: Original layout restored — profile image back on top (square,
+// light 3D, animated caption), CTA row below the description, and the
+// website-ordering CTA placed above the featured image boxes on the page.
 
 interface HeroSectionProps {
   locale?: string;
@@ -76,7 +75,6 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
 
   if (!config.visible) return null;
 
-  const taglines = isBn ? config.typewriter.bn : config.typewriter.en;
   const welcomeText = isBn ? config.intro.welcomeTextBn : config.intro.welcomeTextEn;
 
   return (
@@ -103,11 +101,32 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
         {/* Badge - admin editable welcome */}
         <FadeInDown delay={0.5}>
-          <Badge variant="gradient" className="mb-6 text-sm">
+          <Badge variant="gradient" className="mb-8 text-sm">
             <Sparkles className="mr-1 h-3 w-3" />
             {welcomeText}
           </Badge>
         </FadeInDown>
+
+        {/* Profile Image — square, light 3D parallax, animated caption */}
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+        >
+          <Parallax3DContainer intensity={12} className="inline-block">
+            <ProfileImage
+              size="lg"
+              src={aboutConfig?.profileImage.url || undefined}
+              publicId={aboutConfig?.profileImage.publicId}
+              alt={isBn ? aboutConfig?.profileImage.altBn : aboutConfig?.profileImage.altEn}
+              frame={aboutConfig?.profileImage.frame}
+              showStatus={aboutConfig?.profileImage.showStatus}
+              statusLabel={isBn ? aboutConfig?.profileImage.statusLabelBn : aboutConfig?.profileImage.statusLabelEn}
+              animatedCaption={isBn ? config.typewriter.bn : config.typewriter.en}
+            />
+          </Parallax3DContainer>
+        </motion.div>
 
         {/* Name */}
         <FadeInUp delay={0.6}>
@@ -119,59 +138,41 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
           </p>
         </FadeInUp>
 
-        {/* Typing Animation */}
-        <FadeInUp delay={0.9}>
-          <div className="mt-4 h-10">
-            <span className="text-lg text-muted-foreground sm:text-xl">
-              {isBn ? "আমি একজন " : "I am a "}
-            </span>
-            <TypingAnimation
-              texts={taglines}
-              className="text-lg font-semibold text-primary sm:text-xl"
-              typingSpeed={80}
-              deletingSpeed={40}
-            />
-          </div>
-        </FadeInUp>
-
-        {/* Motto Quote - admin editable (about config) */}
-        {aboutConfig && (
-          <FadeInUp delay={1.05}>
-            <div className="relative mx-auto mt-8 max-w-2xl">
-              <Quote className="mx-auto mb-3 h-5 w-5 text-primary/60" aria-hidden="true" />
-              <p className="text-lead italic leading-relaxed text-muted-foreground bn">
-                &ldquo;
-                {isBn
-                  ? aboutConfig.biography.quote.bn
-                  : aboutConfig.biography.quote.en}
-                &rdquo;
-              </p>
-              <p className="mt-2 text-sm font-medium text-foreground/70 bn">
-                {isBn
-                  ? aboutConfig.biography.quoteBy.bn
-                  : aboutConfig.biography.quoteBy.en}
-              </p>
-              <div className="mx-auto mt-5 h-px w-24 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        {/* Role Badges - admin reorderable */}
+        {config.badges.length > 0 && (
+          <FadeInUp delay={0.8}>
+            <div className="mt-4 mb-2 flex flex-wrap justify-center gap-2">
+              {config.badges.map((b) => (
+                <Badge key={b.id} variant="glow" className="bn text-xs px-3 py-1 font-medium">
+                  {isBn ? b.labelBn : b.labelEn}
+                </Badge>
+              ))}
             </div>
           </FadeInUp>
         )}
 
-        {/* CTA Buttons - admin editable, order sits before the profile image */}
-        <FadeInUp delay={1.25}>
+        {/* Description */}
+        <FadeInUp delay={1.0}>
+          <p className="text-lead mx-auto mt-6 max-w-xl text-muted-foreground bn">
+            {isBn
+              ? "শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য। সুনামগঞ্জ থেকে স্বপ্ন দেখি একটি উন্নত ও সমৃদ্ধ ডিজিটাল বিশ্ব গড়ে তোলার।"
+              : "My goal is to stand by people through education, social service, and technology. From Sunamganj, I dream of building a better digital world."}
+          </p>
+        </FadeInUp>
+
+        {/* CTA Buttons - admin editable, pulse per button */}
+        <FadeInUp delay={1.2}>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            {config.ctas.map((cta, index) => {
+            {config.ctas.map((cta) => {
               const Icon = getIcon(cta.icon);
               const variant = cta.variant as "gradient" | "glass" | "outline";
               return (
                 <Button
                   key={cta.id}
                   variant={variant}
-                  size={index === 0 ? "xl" : "lg"}
+                  size="lg"
                   asChild
-                  className={cn(
-                    cta.pulse ? "animate-pulse shadow-lg shadow-amber-500/20" : "",
-                    index === 0 && "shadow-xl shadow-amber-500/25"
-                  )}
+                  className={cta.pulse ? "animate-pulse shadow-lg shadow-amber-500/20" : ""}
                 >
                   <Link href={cta.href.startsWith("/") ? `/${locale}${cta.href}` : cta.href}>
                     <Icon className="h-4 w-4" />
@@ -183,42 +184,9 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
           </div>
         </FadeInUp>
 
-        {/* Profile Image with Phase I 3D Mouse Parallax - below the CTA */}
-        <motion.div
-          className="mt-14"
-          initial={{ opacity: 0, scale: 0.5, y: 24 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ delay: 1.4, duration: 0.8, ease: "easeOut" }}
-        >
-          <Parallax3DContainer intensity={16} className="inline-block">
-            <ProfileImage
-              size="lg"
-              src={aboutConfig?.profileImage.url || undefined}
-              publicId={aboutConfig?.profileImage.publicId}
-              alt={isBn ? aboutConfig?.profileImage.altBn : aboutConfig?.profileImage.altEn}
-              frame={aboutConfig?.profileImage.frame}
-              showStatus={aboutConfig?.profileImage.showStatus}
-              statusLabel={isBn ? aboutConfig?.profileImage.statusLabelBn : aboutConfig?.profileImage.statusLabelEn}
-            />
-          </Parallax3DContainer>
-        </motion.div>
-
-        {/* Role Badges - admin reorderable */}
-        {config.badges.length > 0 && (
-          <FadeInUp delay={1.0}>
-            <div className="mt-6 mb-2 flex flex-wrap justify-center gap-2">
-              {config.badges.map((b) => (
-                <Badge key={b.id} variant="glow" className="bn text-xs px-3 py-1 font-medium">
-                  {isBn ? b.labelBn : b.labelEn}
-                </Badge>
-              ))}
-            </div>
-          </FadeInUp>
-        )}
-
         {/* Quick Stats - admin editable floating counters */}
-        <FadeInUp delay={1.8}>
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <FadeInUp delay={1.5}>
+          <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {config.counters.map((stat) => (
               <div key={stat.id} className="glass rounded-xl px-4 py-3">
                 <Counter

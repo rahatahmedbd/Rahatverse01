@@ -2,6 +2,7 @@ import { CinematicIntro } from "@/components/sections/CinematicIntro";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { AboutPreview } from "@/components/sections/AboutPreview";
 import { ServicesPreview } from "@/components/sections/ServicesPreview";
+import { OrderCtaBand } from "@/components/sections/OrderCtaBand";
 import { QuickActions } from "@/components/interactive/QuickActions";
 import FeaturedGallery from "@/components/gallery/FeaturedGallery";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
@@ -11,6 +12,8 @@ import { getAboutConfig } from "@/lib/about/server";
 
 // ── Home Page ──────────────────────────────────────────
 // Phase 22: Enhanced with Featured Gallery and Testimonials
+// Phase K: Featured image boxes moved further down; the website
+// ordering CTA band sits directly above them.
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
@@ -38,13 +41,6 @@ export default async function HomePage({ params }: HomePageProps) {
 
       <AuroraDivider />
 
-      {/* Featured Gallery */}
-      <div className="container mx-auto px-4 py-12">
-        <FeaturedGallery locale={locale} limit={8} />
-      </div>
-
-      <AuroraDivider />
-
       {/* Services Preview */}
       <ServicesPreview locale={locale} />
 
@@ -53,6 +49,16 @@ export default async function HomePage({ params }: HomePageProps) {
       {/* Testimonials */}
       <div className="container mx-auto px-4">
         <TestimonialsSection locale={locale} limit={6} />
+      </div>
+
+      <AuroraDivider />
+
+      {/* Order CTA — the website-ordering system, right above the image boxes */}
+      <OrderCtaBand locale={locale} />
+
+      {/* Featured Gallery (moved down below services & testimonials) */}
+      <div className="container mx-auto px-4 pb-12">
+        <FeaturedGallery locale={locale} limit={8} />
       </div>
 
       <AuroraDivider />

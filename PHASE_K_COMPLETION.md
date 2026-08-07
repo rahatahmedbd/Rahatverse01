@@ -4,64 +4,69 @@
 
 ## Overview
 
-Redesigned the home page hero into a premium, professional "product" layout
-(inspired by Samsung, Apple and Pixel design language) and upgraded the mobile
-bottom navigation into a modern floating capsule. Also fixed a pre-existing
-navigation active-state bug and a Cloudinary env robustness issue.
+Redesigned the home page hero exactly as requested: the original hero layout
+was restored (profile image back on top), the profile image is now **square**
+with a light 3D presentation and an **animated typing caption**, and the
+**website-ordering CTA was moved out of the hero** to sit directly **above the
+featured image boxes** — which were moved further down the page and given
+always-working images.
 
 ## Delivered
 
-### 1. Premium Hero — `src/components/sections/HeroSection.tsx`
-New element order (matches the requested layout):
+### 1. Hero restored to the original layout — `src/components/sections/HeroSection.tsx`
+Original order is back:
 
-1. **Welcome badge** — small gradient eyebrow pill (unchanged, admin editable).
-2. **Name** — gradient headline + English subtitle.
-3. **Typing animation** — rotating role tags.
-4. **Motto quote** — the signature line *"Standing by people, learning, and
-   teaching — these three things drive me forward."* with a `Quote` icon,
-   italic treatment, attribution ("— Rahat Ahmed") and a gradient hairline
-   divider. Fully admin-editable via the About config (`biography.quote`).
-5. **CTA row — placed BEFORE the profile image** — the primary **"Order a
-   Website"** button is now `xl`-sized and sits directly above the avatar
-   (with View Projects / Contact beside it).
-6. **Profile image section** — now below the text and CTA, so the hero reads
-   like an Apple/Samsung product page: headline → subline → action → product.
-7. Role badges and stats counters follow below.
+1. **Welcome badge** (admin editable).
+2. **Profile image — back at the top** (below the badge), wrapped in the light
+   3D mouse-parallax container.
+3. **Name** — gradient headline + English subtitle.
+4. **Role badges**, **description**, **CTA row** (back below the description —
+   no longer above the profile image), and **stats counters**.
 
-The long description paragraph was replaced by the quote block so the hero
-stays clean and professional.
+The previous experiment (quote → Order CTA → profile image order) was fully
+reverted per feedback.
 
-### 2. Professional 3D-style Profile Image — `src/components/sections/ProfileImage.tsx`
-- **Gentle idle float** animation for a light 3D "product" presence.
-- **Rotating conic rim-light ring** (masked arc, spins continuously) in the
-  frame's accent color — premium watch-style detail.
-- **Gradient rim** around the circular image (`p-[3px]` gradient border) with
-  layered colored shadow.
-- **Soft static ring + ambient halo** retained and refined; the status pill now
-  floats together with the avatar.
-- Mouse 3D parallax in the hero was kept and tuned (`intensity={16}`).
-- Same props/API — used automatically on the About page too.
+### 2. Square profile image + animated caption — `src/components/sections/ProfileImage.tsx`
+- **Square** shape (`rounded-3xl`) instead of the circle, with a premium
+  `3px` gradient rim and layered colored shadow.
+- **Light 3D vibe**: gentle idle float, rotating conic rim-light ring around
+  the square (masked square ring), soft ambient halo, plus the hero's mouse
+  parallax tilt (`intensity={12}`).
+- **Animated caption**: a frosted-glass pill under the image with a sparkle
+  icon and a **typing animation** that cycles the role texts
+  ("ওয়েব ডেভেলপার → শিক্ষার্থী → গৃহশিক্ষক → …") with a blinking cursor —
+  the "shortcut text" requested next to the picture.
+- Status pill retained; same props/API (About page automatically gets the
+  square design too).
 
-### 3. Mobile Bottom Navigation — `src/components/layout/bottom-nav.tsx`
-- **Floating frosted-glass capsule** (rounded-full, centered, `max-w-md`).
-- **Spring-animated active pill** (`layoutId`) that slides between items
-  (Pixel / iOS style).
-- **Active dot indicator** above the icon (Samsung One UI style).
-- Icons + labels per item (Home / Achievements / Order / Contact), `aria-current`
-  for accessibility.
+### 3. Ordering system above the image boxes — `src/components/sections/OrderCtaBand.tsx` + home page
+- New **Order CTA band** ("আপনার স্বপ্নের ওয়েবসাইট তৈরি করুন") with a large
+  gradient **Order a Website** button and a **Contact** button.
+- Placed on the home page **directly above the featured image boxes** — not
+  above the profile image.
 
-### 4. Bug Fixes
-- **Navigation active state** — `usePathname()` returns the locale path (`/bn`)
-  while the home link was built as `/bn/` (trailing slash), so **Home was never
-  highlighted**. Normalized trailing slashes on both sides in the bottom nav and
-  the desktop navbar (desktop + mobile menu). Verified server-side and for every
-  locale/route.
-- **Cloudinary env robustness** — `CloudinaryImage` computed a fallback cloud
-  name but never passed it to `CldImage`, so any page using images threw
-  `"A Cloudinary Cloud name is required"` when `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
-  was unset (local previews / staging). Now the computed cloud name is passed via
-  `config={{ cloud: { cloudName } }}`, so pages render everywhere and the existing
-  GitHub-image fallback handles load failures. In production the real env var
+### 4. Image boxes fixed & moved down — `src/components/gallery/FeaturedGallery.tsx` + home page
+- The featured gallery (the "box box box" cards with images) was **moved down
+  the page** — it now sits after Services and Testimonials, before the
+  newsletter.
+- **Every card now has a real image**: the old fallbacks pointed to dead
+  `rahatahmedbd.github.io` URLs (only 4 of 12 files exist and the host is
+  unreachable), so the boxes rendered empty. They now use the bundled,
+  always-working local SVGs (`/images/gallery-science.svg`,
+  `gallery-blood.svg`, `gallery-web.svg`, `gallery-bncc.svg`) mapped by
+  category, keeping the real titles/descriptions and hover overlays.
+
+### 5. Mobile bottom navigation — `src/components/layout/bottom-nav.tsx`
+Kept the premium floating frosted capsule (Samsung One UI / Apple / Pixel
+inspired) with the spring-animated active pill, active dot, and `aria-current`.
+
+### 6. Bug fixes (from the first revision, retained)
+- **Nav active state** — home item was never highlighted due to a
+  trailing-slash mismatch (`/bn/` vs `/bn`); fixed in bottom nav and desktop
+  navbar.
+- **Cloudinary env robustness** — `CloudinaryImage` now passes the computed
+  cloud name to `CldImage`, so pages no longer throw when
+  `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` is unset (local/staging); production env
   still takes precedence.
 
 ## Validation
@@ -71,6 +76,10 @@ stays clean and professional.
 - ✅ `npm run type-check`
 - ✅ `npm test` — 33 files / 227 tests passed
 - ✅ `npm run build` — compiled successfully, 24 static pages generated
-- ✅ Manual verification: `/`, `/bn`, `/en`, `/bn/achievements`, `/bn/about` all
-  render 200; hero order (quote → order CTA → image → badges → stats) confirmed
-  in rendered HTML; active nav pill + dot + `aria-current` confirmed per route.
+- ✅ Manual verification on `/`, `/bn`, `/en`:
+  - DOM order: badge → **square profile image (+ animated caption)** → name →
+    role badges → description → **hero CTA (below the pic)** → stats →
+    About (quote with name) → Services → Testimonials → **Order CTA band →
+    gallery boxes** → Newsletter
+  - No ordering CTA above the profile image; no dead GitHub image URLs in the
+    gallery fallbacks.

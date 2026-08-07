@@ -75,11 +75,15 @@ image preloading & blur-up placeholders, lightbox upgrade, gallery mosaics, and 
 final cross-browser/theme QA pass.
 
 ### Phase K — "প্রিমিয়াম হিরো" Premium Hero & Navigation
-Rebuild the home hero as a premium product layout (quote/motto → Order CTA →
-professional 3D-style profile image → role badges → stats), upgrade the mobile
-bottom nav into a Samsung/Apple/Pixel-inspired floating capsule with a
-spring-animated active pill, fix the navigation active-state trailing-slash bug,
-and harden Cloudinary rendering when env credentials are absent.
+Restore the original hero layout (profile image back on top) with a **square,
+light-3D profile image** and an animated typing caption beside/below it. Move
+the website-ordering CTA out of the hero into a dedicated band **just above the
+featured image boxes**, move those image boxes further down the home page, and
+give them always-working fallback images (previously they referenced dead
+external URLs and rendered empty). Also upgrade the mobile bottom nav into a
+Samsung/Apple/Pixel-inspired floating capsule with a spring-animated active
+pill, fix the navigation active-state trailing-slash bug, and harden Cloudinary
+rendering when env credentials are absent.
 
 ---
 

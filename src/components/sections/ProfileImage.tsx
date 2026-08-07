@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { CloudinaryImage } from "@/components/ui/cloudinary-image";
+import { TypingAnimation } from "@/components/interactive/TypingAnimation";
+import { Sparkles } from "lucide-react";
 import { IMAGE_IDS } from "@/lib/cloudinary/utils";
 import type { AboutFrameStyle } from "@/types/about";
 
@@ -15,6 +17,8 @@ interface ProfileImageProps {
   frame?: AboutFrameStyle;
   showStatus?: boolean;
   statusLabel?: string;
+  /** Optional animated typing line rendered below the square image. */
+  animatedCaption?: string[];
   className?: string;
 }
 
@@ -72,26 +76,35 @@ export function ProfileImage({
   frame = "amber",
   showStatus = true,
   statusLabel = "Available",
+  animatedCaption,
   className,
 }: ProfileImageProps) {
+  const isLg = size === "lg";
   const sizeMap = {
     sm: "h-24 w-24",
     md: "h-36 w-36",
-    lg: "h-48 w-48 sm:h-52 sm:w-52",
+    lg: "h-44 w-44 sm:h-52 sm:w-52",
   };
 
   const ringSizeMap = {
     sm: "h-28 w-28",
     md: "h-40 w-40",
-    lg: "h-56 w-56 sm:h-60 sm:w-60",
+    lg: "h-52 w-52 sm:h-60 sm:w-60",
+  };
+
+  const radiusMap = {
+    sm: "rounded-2xl",
+    md: "rounded-2xl",
+    lg: "rounded-3xl",
   };
 
   const styles = frameStyles[frame];
   const resolvedPublicId = publicId || IMAGE_IDS.PROFILE;
   const useCloudinary = !src;
+  const radius = radiusMap[size];
 
   return (
-    <div className={cn("relative inline-flex items-center justify-center pb-3", className)}>
+    <div className={cn("relative inline-flex flex-col items-center justify-center pb-3", className)}>
       {/* Gentle idle float — gives the avatar a light "product" 3D presence */}
       <motion.div
         className="relative inline-flex items-center justify-center"
@@ -101,26 +114,29 @@ export function ProfileImage({
       >
         {/* Ambient Halo */}
         <motion.div
-          className={cn("absolute rounded-full blur-2xl", ringSizeMap[size], styles.glow)}
+          className={cn("absolute rounded-3xl blur-2xl", ringSizeMap[size], styles.glow)}
           animate={{ scale: [1, 1.12, 1], opacity: [0.35, 0.65, 0.35] }}
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden="true"
         />
 
-        {/* Rotating Conic Rim Light (premium arc ring) */}
+        {/* Rotating Conic Rim Light (premium arc around the square) */}
         <motion.div
-          className={cn("absolute rounded-full", ringSizeMap[size])}
+          className={cn("absolute rounded-3xl", ringSizeMap[size])}
           animate={{ rotate: 360 }}
           transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
           aria-hidden="true"
         >
           <div
-            className="h-full w-full rounded-full"
+            className={cn("h-full w-full rounded-3xl")}
             style={{
               background: `conic-gradient(from 0deg, transparent 0deg, ${conicColors[frame]} 65deg, transparent 150deg, ${conicColors[frame]} 240deg, transparent 310deg, ${conicColors[frame]} 355deg, transparent 360deg)`,
+              padding: 5,
               WebkitMask:
-                "radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px))",
-              mask: "radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px))",
+                "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+              WebkitMaskComposite: "xor",
+              mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+              maskComposite: "exclude",
             }}
           />
         </motion.div>
@@ -128,7 +144,7 @@ export function ProfileImage({
         {/* Soft Static Ring */}
         <div
           className={cn(
-            "absolute rounded-full border",
+            "absolute rounded-3xl border",
             ringSizeMap[size],
             styles.rim,
             "opacity-50"
@@ -136,23 +152,23 @@ export function ProfileImage({
           aria-hidden="true"
         />
 
-        {/* Gradient Rim + Circular Image */}
+        {/* Gradient Rim + Square Image */}
         <div
           className={cn(
-            "relative rounded-full bg-gradient-to-br p-[3px]",
+            "relative rounded-3xl bg-gradient-to-br p-[3px]",
             sizeMap[size],
             styles.gradient,
             "shadow-2xl",
             styles.shadow
           )}
         >
-          <div className="relative h-full w-full overflow-hidden rounded-full bg-brand-gradient-soft">
+          <div className={cn("relative h-full w-full overflow-hidden bg-brand-gradient-soft", radius)}>
             {useCloudinary ? (
               <CloudinaryImage
                 publicId={resolvedPublicId}
                 alt={alt}
-                width={size === "lg" ? 220 : size === "md" ? 144 : 96}
-                height={size === "lg" ? 220 : size === "md" ? 220 : 96}
+                width={isLg ? 220 : size === "md" ? 144 : 96}
+                height={isLg ? 220 : size === "md" ? 144 : 96}
                 className="h-full w-full object-cover"
                 priority
                 fallbackType="profile"
@@ -181,6 +197,26 @@ export function ProfileImage({
           </motion.div>
         )}
       </motion.div>
+
+      {/* Animated caption — typing line (name / shortcut text) */}
+      {animatedCaption && animatedCaption.length > 0 && (
+        <motion.div
+          className="relative z-10 mt-5 flex justify-center"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+        >
+          <span className="glass inline-flex items-center gap-2 rounded-full border border-primary/25 px-4 py-1.5 text-sm font-semibold text-primary shadow-lg shadow-primary/10">
+            <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <TypingAnimation
+              texts={animatedCaption}
+              className="bn"
+              typingSpeed={70}
+              deletingSpeed={30}
+            />
+          </span>
+        </motion.div>
+      )}
     </div>
   );
 }

@@ -13,6 +13,9 @@ import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import { ErrorReporter } from "@/components/analytics/ErrorReporter";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
+import { getGlobalConfig } from "@/lib/global/server";
+import { getCurrentUserContext } from "@/lib/supabase/guards";
+import { MaintenanceScreen } from "@/components/layout/MaintenanceScreen";
 
 // ── Locale-based Layout ────────────────────────────────
 // Wraps app with next-intl provider for translations
@@ -35,6 +38,31 @@ export default async function LocaleLayout({
 
   // Set locale for next-intl
   setRequestLocale(locale);
+
+  // Enforce maintenance mode (admin users may bypass when allowAdmins is on).
+  const globalConfig = await getGlobalConfig();
+  let maintenanceBlocked = false;
+  if (globalConfig.maintenance.enabled) {
+    if (globalConfig.maintenance.allowAdmins) {
+      const { isAdmin } = await getCurrentUserContext();
+      maintenanceBlocked = !isAdmin;
+    } else {
+      maintenanceBlocked = true;
+    }
+  }
+  if (maintenanceBlocked) {
+    return (
+      <html lang={locale} suppressHydrationWarning>
+        <body className="antialiased">
+          <MaintenanceScreen
+            locale={locale}
+            messageBn={globalConfig.maintenance.messageBn}
+            messageEn={globalConfig.maintenance.messageEn}
+          />
+        </body>
+      </html>
+    );
+  }
 
   // Get messages for this locale
   const messages = await getMessages();

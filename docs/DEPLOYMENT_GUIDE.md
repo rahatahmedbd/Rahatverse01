@@ -14,7 +14,7 @@ Cloudinary, and Resend.
 
 1. Create a Supabase project.
 2. Apply the migrations in `supabase/` in order through
-   `022_content_admin_control.sql`, using the Supabase SQL editor or CLI:
+   `023_analytics_admin_control.sql`, using the Supabase SQL editor or CLI:
    ```bash
    npx supabase db push
    ```

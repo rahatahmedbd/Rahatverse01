@@ -34,6 +34,7 @@ import {
   Send,
   Palette,
   HelpCircle,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +51,7 @@ const sections = [
   { href: "about", icon: BookUser, labelBn: "অ্যাবাউট", labelEn: "About & Awards" },
   { href: "services", icon: Briefcase, labelBn: "সেবা ও প্যাকেজ", labelEn: "Services & Pricing" },
   { href: "analytics", icon: BarChart3, labelBn: "অ্যানালিটিক্স", labelEn: "Analytics" },
+  { href: "analytics-settings", icon: Activity, labelBn: "অ্যানালিটিক্স সেটিংস", labelEn: "Analytics Settings" },
   { href: "newsletter", icon: Mail, labelBn: "নিউজলেটার", labelEn: "Newsletter" },
   { href: "newsletter-settings", icon: Send, labelBn: "নিউজলেটার সেটিংস", labelEn: "Newsletter Settings" },
   { href: "email", icon: Mail, labelBn: "ইমেইল ডেলিভারি", labelEn: "Email Delivery" },

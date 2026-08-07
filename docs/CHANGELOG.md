@@ -4,6 +4,20 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.17.0] — Phase 14 — Analytics, Real-Time Visitor Telemetry & Performance Vitals CMS
+
+### Added
+- `analytics_config` site_settings document (migration `023_analytics_admin_control.sql`)
+  driving dashboard panel toggles (demographics/devices/geo/vitals), the
+  first-party telemetry switch, the conversion-goal label and Core Web Vitals
+  thresholds (LCP/INP/CLS).
+- Public `/api/analytics-config` endpoint with resilient defaults.
+- Global `setTelemetryEnabled` hook in the analytics tracker; `shouldTrack()`
+  now respects the admin telemetry switch.
+- `AnalyticsControlPanel` at `/[locale]/dashboard/analytics-settings` (new
+  "Analytics Settings" nav entry).
+- Seven unit tests covering the new CMS validation contract.
+
 ## [0.16.0] — Phase 13 — Site-Wide Search, FAQ & Legal Policies CMS
 
 ### Added

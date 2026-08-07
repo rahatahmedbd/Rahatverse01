@@ -11,6 +11,13 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/analytics-config`
+Public, validated analytics configuration endpoint (Phase 14). Returns
+`{ data }` — the `analytics_config` document in `site_settings` (dashboard panel
+toggles, telemetry switch, conversion goal label, Core Web Vitals thresholds).
+Falls back to defaults when the database is unavailable or the value fails
+validation.
+
 ### `GET /api/content-config`
 Public, validated search/FAQ/legal configuration endpoint (Phase 13). Returns
 `{ data }` — the `content_config` document in `site_settings` (FAQ categories &

@@ -57,7 +57,15 @@ function randomId(): string {
 }
 
 /** Whether the current visitor should be tracked (skips bots and DNT). */
+let telemetryEnabledGlobal = true;
+
+/** Programmatically enable/disable first-party telemetry (admin control). */
+export function setTelemetryEnabled(enabled: boolean): void {
+  telemetryEnabledGlobal = enabled;
+}
+
 export function shouldTrack(): boolean {
+  if (!telemetryEnabledGlobal) return false;
   if (typeof window === "undefined") return false;
   if (typeof navigator !== "undefined" && navigator.webdriver) return false;
 

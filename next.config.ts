@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "rahatahmedbd.github.io",
+        pathname: "/**",
+      },
     ],
   },
 };

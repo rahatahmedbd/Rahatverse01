@@ -6,6 +6,7 @@ import { CldImage } from "next-cloudinary";
 import { cn } from "@/lib/utils";
 import { Camera } from "lucide-react";
 import { ImageSkeleton } from "@/components/ui/blur-image";
+import { PUBLIC_ID_TO_GITHUB_URL_MAP } from "@/lib/cloudinary/utils";
 
 export interface CloudinaryImageProps {
   publicId: string;
@@ -47,7 +48,7 @@ export function CloudinaryImage({
     return false;
   });
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "kbc3dfnj";
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -75,6 +76,25 @@ export function CloudinaryImage({
   // Local previews and deployments without media credentials must remain
   // renderable. The real Cloudinary image is used whenever it is configured.
   if (!cloudName || hasError) {
+    const githubFallbackUrl = PUBLIC_ID_TO_GITHUB_URL_MAP[publicId];
+    if (githubFallbackUrl) {
+      return (
+        <div
+          role="img"
+          aria-label={alt}
+          data-testid="cloudinary-image-github-fallback"
+          className={cn("relative inline-block overflow-hidden", wrapperClassName, className)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={githubFallbackUrl}
+            alt={alt}
+            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+          />
+        </div>
+      );
+    }
+
     const isProfile =
       fallbackType === "profile" ||
       publicId.includes("profile") ||

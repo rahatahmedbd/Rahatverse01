@@ -321,7 +321,7 @@ const defaultAchievements: AboutAchievement[] = [
 export const DEFAULT_ABOUT_CONFIG: AboutConfig = {
   visible: true,
   profileImage: {
-    url: "",
+    url: "https://rahatahmedbd.github.io/assets/images/profile.jpg",
     publicId: IMAGE_IDS.PROFILE,
     altBn: "রাহাত আহমেদের প্রোফাইল ছবি",
     altEn: "Rahat Ahmed profile photo",

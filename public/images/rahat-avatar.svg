@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <!-- Background Cosmic Gradient -->
+    <radialGradient id="bg-grad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#2a1604" />
+      <stop offset="55%" stop-color="#120a03" />
+      <stop offset="100%" stop-color="#080402" />
+    </radialGradient>
+    
+    <!-- Gold Rim Glow -->
+    <linearGradient id="gold-rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="50%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#92400e" />
+    </linearGradient>
+
+    <!-- Jacket Tech Gradient -->
+    <linearGradient id="jacket-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f2937" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+
+    <!-- Face Gradient -->
+    <linearGradient id="face-grad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a" />
+      <stop offset="35%" stop-color="#f3a760" />
+      <stop offset="85%" stop-color="#c86d38" />
+      <stop offset="100%" stop-color="#9a4d25" />
+    </linearGradient>
+    
+    <!-- Hair Gradient -->
+    <linearGradient id="hair-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#27221e" />
+      <stop offset="100%" stop-color="#0f0c0a" />
+    </linearGradient>
+
+    <radialGradient id="ambient-glow" cx="50%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="400" fill="url(#bg-grad)" />
+  <circle cx="200" cy="160" r="140" fill="url(#ambient-glow)" />
+
+  <!-- Subtle Floating Code / Tech Grid -->
+  <g opacity="0.12" stroke="#f59e0b" stroke-width="1.5" fill="none">
+    <circle cx="200" cy="200" r="170" stroke-dasharray="6 12" />
+    <circle cx="200" cy="200" r="130" stroke-dasharray="4 8" />
+    <path d="M50 80 L80 80 L80 110" />
+    <path d="M350 80 L320 80 L320 110" />
+    <path d="M70 320 L70 350 L100 350" />
+    <path d="M330 320 L330 350 L300 350" />
+  </g>
+
+  <!-- Developer Shoulders & Jacket -->
+  <g transform="translate(0, 20)">
+    <!-- Jacket Base -->
+    <path d="M 60 380 C 75 285, 120 270, 200 270 C 280 270, 325 285, 340 380 Z" fill="url(#jacket-grad)" stroke="#374151" stroke-width="2" />
+    <!-- Golden Hoodie / Inner Collar Trim -->
+    <path d="M 130 275 L 165 340 L 200 365 L 235 340 L 270 275" fill="none" stroke="url(#gold-rim)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+    <!-- Tech Jacket Chest Line Accent -->
+    <line x1="200" y1="290" x2="200" y2="380" stroke="#4b5563" stroke-width="2" />
+    <circle cx="160" cy="320" r="3" fill="#f59e0b" opacity="0.8" />
+  </g>
+
+  <!-- Neck -->
+  <path d="M 172 230 L 170 280 Q 200 295, 230 280 L 228 230 Z" fill="url(#face-grad)" />
+  <path d="M 172 235 Q 200 255, 228 235" fill="none" stroke="#000000" stroke-opacity="0.2" stroke-width="8" />
+
+  <!-- Head Base / Face Silhouette -->
+  <g id="head">
+    <!-- Ears -->
+    <circle cx="132" cy="180" r="16" fill="url(#face-grad)" />
+    <circle cx="268" cy="180" r="16" fill="url(#face-grad)" />
+    
+    <!-- Face Contour -->
+    <path d="M 140 145 C 140 100, 260 100, 260 145 C 265 195, 250 238, 200 248 C 150 238, 135 195, 140 145 Z" fill="url(#face-grad)" />
+
+    <!-- Subtle Facial Features (Clean modern minimal vector art style) -->
+    <!-- Brows -->
+    <path d="M 160 162 Q 175 157, 188 164" fill="none" stroke="#27221e" stroke-width="4" stroke-linecap="round" />
+    <path d="M 240 162 Q 225 157, 212 164" fill="none" stroke="#27221e" stroke-width="4" stroke-linecap="round" />
+    
+    <!-- Minimal Designer Glasses / Tech Frame (Adds professional intelligence look) -->
+    <g stroke="url(#gold-rim)" stroke-width="2.5" fill="none" opacity="0.9">
+      <rect x="153" y="166" width="38" height="26" rx="8" fill="#000000" fill-opacity="0.15" />
+      <rect x="209" y="166" width="38" height="26" rx="8" fill="#000000" fill-opacity="0.15" />
+      <path d="M 191 176 Q 200 172, 209 176" />
+      <path d="M 153 176 L 138 172" />
+      <path d="M 247 176 L 262 172" />
+    </g>
+
+    <!-- Nose -->
+    <path d="M 200 178 L 196 202 Q 200 206, 206 202" fill="none" stroke="#a04015" stroke-width="2.5" stroke-linecap="round" opacity="0.6" />
+
+    <!-- Smile / Lips -->
+    <path d="M 184 220 Q 200 228, 216 220" fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Stylish Modern Haircut (Volume on top, clean sides) -->
+    <path d="M 136 150 C 130 115, 155 78, 200 75 C 250 78, 270 115, 264 150 C 260 128, 245 105, 200 102 C 155 105, 140 128, 136 150 Z" fill="url(#hair-grad)" />
+    <!-- Styled Top Waves -->
+    <path d="M 155 98 C 170 72, 210 65, 235 85 C 210 75, 185 80, 168 102 Z" fill="url(#hair-grad)" />
+  </g>
+
+  <!-- High-Tech Holographic Ring Trim (Inner reflection) -->
+  <circle cx="200" cy="200" r="192" fill="none" stroke="url(#gold-rim)" stroke-width="4" opacity="0.4" />
+</svg>

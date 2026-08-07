@@ -88,19 +88,17 @@ export function CloudinaryImage({
           aria-label={alt}
           data-testid="cloudinary-image-fallback"
           className={cn(
-            "flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-amber-500/20 via-primary/30 to-amber-600/10 p-4 text-center select-none",
+            "relative flex h-full w-full items-center justify-center overflow-hidden bg-gradient-to-br from-amber-500/10 via-card to-amber-950/20 select-none",
             wrapperClassName,
             className
           )}
         >
-          <div className="flex flex-col items-center justify-center gap-1">
-            <span className="text-3xl font-bold tracking-wider text-primary drop-shadow-md sm:text-4xl">
-              RA
-            </span>
-            <span className="text-[10px] font-medium tracking-widest uppercase text-muted-foreground/90">
-              Rahat Ahmed
-            </span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/rahat-avatar.svg"
+            alt={alt || "Rahat Ahmed"}
+            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+          />
         </div>
       );
     }

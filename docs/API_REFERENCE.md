@@ -11,6 +11,26 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/contact-config`
+Public, validated contact / booking / testimonial configuration endpoint
+(Phase 9). Returns `{ data }` — the `contact_config` document in `site_settings`
+(contact section, quick links, booking settings, testimonial display). Falls back
+to defaults when the database is unavailable or the value fails validation.
+
+### `GET|PATCH /api/admin/messages`
+Admin-only. `GET` lists contact-form submissions (`?unread=true|false`);
+`PATCH` marks a message read/unread or archived. Body: `{ id, is_read?, archived? }`.
+
+### `GET|PATCH /api/admin/bookings`
+Admin-only. `GET` lists consultation bookings (`?status=`); `PATCH` approves /
+cancels / completes a booking (`{ id, status }`) or reschedules
+(`{ id, date, time_slot }`).
+
+### `GET|PATCH|DELETE /api/admin/testimonials`
+Admin-only. `GET` lists reviews (`?status=pending|approved`); `PATCH` approves /
+edits / toggles featured (`{ id, is_approved?, featured?, name?, role?, ... }`);
+`DELETE` removes a review.
+
 ### `GET /api/blog-config`
 Public, validated blog & comment configuration endpoint (Phase 8). Returns
 `{ data }` — the `blog_config` document in `site_settings` (blog section

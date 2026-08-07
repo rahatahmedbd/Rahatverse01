@@ -4,6 +4,24 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.12.0] — Phase 9 — Contact, Booking Calendar & Social Testimonials CMS
+
+### Added
+- `contact_config` site_settings document (migration `018_contact_admin_control.sql`)
+  driving the contact section, quick links, booking settings (time slots, buffer,
+  max-per-week, purposes) and testimonial display (carousel count, autoplay).
+- Public `/api/contact-config` endpoint with resilient defaults.
+- `MessagesManager` at `/[locale]/dashboard/messages` — centralized inbox reading
+  real submissions with read/unread toggles and one-click email/WhatsApp links
+  (new admin `/api/admin/messages` GET/PATCH).
+- `BookingCalendarManager` at `/[locale]/dashboard/bookings` — approve / complete /
+  cancel consultation bookings (new admin `/api/admin/bookings`).
+- `TestimonialManager` at `/[locale]/dashboard/testimonials` — approve / edit /
+  delete / featured-toggle reviews (new admin `/api/admin/testimonials`).
+- `ContactControlPanel` at `/[locale]/dashboard/contact-settings` (new "Contact
+  Settings" nav entry) plus "Bookings" and "Testimonials" nav entries.
+- Seven unit tests covering the contact config validation contract.
+
 ## [0.11.0] — Phase 8 — Bilingual Blog & Comment Moderation CMS
 
 ### Added

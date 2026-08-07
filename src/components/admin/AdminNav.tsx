@@ -27,6 +27,9 @@ import {
   Images,
   Video,
   PenSquare,
+  CalendarDays,
+  Star,
+  PhoneCall,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +53,9 @@ const sections = [
   { href: "experience", icon: Building2, labelBn: "অভিজ্ঞতা ও স্মৃতিচারণ", labelEn: "Experience & Memorial" },
   { href: "blood-requests", icon: Droplets, labelBn: "রক্ত অনুরোধ", labelEn: "Blood Requests" },
   { href: "messages", icon: MessageSquare, labelBn: "বার্তা", labelEn: "Messages" },
+  { href: "bookings", icon: CalendarDays, labelBn: "বুকিং", labelEn: "Bookings" },
+  { href: "testimonials", icon: Star, labelBn: "রিভিউ", labelEn: "Testimonials" },
+  { href: "contact-settings", icon: PhoneCall, labelBn: "কন্টাক্ট সেটিংস", labelEn: "Contact Settings" },
   { href: "images", icon: ImageIcon, labelBn: "মিডিয়া লাইব্রেরি", labelEn: "Media Library" },
   { href: "gallery", icon: Images, labelBn: "গ্যালারি CMS", labelEn: "Gallery CMS" },
   { href: "videos", icon: Video, labelBn: "ভিডিও CMS", labelEn: "Video CMS" },

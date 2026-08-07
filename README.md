@@ -150,6 +150,7 @@ See the **[docs/](docs/README.md)** folder:
 | Custom 5 | **Client Orders, Kanban & Payments** | Wizard config CMS, Kanban pipeline, admin notes/files, payment tracking ✅ |
 | Custom 6 | **Experience, Blood Society & Memorial CMS** | Experience timeline, blood-society command hub, incoming blood requests, memorial tribute ✅ |
 | Custom 7 | **Media Library, Gallery & Video CMS** | Cloudinary media manager, album gallery CMS, video showcase CMS ✅ |
+| Custom 8 | **Bilingual Blog & Comment Moderation** | Blog settings/categories CMS, admin-reply comment moderation ✅ |
 
 ## 👤 Author
 

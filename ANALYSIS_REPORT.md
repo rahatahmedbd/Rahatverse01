@@ -58,6 +58,7 @@ next unfinished phrase was Phase 3. No later roadmap phase was combined with it.
 | 5 | Orders, Kanban, payment tracking | ✅ Implemented (Phase 5) |
 | 6 | Experience, blood society, memorial | ✅ Implemented (Phase 6) |
 | 7 | Media library, albums, video showcase | ✅ Implemented (Phase 7) |
+| 8 | Bilingual blog and comment moderation | ✅ Implemented (Phase 8) |
 | 8 | Bilingual blog and comment moderation | ⏳ Existing feature is largely complete; expanded 100% control audit remains |
 | 9 | Inquiries, booking calendar, testimonials | ⏳ Partially available; full calendar/testimonial CMS not started |
 | 10 | Link hub, tools, CV manager | ⏳ Not started |

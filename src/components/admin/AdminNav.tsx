@@ -26,6 +26,7 @@ import {
   Droplets,
   Images,
   Video,
+  PenSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,7 @@ const sections = [
   { href: "gallery", icon: Images, labelBn: "গ্যালারি CMS", labelEn: "Gallery CMS" },
   { href: "videos", icon: Video, labelBn: "ভিডিও CMS", labelEn: "Video CMS" },
   { href: "blog", icon: FileText, labelBn: "CMS / ব্লগ", labelEn: "CMS / Blog" },
+  { href: "blog-settings", icon: PenSquare, labelBn: "ব্লগ সেটিংস", labelEn: "Blog Settings" },
   { href: "comments", icon: MessageCircle, labelBn: "কমেন্ট", labelEn: "Comments" },
   { href: "users", icon: Users, labelBn: "ইউজার", labelEn: "Users" },
   { href: "audit", icon: ScrollText, labelBn: "অডিট লগ", labelEn: "Audit Logs" },

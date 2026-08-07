@@ -11,6 +11,19 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/blog-config`
+Public, validated blog & comment configuration endpoint (Phase 8). Returns
+`{ data }` — the `blog_config` document in `site_settings` (blog section
+headings, categories, author profile, comment-moderation settings, reading
+speed). Falls back to built-in defaults when the database is unavailable or the
+value fails validation.
+
+### `PATCH /api/admin/comments` (reply)
+Admin-only. Body may include `admin_reply` (and optional `reply_author`) to post
+a verified admin reply on a comment (Phase 8). Also still accepts
+`{ id, approved }` to approve/reject. Adds `admin_reply`/`reply_author` columns
+via migration 017.
+
 ### `GET /api/gallery-config`
 Public, validated photo-gallery configuration endpoint (Phase 7). Returns
 `{ data }` — the `gallery_config` document in `site_settings` (albums with

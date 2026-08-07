@@ -4,6 +4,23 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.11.0] — Phase 8 — Bilingual Blog & Comment Moderation CMS
+
+### Added
+- `blog_config` site_settings document (migration `017_blog_admin_control.sql`)
+  driving blog section headings, categories, author profile, comment-moderation
+  settings and reading speed.
+- Public `/api/blog-config` endpoint with resilient defaults.
+- `BlogControlPanel` at `/[locale]/dashboard/blog-settings` (new "Blog Settings"
+  nav entry) — categories CRUD/reorder/visibility, section headings, author
+  profile, comment approval toggle and admin-badge labels.
+- Admin comment **reply** with a verified "Admin / Author" badge — new
+  `admin_reply` / `reply_author` columns (migration 017) and PATCH support in
+  `/api/admin/comments`; `CommentModeration` now shows replies and a reply
+  composer.
+- Refactored `BlogListSection` to use config-driven categories.
+- Eight unit tests covering the new CMS validation contract.
+
 ## [0.10.0] — Phase 7 — Cloudinary Media Library, Photo Gallery & Video Showcase CMS
 
 ### Added
@@ -177,3 +194,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follo
 Initial release covering the interactive portfolio, ordering system, blog, auth,
 gallery, services, payments, booking, Supabase backend, multi-language (bn/en),
 PWA, search, security & SEO, image migration, and more. See `MASTER_PLAN.md`.
+
+## [0.10.0] — Phase 7 — Cloudinary Media Library, Photo Gallery & Video Showcase CMS

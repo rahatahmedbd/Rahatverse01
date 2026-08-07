@@ -109,7 +109,7 @@ export default function PortfolioPage() {
         {/* Header */}
         <FadeInUp>
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="text-gradient mb-4 text-4xl font-bold md:text-5xl">
               আমার প্রজেক্টসমূহ
             </h1>
             <p className="text-xl text-muted-foreground">
@@ -183,7 +183,7 @@ export default function PortfolioPage() {
 
         {/* CTA */}
         <FadeInUp className="mt-20">
-          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+          <Card className="bg-brand-gradient-soft gradient-border border-primary/20">
             <CardContent className="pt-6 text-center">
               <h2 className="text-3xl font-bold mb-4">
                 আপনার প্রজেক্ট তৈরি করতে চান?
@@ -191,7 +191,7 @@ export default function PortfolioPage() {
               <p className="text-lg text-muted-foreground mb-6">
                 আপনার আইডিয়াকে বাস্তবে রূপ দিতে আজই যোগাযোগ করুন
               </p>
-              <Button size="lg" asChild>
+              <Button size="lg" variant="gradient" asChild>
                 <Link href={`/${locale}/contact`}>
                   যোগাযোগ করুন
                 </Link>

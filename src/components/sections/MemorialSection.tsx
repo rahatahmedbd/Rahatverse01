@@ -112,7 +112,7 @@ export function MemorialSection({ locale = "bn" }: MemorialSectionProps) {
         <FadeInUp>
           <GlassCard className="border-t-4 border-t-amber-500/50 text-center">
             <motion.div
-              className="mx-auto mb-6 h-28 w-28 overflow-hidden rounded-full border-4 border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-600/10"
+              className="bg-brand-gradient-soft gradient-border mx-auto mb-6 h-28 w-28 overflow-hidden rounded-full border-4 border-primary/30"
               whileHover={{ scale: 1.05 }}
             >
               <CloudinaryImage

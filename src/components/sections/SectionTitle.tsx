@@ -44,7 +44,7 @@ export function SectionTitle({
     >
       {badge && (
         <motion.span
-          className="mb-3 inline-block rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+          className="gradient-badge gradient-border mb-3 inline-block rounded-full border border-transparent px-3 py-1 text-xs font-medium"
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -56,7 +56,7 @@ export function SectionTitle({
 
       <motion.h2
         className={cn(
-          "text-3xl font-bold sm:text-4xl",
+          "text-gradient text-3xl font-bold sm:text-4xl",
           locale === "bn" && "bn"
         )}
         initial={{ opacity: 0, y: 10 }}

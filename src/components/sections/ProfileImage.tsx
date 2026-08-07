@@ -80,7 +80,7 @@ export function ProfileImage({
           sizeMap[size],
           "border-2 border-amber-500/50",
           "shadow-2xl shadow-amber-500/20",
-          "bg-gradient-to-br from-amber-500/20 to-orange-600/20"
+          "bg-brand-gradient-soft"
         )}
         whileHover={{ scale: 1.05 }}
         transition={{ type: "spring", stiffness: 300 }}

@@ -1,6 +1,7 @@
 import { ExperienceSection } from "@/components/sections/ExperienceSection";
 import { BloodSocietySection } from "@/components/sections/BloodSocietySection";
 import { MemorialSection } from "@/components/sections/MemorialSection";
+import { AuroraDivider } from "@/components/ui/aurora-divider";
 
 // ── Experience Page ────────────────────────────────────
 interface ExperiencePageProps {
@@ -13,7 +14,9 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
   return (
     <div className="mx-auto max-w-7xl px-4">
       <ExperienceSection locale={locale} />
+      <AuroraDivider />
       <BloodSocietySection locale={locale} />
+      <AuroraDivider />
       <MemorialSection locale={locale} />
     </div>
   );

@@ -6,6 +6,7 @@ import { QuickActions } from "@/components/interactive/QuickActions";
 import FeaturedGallery from "@/components/gallery/FeaturedGallery";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
+import { AuroraDivider } from "@/components/ui/aurora-divider";
 
 // ── Home Page ──────────────────────────────────────────
 // Phase 22: Enhanced with Featured Gallery and Testimonials
@@ -28,21 +29,31 @@ export default async function HomePage({ params }: HomePageProps) {
       {/* Hero Section */}
       <HeroSection locale={locale} />
 
+      <AuroraDivider />
+
       {/* About Preview */}
       <AboutPreview locale={locale} />
+
+      <AuroraDivider />
 
       {/* Featured Gallery */}
       <div className="container mx-auto px-4 py-12">
         <FeaturedGallery locale={locale} limit={8} />
       </div>
 
+      <AuroraDivider />
+
       {/* Services Preview */}
       <ServicesPreview locale={locale} />
+
+      <AuroraDivider />
 
       {/* Testimonials */}
       <div className="container mx-auto px-4">
         <TestimonialsSection locale={locale} limit={6} />
       </div>
+
+      <AuroraDivider />
 
       {/* Newsletter — Phase 27 */}
       <div id="newsletter" className="container mx-auto px-4 py-12">

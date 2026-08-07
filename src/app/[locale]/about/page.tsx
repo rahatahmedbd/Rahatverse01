@@ -1,5 +1,6 @@
 import { AboutFull } from "@/components/sections/AboutFull";
 import { EducationTimeline } from "@/components/sections/EducationTimeline";
+import { AuroraDivider } from "@/components/ui/aurora-divider";
 
 // ── About Page ─────────────────────────────────────────
 interface AboutPageProps {
@@ -12,6 +13,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
   return (
     <div className="mx-auto max-w-7xl px-4">
       <AboutFull locale={locale} />
+      <AuroraDivider />
       <EducationTimeline locale={locale} />
     </div>
   );

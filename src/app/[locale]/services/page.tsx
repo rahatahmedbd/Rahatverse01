@@ -245,7 +245,7 @@ export default function ServicesPage() {
         {/* Header */}
         <FadeInUp>
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="text-gradient mb-4 text-4xl font-bold md:text-5xl">
               আমাদের সার্ভিসসমূহ
             </h1>
             <p className="text-xl text-muted-foreground">
@@ -358,7 +358,7 @@ export default function ServicesPage() {
 
         {/* CTA */}
         <FadeInUp>
-          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+          <Card className="bg-brand-gradient-soft gradient-border border-primary/20">
             <CardContent className="pt-6 text-center">
               <h2 className="text-3xl font-bold mb-4">
                 আজই আপনার ওয়েবসাইট অর্ডার করুন
@@ -367,7 +367,7 @@ export default function ServicesPage() {
                 আপনার স্বপ্নের ওয়েবসাইট তৈরি করতে আমাদের সাথে যোগাযোগ করুন
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" asChild>
+                <Button size="lg" variant="gradient" asChild>
                   <Link href={`/${locale}/order`}>
                     অর্ডার করুন
                     <ArrowRight className="ml-2 h-4 w-4" />

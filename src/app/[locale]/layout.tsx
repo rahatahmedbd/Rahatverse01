@@ -62,7 +62,7 @@ export default async function LocaleLayout({
         <AnalyticsProvider />
         <ErrorReporter />
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <div className="flex min-h-screen flex-col">
+          <div className="site-gradient-canvas flex min-h-screen flex-col">
             {/* Global Animation Effects */}
             <AnimationProviders />
 

@@ -937,3 +937,42 @@ html[lang="bn"] .heading-kicker,
 ::view-transition-new(root) {
   z-index: 999;
 }
+
+/* ── Phase J — Performance, Core Web Vitals & Cross-Browser QA ──────── */
+
+/* 1. GPU Acceleration & Animation Jank Prevention */
+.tilt-card,
+.glass-interactive,
+.animate-float,
+.animate-pulse-glow,
+.animate-shimmer {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* 2. CSS Content-Visibility for Below-The-Fold Section Optimization */
+@media (min-width: 768px) {
+  main > section:not(:first-child) {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 650px;
+  }
+}
+
+/* 3. Safari iOS Momentum Scrolling & Touch-Callout Safeguards */
+html,
+body {
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 4. Minimum accessible touch targets on mobile devices */
+@media (max-width: 640px) {
+  button,
+  [role="button"],
+  a.inline-flex {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

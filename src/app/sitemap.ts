@@ -16,7 +16,9 @@ const staticPages = [
   "/blog",
   "/links",
   "/privacy",
+  "/privacy-policy",
   "/terms",
+  "/terms-of-service",
   "/sitemap",
   "/summary",
 ];
@@ -59,8 +61,8 @@ function getChangeFrequency(page: string): MetadataRoute.Sitemap[0]["changeFrequ
 
 function getPriority(page: string): number {
   if (page === "") return 1;
-  if (page === "/about" || page === "/services" || page === "/order") return 0.9;
-  if (page === "/achievements" || page === "/experience" || page === "/portfolio") return 0.8;
+  if (page === "/about" || page === "/services" || page === "/order" || page === "/portfolio") return 0.9;
+  if (page === "/achievements" || page === "/experience") return 0.8;
   if (page === "/gallery" || page === "/contact" || page === "/blog") return 0.7;
   return 0.5;
 }

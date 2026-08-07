@@ -4,14 +4,21 @@ import { getContentConfig } from "@/lib/content/server";
 // ── Legal Policy Page (DB-driven via content_config) ───
 interface LegalContentProps {
   locale: string;
-  pageKey: "privacy" | "terms" | "cookie" | "refund";
+  pageKey: "privacy" | "terms" | "cookie" | "refund" | "privacy-policy" | "terms-of-service";
 }
 
 /** Renders a legal policy page from the `content_config.legalPages` entry. */
 export async function LegalContent({ locale, pageKey }: LegalContentProps) {
   const isBn = locale === "bn";
   const config = await getContentConfig();
-  const page = config.legalPages.find((p) => p.key === pageKey && p.visible);
+  const page =
+    config.legalPages.find((p) => p.key === pageKey && p.visible) ||
+    config.legalPages.find(
+      (p) =>
+        p.visible &&
+        ((pageKey === "privacy-policy" && p.key === "privacy") ||
+          (pageKey === "terms-of-service" && p.key === "terms"))
+    );
 
   if (!page) {
     return (

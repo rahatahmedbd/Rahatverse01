@@ -129,12 +129,16 @@ export function SearchDialog({ locale = "bn" }: SearchDialogProps) {
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
               </div>
             ) : results.length === 0 && query.length > 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {isBn ? "কোনো ফলাফল পাওয়া যায়নি" : "No results found"}
+              <div className="text-center py-8 text-sm text-muted-foreground">
+                {isBn
+                  ? "আপনার অনুসন্ধানের সাথে কোনো তথ্য মেলেনি। অন্য কি-ওয়ার্ড চেষ্টা করুন অথবা সরাসরি যোগাযোগ করুন।"
+                  : "No matching articles, services, or case studies found. Try another keyword or contact us directly."}
               </div>
             ) : results.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {isBn ? "খুঁজতে শুরু করুন..." : "Start typing to search..."}
+              <div className="text-center py-8 text-sm text-muted-foreground">
+                {isBn
+                  ? "ব্লগ, সেবা, প্রজেক্ট বা গ্যালারি খুঁজতে টাইপ করুন..."
+                  : "Start typing to search articles, services, case studies, or gallery..."}
               </div>
             ) : (
               <div className="space-y-2">

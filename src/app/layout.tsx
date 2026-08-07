@@ -6,7 +6,7 @@ import {
   getWebsiteSchema,
   getLocalBusinessSchema,
 } from "@/components/seo/JsonLd";
-import { localeAlternates, SITE_IMAGE, SITE_URL } from "@/lib/seo";
+import { SITE_IMAGE, SITE_URL } from "@/lib/seo";
 
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
@@ -73,7 +73,17 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  alternates: localeAlternates("bn"),
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.svg", type: "image/svg+xml", sizes: "192x192" },
+      { url: "/icons/icon-512.svg", type: "image/svg+xml", sizes: "512x512" },
+    ],
+    apple: [
+      { url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
+      { url: "/icons/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
+    ],
+    shortcut: "/icons/icon-192.svg",
+  },
   verification: googleVerification ? { google: googleVerification } : undefined,
   category: "technology",
 };

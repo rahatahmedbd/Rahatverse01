@@ -35,8 +35,10 @@ export interface NavItemConfig {
 export const NAVIGATION_ITEMS: NavItemConfig[] = [
   { key: "home", path: "/", icon: "Home" },
   { key: "about", path: "/about", icon: "User" },
-  { key: "achievements", path: "/achievements", icon: "Trophy" },
+  { key: "portfolio", path: "/portfolio", icon: "FolderOpen" },
   { key: "services", path: "/services", icon: "Briefcase" },
+  { key: "experience", path: "/experience", icon: "Building2" },
+  { key: "achievements", path: "/achievements", icon: "Trophy" },
   { key: "gallery", path: "/gallery", icon: "Image" },
   { key: "order", path: "/order", icon: "ShoppingCart" },
   { key: "blog", path: "/blog", icon: "BookOpen" },

@@ -16,6 +16,8 @@ import { notFound } from "next/navigation";
 import { getGlobalConfig } from "@/lib/global/server";
 import { getCurrentUserContext } from "@/lib/supabase/guards";
 import { MaintenanceScreen } from "@/components/layout/MaintenanceScreen";
+import type { Metadata } from "next";
+import { localeAlternates } from "@/lib/seo";
 
 // ── Locale-based Layout ────────────────────────────────
 // Wraps app with next-intl provider for translations
@@ -23,6 +25,21 @@ import { MaintenanceScreen } from "@/components/layout/MaintenanceScreen";
 interface LocaleLayoutProps {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    alternates: localeAlternates(locale, ""),
+    openGraph: {
+      locale: locale === "bn" ? "bn_BD" : "en_US",
+      alternateLocale: locale === "bn" ? "en_US" : "bn_BD",
+    },
+  };
 }
 
 export default async function LocaleLayout({

@@ -9,9 +9,18 @@ import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getAboutConfig } from "@/lib/about/server";
+import type { Metadata } from "next";
+import { localeAlternates } from "@/lib/seo";
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: HomePageProps): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    alternates: localeAlternates(locale, ""),
+  };
 }
 
 export default async function HomePage({ params }: HomePageProps) {

@@ -832,6 +832,11 @@ html[lang="bn"] .heading-kicker,
   to { transform: rotate(360deg); }
 }
 
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
 .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
 .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
 .animate-fade-in-down { animation: fadeInDown 0.6s ease-out forwards; }
@@ -848,6 +853,7 @@ html[lang="bn"] .heading-kicker,
   animation: shimmer 2s infinite;
 }
 .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+.animate-spin-reverse { animation: spin-reverse 12s linear infinite; }
 
 /* ── Stagger delays ───────────────────────────────────── */
 .stagger-1 { animation-delay: 0.1s; }

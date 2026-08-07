@@ -10,11 +10,6 @@ import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getAboutConfig } from "@/lib/about/server";
 
-// ── Home Page ──────────────────────────────────────────
-// Phase 22: Enhanced with Featured Gallery and Testimonials
-// Phase K: Featured image boxes moved further down; the website
-// ordering CTA band sits directly above them.
-
 interface HomePageProps {
   params: Promise<{ locale: string }>;
 }
@@ -25,48 +20,40 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <>
-      {/* Cinematic Intro (plays once on first visit) */}
       <CinematicIntro />
-
-      {/* Quick Floating Actions */}
       <QuickActions />
-
-      {/* Hero Section */}
       <HeroSection locale={locale} aboutConfig={aboutConfig} />
 
-      <AuroraDivider />
+      <AuroraDivider spacing="md" />
 
-      {/* About Preview */}
       <AboutPreview locale={locale} config={aboutConfig} />
 
-      <AuroraDivider />
+      <AuroraDivider spacing="md" />
 
-      {/* Services Preview */}
       <ServicesPreview locale={locale} />
 
-      <AuroraDivider />
+      <AuroraDivider spacing="md" />
 
-      {/* Testimonials */}
-      <div className="container mx-auto px-4">
+      {/* Testimonials — container handled inside component */}
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <TestimonialsSection locale={locale} limit={6} />
       </div>
 
-      <AuroraDivider />
+      <AuroraDivider spacing="md" />
 
-      {/* Order CTA — the website-ordering system, right above the image boxes */}
       <OrderCtaBand locale={locale} />
 
-      {/* Featured Gallery (moved down below services & testimonials) */}
-      <div className="container mx-auto px-4 pb-12">
+      {/* Featured Gallery — balanced grid, pb accounts for bottom nav */}
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8 lg:pb-12">
         <FeaturedGallery locale={locale} limit={8} />
-      </div>
+      </section>
 
-      <AuroraDivider />
+      <AuroraDivider spacing="md" />
 
-      {/* Newsletter — Phase 27 */}
-      <div id="newsletter" className="container mx-auto px-4 py-12">
+      {/* Newsletter — compact, not giant */}
+      <section id="newsletter" className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:py-12">
         <NewsletterSignup locale={locale} source="homepage" />
-      </div>
+      </section>
     </>
   );
 }

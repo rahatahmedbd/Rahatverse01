@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+    // Optimize for all viewports: mobile gets smaller images, desktop gets larger
+    deviceSizes: [360, 390, 430, 640, 768, 1024, 1280, 1440, 1536, 1920],
+    imageSizes: [16, 32, 64, 96, 128, 256, 320, 384, 640, 750, 828, 1080],
+    formats: ["image/avif", "image/webp"],
+    // Allow SVG placeholders like gallery-blood.svg without breaking
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

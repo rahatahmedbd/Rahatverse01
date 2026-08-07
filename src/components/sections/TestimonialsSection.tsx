@@ -123,8 +123,8 @@ export default function TestimonialsSection({
   const currentTestimonial = testimonials[currentIndex] || fallbackTestimonials[0];
 
   return (
-    <section className="py-20">
-      <div className="mx-auto max-w-5xl px-4">
+    <section className="py-12 sm:py-16 lg:py-20">
+      <div className="mx-auto max-w-5xl px-0 sm:px-4">
         <SectionTitle
           badge={isBn ? "💬 মতামত" : "💬 Testimonials"}
           title="Client Testimonials"

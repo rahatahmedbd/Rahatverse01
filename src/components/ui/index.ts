@@ -19,6 +19,12 @@ export { Separator } from "./separator";
 
 export { Skeleton, CardSkeleton, PageLoader } from "./skeleton";
 
+// Phase F — Image & visual enhancements
+export { BlurUpImage } from "./blur-image";
+export type { BlurUpImageProps } from "./blur-image";
+export { Lightbox } from "./lightbox";
+export type { LightboxItem, LightboxProps } from "./lightbox";
+
 // Phase 31 — Premium form field system
 export {
   FormField,

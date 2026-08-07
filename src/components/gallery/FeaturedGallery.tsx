@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { BlurUpImage } from "@/components/ui/blur-image";
 
 interface GalleryImage {
   id: string;
@@ -86,17 +86,19 @@ export default function FeaturedGallery({
             key={image.id}
             className="group relative overflow-hidden rounded-lg border bg-card aspect-square"
           >
-            <Image
+            <BlurUpImage
               src={image.url}
               alt={isBn ? image.title_bn || image.title || "" : image.title || image.title_bn || ""}
-              fill
-              className="object-cover transition-transform group-hover:scale-110"
+              className="absolute inset-0 h-full w-full"
+              imgClassName="object-cover transition-transform duration-700 group-hover:scale-110"
               sizes="(max-width: 768px) 50vw, 25vw"
             />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-              <p className="text-white text-sm font-medium truncate w-full">
-                {isBn ? image.title_bn || image.title : image.title || image.title_bn}
-              </p>
+            <div className="absolute inset-x-0 bottom-0 translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+              <div className="glass mx-2 mb-2 flex items-center gap-2 rounded-lg px-3 py-2">
+                <p className="truncate text-sm font-medium w-full">
+                  {isBn ? image.title_bn || image.title : image.title || image.title_bn}
+                </p>
+              </div>
             </div>
           </div>
         ))}

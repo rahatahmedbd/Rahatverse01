@@ -11,6 +11,12 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/content-config`
+Public, validated search/FAQ/legal configuration endpoint (Phase 13). Returns
+`{ data }` — the `content_config` document in `site_settings` (FAQ categories &
+items, search scope & weights, legal policy pages). Falls back to defaults when
+the database is unavailable or the value fails validation.
+
 ### `GET /api/theme-config`
 Public, validated theme/XP/audio/effects configuration endpoint (Phase 12).
 Returns `{ data }` — the `theme_config` document in `site_settings` (theme

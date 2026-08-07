@@ -4,6 +4,20 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.16.0] — Phase 13 — Site-Wide Search, FAQ & Legal Policies CMS
+
+### Added
+- `content_config` site_settings document (migration `022_content_admin_control.sql`)
+  driving FAQ categories/items, search scope & weights, and legal policy pages.
+- Public `/api/content-config` endpoint with resilient defaults.
+- `ContentControlPanel` at `/[locale]/dashboard/content` (new "FAQ & Legal" nav
+  entry) — FAQ categories/items CRUD, search scope & weights, and rich-text legal
+  page editor (Privacy, Terms, Cookie, Refund).
+- Refactored `FAQSection` to render DB-driven category-filtered accordions.
+- Added a shared `LegalContent` renderer and rewired `/privacy`, `/terms` and new
+  `/cookie`, `/refund` pages to render from config.
+- Eight unit tests covering the new CMS validation contract.
+
 ## [0.15.0] — Phase 12 — Interactive Themes, Gamification (XP) & Audio Controls CMS
 
 ### Added

@@ -33,6 +33,7 @@ import {
   Link2,
   Send,
   Palette,
+  HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +63,7 @@ const sections = [
   { href: "contact-settings", icon: PhoneCall, labelBn: "কন্টাক্ট সেটিংস", labelEn: "Contact Settings" },
   { href: "links", icon: Link2, labelBn: "লিংক ও টুলস", labelEn: "Links & Tools" },
   { href: "theme", icon: Palette, labelBn: "থিম ও ইফেক্ট", labelEn: "Theme & Effects" },
+  { href: "content", icon: HelpCircle, labelBn: "FAQ ও লিগ্যাল", labelEn: "FAQ & Legal" },
   { href: "images", icon: ImageIcon, labelBn: "মিডিয়া লাইব্রেরি", labelEn: "Media Library" },
   { href: "gallery", icon: Images, labelBn: "গ্যালারি CMS", labelEn: "Gallery CMS" },
   { href: "videos", icon: Video, labelBn: "ভিডিও CMS", labelEn: "Video CMS" },

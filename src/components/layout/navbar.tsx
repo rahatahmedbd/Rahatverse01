@@ -60,8 +60,11 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden items-center gap-1 lg:flex">
           {NAVIGATION_ITEMS.map((item) => {
-            const href = `${basePath}${item.path}`;
-            const isActive = pathname === href;
+            // Normalize trailing slashes so the home item ("/") matches
+            // the locale pathname ("/bn") on both server and client.
+            const normalizedPathname = pathname.replace(/\/+$/, "");
+            const href = `${basePath}${item.path}`.replace(/\/+$/, "");
+            const isActive = normalizedPathname === href;
             return (
               <Link
                 key={item.key}
@@ -109,8 +112,11 @@ export function Navbar() {
         <div className="glass mx-4 mt-2 rounded-xl p-4 shadow-xl lg:hidden animate-fade-in-down">
           <div className="flex flex-col gap-1">
             {NAVIGATION_ITEMS.map((item) => {
-              const href = `${basePath}${item.path}`;
-              const isActive = pathname === href;
+              // Normalize trailing slashes so the home item ("/") matches
+              // the locale pathname ("/bn") on both server and client.
+              const normalizedPathname = pathname.replace(/\/+$/, "");
+              const href = `${basePath}${item.path}`.replace(/\/+$/, "");
+              const isActive = normalizedPathname === href;
               return (
                 <Link
                   key={item.key}

@@ -74,6 +74,13 @@ Typography scale, spacing rhythm, consistent empty/loading/skeleton states,
 image preloading & blur-up placeholders, lightbox upgrade, gallery mosaics, and a
 final cross-browser/theme QA pass.
 
+### Phase K — "প্রিমিয়াম হিরো" Premium Hero & Navigation
+Rebuild the home hero as a premium product layout (quote/motto → Order CTA →
+professional 3D-style profile image → role badges → stats), upgrade the mobile
+bottom nav into a Samsung/Apple/Pixel-inspired floating capsule with a
+spring-animated active pill, fix the navigation active-state trailing-slash bug,
+and harden Cloudinary rendering when env credentials are absent.
+
 ---
 
 ## Rules

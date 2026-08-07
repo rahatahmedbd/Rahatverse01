@@ -14,7 +14,6 @@ import {
   Send,
   Loader2,
   CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 import {
   FormField,
@@ -22,6 +21,8 @@ import {
   TextAreaField,
   SelectField,
 } from "@/components/ui/form";
+import { Feedback } from "@/components/ui/feedback";
+import { toast } from "@/components/ui/toast";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()-]{5,24}$/;
@@ -91,11 +92,19 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
       if (res.ok) {
         setIsSubmitted(true);
         setForm({ name: "", email: "", phone: "", subject: "", message: "" });
+        toast.success(
+          isBn ? "বার্তা পাঠানো হয়েছে!" : "Message sent!",
+          isBn
+            ? "ধন্যবাদ! আমি শীঘ্রই উত্তর দেব।"
+            : "Thank you! I will reply shortly."
+        );
       } else {
         setError(isBn ? "কিছু একটা সমস্যা হয়েছে" : "Something went wrong");
+        toast.error(isBn ? "সমস্যা হয়েছে" : "Something went wrong");
       }
     } catch {
       setError(isBn ? "নেটওয়ার্ক সমস্যা" : "Network error");
+      toast.error(isBn ? "নেটওয়ার্ক সমস্যা" : "Network error");
     } finally {
       setIsSubmitting(false);
     }
@@ -284,10 +293,10 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                     </FormField>
 
                     {error && (
-                      <div className="flex items-center gap-2 text-sm text-red-400">
-                        <AlertCircle className="h-4 w-4" />
-                        <span>{error}</span>
-                      </div>
+                      <Feedback
+                        tone="error"
+                        message={error}
+                      />
                     )}
 
                     <Button type="submit" variant="gradient" disabled={isSubmitting} className="w-full">

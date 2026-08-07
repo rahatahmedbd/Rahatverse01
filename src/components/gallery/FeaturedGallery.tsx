@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { ImageOff } from "lucide-react";
 import { BlurUpImage } from "@/components/ui/blur-image";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface GalleryImage {
   id: string;
@@ -72,9 +74,23 @@ export default function FeaturedGallery({
 
   if (images.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        {isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
-      </div>
+      <EmptyState
+        icon={<ImageOff className="h-9 w-9" />}
+        title={isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images yet"}
+        description={
+          isBn
+            ? "শীঘ্রই ছবি যোগ করা হবে"
+            : "Images will be added soon"
+        }
+        action={
+          <Link
+            href={`/${locale}/gallery`}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            {isBn ? "গ্যালারি দেখুন" : "View Gallery"}
+          </Link>
+        }
+      />
     );
   }
 

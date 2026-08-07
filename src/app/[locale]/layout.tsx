@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { Navbar } from "@/components/layout/navbar";
 import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
+import { Toaster } from "@/components/ui/toast";
 import { AnimationProviders } from "@/components/animations/Providers";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { WebVitalsReporter } from "@/components/seo/web-vitals-reporter";
@@ -81,6 +82,9 @@ export default async function LocaleLayout({
             {/* Mobile Bottom Navigation */}
             <BottomNavBar />
           </div>
+
+          {/* Global Toasts (Phase G) */}
+          <Toaster />
         </NextIntlClientProvider>
       </body>
     </html>

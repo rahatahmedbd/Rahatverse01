@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { LayoutGrid, Grid3x3, ZoomIn } from "lucide-react";
+import { LayoutGrid, Grid3x3, ZoomIn, ImageOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BlurUpImage } from "@/components/ui/blur-image";
 import { Lightbox } from "@/components/ui/lightbox";
+import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 
 interface GalleryImage {
@@ -140,9 +141,15 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
           ))}
         </div>
       ) : filteredImages.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          {isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
-        </div>
+        <EmptyState
+          icon={<ImageOff className="h-9 w-9" />}
+          title={isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
+          description={
+            isBn
+              ? "এই ক্যাটাগরিতে এখনো কোনো ছবি যোগ করা হয়নি"
+              : "No images have been added to this category yet"
+          }
+        />
       ) : (
         <div
           className={cn(

@@ -1,15 +1,18 @@
 import { cn } from "@/lib/utils";
 
 // ── Skeleton Loader ────────────────────────────────────
+// Shimmering placeholder while content loads (Phase G).
 interface SkeletonProps {
   className?: string;
+  shimmer?: boolean;
 }
 
-export function Skeleton({ className }: SkeletonProps) {
+export function Skeleton({ className, shimmer = true }: SkeletonProps) {
   return (
     <div
       className={cn(
-        "animate-pulse rounded-md bg-muted/50",
+        shimmer ? "animate-shimmer bg-muted/60" : "animate-pulse bg-muted/50",
+        "rounded-md",
         className
       )}
     />
@@ -31,17 +34,56 @@ export function CardSkeleton() {
   );
 }
 
+// ── Spinner ────────────────────────────────────────────
+interface SpinnerProps {
+  className?: string;
+  size?: "sm" | "md" | "lg";
+}
+
+export function Spinner({ className, size = "md" }: SpinnerProps) {
+  const sizeMap = { sm: "h-4 w-4", md: "h-8 w-8", lg: "h-12 w-12" };
+  return (
+    <div
+      role="status"
+      aria-label="Loading"
+      className={cn("relative", sizeMap[size], className)}
+    >
+      <div className={cn("rounded-full border-2 border-border", sizeMap[size])} />
+      <div
+        className={cn(
+          "absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin",
+          sizeMap[size]
+        )}
+      />
+    </div>
+  );
+}
+
+// ── Loading State (spinner + label) ────────────────────
+interface LoadingStateProps {
+  label?: string;
+  className?: string;
+}
+
+export function LoadingState({ label = "Loading...", className }: LoadingStateProps) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground",
+        className
+      )}
+    >
+      <Spinner size="lg" />
+      <p className="text-sm">{label}</p>
+    </div>
+  );
+}
+
 // ── Page Loader ────────────────────────────────────────
 export function PageLoader() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <div className="relative">
-          <div className="h-12 w-12 rounded-full border-2 border-border" />
-          <div className="absolute inset-0 h-12 w-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-        </div>
-        <p className="text-sm text-muted-foreground">Loading...</p>
-      </div>
+      <LoadingState label="Loading..." />
     </div>
   );
 }

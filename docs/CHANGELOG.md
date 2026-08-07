@@ -4,6 +4,20 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.15.0] — Phase 12 — Interactive Themes, Gamification (XP) & Audio Controls CMS
+
+### Added
+- `theme_config` site_settings document (migration `021_theme_admin_control.sql`)
+  driving theme presets, defaults (accent/theme/customizer), XP rules & levels,
+  ambient-audio playlist + volume, and background-effect toggles/intensities.
+- Public `/api/theme-config` endpoint with resilient defaults.
+- `useThemeConfig` client hook (cached) + `applyPresetToDOM`.
+- `ThemeControlPanel` at `/[locale]/dashboard/theme` (new "Theme & Effects" nav
+  entry) — presets CRUD, defaults, XP rules/levels, audio tracks, effect toggles.
+- Refactored `AccentCustomizer` to load admin-defined presets from the config and
+  apply them to the DOM.
+- Eight unit tests covering the new CMS validation contract.
+
 ## [0.14.0] — Phase 11 — Newsletter & Campaign Control CMS
 
 ### Added

@@ -11,6 +11,12 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/theme-config`
+Public, validated theme/XP/audio/effects configuration endpoint (Phase 12).
+Returns `{ data }` — the `theme_config` document in `site_settings` (theme
+presets, defaults, XP rules/levels, audio playlist, effect toggles). Falls back
+to defaults when the database is unavailable or the value fails validation.
+
 ### `GET /api/newsletter-config`
 Public, validated newsletter configuration endpoint (Phase 11). Returns
 `{ data }` — the `newsletter_config` document in `site_settings` (section

@@ -154,6 +154,7 @@ See the **[docs/](docs/README.md)** folder:
 | Custom 9 | **Contact, Bookings & Testimonials** | Messages inbox, booking calendar, testimonial manager, contact settings CMS ✅ |
 | Custom 10 | **Link Hub, Tools & Resume CMS** | Link cards + click tracking, tool recommendations, CV manager ✅ |
 | Custom 11 | **Newsletter & Email CMS** | Newsletter section/topics CMS, topic-preference signup ✅ |
+| Custom 12 | **Theme, XP & Audio CMS** | Theme presets, XP rules/levels, ambient audio, effect toggles ✅ |
 
 ## 👤 Author
 

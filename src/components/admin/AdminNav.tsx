@@ -32,6 +32,7 @@ import {
   PhoneCall,
   Link2,
   Send,
+  Palette,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -60,6 +61,7 @@ const sections = [
   { href: "testimonials", icon: Star, labelBn: "রিভিউ", labelEn: "Testimonials" },
   { href: "contact-settings", icon: PhoneCall, labelBn: "কন্টাক্ট সেটিংস", labelEn: "Contact Settings" },
   { href: "links", icon: Link2, labelBn: "লিংক ও টুলস", labelEn: "Links & Tools" },
+  { href: "theme", icon: Palette, labelBn: "থিম ও ইফেক্ট", labelEn: "Theme & Effects" },
   { href: "images", icon: ImageIcon, labelBn: "মিডিয়া লাইব্রেরি", labelEn: "Media Library" },
   { href: "gallery", icon: Images, labelBn: "গ্যালারি CMS", labelEn: "Gallery CMS" },
   { href: "videos", icon: Video, labelBn: "ভিডিও CMS", labelEn: "Video CMS" },

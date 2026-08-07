@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,37 @@ import {
 import { FadeInUp, FadeInDown } from "@/components/animations/FadeIn";
 import { ParticleBackground } from "@/components/animations/ParticleBackground";
 import { ScrollIndicator } from "@/components/animations/ScrollProgress";
-import { Sparkles, Zap, Eye, MessageCircle } from "lucide-react";
+import { Sparkles, Zap, Eye, MessageCircle, Star, Award, Heart, Code, Users, ShoppingCart, Briefcase, GraduationCap, Droplets, Trophy, Mail } from "lucide-react";
 import { Counter } from "@/components/animations/Counter";
 import Link from "next/link";
+import type { HeroConfig } from "@/types/hero";
+import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
+
+// ── Icon map for dynamic CTAs ────────────────────────
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Zap,
+  Eye,
+  MessageCircle,
+  Sparkles,
+  Star,
+  Award,
+  Heart,
+  Code,
+  Users,
+  ShoppingCart,
+  Briefcase,
+  GraduationCap,
+  Droplets,
+  Trophy,
+  Mail,
+};
+
+function getIcon(name: string) {
+  return ICON_MAP[name] ?? Sparkles;
+}
 
 // ── Hero Section ───────────────────────────────────────
-// The main cinematic hero for the landing page
+// Phase 2: 100% admin-controllable via site_settings.hero_config (with fallback)
 
 interface HeroSectionProps {
   locale?: string;
@@ -26,22 +52,27 @@ interface HeroSectionProps {
 
 export function HeroSection({ locale = "bn" }: HeroSectionProps) {
   const isBn = locale === "bn";
+  const [config, setConfig] = useState<HeroConfig>(DEFAULT_HERO_CONFIG);
 
-  const taglines = isBn
-    ? [
-        "ওয়েব ডেভেলপার",
-        "শিক্ষার্থী",
-        "গৃহশিক্ষক",
-        "রক্তদাতা",
-        "BNCC ক্যাডেট",
-      ]
-    : [
-        "Web Developer",
-        "Student",
-        "Teacher",
-        "Blood Donor",
-        "BNCC Cadet",
-      ];
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/hero-config", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((json) => {
+        if (!alive) return;
+        const validated = validateHeroConfig(json.data);
+        if (validated) setConfig(validated);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (!config.visible) return null;
+
+  const taglines = isBn ? config.typewriter.bn : config.typewriter.en;
+  const welcomeText = isBn ? config.intro.welcomeTextBn : config.intro.welcomeTextEn;
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
@@ -65,13 +96,26 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
 
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
-        {/* Badge */}
+        {/* Badge - admin editable welcome */}
         <FadeInDown delay={0.5}>
           <Badge variant="gradient" className="mb-6 text-sm">
             <Sparkles className="mr-1 h-3 w-3" />
-            {isBn ? "স্বাগতম আমার ডিজিটাল জগতে" : "Welcome to my digital world"}
+            {welcomeText}
           </Badge>
         </FadeInDown>
+
+        {/* Role Badges - admin reorderable */}
+        {config.badges.length > 0 && (
+          <FadeInDown delay={0.55}>
+            <div className="mb-6 flex flex-wrap justify-center gap-2">
+              {config.badges.map((b) => (
+                <Badge key={b.id} variant="glow" className="bn text-xs">
+                  {isBn ? b.labelBn : b.labelEn}
+                </Badge>
+              ))}
+            </div>
+          </FadeInDown>
+        )}
 
         {/* Profile Image with Phase I 3D Mouse Parallax */}
         <motion.div
@@ -118,50 +162,42 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
           </p>
         </FadeInUp>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons - admin editable, pulse per button */}
         <FadeInUp delay={1.5}>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Button variant="gradient" size="lg" asChild>
-              <Link href={`/${locale}/order`}>
-                <Zap className="h-4 w-4" />
-                {isBn ? "ওয়েবসাইট অর্ডার করুন" : "Order a Website"}
-              </Link>
-            </Button>
-            <Button variant="glass" size="lg" asChild>
-              <Link href={`/${locale}/portfolio`}>
-                <Eye className="h-4 w-4" />
-                {isBn ? "প্রজেক্ট দেখুন" : "View Projects"}
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href={`/${locale}/contact`}>
-                <MessageCircle className="h-4 w-4" />
-                {isBn ? "যোগাযোগ" : "Contact"}
-              </Link>
-            </Button>
+            {config.ctas.map((cta) => {
+              const Icon = getIcon(cta.icon);
+              const variant = cta.variant as "gradient" | "glass" | "outline";
+              return (
+                <Button
+                  key={cta.id}
+                  variant={variant}
+                  size="lg"
+                  asChild
+                  className={cta.pulse ? "animate-pulse shadow-lg shadow-amber-500/20" : ""}
+                >
+                  <Link href={cta.href.startsWith("/") ? `/${locale}${cta.href}` : cta.href}>
+                    <Icon className="h-4 w-4" />
+                    {isBn ? cta.labelBn : cta.labelEn}
+                  </Link>
+                </Button>
+              );
+            })}
           </div>
         </FadeInUp>
 
-        {/* Quick Stats */}
+        {/* Quick Stats - admin editable floating counters */}
         <FadeInUp delay={1.8}>
           <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {[
-              { value: 9, suffix: "", label: isBn ? "অর্জন" : "Achievements" },
-              { value: 5, suffix: "×", label: isBn ? "১ম স্থান" : "1st Places" },
-              { value: 4, suffix: "", label: isBn ? "রক্তদান" : "Blood Donations" },
-              { value: 2, suffix: "×", label: "GPA 5.00", labelBn: "GPA 5.00" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="glass rounded-xl px-4 py-3"
-              >
+            {config.counters.map((stat) => (
+              <div key={stat.id} className="glass rounded-xl px-4 py-3">
                 <Counter
                   to={stat.value}
                   suffix={stat.suffix}
                   className="text-2xl font-bold text-primary sm:text-3xl"
                 />
                 <p className="mt-1 text-xs text-muted-foreground bn sm:text-sm">
-                  {isBn && stat.labelBn ? stat.labelBn : stat.label}
+                  {isBn ? stat.labelBn : stat.labelEn}
                 </p>
               </div>
             ))}

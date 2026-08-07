@@ -4,9 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import { GlassCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Terminal, Loader2, ChevronLeft, ChevronRight, RefreshCw, Search } from "lucide-react";
+import { Terminal, ChevronLeft, ChevronRight, RefreshCw, Search } from "lucide-react";
 import { SectionTitle } from "@/components/sections/SectionTitle";
 import { Input } from "@/components/ui/input";
+import { EmptyState, TableSkeleton } from "@/components/ui";
 
 // ── System Logs Viewer ─────────────────────────────────
 // Level-filtered, paginated application log entries.
@@ -24,152 +25,232 @@ interface SystemLogsViewerProps {
   locale?: string;
 }
 
-const levelBadge: Record<string, "secondary" | "info" | "warning" | "destructive"> = {
-  debug: "secondary",
-  info: "info",
-  warn: "warning",
+const LEVEL_BADGES: Record<
+  LogEntry["level"],
+  "default" | "secondary" | "destructive" | "outline"
+> = {
+  debug: "outline",
+  info: "secondary",
+  warn: "default",
   error: "destructive",
 };
 
 export function SystemLogsViewer({ locale = "bn" }: SystemLogsViewerProps) {
   const isBn = locale === "bn";
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [level, setLevel] = useState("all");
-  const [source, setSource] = useState("");
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
-  const pageSize = 30;
+  const [levelFilter, setLevelFilter] = useState<string>("");
+  const [sourceSearch, setSourceSearch] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const pageSize = 25;
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError("");
     try {
-      const params = new URLSearchParams({ page: String(page), limit: String(pageSize), level });
-      if (source) params.set("source", source);
-      const res = await fetch(`/api/admin/logs?${params.toString()}`, { cache: "no-store" });
+      const p = new URLSearchParams();
+      if (levelFilter) p.set("level", levelFilter);
+      if (sourceSearch) p.set("source", sourceSearch);
+      p.set("limit", String(pageSize));
+      p.set("offset", String((page - 1) * pageSize));
+
+      const res = await fetch(`/api/admin/logs?${p.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      setLogs(json.data || []);
-      setTotal(json.pagination?.total ?? 0);
+      const data = await res.json();
+      setLogs(data.logs || []);
     } catch {
-      setError(isBn ? "লগ লোড করা যায়নি" : "Failed to load logs");
+      setError(
+        isBn
+          ? "সিস্টেম লগ লোড করা যায়নি। পরে চেষ্টা করুন।"
+          : "Unable to load system logs."
+      );
     } finally {
       setLoading(false);
     }
-  }, [page, level, source, isBn]);
+  }, [levelFilter, sourceSearch, page, isBn]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLogs();
   }, [fetchLogs]);
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
   return (
-    <section className="py-4">
+    <div className="space-y-6">
       <SectionTitle
-        badge="🖥️"
-        title="System Logs"
-        titleBn="সিস্টেম লগ"
+        badge={isBn ? "🖥️ সিস্টেম লগ" : "🖥️ System Logs"}
+        title="Application Runtime Logs"
+        titleBn="অ্যাপ্লিকেশন রানটাইম লগ"
+        subtitle={
+          isBn
+            ? "সিস্টেম এরিওর, ওয়ার্নিং এবং বিভিন্ন ইভেন্ট ট্র্যাক করুন"
+            : "Track system errors, warnings, and runtime events across services"
+        }
         locale={locale}
       />
 
-      <GlassCard className="mb-6 p-4">
-        <div className="flex flex-wrap items-center gap-2">
-          {["all", "debug", "info", "warn", "error"].map((l) => (
+      <GlassCard className="p-6">
+        {/* Filter bar */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { label: isBn ? "সব" : "All", val: "" },
+              { label: "Error", val: "error" },
+              { label: "Warn", val: "warn" },
+              { label: "Info", val: "info" },
+              { label: "Debug", val: "debug" },
+            ].map((lvl) => (
+              <Button
+                key={lvl.val}
+                variant={levelFilter === lvl.val ? "default" : "outline"}
+                size="sm"
+                className="h-8 text-xs"
+                onClick={() => {
+                  setLevelFilter(lvl.val);
+                  setPage(1);
+                }}
+              >
+                {lvl.label}
+              </Button>
+            ))}
+
+            <div className="relative w-40 sm:w-56">
+              <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={isBn ? "সোর্স ফিল্টার..." : "Source filter..."}
+                value={sourceSearch}
+                onChange={(e) => {
+                  setSourceSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="h-8 pl-8 text-xs"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
             <Button
-              key={l}
+              variant="outline"
               size="sm"
-              variant={level === l ? "default" : "outline"}
-              onClick={() => {
-                setLevel(l);
-                setPage(1);
-              }}
+              onClick={fetchLogs}
+              disabled={loading}
+              className="h-8 text-xs"
             >
-              {l}
+              <RefreshCw className="mr-1 h-3 w-3" />
+              {isBn ? "রিফ্রেশ" : "Refresh"}
             </Button>
-          ))}
-          <div className="relative ml-auto w-full sm:w-56">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pl-9"
-              placeholder={isBn ? "সোর্স..." : "Source..."}
-              value={source}
-              onChange={(e) => {
-                setSource(e.target.value);
-                setPage(1);
-              }}
-            />
           </div>
-          <Button variant="ghost" size="icon-sm" onClick={fetchLogs}>
-            <RefreshCw className="h-4 w-4" />
-          </Button>
         </div>
-      </GlassCard>
 
-      {error && (
-        <GlassCard className="mb-4 p-4 text-center text-sm text-red-400">{error}</GlassCard>
-      )}
-
-      <GlassCard className="overflow-x-auto">
-        {loading ? (
-          <div className="flex items-center justify-center gap-2 p-10 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-          </div>
-        ) : logs.length === 0 ? (
-          <p className="p-10 text-center text-sm text-muted-foreground">
-            {isBn ? "কোনো লগ এন্ট্রি নেই" : "No log entries"}
+        {error && (
+          <p className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
           </p>
-        ) : (
-          <table className="w-full min-w-[720px] text-sm">
-            <thead>
-              <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="px-4 py-3">{isBn ? "সময়" : "Time"}</th>
-                <th className="px-4 py-3">Level</th>
-                <th className="px-4 py-3">Source</th>
-                <th className="px-4 py-3">{isBn ? "বার্তা" : "Message"}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((log) => (
-                <tr key={log.id} className="border-b border-border/30 last:border-0">
-                  <td className="whitespace-nowrap px-4 py-2.5 text-xs text-muted-foreground">
-                    {new Date(log.created_at).toLocaleString(isBn ? "bn-BD" : "en-US")}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <Badge variant={levelBadge[log.level] ?? "secondary"}>{log.level}</Badge>
-                  </td>
-                  <td className="px-4 py-2.5 font-mono text-xs">{log.source}</td>
-                  <td className="px-4 py-2.5">
-                    <div className="flex items-start gap-2">
-                      <Terminal className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <span className="break-words font-mono text-xs">{log.message}</span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         )}
 
-        <div className="flex items-center justify-between border-t border-border/40 px-4 py-3 text-sm">
-          <span className="text-xs text-muted-foreground">
-            {isBn ? `মোট ${total}টি` : `${total} total`}
+        {/* Content */}
+        {loading ? (
+          <TableSkeleton rows={6} columns={4} />
+        ) : logs.length === 0 ? (
+          <EmptyState
+            size="sm"
+            icon={Terminal}
+            title={isBn ? "কোনো লগ এন্ট্রি নেই" : "No log entries"}
+            description={
+              levelFilter || sourceSearch
+                ? isBn
+                  ? "আপনার ফিল্টারের সাথে কোনো লগ রেকর্ড মিলছে না।"
+                  : "No logs match your current filter criteria."
+                : isBn
+                  ? "সিস্টেমে এখনো কোনো লগ রেকর্ড করা হয়নি।"
+                  : "No system log entries recorded yet."
+            }
+            action={
+              levelFilter || sourceSearch
+                ? {
+                    label: isBn ? "ফিল্টার রিসেট করুন" : "Clear Filters",
+                    onClick: () => {
+                      setLevelFilter("");
+                      setSourceSearch("");
+                    },
+                  }
+                : undefined
+            }
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead>
+                <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="px-4 py-3">{isBn ? "সময়" : "Time"}</th>
+                  <th className="px-4 py-3">Level</th>
+                  <th className="px-4 py-3">Source</th>
+                  <th className="px-4 py-3">{isBn ? "বার্তা" : "Message"}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/30">
+                {logs.map((log) => (
+                  <tr
+                    key={log.id}
+                    className="hover:bg-muted/30 transition-colors"
+                  >
+                    <td className="whitespace-nowrap px-4 py-2.5 text-xs text-muted-foreground">
+                      {new Date(log.created_at).toLocaleString(
+                        isBn ? "bn-BD" : "en-US"
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <Badge
+                        variant={LEVEL_BADGES[log.level] || "secondary"}
+                        className="font-mono text-xs uppercase"
+                      >
+                        {log.level}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-2.5 font-mono text-xs">
+                      {log.source}
+                    </td>
+                    <td className="max-w-md px-4 py-2.5">
+                      <span className="break-words font-mono text-xs text-foreground">
+                        {log.message}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        <div className="mt-4 flex items-center justify-between border-t border-border/30 pt-3 text-xs text-muted-foreground">
+          <span>
+            {isBn ? `পৃষ্ঠা ${page}` : `Page ${page}`}
           </span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              <ChevronLeft className="h-4 w-4" />
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || loading}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="h-7 px-2 text-xs"
+            >
+              <ChevronLeft className="h-3 w-3" />
             </Button>
-            <span className="text-xs text-muted-foreground">{page} / {totalPages}</span>
-            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-              <ChevronRight className="h-4 w-4" />
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={logs.length < pageSize || loading}
+              onClick={() => setPage((p) => p + 1)}
+              className="h-7 px-2 text-xs"
+            >
+              <ChevronRight className="h-3 w-3" />
             </Button>
           </div>
         </div>
       </GlassCard>
-    </section>
+    </div>
   );
 }

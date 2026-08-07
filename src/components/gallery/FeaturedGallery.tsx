@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ZoomIn } from "lucide-react";
+import { ZoomIn, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ImageSkeleton } from "@/components/ui/blur-image";
+import { EmptyState } from "@/components/ui/empty-state";
 import { LightboxModal, LightboxImageItem } from "@/components/gallery/LightboxModal";
 import { getMosaicSpanClass } from "@/components/gallery/mosaic-utils";
 import { cn } from "@/lib/utils";
@@ -97,9 +98,15 @@ export default function FeaturedGallery({
 
   if (images.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        {isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
-      </div>
+      <EmptyState
+        icon={Camera}
+        title={isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
+        description={
+          isBn
+            ? "ফিচার্ড গ্যালারিতে শীঘ্রই নতুন ছবি আপলোড করা হবে।"
+            : "Featured photos will be uploaded soon."
+        }
+      />
     );
   }
 

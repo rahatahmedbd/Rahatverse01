@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { ZoomIn, LayoutGrid, Grid } from "lucide-react";
+import { ZoomIn, LayoutGrid, Grid, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ImageSkeleton } from "@/components/ui/blur-image";
+import { EmptyState } from "@/components/ui/empty-state";
 import { LightboxModal, LightboxImageItem } from "@/components/gallery/LightboxModal";
 import { getMosaicSpanClass, GalleryLayoutMode } from "@/components/gallery/mosaic-utils";
 import { cn } from "@/lib/utils";
@@ -153,9 +154,27 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
           ))}
         </div>
       ) : filteredImages.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          {isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
-        </div>
+        <EmptyState
+          icon={Camera}
+          title={isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
+          description={
+            selectedCategory === "all"
+              ? isBn
+                ? "এই মুহূর্তে গ্যালারিতে কোনো ছবি আপলোড করা হয়নি।"
+                : "No photos have been uploaded to the gallery yet."
+              : isBn
+                ? "এই ক্যাটাগরির জন্য কোনো ছবি পাওয়া যায়নি। অন্য ক্যাটাগরি চেষ্টা করুন।"
+                : "No photos found for this category. Please try another category."
+          }
+          action={
+            selectedCategory !== "all"
+              ? {
+                  label: isBn ? "সব ছবি দেখুন" : "View All Categories",
+                  onClick: () => setSelectedCategory("all"),
+                }
+              : undefined
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredImages.map((image, index) => (

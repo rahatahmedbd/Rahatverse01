@@ -10,6 +10,8 @@ import { ParticleBackground } from "@/components/animations/ParticleBackground";
 import { ScrollIndicator } from "@/components/animations/ScrollProgress";
 import { Sparkles, Zap, Eye, MessageCircle } from "lucide-react";
 import { Counter } from "@/components/animations/Counter";
+import { MagneticButton } from "@/components/interactive/MagneticButton";
+import { Ripple } from "@/components/interactive/Ripple";
 import Link from "next/link";
 
 // ── Hero Section ───────────────────────────────────────
@@ -112,24 +114,34 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
         {/* CTA Buttons */}
         <FadeInUp delay={1.5}>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Button variant="gradient" size="lg" asChild>
-              <Link href={`/${locale}/order`}>
-                <Zap className="h-4 w-4" />
-                {isBn ? "ওয়েবসাইট অর্ডার করুন" : "Order a Website"}
-              </Link>
-            </Button>
-            <Button variant="glass" size="lg" asChild>
-              <Link href={`/${locale}/portfolio`}>
-                <Eye className="h-4 w-4" />
-                {isBn ? "প্রজেক্ট দেখুন" : "View Projects"}
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href={`/${locale}/contact`}>
-                <MessageCircle className="h-4 w-4" />
-                {isBn ? "যোগাযোগ" : "Contact"}
-              </Link>
-            </Button>
+            <MagneticButton strength={0.3}>
+              <Ripple rippleClassName="bg-white/20">
+                <Button variant="gradient" size="lg" asChild>
+                  <Link href={`/${locale}/order`}>
+                    <Zap className="h-4 w-4" />
+                    {isBn ? "ওয়েবসাইট অর্ডার করুন" : "Order a Website"}
+                  </Link>
+                </Button>
+              </Ripple>
+            </MagneticButton>
+            <MagneticButton strength={0.25}>
+              <Ripple>
+                <Button variant="glass" size="lg" asChild>
+                  <Link href={`/${locale}/portfolio`}>
+                    <Eye className="h-4 w-4" />
+                    {isBn ? "প্রজেক্ট দেখুন" : "View Projects"}
+                  </Link>
+                </Button>
+              </Ripple>
+            </MagneticButton>
+            <MagneticButton strength={0.25}>
+              <Button variant="outline" size="lg" asChild>
+                <Link href={`/${locale}/contact`}>
+                  <MessageCircle className="h-4 w-4" />
+                  {isBn ? "যোগাযোগ" : "Contact"}
+                </Link>
+              </Button>
+            </MagneticButton>
           </div>
         </FadeInUp>
 

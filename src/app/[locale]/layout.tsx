@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
 import { AnimationProviders } from "@/components/animations/Providers";
+import { PageTransition } from "@/components/animations/PageTransition";
 import { WebVitalsReporter } from "@/components/seo/web-vitals-reporter";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
@@ -71,7 +72,7 @@ export default async function LocaleLayout({
 
             {/* Main Content */}
             <main className="relative flex-1 pt-24 pb-24 lg:pb-8">
-              {children}
+              <PageTransition>{children}</PageTransition>
             </main>
 
             {/* Enhanced Footer */}

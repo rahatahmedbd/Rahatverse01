@@ -3,11 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ZoomIn, Camera } from "lucide-react";
+import { ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ImageSkeleton } from "@/components/ui/blur-image";
-import { EmptyState } from "@/components/ui/empty-state";
 import { LightboxModal, LightboxImageItem } from "@/components/gallery/LightboxModal";
 import { getMosaicSpanClass } from "@/components/gallery/mosaic-utils";
 import { cn } from "@/lib/utils";
@@ -30,6 +29,57 @@ interface FeaturedGalleryProps {
   limit?: number;
   categories?: string[];
 }
+
+const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
+  {
+    id: "default-1",
+    url: "/images/gallery-blood.svg",
+    category: "blood-donation",
+    title: "Shantichakra Blood Society - Blood Donation & Social Care",
+    title_bn: "শান্তিচক্র ব্লাড সোসাইটি - রক্তদান ও সমাজসেবা",
+    description: "Connecting blood donors with patients and arranging emergency blood in Sunamganj.",
+    description_bn: "সুনামগঞ্জে রক্তদাতাদের সাথে রোগীদের সংযোগ তৈরি এবং জরুরি রক্তের ব্যবস্থা করা।",
+    width: 800,
+    height: 600,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "default-2",
+    url: "/images/gallery-science.svg",
+    category: "achievements",
+    title: "46th National Science & Technology Week 2025",
+    title_bn: "৪৬তম জাতীয় বিজ্ঞান ও প্রযুক্তি সপ্তাহ ২০২৫",
+    description: "Showcasing innovative tech projects and district-level achievements.",
+    description_bn: "প্রযুক্তি ও বিজ্ঞান মেলায় উদ্ভাবনী প্রজেক্ট প্রদর্শন এবং জেলা পর্যায়ে অর্জন।",
+    width: 800,
+    height: 600,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "default-3",
+    url: "/images/gallery-bncc.svg",
+    category: "experience",
+    title: "BNCC Cadet - Leadership & Discipline",
+    title_bn: "বিএনসিসি ক্যাডেট - নেতৃত্ব ও শৃঙ্খলা",
+    description: "Active participation in Sunamganj Govt. College platoon and community service.",
+    description_bn: "সুনামগঞ্জ সরকারি কলেজ প্লাটুনে সক্রিয় অংশগ্রহণ ও সমাজসেবামূলক কাজ।",
+    width: 800,
+    height: 600,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "default-4",
+    url: "/images/gallery-web.svg",
+    category: "experience",
+    title: "Modern Web Development & Digital Solutions",
+    title_bn: "আধুনিক ওয়েব ডেভেলপমেন্ট ও ডিজিটাল সমাধান",
+    description: "Building fast, aesthetic websites using Next.js and modern web technologies.",
+    description_bn: "নেক্সট.জেএস এবং আধুনিক প্রযুক্তির সাহায্যে দ্রুতগতির ও নান্দনিক ওয়েবসাইট তৈরি।",
+    width: 800,
+    height: 600,
+    created_at: new Date().toISOString(),
+  },
+];
 
 export default function FeaturedGallery({ 
   locale = "bn", 
@@ -62,9 +112,11 @@ export default function FeaturedGallery({
         return dateB - dateA;
       });
       
-      setImages(allImages.slice(0, limit));
+      const finalImages = allImages.length > 0 ? allImages.slice(0, limit) : DEFAULT_FEATURED_IMAGES;
+      setImages(finalImages);
     } catch (error) {
       console.error("Failed to fetch featured images:", error);
+      setImages(DEFAULT_FEATURED_IMAGES);
     } finally {
       setLoading(false);
     }
@@ -96,41 +148,29 @@ export default function FeaturedGallery({
     );
   }
 
-  if (images.length === 0) {
-    return (
-      <EmptyState
-        icon={Camera}
-        title={isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
-        description={
-          isBn
-            ? "ফিচার্ড গ্যালারিতে শীঘ্রই নতুন ছবি আপলোড করা হবে।"
-            : "Featured photos will be uploaded soon."
-        }
-      />
-    );
-  }
+  const displayImages = images.length > 0 ? images : DEFAULT_FEATURED_IMAGES;
 
   const selectedIndex = selectedImage
-    ? images.findIndex((img) => img.id === selectedImage.id)
+    ? displayImages.findIndex((img) => img.id === selectedImage.id)
     : -1;
 
   const handlePrev = () => {
     if (selectedIndex === -1) return;
-    const prevIndex = (selectedIndex - 1 + images.length) % images.length;
-    setSelectedImage(images[prevIndex]);
+    const prevIndex = (selectedIndex - 1 + displayImages.length) % displayImages.length;
+    setSelectedImage(displayImages[prevIndex]);
   };
 
   const handleNext = () => {
     if (selectedIndex === -1) return;
-    const nextIndex = (selectedIndex + 1) % images.length;
-    setSelectedImage(images[nextIndex]);
+    const nextIndex = (selectedIndex + 1) % displayImages.length;
+    setSelectedImage(displayImages[nextIndex]);
   };
 
   return (
     <div className="space-y-6">
       {/* Bento / Mosaic Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {images.map((image, index) => (
+        {displayImages.map((image, index) => (
           <div
             key={image.id}
             className={cn(
@@ -175,7 +215,7 @@ export default function FeaturedGallery({
           image={selectedImage as LightboxImageItem}
           locale={locale}
           currentIndex={selectedIndex}
-          totalCount={images.length}
+          totalCount={displayImages.length}
           onClose={() => setSelectedImage(null)}
           onPrev={handlePrev}
           onNext={handleNext}

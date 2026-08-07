@@ -364,7 +364,7 @@ export const DEFAULT_ABOUT_CONFIG: AboutConfig = {
   personalInfo: [
     { id: "birth-date", icon: "Calendar", labelBn: "জন্ম তারিখ", labelEn: "Birth Date", valueBn: "২১ জুন, ২০০৬", valueEn: "June 21, 2006" },
     { id: "location", icon: "MapPin", labelBn: "অবস্থান", labelEn: "Location", valueBn: "সুনামগঞ্জ, বাংলাদেশ", valueEn: "Sunamganj, Bangladesh" },
-    { id: "blood-group", icon: "Droplets", labelBn: "রক্তের গ্রুপ", labelEn: "Blood Group", valueBn: "A+", valueEn: "A+ Positive" },
+    { id: "blood-group", icon: "Droplets", labelBn: "রক্তের গ্রুপ", labelEn: "Blood Group", valueBn: "A+", valueEn: "A+" },
     { id: "education", icon: "GraduationCap", labelBn: "শিক্ষা", labelEn: "Education", valueBn: "HSC ২য় বর্ষ (বিজ্ঞান)", valueEn: "HSC 2nd Year (Science)" },
     { id: "institution", icon: "BookOpen", labelBn: "প্রতিষ্ঠান", labelEn: "Institution", valueBn: "সুনামগঞ্জ সরকারি কলেজ", valueEn: "Sunamganj Govt. College" },
     { id: "bncc-number", icon: "Award", labelBn: "BNCC ক্যাডেট নং", labelEn: "BNCC Cadet No", valueBn: "25071152", valueEn: "25071152" },

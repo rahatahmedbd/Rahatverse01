@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale } from "next-intl";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useMotionPreference } from "./motion-preferences";
@@ -45,6 +46,8 @@ export function ScrollProgress({
 // ── Scroll Indicator (Arrow) ───────────────────────────
 export function ScrollIndicator({ className }: { className?: string }) {
   const prefersReducedMotion = useMotionPreference();
+  const locale = useLocale();
+  const isBn = locale === "bn";
 
   return (
     <motion.div
@@ -53,7 +56,9 @@ export function ScrollIndicator({ className }: { className?: string }) {
       animate={{ opacity: 1 }}
       transition={prefersReducedMotion ? { duration: 0 } : { delay: 1, duration: 0.5 }}
     >
-      <span className="text-xs text-muted-foreground">Scroll</span>
+      <span className="text-xs font-medium text-muted-foreground bn">
+        {isBn ? "নিচে স্ক্রল করুন" : "Scroll to explore"}
+      </span>
       <motion.div
         animate={prefersReducedMotion ? undefined : { y: [0, 8, 0] }}
         transition={prefersReducedMotion ? { duration: 0 } : { duration: 1.5, repeat: Infinity, ease: "easeInOut" }}

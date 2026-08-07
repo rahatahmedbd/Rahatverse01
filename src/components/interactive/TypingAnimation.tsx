@@ -24,7 +24,7 @@ export function TypingAnimation({
   pauseDuration = 2000,
 }: TypingAnimationProps) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [currentChar, setCurrentChar] = useState(0);
+  const [currentChar, setCurrentChar] = useState(() => texts[0]?.length || 0);
   const [isDeleting, setIsDeleting] = useState(false);
   const prefersReducedMotion = useMotionPreference();
 
@@ -62,7 +62,7 @@ export function TypingAnimation({
 
   const displayText = prefersReducedMotion
     ? texts[0] ?? ""
-    : texts[currentTextIndex].substring(0, currentChar);
+    : (texts[currentTextIndex] ?? "").substring(0, currentChar);
 
   return (
     <span className={cn("inline-flex items-center", className)}>

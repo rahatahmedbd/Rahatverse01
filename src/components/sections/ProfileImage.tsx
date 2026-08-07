@@ -110,6 +110,7 @@ export function ProfileImage({
             height={size === "lg" ? 176 : size === "md" ? 144 : 96}
             className="h-full w-full object-cover"
             priority
+            fallbackType="profile"
           />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element

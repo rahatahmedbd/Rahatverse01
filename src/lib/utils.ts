@@ -1,13 +1,40 @@
 // ── Utility Functions ──────────────────────────────────
 
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * Custom twMerge instance that understands the Phase C typography tokens.
+ * Without this, tailwind-merge classifies unknown `text-*` utilities
+ * (component tokens like `text-heading-lg`) as text-color classes,
+ * silently dropping branding classes such as `text-gradient`.
+ */
+const twMergeCustom = extendTailwindMerge<"text-brand-gradient">({
+  extend: {
+    classGroups: {
+      "font-size": [
+        {
+          text: [
+            "display-xl",
+            "display-lg",
+            "heading-lg",
+            "heading-md",
+            "heading-sm",
+            "lead",
+          ],
+        },
+      ],
+      // Brand gradient text never conflicts with size or color utilities.
+      "text-brand-gradient": [{ text: ["gradient"] }],
+    },
+  },
+});
 
 /**
  * Merge Tailwind classes with clsx for conditional classes
  */
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMergeCustom(clsx(inputs));
 }
 
 /**

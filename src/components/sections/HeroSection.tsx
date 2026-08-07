@@ -78,7 +78,7 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
 
         {/* Name */}
         <FadeInUp delay={0.6}>
-          <h1 className="bn text-4xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="bn text-display-xl font-bold">
             <span className="text-gradient">রাহাত আহমেদ</span>
           </h1>
           <p className="mt-1 text-lg text-muted-foreground sm:text-xl">
@@ -103,7 +103,7 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
 
         {/* Description */}
         <FadeInUp delay={1.2}>
-          <p className="mx-auto mt-6 max-w-xl text-muted-foreground bn">
+          <p className="text-lead mx-auto mt-6 max-w-xl text-muted-foreground bn">
             শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।
             সুনামগঞ্জ থেকে স্বপ্ন দেখি একটি better digital world গড়ার।
           </p>

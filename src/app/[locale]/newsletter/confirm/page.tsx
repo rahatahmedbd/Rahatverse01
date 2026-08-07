@@ -52,7 +52,7 @@ export default function NewsletterConfirmPage() {
         {status === "loading" ? (
           <>
             <Loader2 className="mx-auto h-10 w-10 animate-spin text-amber-400" />
-            <h1 className="mt-4 text-xl font-bold bn">{isBn ? "নিশ্চিত করা হচ্ছে..." : "Confirming..."}</h1>
+            <h1 className="mt-4 text-heading-sm font-bold bn">{isBn ? "নিশ্চিত করা হচ্ছে..." : "Confirming..."}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{isBn ? "অনুগ্রহ করে অপেক্ষা করুন" : "Please wait"}</p>
           </>
         ) : status === "success" ? (
@@ -60,7 +60,7 @@ export default function NewsletterConfirmPage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15">
               <CheckCircle2 className="h-8 w-8 text-green-400" />
             </div>
-            <h1 className="mt-4 text-2xl font-bold bn">{isBn ? "ধন্যবাদ! 🎉" : "Thank you! 🎉"}</h1>
+            <h1 className="mt-4 text-heading-md font-bold bn">{isBn ? "ধন্যবাদ! 🎉" : "Thank you! 🎉"}</h1>
             <p className="mt-2 text-muted-foreground bn">{message || (isBn ? "আপনার ইমেইল সফলভাবে নিশ্চিত হয়েছে।" : "Your email has been confirmed.")}</p>
             <p className="mt-2 text-sm text-muted-foreground bn">
               {isBn ? "এখন থেকে নতুন আপডেট সরাসরি পাবেন।" : "You'll now receive updates."}
@@ -79,7 +79,7 @@ export default function NewsletterConfirmPage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/15">
               <AlertCircle className="h-8 w-8 text-amber-400" />
             </div>
-            <h1 className="mt-4 text-xl font-bold bn">{isBn ? "লিংক মেয়াদোত্তীর্ণ" : "Link expired"}</h1>
+            <h1 className="mt-4 text-heading-sm font-bold bn">{isBn ? "লিংক মেয়াদোত্তীর্ণ" : "Link expired"}</h1>
             <p className="mt-2 text-muted-foreground bn">{message}</p>
             <p className="mt-2 text-sm text-muted-foreground bn">{isBn ? "আবার সাবস্ক্রাইব করে নতুন লিংক নিন।" : "Subscribe again to get a new link."}</p>
             <div className="mt-6">
@@ -95,7 +95,7 @@ export default function NewsletterConfirmPage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/15">
               <AlertCircle className="h-8 w-8 text-red-400" />
             </div>
-            <h1 className="mt-4 text-xl font-bold bn">{isBn ? "নিশ্চিত করা যায়নি" : "Confirmation failed"}</h1>
+            <h1 className="mt-4 text-heading-sm font-bold bn">{isBn ? "নিশ্চিত করা যায়নি" : "Confirmation failed"}</h1>
             <p className="mt-2 text-muted-foreground bn">{message}</p>
             <div className="mt-6 flex justify-center gap-3">
               <Link href={`/${isBn ? "bn" : "en"}`}>

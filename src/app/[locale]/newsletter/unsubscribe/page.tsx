@@ -53,14 +53,14 @@ export default function NewsletterUnsubscribePage() {
         {status === "loading" ? (
           <>
             <Loader2 className="mx-auto h-10 w-10 animate-spin text-muted-foreground" />
-            <h1 className="mt-4 text-xl font-bold bn">{isBn ? "আনসাবস্ক্রাইব করা হচ্ছে..." : "Unsubscribing..."}</h1>
+            <h1 className="mt-4 text-heading-sm font-bold bn">{isBn ? "আনসাবস্ক্রাইব করা হচ্ছে..." : "Unsubscribing..."}</h1>
           </>
         ) : status === "success" || status === "already" ? (
           <>
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15">
               <CheckCircle2 className="h-8 w-8 text-green-400" />
             </div>
-            <h1 className="mt-4 text-xl font-bold bn">{status === "already" ? (isBn ? "ইতিমধ্যে আনসাবস্ক্রাইবড" : "Already unsubscribed") : isBn ? "আনসাবস্ক্রাইব সম্পন্ন" : "Unsubscribed"}</h1>
+            <h1 className="mt-4 text-heading-sm font-bold bn">{status === "already" ? (isBn ? "ইতিমধ্যে আনসাবস্ক্রাইবড" : "Already unsubscribed") : isBn ? "আনসাবস্ক্রাইব সম্পন্ন" : "Unsubscribed"}</h1>
             <p className="mt-2 text-muted-foreground bn">{message || (isBn ? "আপনাকে নিউজলেটার থেকে সরানো হয়েছে।" : "You have been removed from the newsletter.")}</p>
             <p className="mt-2 text-xs text-muted-foreground bn">{isBn ? "আবার যুক্ত হতে চাইলে হোমপেজ থেকে সাবস্ক্রাইব করুন।" : "To rejoin, subscribe again from the homepage."}</p>
             <div className="mt-6">
@@ -74,7 +74,7 @@ export default function NewsletterUnsubscribePage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/15">
               <AlertCircle className="h-8 w-8 text-red-400" />
             </div>
-            <h1 className="mt-4 text-xl font-bold bn">{isBn ? "সমস্যা হয়েছে" : "Failed"}</h1>
+            <h1 className="mt-4 text-heading-sm font-bold bn">{isBn ? "সমস্যা হয়েছে" : "Failed"}</h1>
             <p className="mt-2 text-muted-foreground">{message}</p>
             <div className="mt-6">
               <Link href={`/${isBn ? "bn" : "en"}`}>

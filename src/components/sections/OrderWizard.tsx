@@ -253,7 +253,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
                 <CheckCircle2 className="h-8 w-8 text-green-400" />
               </div>
-              <h2 className="text-2xl font-bold bn">
+              <h2 className="text-heading-md font-bold bn">
                 {isBn ? "অর্ডার সফলভাবে জমা হয়েছে!" : "Order Submitted Successfully!"}
               </h2>
               <p className="mt-4 text-muted-foreground bn">

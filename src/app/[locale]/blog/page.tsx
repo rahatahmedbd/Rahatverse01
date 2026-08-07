@@ -16,7 +16,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
         {/* Header */}
         <FadeInUp>
           <div className="text-center mb-12">
-            <h1 className="text-gradient mb-4 text-4xl font-bold md:text-5xl">
+            <h1 className="text-gradient text-display-lg mb-4 font-bold">
               {isBn ? "ব্লগ" : "Blog"}
             </h1>
             <p className="text-xl text-muted-foreground">

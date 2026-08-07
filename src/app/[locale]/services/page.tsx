@@ -245,7 +245,7 @@ export default function ServicesPage() {
         {/* Header */}
         <FadeInUp>
           <div className="text-center mb-16">
-            <h1 className="text-gradient mb-4 text-4xl font-bold md:text-5xl">
+            <h1 className="text-gradient text-display-lg mb-4 font-bold">
               আমাদের সার্ভিসসমূহ
             </h1>
             <p className="text-xl text-muted-foreground">
@@ -302,7 +302,7 @@ export default function ServicesPage() {
         {/* Why Choose Us */}
         <FadeInUp>
           <div className="mb-20">
-            <h2 className="text-3xl font-bold text-center mb-12">
+            <h2 className="text-heading-lg font-bold text-center mb-12">
               কেন আমাদের বেছে নেবেন?
             </h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -324,7 +324,7 @@ export default function ServicesPage() {
         {/* Process */}
         <FadeInUp>
           <div className="mb-20">
-            <h2 className="text-3xl font-bold text-center mb-12">
+            <h2 className="text-heading-lg font-bold text-center mb-12">
               আমাদের কাজের প্রক্রিয়া
             </h2>
             <div className="relative">
@@ -360,7 +360,7 @@ export default function ServicesPage() {
         <FadeInUp>
           <Card className="bg-brand-gradient-soft gradient-border border-primary/20">
             <CardContent className="pt-6 text-center">
-              <h2 className="text-3xl font-bold mb-4">
+              <h2 className="text-heading-md font-bold mb-4">
                 আজই আপনার ওয়েবসাইট অর্ডার করুন
               </h2>
               <p className="text-lg text-muted-foreground mb-6">

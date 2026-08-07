@@ -15,7 +15,7 @@ export default function PreferencesPage() {
       <div className="mx-auto max-w-xl px-4 py-16">
         <GlassCard className="p-8 text-center border-red-500/20">
           <AlertCircle className="mx-auto h-8 w-8 text-red-400" />
-          <h1 className="mt-3 text-xl font-bold bn">{isBn ? "টোকেন পাওয়া যায়নি" : "No token"}</h1>
+          <h1 className="mt-3 text-heading-sm font-bold bn">{isBn ? "টোকেন পাওয়া যায়নি" : "No token"}</h1>
           <p className="mt-2 text-sm text-muted-foreground bn">
             {isBn ? "ইমেইলের লিংক থেকে এই পেজে আসুন।" : "Open this page from the link in your email."}
           </p>
@@ -26,7 +26,7 @@ export default function PreferencesPage() {
 
   return (
     <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="text-2xl font-bold bn text-center mb-6">{isBn ? "পছন্দ পরিচালনা" : "Manage preferences"}</h1>
+      <h1 className="text-heading-md font-bold bn text-center mb-6">{isBn ? "পছন্দ পরিচালনা" : "Manage preferences"}</h1>
       <NewsletterPreferences token={token} locale={isBn ? "bn" : "en"} />
     </div>
   );

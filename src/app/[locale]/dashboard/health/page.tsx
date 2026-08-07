@@ -9,7 +9,7 @@ export default async function HealthPage({ params }: HealthPageProps) {
   const { locale } = await params;
   return (
     <div className="mx-auto max-w-7xl px-4">
-      <h1 className="mb-6 text-2xl font-bold">System Health & Backups</h1>
+      <h1 className="text-heading-md mb-6 font-bold">System Health & Backups</h1>
       <SystemHealthPanel locale={locale} />
       <div className="mt-8">
         <BackupPanel locale={locale} />

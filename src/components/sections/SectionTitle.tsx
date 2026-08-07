@@ -34,6 +34,12 @@ export function SectionTitle({
     right: "text-right",
   };
 
+  const underlineAlignMap = {
+    left: "mr-auto",
+    center: "mx-auto",
+    right: "ml-auto",
+  };
+
   return (
     <motion.div
       className={cn("mb-12", alignMap[align], className)}
@@ -44,7 +50,7 @@ export function SectionTitle({
     >
       {badge && (
         <motion.span
-          className="gradient-badge gradient-border mb-3 inline-block rounded-full border border-transparent px-3 py-1 text-xs font-medium"
+          className="gradient-badge gradient-border heading-kicker mb-3 inline-block rounded-full border border-transparent px-3 py-1"
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -56,7 +62,7 @@ export function SectionTitle({
 
       <motion.h2
         className={cn(
-          "text-gradient text-3xl font-bold sm:text-4xl",
+          "text-gradient text-heading-lg font-bold",
           locale === "bn" && "bn"
         )}
         initial={{ opacity: 0, y: 10 }}
@@ -67,9 +73,20 @@ export function SectionTitle({
         {displayTitle}
       </motion.h2>
 
+      {/* Animated gradient accent underline */}
+      <motion.span
+        aria-hidden="true"
+        className={cn("heading-underline", underlineAlignMap[align])}
+        initial={{ scaleX: 0, opacity: 0 }}
+        whileInView={{ scaleX: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.35, duration: 0.6, ease: "easeOut" }}
+        style={{ transformOrigin: align === "right" ? "right" : align === "left" ? "left" : "center" }}
+      />
+
       {displaySubtitle && (
         <motion.p
-          className="mt-3 text-muted-foreground"
+          className={cn("mt-3 text-lead text-muted-foreground", locale === "bn" && "bn")}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}

@@ -73,7 +73,7 @@ export function BlogComments({ postId, locale = "bn" }: BlogCommentsProps) {
 
   return (
     <section className="mt-12">
-      <h2 className="mb-4 flex items-center gap-2 text-xl font-bold">
+      <h2 className="mb-4 flex items-center gap-2 text-heading-sm font-bold">
         <MessageCircle className="h-5 w-5 text-primary" />
         {isBn ? "মন্তব্য" : "Comments"}
         {comments.length > 0 && (

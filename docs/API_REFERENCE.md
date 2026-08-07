@@ -83,7 +83,7 @@ server-side. See `[locale]/blog/[slug]`.
 | `GET /api/admin/health` | System health checks |
 | `GET /api/admin/logs` | System logs viewer |
 | `GET/PATCH /api/admin/notifications` | Notification center |
-| `GET/PATCH /api/admin/settings` | Settings management |
+| `GET/PATCH /api/admin/settings` | Settings management, including `about_config` |
 | `GET/PATCH /api/admin/users` | User management (RBAC) |
 | `POST /api/newsletter/campaigns` | Create/dispatch newsletter campaigns |
 | `GET /api/newsletter/export` | Export subscriber list |

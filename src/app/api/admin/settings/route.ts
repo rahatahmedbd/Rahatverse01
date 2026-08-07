@@ -10,7 +10,10 @@ export const dynamic = "force-dynamic";
 // be stored here — only display/behaviour configuration. Admin-only.
 
 const MAX_KEY_LENGTH = 100;
-const MAX_VALUE_JSON_BYTES = 20_000;
+// About/education/achievement CMS payloads can contain several bilingual
+// entries and media metadata. Keep a bounded request size without truncating
+// valid editorial content.
+const MAX_VALUE_JSON_BYTES = 100_000;
 
 export async function GET() {
   const { supabase, user, isAdmin } = await getCurrentUserContext();

@@ -6,222 +6,217 @@ import { SectionTitle } from "./SectionTitle";
 import { Counter } from "@/components/animations/Counter";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import { motion } from "framer-motion";
-import { Trophy, Medal, Award, Star, Sparkles } from "lucide-react";
+import { Calendar, ExternalLink, Sparkles, Volume2 } from "lucide-react";
+import { ACHIEVEMENT_ICON_MAP } from "@/lib/about/icons";
+import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";
+import type { AboutAchievement, AboutConfig, AchievementRarity } from "@/types/about";
 
 // ── Achievements Section ───────────────────────────────
 interface AchievementsSectionProps {
   locale?: string;
+  config?: AboutConfig;
 }
 
-interface Achievement {
-  year: string;
-  title: string;
-  titleBn: string;
-  description: string;
-  descriptionBn: string;
-  icon: "trophy" | "medal" | "award" | "star";
-  rarity: "common" | "rare" | "epic" | "legendary";
+const rarityStyles: Record<AchievementRarity, string> = {
+  common: "border-border/50 hover:border-green-500/30",
+  rare: "border-border/50 hover:border-blue-500/30",
+  epic: "border-border/50 hover:border-purple-500/30",
+  legendary: "border-amber-500/30 hover:border-amber-500/50 shadow-md shadow-amber-500/10",
+};
+
+function getRarityBadge(rarity: AchievementRarity, isBn: boolean) {
+  const labels: Record<AchievementRarity, { bn: string; en: string; variant: "success" | "info" | "warning" | "gradient" }> = {
+    common: { bn: "সাধারণ", en: "Common", variant: "success" },
+    rare: { bn: "বিরল", en: "Rare", variant: "info" },
+    epic: { bn: "মহাকাব্যিক", en: "Epic", variant: "warning" },
+    legendary: { bn: "কিংবদন্তি", en: "Legendary", variant: "gradient" },
+  };
+  const label = labels[rarity];
+  return { label: isBn ? label.bn : label.en, variant: label.variant };
 }
 
-export function AchievementsSection({ locale = "bn" }: AchievementsSectionProps) {
+function playUnlockTone() {
+  if (typeof window === "undefined") return;
+
+  const AudioContextConstructor =
+    window.AudioContext ||
+    (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AudioContextConstructor) return;
+
+  const context = new AudioContextConstructor();
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(660, context.currentTime);
+  oscillator.frequency.exponentialRampToValueAtTime(990, context.currentTime + 0.12);
+  gain.gain.setValueAtTime(0.0001, context.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.07, context.currentTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.18);
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start();
+  oscillator.stop(context.currentTime + 0.2);
+  window.setTimeout(() => void context.close(), 250);
+}
+
+function AchievementCard({ achievement, locale, index }: { achievement: AboutAchievement; locale: string; index: number }) {
   const isBn = locale === "bn";
-
-  const iconMap = {
-    trophy: Trophy,
-    medal: Medal,
-    award: Award,
-    star: Star,
+  const Icon = ACHIEVEMENT_ICON_MAP[achievement.icon];
+  const rarityBadge = getRarityBadge(achievement.rarity, isBn);
+  const title = isBn ? achievement.titleBn : achievement.titleEn;
+  const description = isBn ? achievement.descriptionBn : achievement.descriptionEn;
+  const criteria = isBn ? achievement.unlockCriteriaBn : achievement.unlockCriteriaEn;
+  const year = isBn ? achievement.yearBn : achievement.yearEn;
+  const completedLabel = isBn ? "সম্পন্ন" : "Completed";
+  const certificateLabel = isBn ? "সার্টিফিকেট দেখুন" : "View certificate";
+  const handleOpen = () => {
+    if (achievement.sound) playUnlockTone();
   };
 
-  const rarityStyles = {
-    common: "border-border/50 hover:border-green-500/30",
-    rare: "border-border/50 hover:border-blue-500/30",
-    epic: "border-border/50 hover:border-purple-500/30",
-    legendary: "border-amber-500/30 hover:border-amber-500/50 shadow-md shadow-amber-500/10",
-  };
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ delay: index * 0.05, duration: 0.4 }}
+    >
+      <GlassCard
+        className={`group h-full transition-all duration-300 hover:scale-[1.02] ${rarityStyles[achievement.rarity]}`}
+        onClick={achievement.sound ? handleOpen : undefined}
+        onKeyDown={
+          achievement.sound
+            ? (event) => {
+                if (event.key === "Enter" || event.key === " ") handleOpen();
+              }
+            : undefined
+        }
+        role={achievement.sound ? "button" : undefined}
+        tabIndex={achievement.sound ? 0 : undefined}
+      >
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div
+              className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                achievement.rarity === "legendary"
+                  ? "bg-amber-500/20"
+                  : achievement.rarity === "epic"
+                    ? "bg-purple-500/20"
+                    : achievement.rarity === "rare"
+                      ? "bg-blue-500/20"
+                      : "bg-green-500/20"
+              }`}
+            >
+              <Icon
+                className={`h-4 w-4 ${
+                  achievement.rarity === "legendary"
+                    ? "text-amber-500"
+                    : achievement.rarity === "epic"
+                      ? "text-purple-500"
+                      : achievement.rarity === "rare"
+                        ? "text-blue-500"
+                        : "text-green-500"
+                }`}
+              />
+            </div>
+            <Badge variant={rarityBadge.variant} className="text-[10px]">
+              <Sparkles className={`mr-1 h-2.5 w-2.5 ${achievement.sparkle ? "animate-pulse" : ""}`} />
+              {rarityBadge.label}
+            </Badge>
+          </div>
+          <span className="text-xs text-muted-foreground">{year}</span>
+        </div>
 
-  const rarityBadges = {
-    common: { label: isBn ? "সাধারণ" : "Common", variant: "success" as const },
-    rare: { label: isBn ? "বিরল" : "Rare", variant: "info" as const },
-    epic: { label: isBn ? "মহাকাব্যিক" : "Epic", variant: "warning" as const },
-    legendary: { label: isBn ? "কিংবদন্তি" : "Legendary", variant: "gradient" as const },
-  };
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
+            {completedLabel}: {achievement.completedAt}
+          </span>
+          {achievement.sound && (
+            <span className="inline-flex items-center gap-1 text-primary" title={isBn ? "শব্দ চালু" : "Sound enabled"}>
+              <Volume2 className="h-3 w-3" />
+              {isBn ? "সাউন্ড" : "Sound"}
+            </span>
+          )}
+        </div>
 
-  const achievements: Achievement[] = [
-    {
-      year: "২০২৫",
-      title: "SSC — GPA 5.00 (A+)",
-      titleBn: "SSC — জিপিএ ৫.০০ (A+)",
-      description: "Science department, special recognition from Shantichakra Blood Society",
-      descriptionBn: "বিজ্ঞান বিভাগ থেকে জিপিএ ৫.০০ (A+)। শান্তিচক্র ব্লাড সোসাইটি কর্তৃক বিশেষ সম্মাননা।",
-      icon: "trophy",
-      rarity: "legendary",
-    },
-    {
-      year: "২০২৫",
-      title: "46th National Science Fair",
-      titleBn: "৪৬তম বিজ্ঞান মেলা",
-      description: "1st in Quiz, 3rd in Project, 4th in Olympiad",
-      descriptionBn: "বিজ্ঞান কুইজে ১ম, প্রজেক্টে ৩য়, অলিম্পিয়াডে ৪র্থ স্থান।",
-      icon: "trophy",
-      rarity: "epic",
-    },
-    {
-      year: "২০২৫",
-      title: "Outstanding Student Honor",
-      titleBn: "কৃতী শিক্ষার্থী সংবর্ধনা",
-      description: "Among 3 top A+ students, received honor crest and financial support",
-      descriptionBn: "A+ প্রাপ্ত তিনজন কৃতী শিক্ষার্থীর অন্যতম। সম্মাননা ক্রেস্ট ও আর্থিক সহায়তা।",
-      icon: "award",
-      rarity: "legendary",
-    },
-    {
-      year: "২০২৫",
-      title: "Shantichakra Honor Crest",
-      titleBn: "শান্তিচক্র সম্মাননা ক্রেস্ট",
-      description: "Received honor crest for achieving A+ in SSC",
-      descriptionBn: "SSC-তে A+ অর্জনের জন্য শান্তিচক্র ব্লাড সোসাইটি কর্তৃক সম্মাননা স্মারক।",
-      icon: "medal",
-      rarity: "epic",
-    },
-    {
-      year: "২০২৪",
-      title: "Creative Talent Search — 1st in Science",
-      titleBn: "সৃজনশীল মেধা অন্বেষণ — বিজ্ঞানে ১ম",
-      description: "First place in Creative Talent Search competition in Science",
-      descriptionBn: "সৃজনশীল মেধা অন্বেষণ প্রতিযোগিতায় বিজ্ঞান বিষয়ে প্রথম স্থান।",
-      icon: "star",
-      rarity: "rare",
-    },
-    {
-      year: "২০২৪",
-      title: "44th Science Exhibition — 1st Place",
-      titleBn: "৪৪তম বিজ্ঞান প্রদর্শনী — ১ম স্থান",
-      description: "Second consecutive first place in national science exhibition",
-      descriptionBn: "জাতীয় বিজ্ঞান প্রদর্শনীতে দ্বিতীয়বারের মতো প্রথম স্থান অর্জন।",
-      icon: "trophy",
-      rarity: "epic",
-    },
-    {
-      year: "২০২৩",
-      title: "45th National Science Fair",
-      titleBn: "৪৫তম বিজ্ঞান মেলা",
-      description: "1st in Quiz, 2nd in Speech, 3rd in Science Project",
-      descriptionBn: "বিজ্ঞান কুইজে ১ম, উপস্থিত বক্তৃতায় ২য়, বিজ্ঞান প্রজেক্টে ৩য় স্থান।",
-      icon: "trophy",
-      rarity: "rare",
-    },
-    {
-      year: "২০২০",
-      title: "42nd National Science Fair — 1st Place",
-      titleBn: "৪২তম বিজ্ঞান মেলা — ১ম স্থান",
-      description: "First ever win at the national science fair, district level",
-      descriptionBn: "জাতীয় বিজ্ঞান ও প্রযুক্তি সপ্তাহে উপজেলা পর্যায়ে প্রথম স্থান অর্জন।",
-      icon: "trophy",
-      rarity: "rare",
-    },
-    {
-      year: "২০১৯",
-      title: "PSC — GPA 5.00",
-      titleBn: "PSC — জিপিএ ৫.০০",
-      description: "Passed PSC examination with perfect GPA 5.00",
-      descriptionBn: "জিপিএ ৫.০০ পেয়ে PSC পরীক্ষায় উত্তীর্ণ।",
-      icon: "award",
-      rarity: "rare",
-    },
-  ];
+        <h3 className="font-semibold bn">{title}</h3>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground bn">{description}</p>
+        <p className="mt-3 border-t border-border/30 pt-3 text-xs text-muted-foreground bn">
+          <span className="font-semibold text-primary">{isBn ? "মানদণ্ড:" : "Unlock:"}</span> {criteria}
+        </p>
+
+        {achievement.certificateUrl && (
+          <a
+            href={achievement.certificateUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary underline-offset-4 hover:underline"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            {certificateLabel}
+          </a>
+        )}
+      </GlassCard>
+    </motion.div>
+  );
+}
+
+export function AchievementsSection({ locale = "bn", config }: AchievementsSectionProps) {
+  const isBn = locale === "bn";
+  const about = config ?? DEFAULT_ABOUT_CONFIG;
+
+  if (!about.visible) return null;
 
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
-          badge={isBn ? "🏆 স্বীকৃতি ও পুরস্কার" : "🏆 Recognition & Awards"}
-          title="Achievements"
-          titleBn="অর্জনসমূহ"
+          badge={isBn ? about.achievementsSection.badgeBn : about.achievementsSection.badgeEn}
+          title={about.achievementsSection.titleEn}
+          titleBn={about.achievementsSection.titleBn}
           subtitle={
             isBn
-              ? "বিজ্ঞান, শিক্ষা এবং সমাজসেবায় অর্জিত সম্মাননা ও পুরস্কারসমূহ"
-              : "Awards and recognition in science, education, and social service"
+              ? about.achievementsSection.subtitleBn
+              : about.achievementsSection.subtitleEn
           }
           locale={locale}
         />
 
-        {/* Stats Row */}
+        {/* Admin-controlled achievement statistics */}
         <FadeInUp>
           <div className="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <GlassCard className="text-center">
-              <Counter to={achievements.length} className="text-3xl font-bold text-primary" />
-              <p className="mt-1 text-xs text-muted-foreground bn">{isBn ? "মোট অর্জন" : "Total"}</p>
-            </GlassCard>
-            <GlassCard className="text-center">
-              <Counter to={5} suffix="×" className="text-3xl font-bold text-primary" />
-              <p className="mt-1 text-xs text-muted-foreground bn">{isBn ? "১ম স্থান" : "1st Places"}</p>
-            </GlassCard>
-            <GlassCard className="text-center">
-              <Counter to={2} suffix="×" className="text-3xl font-bold text-primary" />
-              <p className="mt-1 text-xs text-muted-foreground">GPA 5.00</p>
-            </GlassCard>
-            <GlassCard className="text-center">
-              <Counter to={4} className="text-3xl font-bold text-primary" />
-              <p className="mt-1 text-xs text-muted-foreground bn">{isBn ? "বিজ্ঞান মেলা" : "Science Fairs"}</p>
-            </GlassCard>
+            {about.achievementStats.map((stat) => (
+              <GlassCard key={stat.id} className="text-center">
+                <Counter
+                  to={stat.id === "total" ? about.achievements.length : stat.value}
+                  suffix={stat.suffix}
+                  className="text-3xl font-bold text-primary"
+                />
+                <p className="mt-1 text-xs text-muted-foreground bn">
+                  {isBn ? stat.labelBn : stat.labelEn}
+                </p>
+              </GlassCard>
+            ))}
           </div>
         </FadeInUp>
 
-        {/* Bento Grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {achievements.map((achievement, index) => {
-            const Icon = iconMap[achievement.icon];
-            const rarity = rarityStyles[achievement.rarity];
-            const rarityBadge = rarityBadges[achievement.rarity];
-
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: index * 0.05, duration: 0.4 }}
-              >
-                <GlassCard className={`group h-full transition-all duration-300 hover:scale-[1.02] ${rarity}`}>
-                  {/* Header */}
-                  <div className="mb-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-                        achievement.rarity === "legendary" ? "bg-amber-500/20" :
-                        achievement.rarity === "epic" ? "bg-purple-500/20" :
-                        achievement.rarity === "rare" ? "bg-blue-500/20" :
-                        "bg-green-500/20"
-                      }`}>
-                        <Icon className={`h-4 w-4 ${
-                          achievement.rarity === "legendary" ? "text-amber-500" :
-                          achievement.rarity === "epic" ? "text-purple-500" :
-                          achievement.rarity === "rare" ? "text-blue-500" :
-                          "text-green-500"
-                        }`} />
-                      </div>
-                      <Badge variant={rarityBadge.variant} className="text-[10px]">
-                        <Sparkles className="mr-1 h-2.5 w-2.5" />
-                        {rarityBadge.label}
-                      </Badge>
-                    </div>
-                    <span className="text-xs text-muted-foreground">{achievement.year}</span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="font-semibold bn">
-                    {isBn ? achievement.titleBn : achievement.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="mt-2 text-sm text-muted-foreground bn leading-relaxed">
-                    {isBn ? achievement.descriptionBn : achievement.description}
-                  </p>
-                </GlassCard>
-              </motion.div>
-            );
-          })}
+          {about.achievements.map((achievement, index) => (
+            <AchievementCard
+              key={achievement.id}
+              achievement={achievement}
+              locale={locale}
+              index={index}
+            />
+          ))}
         </div>
+
+        {about.achievements.length === 0 && (
+          <GlassCard className="p-10 text-center text-sm text-muted-foreground">
+            {isBn ? "এখনও কোনো অর্জন যোগ করা হয়নি।" : "No achievements have been added yet."}
+          </GlassCard>
+        )}
       </div>
     </section>
   );

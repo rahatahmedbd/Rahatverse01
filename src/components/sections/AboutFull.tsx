@@ -5,88 +5,82 @@ import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";
 import { FadeInUp, FadeInLeft, FadeInRight } from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
-import {
-  GraduationCap,
-  MapPin,
-  Droplets,
-  Calendar,
-  BookOpen,
-  Award,
-  Heart,
-  Code,
-  Users,
-} from "lucide-react";
+import { ABOUT_ICON_MAP } from "@/lib/about/icons";
+import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";
+import { ProfileImage } from "./ProfileImage";
+import type { AboutConfig } from "@/types/about";
 
 // ── Full About Section ─────────────────────────────────
 interface AboutFullProps {
   locale?: string;
+  config?: AboutConfig;
 }
 
-export function AboutFull({ locale = "bn" }: AboutFullProps) {
+export function AboutFull({ locale = "bn", config }: AboutFullProps) {
   const isBn = locale === "bn";
+  const about = config ?? DEFAULT_ABOUT_CONFIG;
 
-  const personalInfo = [
-    { icon: Calendar, label: isBn ? "জন্ম তারিখ" : "Birth Date", value: "২১ জুন, ২০০৬" },
-    { icon: MapPin, label: isBn ? "অবস্থান" : "Location", value: isBn ? "সুনামগঞ্জ, বাংলাদেশ" : "Sunamganj, Bangladesh" },
-    { icon: Droplets, label: isBn ? "রক্তের গ্রুপ" : "Blood Group", value: "A+ Positive" },
-    { icon: GraduationCap, label: isBn ? "শিক্ষা" : "Education", value: isBn ? "HSC ২য় বর্ষ (বিজ্ঞান)" : "HSC 2nd Year (Science)" },
-    { icon: BookOpen, label: isBn ? "প্রতিষ্ঠান" : "Institution", value: isBn ? "সুনামগঞ্জ সরকারি কলেজ" : "Sunamganj Govt. College" },
-    { icon: Award, label: isBn ? "BNCC ক্যাডেট নং" : "BNCC Cadet No", value: "25071152" },
-  ];
-
-  const interests = [
-    { icon: Code, label: isBn ? "ওয়েব ডেভেলপমেন্ট" : "Web Development" },
-    { icon: Users, label: isBn ? "সমাজসেবা" : "Social Service" },
-    { icon: BookOpen, label: isBn ? "শিক্ষা" : "Education" },
-    { icon: Heart, label: isBn ? "রক্তদান" : "Blood Donation" },
-  ];
+  if (!about.visible) return null;
 
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
-          badge={isBn ? "👤 আমার গল্প" : "👤 My Story"}
-          title="About Me"
-          titleBn="আমার সম্পর্কে"
-          subtitle={
-            isBn
-              ? "গ্রাম থেকে শহর, স্বপ্ন থেকে বাস্তব — একটি অবিরাম যাত্রার গল্প"
-              : "From village to city, dream to reality — a continuous journey"
-          }
+          badge={isBn ? about.section.badgeBn : about.section.badgeEn}
+          title={about.section.titleEn}
+          titleBn={about.section.titleBn}
+          subtitle={isBn ? about.section.subtitleBn : about.section.subtitleEn}
           locale={locale}
         />
 
         <div className="grid gap-8 lg:grid-cols-5">
-          {/* Left: Story */}
+          {/* Left: Story and profile */}
           <div className="lg:col-span-3">
             <FadeInLeft>
               <GlassCard className="h-full">
+                <div className="mb-6 flex justify-center sm:justify-start">
+                  <ProfileImage
+                    size="md"
+                    src={about.profileImage.url || undefined}
+                    publicId={about.profileImage.publicId}
+                    alt={isBn ? about.profileImage.altBn : about.profileImage.altEn}
+                    frame={about.profileImage.frame}
+                    showStatus={about.profileImage.showStatus}
+                    statusLabel={
+                      isBn
+                        ? about.profileImage.statusLabelBn
+                        : about.profileImage.statusLabelEn
+                    }
+                  />
+                </div>
+
                 <div className="space-y-4">
-                  <p className="text-muted-foreground bn leading-relaxed">
-                    আমি রাহাত আহমেদ। ২০০৬ সালের ২১ জুন সুনামগঞ্জ জেলার শান্তিগঞ্জ উপজেলার জীবদাড়া গ্রামে আমার জন্ম। প্রকৃতির কোলে বেড়ে ওঠা এই গ্রামই আমাকে শিখিয়েছে স্বপ্ন দেখতে এবং লড়াই করতে।
-                  </p>
-                  <p className="text-muted-foreground bn leading-relaxed">
-                    বর্তমানে আমি সুনামগঞ্জ সরকারি কলেজে HSC ২য় বর্ষে বিজ্ঞান বিভাগের শিক্ষার্থী। পড়াশোনার পাশাপাশি আমি একজন শিক্ষক, শান্তিচক্র ব্লাড সোসাইটির সহ-প্রতিষ্ঠাতা ও সাধারণ সম্পাদক, এবং BNCC-এর একজন সক্রিয় ক্যাডেট।
-                  </p>
-                  <p className="text-muted-foreground bn leading-relaxed">
-                    ওয়েব ডেভেলপমেন্ট, আর্টিফিশিয়াল ইন্টেলিজেন্স, কনটেন্ট ক্রিয়েশন এবং সামাজিক সেবা — এই বিষয়গুলো নিয়ে কাজ করতে ভালোবাসি। আমার লক্ষ্য শিক্ষা ও প্রযুক্তির মাধ্যমে সমাজে ইতিবাচক পরিবর্তন আনা।
-                  </p>
+                  {about.biography.paragraphs.map((paragraph, index) => (
+                    <p key={`bio-${index}`} className="text-muted-foreground bn leading-relaxed">
+                      {isBn ? paragraph.bn : paragraph.en}
+                    </p>
+                  ))}
 
                   {/* Interests */}
                   <div className="mt-6">
                     <h4 className="mb-3 text-sm font-semibold text-muted-foreground">
-                      {isBn ? "আমার আগ্রহ" : "My Interests"}
+                      {isBn
+                        ? about.biography.interestsTitleBn
+                        : about.biography.interestsTitleEn}
                     </h4>
                     <StaggerContainer>
                       <div className="flex flex-wrap gap-2">
-                        {interests.map((interest) => (
-                          <StaggerItem key={interest.label}>
-                            <Badge variant="glow" className="bn">
-                              <interest.icon className="mr-1 h-3 w-3" />
-                              {interest.label}
-                            </Badge>
-                          </StaggerItem>
-                        ))}
+                        {about.interests.map((interest) => {
+                          const Icon = ABOUT_ICON_MAP[interest.icon];
+                          return (
+                            <StaggerItem key={interest.id}>
+                              <Badge variant="glow" className="bn">
+                                <Icon className="mr-1 h-3 w-3" />
+                                {isBn ? interest.labelBn : interest.labelEn}
+                              </Badge>
+                            </StaggerItem>
+                          );
+                        })}
                       </div>
                     </StaggerContainer>
                   </div>
@@ -95,23 +89,30 @@ export function AboutFull({ locale = "bn" }: AboutFullProps) {
             </FadeInLeft>
           </div>
 
-          {/* Right: Info Cards */}
+          {/* Right: Admin-controlled info cards */}
           <div className="lg:col-span-2">
             <FadeInRight>
               <StaggerContainer className="space-y-3">
-                {personalInfo.map((info) => (
-                  <StaggerItem key={info.label}>
-                    <GlassCard className="flex items-center gap-4 !p-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                        <info.icon className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground">{info.label}</p>
-                        <p className="truncate font-semibold bn">{info.value}</p>
-                      </div>
-                    </GlassCard>
-                  </StaggerItem>
-                ))}
+                {about.personalInfo.map((info) => {
+                  const Icon = ABOUT_ICON_MAP[info.icon];
+                  return (
+                    <StaggerItem key={info.id}>
+                      <GlassCard className="flex items-center gap-4 !p-4">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                          <Icon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">
+                            {isBn ? info.labelBn : info.labelEn}
+                          </p>
+                          <p className="truncate font-semibold bn">
+                            {isBn ? info.valueBn : info.valueEn}
+                          </p>
+                        </div>
+                      </GlassCard>
+                    </StaggerItem>
+                  );
+                })}
               </StaggerContainer>
             </FadeInRight>
           </div>
@@ -120,12 +121,12 @@ export function AboutFull({ locale = "bn" }: AboutFullProps) {
         {/* Quote */}
         <FadeInUp delay={0.3}>
           <div className="mt-12 text-center">
-            <GlassCard className="border-l-4 border-l-primary mx-auto max-w-2xl">
+            <GlassCard className="mx-auto max-w-2xl border-l-4 border-l-primary">
               <p className="text-lg italic text-muted-foreground bn">
-                &ldquo;মানুষের পাশে দাঁড়ানো, শেখা এবং শেখানো — এই তিনটি জিনিস আমাকে এগিয়ে নিয়ে যায়।&rdquo;
+                &ldquo;{isBn ? about.biography.quote.bn : about.biography.quote.en}&rdquo;
               </p>
               <Badge variant="glow" className="mt-4">
-                — রাহাত আহমেদ
+                {isBn ? about.biography.quoteBy.bn : about.biography.quoteBy.en}
               </Badge>
             </GlassCard>
           </div>

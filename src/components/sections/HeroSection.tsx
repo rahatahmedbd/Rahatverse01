@@ -18,6 +18,7 @@ import { Sparkles, Zap, Eye, MessageCircle, Star, Award, Heart, Code, Users, Sho
 import { Counter } from "@/components/animations/Counter";
 import Link from "next/link";
 import type { HeroConfig } from "@/types/hero";
+import type { AboutConfig } from "@/types/about";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
 
 // ── Icon map for dynamic CTAs ────────────────────────
@@ -48,9 +49,10 @@ function getIcon(name: string) {
 
 interface HeroSectionProps {
   locale?: string;
+  aboutConfig?: AboutConfig;
 }
 
-export function HeroSection({ locale = "bn" }: HeroSectionProps) {
+export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
   const isBn = locale === "bn";
   const [config, setConfig] = useState<HeroConfig>(DEFAULT_HERO_CONFIG);
 
@@ -125,7 +127,15 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
           transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
         >
           <Parallax3DContainer intensity={14} className="inline-block">
-            <ProfileImage size="lg" />
+            <ProfileImage
+              size="lg"
+              src={aboutConfig?.profileImage.url || undefined}
+              publicId={aboutConfig?.profileImage.publicId}
+              alt={isBn ? aboutConfig?.profileImage.altBn : aboutConfig?.profileImage.altEn}
+              frame={aboutConfig?.profileImage.frame}
+              showStatus={aboutConfig?.profileImage.showStatus}
+              statusLabel={isBn ? aboutConfig?.profileImage.statusLabelBn : aboutConfig?.profileImage.statusLabelEn}
+            />
           </Parallax3DContainer>
         </motion.div>
 

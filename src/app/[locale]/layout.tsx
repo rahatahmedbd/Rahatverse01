@@ -104,8 +104,8 @@ export default async function LocaleLayout({
               {/* Glass Navigation Bar */}
               <Navbar />
 
-              {/* Main Content */}
-              <main className="relative flex-1 pt-24 pb-24 lg:pb-8">
+              {/* Main Content — extra bottom padding ensures floating nav never covers last section */}
+              <main className="relative flex-1 pt-24 pb-28 lg:pb-8">
                 <PageTransition>{children}</PageTransition>
               </main>
 

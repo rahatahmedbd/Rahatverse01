@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>RahatVerse — Cloudinary ছবি আপলোড টুল</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #0f172a; color: #e2e8f0;
+    min-height: 100vh; display: flex; justify-content: center;
+    padding: 24px 14px;
+  }
+  main { width: 100%; max-width: 560px; }
+  h1 { font-size: 1.25rem; margin-bottom: 4px; }
+  .sub { color: #94a3b8; font-size: .85rem; margin-bottom: 18px; }
+  label { display: block; font-size: .8rem; color: #94a3b8; margin: 12px 0 4px; }
+  input {
+    width: 100%; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid #334155; background: #1e293b; color: #f1f5f9;
+    font-size: .9rem;
+  }
+  input:focus { outline: 2px solid #6366f1; border-color: transparent; }
+  button {
+    width: 100%; margin-top: 18px; padding: 13px; border: 0; border-radius: 10px;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer;
+  }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .progress-wrap { margin-top: 18px; background: #1e293b; border-radius: 10px; overflow: hidden; height: 10px; display: none; }
+  .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #4ade80); transition: width .3s; }
+  #log {
+    margin-top: 16px; font-family: ui-monospace, monospace; font-size: .75rem;
+    background: #020617; border: 1px solid #1e293b; border-radius: 10px;
+    padding: 12px; max-height: 320px; overflow-y: auto; white-space: pre-wrap; display: none;
+  }
+  .ok { color: #4ade80; } .fail { color: #f87171; } .info { color: #94a3b8; }
+  #done { margin-top: 14px; padding: 12px; border-radius: 10px; display: none; font-size: .9rem; text-align: center; }
+  #done.success { display: block; background: #052e16; border: 1px solid #166534; color: #86efac; }
+  #done.error { display: block; background: #450a0a; border: 1px solid #991b1b; color: #fca5a5; }
+  .note { font-size: .72rem; color: #64748b; margin-top: 14px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<main>
+  <h1>☁️ RahatVerse — Cloudinary ছবি আপলোড</h1>
+  <p class="sub">পুরনো ওয়েবসাইটের ১৪টি ছবি আপনার Cloudinary অ্যাকাউন্টে আপলোড হবে। শুধু API Secret দিয়ে বাটনে ক্লিক করুন।</p>
+
+  <label for="cloud">Cloud Name</label>
+  <input id="cloud" value="kbc3dfnj" />
+
+  <label for="key">API Key</label>
+  <input id="key" value="313952973845476" />
+
+  <label for="secret">API Secret (শুধু এটা দিন)</label>
+  <input id="secret" type="password" placeholder="আপনার Cloudinary API Secret এখানে পেস্ট করুন" autocomplete="off" />
+
+  <button id="go">🚀 সব ছবি আপলোড করুন (14টি)</button>
+
+  <div class="progress-wrap" id="pw"><div class="progress-bar" id="pb"></div></div>
+  <div id="log"></div>
+  <div id="done"></div>
+
+  <p class="note">🔒 নিরাপত্তা: এই পেজটি সম্পূর্ণ আপনার ব্রাউজারে চলে। API Secret কোনো সার্ভারে যায় না — সরাসরি ব্রাউজার থেকে Cloudinary-তে (HTTPS) পাঠানো হয়। পেজ বন্ধ করলেই সব মুছে যায়।</p>
+</main>
+
+<script>
+const MAPPINGS = [
+  ["rahatverse/profile", "https://rahatahmedbd.github.io/assets/images/profile.jpg"],
+  ["rahatverse/shantichakra-logo", "https://rahatahmedbd.github.io/assets/images/logo.png"],
+  ["rahatverse/father-photo", "https://rahatahmedbd.github.io/assets/images/baba-farid-ahmed.jpg"],
+  ["rahatverse/ssc-2025", "https://rahatahmedbd.github.io/assets/images/ssc-gpa5-2025.jpg"],
+  ["rahatverse/ssc-songbordhona", "https://rahatahmedbd.github.io/assets/images/ssc-songbordhona-2025.jpg"],
+  ["rahatverse/ssc-crest-shantichakra", "https://rahatahmedbd.github.io/assets/images/ssc-crest-shantichakra.jpg"],
+  ["rahatverse/shantichakra-blood-society", "https://rahatahmedbd.github.io/assets/images/shantichakra-blood-society.jpg"],
+  ["rahatverse/46-science-fair-2025", "https://rahatahmedbd.github.io/assets/images/46-science-fair-2025.jpg"],
+  ["rahatverse/srijonshil-medha-2024", "https://rahatahmedbd.github.io/assets/images/srijonshil-medha-2024.jpg"],
+  ["rahatverse/44-science-fair-2024", "https://rahatahmedbd.github.io/assets/images/44-science-fair-2024.jpg"],
+  ["rahatverse/45-science-fair-2023", "https://rahatahmedbd.github.io/assets/images/45-science-fair-2023.jpg"],
+  ["rahatverse/42-science-fair-2020", "https://rahatahmedbd.github.io/assets/images/42-science-fair-2020.jpg"],
+  ["rahatverse/fs-coaching-center", "https://rahatahmedbd.github.io/assets/images/fs-coaching-center.jpg"],
+  ["rahatverse/helping-hand-org", "https://rahatahmedbd.github.io/assets/images/helping-hand-org.jpg"],
+];
+
+const $ = (id) => document.getElementById(id);
+const log = (msg, cls = "info") => {
+  const el = $("log"); el.style.display = "block";
+  const line = document.createElement("div"); line.className = cls; line.textContent = msg;
+  el.appendChild(line); el.scrollTop = el.scrollHeight;
+};
+
+async function sha1hex(text) {
+  const buf = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function uploadOne(cloud, key, secret, publicId, sourceUrl) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const params = { overwrite: "true", public_id: publicId, timestamp };
+  const toSign = Object.keys(params).sort().map((k) => `${k}=${params[k]}`).join("&") + secret;
+  const signature = await sha1hex(toSign);
+  const body = new URLSearchParams({ ...params, api_key: key, signature, file: sourceUrl });
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/upload`, { method: "POST", body });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+  return data;
+}
+
+$("go").addEventListener("click", async () => {
+  const cloud = $("cloud").value.trim(), key = $("key").value.trim(), secret = $("secret").value.trim();
+  if (!cloud || !key || !secret) { alert("API Secret দিন!"); return; }
+  $("go").disabled = true; $("pw").style.display = "block"; $("done").className = ""; $("done").style.display = "none";
+
+  let ok = 0, failed = 0;
+  for (let i = 0; i < MAPPINGS.length; i++) {
+    const [publicId, url] = MAPPINGS[i];
+    try {
+      const r = await uploadOne(cloud, key, secret, publicId, url);
+      ok++; log(`✓ ${publicId} (${r.width}×${r.height})`, "ok");
+    } catch (e) { failed++; log(`✗ ${publicId}: ${e.message}`, "fail"); }
+    $("pb").style.width = `${((i + 1) / MAPPINGS.length) * 100}%`;
+  }
+
+  log("— ডেলিভারি URL যাচাই —");
+  for (const [publicId] of MAPPINGS) {
+    const testUrl = `https://res.cloudinary.com/${cloud}/image/upload/q_auto,f_auto/${publicId}`;
+    const good = await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true); img.onerror = () => resolve(false);
+      img.src = testUrl;
+      setTimeout(() => resolve(false), 15000);
+    });
+    log(good ? `✓ লোড হয়: ${publicId}` : `✗ লোড হয়নি: ${publicId}`, good ? "ok" : "fail");
+    if (!good) failed++;
+  }
+
+  const d = $("done");
+  if (failed === 0) {
+    d.className = "success"; d.textContent = `🎉 সম্পূর্ণ হয়েছে! ১৪টি ছবি Cloudinary-তে আপলোড সফল। এখন ওয়েবসাইটে ছবিগুলো দেখা যাবে।`;
+  } else {
+    d.className = "error"; d.textContent = `⚠️ ${ok}/${MAPPINGS.length} সফল, ${failed}টি ব্যর্থ। API Secret ঠিক আছে কিনা দেখে আবার চেষ্টা করুন।`;
+  }
+  $("go").disabled = false; $("go").textContent = "🔁 আবার চেষ্টা করুন";
+});
+</script>
+</body>
+</html>

@@ -31,6 +31,7 @@ import {
   Star,
   PhoneCall,
   Link2,
+  Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +49,7 @@ const sections = [
   { href: "services", icon: Briefcase, labelBn: "সেবা ও প্যাকেজ", labelEn: "Services & Pricing" },
   { href: "analytics", icon: BarChart3, labelBn: "অ্যানালিটিক্স", labelEn: "Analytics" },
   { href: "newsletter", icon: Mail, labelBn: "নিউজলেটার", labelEn: "Newsletter" },
+  { href: "newsletter-settings", icon: Send, labelBn: "নিউজলেটার সেটিংস", labelEn: "Newsletter Settings" },
   { href: "email", icon: Mail, labelBn: "ইমেইল ডেলিভারি", labelEn: "Email Delivery" },
   { href: "orders", icon: ShoppingCart, labelBn: "অর্ডার পাইপলাইন", labelEn: "Orders" },
   { href: "orders-settings", icon: Settings2, labelBn: "অর্ডার সেটিংস", labelEn: "Order Settings" },

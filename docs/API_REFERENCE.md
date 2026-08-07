@@ -11,6 +11,12 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/newsletter-config`
+Public, validated newsletter configuration endpoint (Phase 11). Returns
+`{ data }` — the `newsletter_config` document in `site_settings` (section
+headings, topic preferences, campaign defaults). Falls back to defaults when the
+database is unavailable or the value fails validation.
+
 ### `GET /api/links-config`
 Public, validated Link Hub / Tools / Resume configuration endpoint (Phase 10).
 Returns `{ data }` — the `links_config` document in `site_settings` (link cards

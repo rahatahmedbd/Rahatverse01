@@ -4,6 +4,20 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.14.0] — Phase 11 — Newsletter & Campaign Control CMS
+
+### Added
+- `newsletter_config` site_settings document (migration `020_newsletter_admin_control.sql`)
+  driving the newsletter section headings, topic preferences and campaign
+  defaults (from name/email, default subject, personalization hint).
+- Public `/api/newsletter-config` endpoint with resilient defaults.
+- `NewsletterControlPanel` at `/[locale]/dashboard/newsletter-settings` (new
+  "Newsletter Settings" nav entry) — topics CRUD/reorder/visibility and campaign
+  defaults.
+- Refactored `NewsletterSignup` to render topic-preference chips from the config
+  and submit the selected preferences (double opt-in preserved).
+- Six unit tests covering the new CMS validation contract.
+
 ## [0.13.0] — Phase 10 — Link Hub, Tool Recommendations & Resume/CV Manager
 
 ### Added

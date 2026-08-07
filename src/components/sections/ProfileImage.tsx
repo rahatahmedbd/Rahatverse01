@@ -59,13 +59,13 @@ export function ProfileImage({
   const sizeMap = {
     sm: "h-24 w-24",
     md: "h-36 w-36",
-    lg: "h-44 w-44",
+    lg: "h-48 w-48 sm:h-52 sm:w-52",
   };
 
   const ringSizeMap = {
     sm: "h-28 w-28",
     md: "h-40 w-40",
-    lg: "h-48 w-48",
+    lg: "h-56 w-56 sm:h-60 sm:w-60",
   };
 
   const styles = frameStyles[frame];
@@ -73,19 +73,26 @@ export function ProfileImage({
   const useCloudinary = !src;
 
   return (
-    <div className={cn("relative inline-flex items-center justify-center", className)}>
-      {/* Animated glow ring */}
+    <div className={cn("relative inline-flex items-center justify-center pb-3", className)}>
+      {/* Outer Ambient Halo */}
       <motion.div
-        className={cn("absolute rounded-full", ringSizeMap[size], "border-2", styles.ring)}
-        animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className={cn("absolute rounded-full blur-2xl bg-amber-500/15", ringSizeMap[size])}
+        animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Second ring */}
+      {/* Rotating Dashed Tech Ring */}
       <motion.div
-        className={cn("absolute rounded-full", ringSizeMap[size], "border", styles.ring)}
-        animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.4, 0.2] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className={cn("absolute rounded-full border border-dashed border-amber-500/40", ringSizeMap[size])}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* Counter-rotating Subtle Accent Ring */}
+      <motion.div
+        className={cn("absolute rounded-full border border-amber-500/20", ringSizeMap[size])}
+        animate={{ scale: [1, 1.04, 1] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
       />
 
       {/* Image container */}
@@ -106,10 +113,11 @@ export function ProfileImage({
           <CloudinaryImage
             publicId={resolvedPublicId}
             alt={alt}
-            width={size === "lg" ? 176 : size === "md" ? 144 : 96}
-            height={size === "lg" ? 176 : size === "md" ? 144 : 96}
+            width={size === "lg" ? 220 : size === "md" ? 144 : 96}
+            height={size === "lg" ? 220 : size === "md" ? 220 : 96}
             className="h-full w-full object-cover"
             priority
+            fallbackType="profile"
           />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
@@ -117,15 +125,21 @@ export function ProfileImage({
         )}
       </motion.div>
 
-      {/* Status indicator */}
+      {/* Premium Status Pill */}
       {showStatus && (
         <motion.div
-          className="absolute bottom-2 right-2 h-4 w-4 rounded-full border-2 border-void bg-green-500"
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute -bottom-1 z-20 flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-card/95 px-3 py-1 text-[11px] font-medium text-emerald-400 shadow-xl backdrop-blur-md"
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
           title={statusLabel}
-          aria-label={statusLabel}
-        />
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          <span className="bn">{statusLabel}</span>
+        </motion.div>
       )}
     </div>
   );

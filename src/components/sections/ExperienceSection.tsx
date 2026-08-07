@@ -8,7 +8,13 @@ import { FadeInUp } from "@/components/animations/FadeIn";
 import { Calendar, ExternalLink, Loader2 } from "lucide-react";
 import { DEFAULT_EXPERIENCE_CONFIG, validateExperienceConfig } from "@/lib/experience/config";
 import { ExperienceIcon } from "@/lib/experience/icons";
+import { CloudinaryImage } from "@/components/ui/cloudinary-image";
 import type { ExperienceConfig, ExperienceStatus } from "@/types/experience";
+
+const EXPERIENCE_ID_TO_PUBLIC_ID: Record<string, string> = {
+  "exp-fs-coaching": "rahatverse/fs-coaching-center",
+  "exp-helping-hand": "rahatverse/helping-hand-org",
+};
 
 // ── Experience Section (DB-driven) ─────────────────────
 interface ExperienceSectionProps {
@@ -96,6 +102,18 @@ export function ExperienceSection({ locale = "bn" }: ExperienceSectionProps) {
                   <Calendar className="h-3 w-3" />
                   <span className="bn">{isBn ? exp.periodBn : exp.periodEn}</span>
                 </div>
+
+                {EXPERIENCE_ID_TO_PUBLIC_ID[exp.id] && (
+                  <div className="my-3 h-48 w-full overflow-hidden rounded-xl border border-border/40 shadow-md">
+                    <CloudinaryImage
+                      publicId={EXPERIENCE_ID_TO_PUBLIC_ID[exp.id]}
+                      alt={isBn ? exp.titleBn : exp.titleEn}
+                      width={600}
+                      height={320}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                )}
 
                 {/* Description */}
                 <p className="mb-4 text-sm text-muted-foreground bn leading-relaxed">

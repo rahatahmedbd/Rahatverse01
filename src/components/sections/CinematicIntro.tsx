@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useLocale } from "next-intl";
 import { useMotionPreference } from "@/components/animations/motion-preferences";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
 
@@ -16,6 +17,8 @@ function shouldPlayIntro(): boolean {
 // Duration: ~4 seconds total
 
 export function CinematicIntro() {
+  const locale = useLocale();
+  const isBn = locale === "bn";
   const [isPlaying, setIsPlaying] = useState(shouldPlayIntro);
   const prefersReducedMotion = useMotionPreference();
   const [greeting, setGreeting] = useState(DEFAULT_HERO_CONFIG.intro.greetingBn);
@@ -123,12 +126,13 @@ export function CinematicIntro() {
           {/* Skip button */}
           <motion.button
             onClick={handleComplete}
-            className="absolute bottom-8 right-8 rounded-lg border border-border/50 px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+            className="absolute bottom-8 right-8 flex items-center gap-2 rounded-full border border-border/60 bg-background/60 backdrop-blur-md px-5 py-2 text-sm font-medium text-foreground/80 transition-all hover:border-primary/50 hover:bg-background hover:text-foreground shadow-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 2 }}
+            transition={{ delay: 1 }}
           >
-            Skip →
+            <span className="bn">{isBn ? "মূল ওয়েবসাইটে যান" : "Enter Portfolio"}</span>
+            <span aria-hidden="true" className="text-primary">→</span>
           </motion.button>
         </motion.div>
       )}

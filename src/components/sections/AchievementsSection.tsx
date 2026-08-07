@@ -9,7 +9,19 @@ import { motion } from "framer-motion";
 import { Calendar, ExternalLink, Sparkles, Volume2 } from "lucide-react";
 import { ACHIEVEMENT_ICON_MAP } from "@/lib/about/icons";
 import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";
+import { CloudinaryImage } from "@/components/ui/cloudinary-image";
 import type { AboutAchievement, AboutConfig, AchievementRarity } from "@/types/about";
+
+const ACHIEVEMENT_ID_TO_PUBLIC_ID: Record<string, string> = {
+  "achievement-ssc-gpa": "rahatverse/ssc-2025",
+  "achievement-science-fair-46": "rahatverse/46-science-fair-2025",
+  "achievement-student-honor": "rahatverse/ssc-songbordhona",
+  "achievement-shantichakra-crest": "rahatverse/ssc-crest-shantichakra",
+  "achievement-talent-search": "rahatverse/srijonshil-medha-2024",
+  "achievement-science-exhibition": "rahatverse/44-science-fair-2024",
+  "achievement-science-fair-45": "rahatverse/45-science-fair-2023",
+  "achievement-science-fair-42": "rahatverse/42-science-fair-2020",
+};
 
 // ── Achievements Section ───────────────────────────────
 interface AchievementsSectionProps {
@@ -140,6 +152,17 @@ function AchievementCard({ achievement, locale, index }: { achievement: AboutAch
         </div>
 
         <h3 className="font-semibold bn">{title}</h3>
+        {ACHIEVEMENT_ID_TO_PUBLIC_ID[achievement.id] && (
+          <div className="my-3 h-44 w-full overflow-hidden rounded-xl border border-border/40 shadow-md">
+            <CloudinaryImage
+              publicId={ACHIEVEMENT_ID_TO_PUBLIC_ID[achievement.id]}
+              alt={title}
+              width={500}
+              height={300}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        )}
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground bn">{description}</p>
         <p className="mt-3 border-t border-border/30 pt-3 text-xs text-muted-foreground bn">
           <span className="font-semibold text-primary">{isBn ? "মানদণ্ড:" : "Unlock:"}</span> {criteria}

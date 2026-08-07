@@ -9,9 +9,11 @@ import { Counter } from "@/components/animations/Counter";
 import { FadeInUp, FadeInLeft, FadeInRight } from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
 import { motion } from "framer-motion";
-import { Droplets, Siren, MapPin, MessageCircle, ExternalLink, Loader2 } from "lucide-react";
+import { Siren, MapPin, MessageCircle, ExternalLink, Loader2 } from "lucide-react";
 import { DEFAULT_EXPERIENCE_CONFIG, validateExperienceConfig } from "@/lib/experience/config";
 import { ExperienceIcon } from "@/lib/experience/icons";
+import { CloudinaryImage } from "@/components/ui/cloudinary-image";
+import { IMAGE_IDS } from "@/lib/cloudinary/utils";
 import type { BloodStat, ExperienceConfig } from "@/types/experience";
 
 // ── Blood Society Section (DB-driven) ──────────────────
@@ -89,6 +91,16 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
                   </h3>
                 </div>
 
+                <div className="my-4 h-60 w-full overflow-hidden rounded-xl border border-red-500/20 shadow-md">
+                  <CloudinaryImage
+                    publicId={IMAGE_IDS.SHANTICHAKRA_ACTIVITIES}
+                    alt={isBn ? "শান্তিচক্র ব্লাড সোসাইটি কার্যক্রম" : "Shantichakra Blood Society Activities"}
+                    width={800}
+                    height={400}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+
                 <p className="text-muted-foreground bn leading-relaxed">
                   {isBn ? roleBodyBn : roleBodyEn}
                 </p>
@@ -146,11 +158,17 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
             <FadeInRight>
               <GlassCard className="text-center border-red-500/20">
                 <motion.div
-                  className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10"
+                  className="mx-auto mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-red-500/30 bg-card p-1 shadow-lg"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Droplets className="h-8 w-8 text-red-400" />
+                  <CloudinaryImage
+                    publicId={IMAGE_IDS.SHANTICHAKRA_LOGO}
+                    alt={isBn ? "শান্তিচক্র ব্লাড সোসাইটি লোগো" : "Shantichakra Blood Society Logo"}
+                    width={96}
+                    height={96}
+                    className="h-full w-full object-contain"
+                  />
                 </motion.div>
                 <h4 className="text-lg font-bold bn">{isBn ? cta.headingBn : cta.headingEn}</h4>
                 <p className="mt-2 text-sm text-muted-foreground bn">

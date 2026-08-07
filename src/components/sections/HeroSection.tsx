@@ -106,19 +106,6 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
           </Badge>
         </FadeInDown>
 
-        {/* Role Badges - admin reorderable */}
-        {config.badges.length > 0 && (
-          <FadeInDown delay={0.55}>
-            <div className="mb-6 flex flex-wrap justify-center gap-2">
-              {config.badges.map((b) => (
-                <Badge key={b.id} variant="glow" className="bn text-xs">
-                  {isBn ? b.labelBn : b.labelEn}
-                </Badge>
-              ))}
-            </div>
-          </FadeInDown>
-        )}
-
         {/* Profile Image with Phase I 3D Mouse Parallax */}
         <motion.div
           className="mb-8"
@@ -164,11 +151,25 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
           </div>
         </FadeInUp>
 
+        {/* Role Badges - admin reorderable */}
+        {config.badges.length > 0 && (
+          <FadeInUp delay={1.0}>
+            <div className="mt-3 mb-2 flex flex-wrap justify-center gap-2">
+              {config.badges.map((b) => (
+                <Badge key={b.id} variant="glow" className="bn text-xs px-3 py-1 font-medium">
+                  {isBn ? b.labelBn : b.labelEn}
+                </Badge>
+              ))}
+            </div>
+          </FadeInUp>
+        )}
+
         {/* Description */}
         <FadeInUp delay={1.2}>
           <p className="text-lead mx-auto mt-6 max-w-xl text-muted-foreground bn">
-            শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।
-            সুনামগঞ্জ থেকে স্বপ্ন দেখি একটি better digital world গড়ার।
+            {isBn
+              ? "শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য। সুনামগঞ্জ থেকে স্বপ্ন দেখি একটি উন্নত ও সমৃদ্ধ ডিজিটাল বিশ্ব গড়ে তোলার।"
+              : "My goal is to stand by people through education, social service, and technology. From Sunamganj, I dream of building a better digital world."}
           </p>
         </FadeInUp>
 

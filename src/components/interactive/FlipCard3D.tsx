@@ -75,7 +75,7 @@ export function FlipCard3D({
 
           <div className="flex items-center justify-between border-t border-border/30 pt-3 text-xs text-primary">
             <span className="font-medium bn">
-              {isBn ? "বিস্তারিত দেখতে ক্লিক করুন" : "Click or hover to flip"}
+              {isBn ? "বিস্তারিত জানুন" : "Explore details"}
             </span>
             <RotateCw className="h-3.5 w-3.5" />
           </div>

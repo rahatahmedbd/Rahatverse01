@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg-blood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c0508" />
+      <stop offset="50%" stop-color="#4a0f1d" />
+      <stop offset="100%" stop-color="#801930" />
+    </linearGradient>
+    <radialGradient id="glow-blood" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e11d48" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#e11d48" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg-blood)" />
+  <circle cx="400" cy="280" r="220" fill="url(#glow-blood)" />
+  <!-- Grid Lines -->
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="1">
+    <line x1="0" y1="150" x2="800" y2="150" />
+    <line x1="0" y1="300" x2="800" y2="300" />
+    <line x1="0" y1="450" x2="800" y2="450" />
+    <line x1="200" y1="0" x2="200" y2="600" />
+    <line x1="400" y1="0" x2="400" y2="600" />
+    <line x1="600" y1="0" x2="600" y2="600" />
+  </g>
+  <!-- Blood Heart Icon -->
+  <g transform="translate(400, 260) scale(1.4)">
+    <path d="M0 -40 C-30 -80 -90 -40 -90 10 C-90 60 0 110 0 130 C0 110 90 60 90 10 C90 -40 30 -80 0 -40 Z" fill="#f43f5e" fill-opacity="0.2" stroke="#f43f5e" stroke-width="4" />
+    <path d="M-15 -10 L15 -10 M0 -25 L0 5" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+  </g>
+  <!-- Decorative Text -->
+  <text x="60" y="80" fill="#fecdd3" font-family="sans-serif" font-size="16" font-weight="bold" letter-spacing="4">SHANTICHAKRA BLOOD SOCIETY</text>
+  <text x="60" y="115" fill="#ffffff" font-family="sans-serif" font-size="28" font-weight="800" opacity="0.9">Connecting Blood Donors &amp; Saving Lives</text>
+  <rect x="60" y="135" width="80" height="3" fill="#f43f5e" rx="1.5" />
+</svg>

@@ -20,6 +20,12 @@ export { AuroraDivider } from "./aurora-divider";
 
 export { Skeleton, CardSkeleton, PageLoader } from "./skeleton";
 
+export { BlurImage, ImageSkeleton } from "./blur-image";
+export type { BlurImageProps } from "./blur-image";
+
+export { CloudinaryImage } from "./cloudinary-image";
+export type { CloudinaryImageProps } from "./cloudinary-image";
+
 // Phase 31 — Premium form field system
 export {
   FormField,

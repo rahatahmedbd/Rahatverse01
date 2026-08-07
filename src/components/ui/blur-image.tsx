@@ -1,41 +1,44 @@
-// ── Cloudinary Image Component ─────────────────────────
 "use client";
 
 import * as React from "react";
-import { CldImage } from "next-cloudinary";
+import Image, { ImageProps as NextImageProps } from "next/image";
 import { cn } from "@/lib/utils";
 import { Camera } from "lucide-react";
-import { ImageSkeleton } from "@/components/ui/blur-image";
 
-export interface CloudinaryImageProps {
-  publicId: string;
-  alt: string;
-  width?: number;
-  height?: number;
-  className?: string;
-  wrapperClassName?: string;
-  priority?: boolean;
+export interface BlurImageProps extends Omit<NextImageProps, "onLoad" | "onError"> {
+  fallbackText?: string;
   showSkeleton?: boolean;
+  wrapperClassName?: string;
   onLoad?: () => void;
   onError?: () => void;
 }
 
-/**
- * Cloudinary Image Component
- * Optimized image component using Cloudinary with Blur-up and Skeleton shimmer
- */
-export function CloudinaryImage({
-  publicId,
+export function ImageSkeleton({ className }: { className?: string }) {
+  return (
+    <div
+      data-testid="image-skeleton"
+      className={cn(
+        "absolute inset-0 z-0 overflow-hidden rounded-inherit bg-muted/60",
+        className
+      )}
+    >
+      <div className="animate-shimmer absolute inset-0 h-full w-full" />
+    </div>
+  );
+}
+
+export function BlurImage({
+  src,
   alt,
-  width,
-  height,
   className,
   wrapperClassName,
-  priority = false,
+  fallbackText,
   showSkeleton = true,
+  priority = false,
   onLoad,
   onError,
-}: CloudinaryImageProps) {
+  ...props
+}: BlurImageProps) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(() => {
@@ -44,8 +47,6 @@ export function CloudinaryImage({
     }
     return false;
   });
-
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -70,26 +71,30 @@ export function CloudinaryImage({
     onError?.();
   };
 
-  // Local previews and deployments without media credentials must remain
-  // renderable. The real Cloudinary image is used whenever it is configured.
-  if (!cloudName || hasError) {
+  const isSrcEmpty = !src || src === "";
+
+  if (isSrcEmpty || hasError) {
     return (
       <div
         role="img"
         aria-label={alt}
-        data-testid="cloudinary-image-fallback"
+        data-testid="blur-image-fallback"
         className={cn(
-          "flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-4 text-center text-muted-foreground",
+          "flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-4 text-center text-muted-foreground",
           wrapperClassName,
           className
         )}
       >
-        <div className="flex flex-col items-center gap-2">
-          <Camera className="h-8 w-8 text-primary/40" />
+        <Camera className="mb-2 h-8 w-8 text-primary/40" />
+        {fallbackText ? (
           <span className="text-xs font-medium text-muted-foreground">
-            {alt}
+            {fallbackText}
           </span>
-        </div>
+        ) : (
+          <span className="text-xs font-medium text-muted-foreground">
+            {alt || "Image preview"}
+          </span>
+        )}
       </div>
     );
   }
@@ -97,17 +102,17 @@ export function CloudinaryImage({
   return (
     <div
       className={cn(
-        "relative overflow-hidden inline-block",
+        "relative overflow-hidden",
+        props.fill ? "h-full w-full" : "inline-block",
         wrapperClassName
       )}
-      data-testid="cloudinary-image-container"
+      data-testid="blur-image-container"
     >
       {isLoading && showSkeleton && <ImageSkeleton />}
-      <CldImage
-        src={publicId}
+      <Image
+        src={src}
         alt={alt}
-        width={width || 800}
-        height={height || 600}
+        priority={priority}
         className={cn(
           "object-cover transition-all duration-700 ease-out",
           isLoading
@@ -119,10 +124,9 @@ export function CloudinaryImage({
               : "scale-100 blur-0 opacity-100",
           className
         )}
-        priority={priority}
-        loading={priority ? "eager" : "lazy"}
         onLoad={handleLoad}
         onError={handleError}
+        {...props}
       />
     </div>
   );

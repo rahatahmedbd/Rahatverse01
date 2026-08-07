@@ -1,10 +1,10 @@
 "use client";
 
-import { GlassCard } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";
-import { FadeInUp } from "@/components/animations/FadeIn";
-import { motion } from "framer-motion";
+import {
+  ScrollStoryline,
+  StorylineItem,
+} from "@/components/interactive";
 
 // ── Education Timeline ─────────────────────────────────
 interface EducationTimelineProps {
@@ -43,45 +43,88 @@ export function EducationTimeline({ locale = "bn" }: EducationTimelineProps) {
       titleBn: "PSC — প্রাথমিক শিক্ষা সমাপনী",
       institution: "Jibdara Govt. Primary School",
       institutionBn: "জীবদাড়া সরকারি প্রাথমিক বিদ্যালয়",
-      description: "Returned to village and passed PSC with GPA 5.00. First major academic achievement.",
-      descriptionBn: "গ্রামে ফিরে এসে PSC পরীক্ষায় জিপিএ ৫.০০ পেয়ে উত্তীর্ণ হই। এটি ছিল আমার শিক্ষাজীবনের প্রথম বড় অর্জন।",
-      badge: "GPA 5.00",
-      badgeType: "success",
-      gpa: "5.00",
+      description: "Appeared in PSC exam from Sunamganj. Completed primary education with distinction.",
+      descriptionBn: "সুনামগঞ্জে এসে জীবদাড়া সরকারি প্রাথমিক বিদ্যালয় থেকে পিএসসি পরীক্ষায় অংশগ্রহণ করি এবং কৃতিত্বের সাথে উত্তীর্ণ হই।",
     },
     {
-      year: "২০২০ — ২০২৫",
-      title: "Secondary Education (Class 6-10)",
-      titleBn: "মাধ্যমিক শিক্ষা (৬ষ্ঠ — ১০ম শ্রেণি)",
-      institution: "Satgaon Jibdara High School",
-      institutionBn: "সাতগাঁও জীবদাড়া উচ্চ বিদ্যালয়",
-      description: "Won multiple national science fairs, started teaching, founded Helping Hand Organization and FS Coaching Center.",
-      descriptionBn: "একাধিক জাতীয় বিজ্ঞান মেলায় প্রথম স্থান অর্জন, শিক্ষকতা শুরু, হেল্পিং হ্যান্ড অর্গানাইজেশন ও FS কোচিং সেন্টার প্রতিষ্ঠা করি।",
+      year: "২০২০ — ২০২৩",
+      title: "High School Journey",
+      titleBn: "মাধ্যমিক শিক্ষাজীবন",
+      institution: "Sunamganj Govt. Jubilee High School",
+      institutionBn: "সুনামগঞ্জ সরকারি জুবিলী উচ্চ বিদ্যালয়",
+      description: "Gained foundational interest in Science, Technology, and Mathematics. Started web development self-study.",
+      descriptionBn: "বিজ্ঞান ও প্রযুক্তির প্রতি গভীর আগ্রহ তৈরি হয়। পাশাপাশি ওয়েব ডেভেলপমেন্ট শেখা শুরু করি।",
     },
     {
-      year: "১০ জুলাই, ২০২৫",
+      year: "২০২৩",
+      title: "45th National Science Fair",
+      titleBn: "৪৫তম জাতীয় বিজ্ঞান মেলা",
+      institution: "District Science Fair, Sunamganj",
+      institutionBn: "জেলা বিজ্ঞান মেলা, সুনামগঞ্জ",
+      description: "Showcased technology project at the 45th National Science and Technology Week. Awarded 1st place.",
+      descriptionBn: "৪৫তম জাতীয় বিজ্ঞান ও প্রযুক্তি সপ্তাহে প্রজেক্ট প্রদর্শন করে প্রথম স্থান অর্জন করি।",
+      badge: isBn ? "১ম স্থান" : "1st Place",
+      badgeType: "glow",
+    },
+    {
+      year: "২০২৪",
+      title: "44th Science Exhibition & Competition",
+      titleBn: "৪৪তম বিজ্ঞান প্রদর্শনী ও প্রতিযোগিতা",
+      institution: "Regional Level",
+      institutionBn: "আঞ্চলিক পর্যায়",
+      description: "Participated in the 44th Science Exhibition with an innovative smart-city model.",
+      descriptionBn: "স্মার্ট সিটি মডেল নিয়ে ৪৪তম বিজ্ঞান প্রদর্শনীতে অংশগ্রহণ ও পুরস্কার লাভ।",
+      badge: isBn ? "১ম স্থান" : "1st Place",
+      badgeType: "glow",
+    },
+    {
+      year: "২০২৪",
+      title: "Creative Talent Search 2024",
+      titleBn: "সৃজনশীল মেধা অন্বেষণ ২০২৪",
+      institution: "National Talent Search",
+      institutionBn: "জাতীয় মেধা অন্বেষণ প্রতিযোগিতা",
+      description: "Won 1st place in Science category at the Creative Talent Search competition.",
+      descriptionBn: "সৃজনশীল মেধা অন্বেষণ প্রতিযোগিতায় বিজ্ঞান বিভাগে প্রথম স্থান অর্জন।",
+      badge: isBn ? "১ম স্থান" : "1st Place",
+      badgeType: "glow",
+    },
+    {
+      year: "২০২৫",
       title: "SSC — Secondary School Certificate",
       titleBn: "SSC — মাধ্যমিক স্কুল সার্টিফিকেট",
-      institution: "Satgaon Jibdara High School (Science)",
-      institutionBn: "সাতগাঁও জীবদাড়া উচ্চ বিদ্যালয় (বিজ্ঞান)",
-      description: "Passed SSC with GPA 5.00 (A+) from Science department. Received special recognition from Shantichakra Blood Society.",
-      descriptionBn: "বিজ্ঞান বিভাগ থেকে জিপিএ ৫.০০ (A+) অর্জন করি। শান্তিচক্র ব্লাড সোসাইটি ও বিদ্যালয় কর্তৃক বিশেষ সম্মাননা পাই।",
+      institution: "Sunamganj Govt. Jubilee High School",
+      institutionBn: "সুনামগঞ্জ সরকারি জুবিলী উচ্চ বিদ্যালয়",
+      description: "Passed SSC from Science group with GPA 5.00 (Golden A+). Honored at Meritorious Student Ceremony.",
+      descriptionBn: "বিজ্ঞান বিভাগ থেকে জিপিএ ৫.০০ (গোল্ডেন এ+) অর্জন করে এসএসসি পাস। কৃতী শিক্ষার্থী সংবর্ধনা লাভ।",
       badge: "GPA 5.00 (A+)",
-      badgeType: "gradient",
+      badgeType: "glow",
       gpa: "5.00",
     },
     {
-      year: isBn ? "বর্তমান" : "Present",
-      title: "HSC 2nd Year — Science",
-      titleBn: "HSC ২য় বর্ষ — বিজ্ঞান বিভাগ",
+      year: "২০২৫ — বর্তমান",
+      title: "HSC — Higher Secondary (Science)",
+      titleBn: "HSC — উচ্চ মাধ্যমিক (বিজ্ঞান)",
       institution: "Sunamganj Govt. College",
       institutionBn: "সুনামগঞ্জ সরকারি কলেজ",
-      description: "Currently studying HSC 2nd year in Science. Alongside studies, continuing social service, teaching, and web development.",
-      descriptionBn: "বর্তমানে সুনামগঞ্জ সরকারি কলেজে উচ্চ মাধ্যমিক ২য় বর্ষে বিজ্ঞান বিভাগে অধ্যয়নরত। পড়াশোনার পাশাপাশি সমাজসেবা, শিক্ষকতা ও ওয়েব ডেভেলপমেন্ট চালিয়ে যাচ্ছি।",
-      badge: isBn ? "চলমান" : "Ongoing",
+      description: "Currently studying in HSC 2nd Year (Science). Active BNCC cadet (No: 25071152) and Shantichakra Blood Society member.",
+      descriptionBn: "বর্তমানে সুনামগঞ্জ সরকারি কলেজে এইচএসসি ২য় বর্ষে বিজ্ঞান বিভাগে অধ্যায়নরত। বিএনসিসি ক্যাডেট এবং শান্তিচক্র ব্লাড সোসাইটির সদস্য।",
+      badge: isBn ? "বর্তমান" : "Current",
       badgeType: "glow",
     },
   ];
+
+  const storylineItems: StorylineItem[] = timeline.map((item, idx) => ({
+    id: `edu-timeline-${idx}`,
+    year: item.year,
+    title: item.title,
+    titleBn: item.titleBn,
+    subtitle: item.institution,
+    subtitleBn: item.institutionBn,
+    description: item.description,
+    descriptionBn: item.descriptionBn,
+    badge: item.badge,
+    badgeType: item.badgeType || "glow",
+  }));
 
   return (
     <section className="py-20">
@@ -98,69 +141,8 @@ export function EducationTimeline({ locale = "bn" }: EducationTimelineProps) {
           locale={locale}
         />
 
-        {/* Timeline */}
-        <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-primary/20 to-transparent md:left-1/2 md:-translate-x-px" />
-
-          {/* Timeline items */}
-          <div className="space-y-12">
-            {timeline.map((item, index) => (
-              <FadeInUp key={item.year} delay={index * 0.1}>
-                <div className={`relative flex flex-col md:flex-row ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
-                  {/* Dot on line */}
-                  <motion.div
-                    className="absolute left-4 top-6 z-10 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-primary bg-background md:left-1/2"
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 + 0.2, type: "spring" }}
-                  />
-
-                  {/* Card */}
-                  <div className={`ml-10 md:ml-0 md:w-1/2 ${index % 2 === 0 ? "md:pr-12" : "md:pl-12"}`}>
-                    <GlassCard className="relative">
-                      {/* Year badge */}
-                      <div className="mb-3 flex items-center gap-3">
-                        <Badge variant="glow" className="text-xs">
-                          {item.year}
-                        </Badge>
-                        {item.badge && (
-                          <Badge variant={item.badgeType || "default"} className="text-xs">
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Title */}
-                      <h3 className="text-lg font-bold bn">
-                        {isBn ? item.titleBn : item.title}
-                      </h3>
-
-                      {/* Institution */}
-                      <p className="mt-1 text-sm text-primary font-medium bn">
-                        {isBn ? item.institutionBn : item.institution}
-                      </p>
-
-                      {/* Description */}
-                      <p className="mt-3 text-sm text-muted-foreground bn leading-relaxed">
-                        {isBn ? item.descriptionBn : item.description}
-                      </p>
-
-                      {/* GPA highlight */}
-                      {item.gpa && (
-                        <div className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5">
-                          <span className="text-2xl font-bold text-primary">{item.gpa}</span>
-                          <span className="text-xs text-muted-foreground">GPA</span>
-                        </div>
-                      )}
-                    </GlassCard>
-                  </div>
-                </div>
-              </FadeInUp>
-            ))}
-          </div>
-        </div>
+        {/* Phase I Scroll-Driven Storytelling Timeline */}
+        <ScrollStoryline items={storylineItems} locale={locale} />
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 import { AboutFull } from "@/components/sections/AboutFull";
 import { EducationTimeline } from "@/components/sections/EducationTimeline";
+import { PerformanceReport } from "@/components/sections/PerformanceReport";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 
 // ── About Page ─────────────────────────────────────────
@@ -15,6 +16,8 @@ export default async function AboutPage({ params }: AboutPageProps) {
       <AboutFull locale={locale} />
       <AuroraDivider />
       <EducationTimeline locale={locale} />
+      <AuroraDivider />
+      <PerformanceReport locale={locale} />
     </div>
   );
 }

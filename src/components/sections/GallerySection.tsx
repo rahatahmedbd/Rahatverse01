@@ -3,10 +3,14 @@
 import { useState } from "react";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { SectionTitle } from "./SectionTitle";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, Camera } from "lucide-react";
+import { Camera, LayoutGrid, Grid, ZoomIn } from "lucide-react";
+import { LightboxModal, LightboxImageItem } from "@/components/gallery/LightboxModal";
+import { getMosaicSpanClass, GalleryLayoutMode } from "@/components/gallery/mosaic-utils";
+import { cn } from "@/lib/utils";
 
 // ── Gallery Section ────────────────────────────────────
 interface GallerySectionProps {
@@ -152,6 +156,7 @@ const galleryImages: GalleryImage[] = [
 export function GallerySection({ locale = "bn" }: GallerySectionProps) {
   const isBn = locale === "bn";
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [layoutMode, setLayoutMode] = useState<GalleryLayoutMode>("mosaic");
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
   const filters = [
@@ -165,6 +170,22 @@ export function GallerySection({ locale = "bn" }: GallerySectionProps) {
   const filteredImages = activeFilter === "all"
     ? galleryImages
     : galleryImages.filter((img) => img.category === activeFilter);
+
+  const selectedIndex = selectedImage
+    ? filteredImages.findIndex((img) => img.id === selectedImage.id)
+    : -1;
+
+  const handlePrev = () => {
+    if (selectedIndex === -1) return;
+    const prevIndex = (selectedIndex - 1 + filteredImages.length) % filteredImages.length;
+    setSelectedImage(filteredImages[prevIndex]);
+  };
+
+  const handleNext = () => {
+    if (selectedIndex === -1) return;
+    const nextIndex = (selectedIndex + 1) % filteredImages.length;
+    setSelectedImage(filteredImages[nextIndex]);
+  };
 
   return (
     <section className="py-20">
@@ -181,32 +202,58 @@ export function GallerySection({ locale = "bn" }: GallerySectionProps) {
           locale={locale}
         />
 
-        {/* Filter Tabs */}
+        {/* Filter Tabs & Layout Toggle */}
         <FadeInUp>
-          <div className="mb-8 flex flex-wrap justify-center gap-2">
-            {filters.map((filter) => (
-              <button
-                key={filter.key}
-                onClick={() => setActiveFilter(filter.key)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                  activeFilter === filter.key
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                    : "border border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                }`}
+          <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex flex-wrap justify-center gap-2">
+              {filters.map((filter) => (
+                <button
+                  key={filter.key}
+                  onClick={() => setActiveFilter(filter.key)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                    activeFilter === filter.key
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                      : "border border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Layout Mode Toggle */}
+            <div className="flex items-center gap-1 rounded-full border border-border bg-card p-1">
+              <Button
+                variant={layoutMode === "mosaic" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setLayoutMode("mosaic")}
+                className="h-8 px-3 rounded-full text-xs"
+                aria-label={isBn ? "মোসাইক ভিউ" : "Mosaic view"}
               >
-                {filter.label}
-              </button>
-            ))}
+                <LayoutGrid className="h-3.5 w-3.5 mr-1" />
+                {isBn ? "মোসাইক" : "Mosaic"}
+              </Button>
+              <Button
+                variant={layoutMode === "grid" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setLayoutMode("grid")}
+                className="h-8 px-3 rounded-full text-xs"
+                aria-label={isBn ? "গ্রিড ভিউ" : "Grid view"}
+              >
+                <Grid className="h-3.5 w-3.5 mr-1" />
+                {isBn ? "গ্রিড" : "Grid"}
+              </Button>
+            </div>
           </div>
         </FadeInUp>
 
-        {/* Gallery Grid */}
+        {/* Gallery Grid / Mosaic */}
         <motion.div
           layout
-          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           <AnimatePresence mode="popLayout">
-            {filteredImages.map((image) => (
+            {filteredImages.map((image, index) => (
               <motion.div
                 key={image.id}
                 layout
@@ -215,18 +262,21 @@ export function GallerySection({ locale = "bn" }: GallerySectionProps) {
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => setSelectedImage(image)}
-                className="group cursor-pointer"
+                className={cn(
+                  "group cursor-pointer relative overflow-hidden rounded-xl border border-border/50 bg-card transition-all hover:shadow-xl",
+                  getMosaicSpanClass(index, layoutMode)
+                )}
               >
-                <div className="relative aspect-square overflow-hidden rounded-xl border border-border/50 bg-card">
+                <div className="relative h-full w-full">
                   {image.src ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={image.src}
                       alt={isBn ? image.altBn : image.alt}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                     />
                   ) : (
-                    <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-4 text-center">
+                    <div className="flex h-full min-h-[220px] w-full flex-col items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-4 text-center">
                       <Camera className="mb-2 h-8 w-8 text-primary/40" />
                       <p className="text-xs text-muted-foreground bn">
                         {isBn ? image.captionBn : image.caption}
@@ -234,12 +284,24 @@ export function GallerySection({ locale = "bn" }: GallerySectionProps) {
                     </div>
                   )}
 
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <p className="text-xs font-medium text-white bn">
-                      {isBn ? image.captionBn : image.caption}
-                    </p>
-                    <p className="text-[10px] text-white/60">{image.date}</p>
+                  {/* Hover Glass Caption Overlay */}
+                  <div className="glass-interactive absolute inset-x-2 bottom-2 rounded-xl p-3 sm:p-4 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out backdrop-blur-md bg-black/60 border border-white/20 shadow-lg flex flex-col justify-end">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center gap-1.5">
+                          <Badge variant="glow" className="text-[10px] py-0 px-2 uppercase">
+                            {image.category}
+                          </Badge>
+                        </div>
+                        <p className="text-white text-sm font-semibold truncate bn">
+                          {isBn ? image.captionBn : image.caption}
+                        </p>
+                        <p className="text-[10px] text-white/70 mt-0.5">{image.date}</p>
+                      </div>
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm">
+                        <ZoomIn className="h-4 w-4" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -265,109 +327,18 @@ export function GallerySection({ locale = "bn" }: GallerySectionProps) {
         </FadeInUp>
       </div>
 
-      {/* Lightbox */}
-      <AnimatePresence>
-        {selectedImage && (
-          <Lightbox
-            image={selectedImage}
-            locale={locale}
-            onClose={() => setSelectedImage(null)}
-            onPrev={() => {
-              const currentIndex = filteredImages.findIndex((img) => img.id === selectedImage.id);
-              const prevIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length;
-              setSelectedImage(filteredImages[prevIndex]);
-            }}
-            onNext={() => {
-              const currentIndex = filteredImages.findIndex((img) => img.id === selectedImage.id);
-              const nextIndex = (currentIndex + 1) % filteredImages.length;
-              setSelectedImage(filteredImages[nextIndex]);
-            }}
-          />
-        )}
-      </AnimatePresence>
+      {/* Lightbox Modal */}
+      {selectedImage && (
+        <LightboxModal
+          image={selectedImage as unknown as LightboxImageItem}
+          locale={locale}
+          currentIndex={selectedIndex}
+          totalCount={filteredImages.length}
+          onClose={() => setSelectedImage(null)}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
+      )}
     </section>
-  );
-}
-
-// ── Lightbox Component ─────────────────────────────────
-interface LightboxProps {
-  image: GalleryImage;
-  locale: string;
-  onClose: () => void;
-  onPrev: () => void;
-  onNext: () => void;
-}
-
-function Lightbox({ image, locale, onClose, onPrev, onNext }: LightboxProps) {
-  const isBn = locale === "bn";
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-    >
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-      >
-        <X className="h-5 w-5" />
-      </button>
-
-      {/* Navigation */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onPrev(); }}
-        className="absolute left-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-
-      <button
-        onClick={(e) => { e.stopPropagation(); onNext(); }}
-        className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
-
-      {/* Image content */}
-      <motion.div
-        className="max-h-[80vh] max-w-3xl"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.8 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {image.src ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={image.src}
-            alt={isBn ? image.altBn : image.alt}
-            className="max-h-[70vh] rounded-lg object-contain"
-          />
-        ) : (
-          <div className="flex h-64 w-96 flex-col items-center justify-center rounded-lg bg-card/50 p-8 text-center">
-            <Camera className="mb-4 h-16 w-16 text-primary/40" />
-            <p className="text-lg font-medium bn">
-              {isBn ? image.captionBn : image.caption}
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">{image.date}</p>
-            <Badge variant="glow" className="mt-4">
-              {isBn ? "ছবি শীঘ্রই আসছে" : "Image coming soon"}
-            </Badge>
-          </div>
-        )}
-
-        {/* Caption */}
-        <div className="mt-4 text-center">
-          <p className="text-white font-medium bn">
-            {isBn ? image.captionBn : image.caption}
-          </p>
-          <p className="text-sm text-white/60">{image.date}</p>
-        </div>
-      </motion.div>
-    </motion.div>
   );
 }

@@ -5,6 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProfileImage } from "./ProfileImage";
 import { TypingAnimation } from "@/components/interactive/TypingAnimation";
+import {
+  ParallaxOrb,
+  OrbitingRings,
+  Parallax3DContainer,
+} from "@/components/interactive";
 import { FadeInUp, FadeInDown } from "@/components/animations/FadeIn";
 import { ParticleBackground } from "@/components/animations/ParticleBackground";
 import { ScrollIndicator } from "@/components/animations/ScrollProgress";
@@ -49,8 +54,10 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
         />
       </div>
 
-      {/* Ambient Glow */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
+      {/* Ambient Glow & Phase I Parallax Orb */}
+      <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
+        <ParallaxOrb size="xl" color="primary" />
+        <OrbitingRings size="lg" className="opacity-70" />
         <div className="absolute top-1/3 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/5 blur-3xl" />
         <div className="absolute bottom-1/4 left-1/4 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl" />
         <div className="absolute bottom-1/3 right-1/4 h-64 w-64 rounded-full bg-purple-500/5 blur-3xl" />
@@ -66,14 +73,16 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
           </Badge>
         </FadeInDown>
 
-        {/* Profile Image */}
+        {/* Profile Image with Phase I 3D Mouse Parallax */}
         <motion.div
           className="mb-8"
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
         >
-          <ProfileImage size="lg" />
+          <Parallax3DContainer intensity={14} className="inline-block">
+            <ProfileImage size="lg" />
+          </Parallax3DContainer>
         </motion.div>
 
         {/* Name */}

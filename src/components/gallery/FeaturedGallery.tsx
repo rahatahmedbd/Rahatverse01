@@ -3,7 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ZoomIn, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ImageSkeleton } from "@/components/ui/blur-image";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LightboxModal, LightboxImageItem } from "@/components/gallery/LightboxModal";
+import { getMosaicSpanClass } from "@/components/gallery/mosaic-utils";
+import { cn } from "@/lib/utils";
 
 interface GalleryImage {
   id: string;
@@ -11,6 +18,10 @@ interface GalleryImage {
   category: string;
   title: string | null;
   title_bn: string | null;
+  description?: string | null;
+  description_bn?: string | null;
+  width?: number | null;
+  height?: number | null;
   created_at?: string;
 }
 
@@ -27,6 +38,7 @@ export default function FeaturedGallery({
 }: FeaturedGalleryProps) {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const isBn = locale === "bn";
 
   const fetchFeaturedImages = useCallback(async () => {
@@ -65,43 +77,110 @@ export default function FeaturedGallery({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div
+        data-testid="featured-gallery-skeleton"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        {Array.from({ length: limit }).map((_, index) => (
+          <div
+            key={index}
+            className={cn(
+              "relative overflow-hidden rounded-xl border border-border/50 bg-card",
+              getMosaicSpanClass(index, "mosaic")
+            )}
+          >
+            <ImageSkeleton />
+          </div>
+        ))}
       </div>
     );
   }
 
   if (images.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        {isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
-      </div>
+      <EmptyState
+        icon={Camera}
+        title={isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
+        description={
+          isBn
+            ? "ফিচার্ড গ্যালারিতে শীঘ্রই নতুন ছবি আপলোড করা হবে।"
+            : "Featured photos will be uploaded soon."
+        }
+      />
     );
   }
 
+  const selectedIndex = selectedImage
+    ? images.findIndex((img) => img.id === selectedImage.id)
+    : -1;
+
+  const handlePrev = () => {
+    if (selectedIndex === -1) return;
+    const prevIndex = (selectedIndex - 1 + images.length) % images.length;
+    setSelectedImage(images[prevIndex]);
+  };
+
+  const handleNext = () => {
+    if (selectedIndex === -1) return;
+    const nextIndex = (selectedIndex + 1) % images.length;
+    setSelectedImage(images[nextIndex]);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((image) => (
+      {/* Bento / Mosaic Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {images.map((image, index) => (
           <div
             key={image.id}
-            className="group relative overflow-hidden rounded-lg border bg-card aspect-square"
+            className={cn(
+              "group relative overflow-hidden rounded-xl border border-border/50 bg-card cursor-pointer transition-all hover:shadow-xl",
+              getMosaicSpanClass(index, "mosaic")
+            )}
+            onClick={() => setSelectedImage(image)}
           >
             <Image
               src={image.url}
               alt={isBn ? image.title_bn || image.title || "" : image.title || image.title_bn || ""}
               fill
-              className="object-cover transition-transform group-hover:scale-110"
-              sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-              <p className="text-white text-sm font-medium truncate w-full">
-                {isBn ? image.title_bn || image.title : image.title || image.title_bn}
-              </p>
+
+            {/* Hover Glass Caption Overlay */}
+            <div className="glass-interactive absolute inset-x-2 bottom-2 rounded-xl p-3 sm:p-4 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out backdrop-blur-md bg-black/60 border border-white/20 shadow-lg flex flex-col justify-end">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center gap-1.5">
+                    <Badge variant="glow" className="text-[10px] py-0 px-2 uppercase">
+                      {image.category}
+                    </Badge>
+                  </div>
+                  <p className="text-white text-sm font-semibold truncate">
+                    {isBn ? image.title_bn || image.title : image.title || image.title_bn}
+                  </p>
+                </div>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm">
+                  <ZoomIn className="h-4 w-4" />
+                </div>
+              </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Lightbox Modal */}
+      {selectedImage && (
+        <LightboxModal
+          image={selectedImage as LightboxImageItem}
+          locale={locale}
+          currentIndex={selectedIndex}
+          totalCount={images.length}
+          onClose={() => setSelectedImage(null)}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
+      )}
 
       {/* View All Button */}
       <div className="text-center">
@@ -109,7 +188,7 @@ export default function FeaturedGallery({
           <Link href={`/${locale}/gallery`}>
             {isBn ? "সব ছবি দেখুন" : "View All Images"}
             <svg
-              className="h-4 w-4"
+              className="h-4 w-4 ml-1"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

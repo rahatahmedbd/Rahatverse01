@@ -20,6 +20,35 @@ export { AuroraDivider } from "./aurora-divider";
 
 export { Skeleton, CardSkeleton, PageLoader } from "./skeleton";
 
+export { BlurImage, ImageSkeleton } from "./blur-image";
+export type { BlurImageProps } from "./blur-image";
+
+export { CloudinaryImage } from "./cloudinary-image";
+export type { CloudinaryImageProps } from "./cloudinary-image";
+
+// Phase G — State Beautification (Empty, Loading, Feedback states)
+export { EmptyState } from "./empty-state";
+export type { EmptyStateProps, EmptyStateAction } from "./empty-state";
+
+export {
+  LoadingSpinner,
+  SectionLoader,
+  TableSkeleton,
+  ListSkeleton,
+} from "./loading-state";
+export type {
+  LoadingSpinnerProps,
+  SectionLoaderProps,
+  TableSkeletonProps,
+  ListSkeletonProps,
+} from "./loading-state";
+
+export { FeedbackAlert } from "./feedback-alert";
+export type {
+  FeedbackAlertProps,
+  FeedbackAlertVariant,
+} from "./feedback-alert";
+
 // Phase 31 — Premium form field system
 export {
   FormField,

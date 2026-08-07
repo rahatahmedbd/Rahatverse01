@@ -2,8 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { X, ZoomIn } from "lucide-react";
+import { ZoomIn, LayoutGrid, Grid, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ImageSkeleton } from "@/components/ui/blur-image";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LightboxModal, LightboxImageItem } from "@/components/gallery/LightboxModal";
+import { getMosaicSpanClass, GalleryLayoutMode } from "@/components/gallery/mosaic-utils";
+import { cn } from "@/lib/utils";
 
 interface GalleryImage {
   id: string;
@@ -27,6 +33,7 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [layoutMode, setLayoutMode] = useState<GalleryLayoutMode>("mosaic");
   const isBn = locale === "bn";
 
   const categories = [
@@ -69,57 +76,140 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
     return img.category === selectedCategory;
   });
 
+  const selectedIndex = selectedImage
+    ? filteredImages.findIndex((img) => img.id === selectedImage.id)
+    : -1;
+
+  const handlePrev = () => {
+    if (selectedIndex === -1) return;
+    const prevIndex = (selectedIndex - 1 + filteredImages.length) % filteredImages.length;
+    setSelectedImage(filteredImages[prevIndex]);
+  };
+
+  const handleNext = () => {
+    if (selectedIndex === -1) return;
+    const nextIndex = (selectedIndex + 1) % filteredImages.length;
+    setSelectedImage(filteredImages[nextIndex]);
+  };
+
   return (
     <div className="space-y-6">
-      {/* Category Filter */}
-      <div className="flex flex-wrap gap-2">
-        {categories.map((cat) => (
+      {/* Category Filter & Layout Mode Toolbar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-2">
+          {categories.map((cat) => (
+            <Button
+              key={cat.value}
+              variant={selectedCategory === cat.value ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCategory(cat.value)}
+            >
+              {cat.label}
+            </Button>
+          ))}
+        </div>
+
+        {/* Layout Mode Toggle (Mosaic vs Grid) */}
+        <div className="flex items-center gap-1 rounded-full border border-border bg-card p-1">
           <Button
-            key={cat.value}
-            variant={selectedCategory === cat.value ? "default" : "outline"}
+            variant={layoutMode === "mosaic" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setSelectedCategory(cat.value)}
+            onClick={() => setLayoutMode("mosaic")}
+            className="h-8 px-3 rounded-full text-xs"
+            aria-label={isBn ? "মোসাইক ভিউ" : "Mosaic view"}
           >
-            {cat.label}
+            <LayoutGrid className="h-3.5 w-3.5 mr-1" />
+            {isBn ? "মোসাইক" : "Mosaic"}
           </Button>
-        ))}
+          <Button
+            variant={layoutMode === "grid" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setLayoutMode("grid")}
+            className="h-8 px-3 rounded-full text-xs"
+            aria-label={isBn ? "গ্রিড ভিউ" : "Grid view"}
+          >
+            <Grid className="h-3.5 w-3.5 mr-1" />
+            {isBn ? "গ্রিড" : "Grid"}
+          </Button>
+        </div>
       </div>
 
-      {/* Gallery Grid */}
+      {/* Gallery Grid / Mosaic */}
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div
+          data-testid="gallery-skeleton-grid"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+        >
+          {Array.from({ length: 8 }).map((_, idx) => (
+            <div
+              key={idx}
+              className={cn(
+                "relative overflow-hidden rounded-xl border border-border/50 bg-card",
+                getMosaicSpanClass(idx, layoutMode)
+              )}
+            >
+              <ImageSkeleton />
+            </div>
+          ))}
         </div>
       ) : filteredImages.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          {isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
-        </div>
+        <EmptyState
+          icon={Camera}
+          title={isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
+          description={
+            selectedCategory === "all"
+              ? isBn
+                ? "এই মুহূর্তে গ্যালারিতে কোনো ছবি আপলোড করা হয়নি।"
+                : "No photos have been uploaded to the gallery yet."
+              : isBn
+                ? "এই ক্যাটাগরির জন্য কোনো ছবি পাওয়া যায়নি। অন্য ক্যাটাগরি চেষ্টা করুন।"
+                : "No photos found for this category. Please try another category."
+          }
+          action={
+            selectedCategory !== "all"
+              ? {
+                  label: isBn ? "সব ছবি দেখুন" : "View All Categories",
+                  onClick: () => setSelectedCategory("all"),
+                }
+              : undefined
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredImages.map((image) => (
+          {filteredImages.map((image, index) => (
             <div
               key={image.id}
-              className="group relative overflow-hidden rounded-lg border bg-card cursor-pointer transition-all hover:shadow-lg"
+              className={cn(
+                "group relative overflow-hidden rounded-xl border border-border/50 bg-card cursor-pointer transition-all hover:shadow-xl",
+                getMosaicSpanClass(index, layoutMode)
+              )}
               onClick={() => setSelectedImage(image)}
             >
-              <div className="aspect-square relative">
-                <Image
-                  src={image.url}
-                  alt={isBn ? image.title_bn || image.title || "" : image.title || image.title_bn || ""}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-110"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-              </div>
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white text-sm font-medium truncate">
+              <Image
+                src={image.url}
+                alt={isBn ? image.title_bn || image.title || "" : image.title || image.title_bn || ""}
+                fill
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
+
+              {/* Hover Glass Caption Overlay */}
+              <div className="glass-interactive absolute inset-x-2 bottom-2 rounded-xl p-3 sm:p-4 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out backdrop-blur-md bg-black/60 border border-white/20 shadow-lg flex flex-col justify-end">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-center gap-1.5">
+                      <Badge variant="glow" className="text-[10px] py-0 px-2 uppercase">
+                        {image.category}
+                      </Badge>
+                    </div>
+                    <p className="text-white text-sm font-semibold truncate">
                       {isBn ? image.title_bn || image.title : image.title || image.title_bn}
                     </p>
-                    <p className="text-white/70 text-xs">{image.category}</p>
                   </div>
-                  <ZoomIn className="text-white h-5 w-5" />
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm">
+                    <ZoomIn className="h-4 w-4" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -129,41 +219,15 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
 
       {/* Lightbox Modal */}
       {selectedImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <div className="relative max-w-5xl max-h-[90vh] w-full" onClick={(e) => e.stopPropagation()}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute -top-12 right-0 text-white hover:bg-white/10"
-              onClick={() => setSelectedImage(null)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
-            <div className="relative w-full h-full flex items-center justify-center">
-              <Image
-                src={selectedImage.url}
-                alt={isBn ? selectedImage.title_bn || selectedImage.title || "" : selectedImage.title || selectedImage.title_bn || ""}
-                width={selectedImage.width || 1200}
-                height={selectedImage.height || 800}
-                className="max-w-full max-h-[80vh] object-contain"
-                priority
-              />
-            </div>
-            <div className="mt-4 text-center">
-              <h3 className="text-white text-xl font-semibold">
-                {isBn ? selectedImage.title_bn || selectedImage.title : selectedImage.title || selectedImage.title_bn}
-              </h3>
-              {(isBn ? selectedImage.description_bn : selectedImage.description) && (
-                <p className="text-white/70 mt-2">
-                  {isBn ? selectedImage.description_bn : selectedImage.description}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+        <LightboxModal
+          image={selectedImage as LightboxImageItem}
+          locale={locale}
+          currentIndex={selectedIndex}
+          totalCount={filteredImages.length}
+          onClose={() => setSelectedImage(null)}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       )}
     </div>
   );

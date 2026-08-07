@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Heart, Mail, Phone, MapPin } from "lucide-react";
 import { GlowEffect } from "@/components/animations/GlowEffect";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
+import { LighthouseScoreBadge } from "@/components/seo/LighthouseScoreBadge";
 
 const socialLinks = [
   { href: "https://www.facebook.com/rahat.ahmed.948943", label: "Facebook", symbol: "f" },
@@ -119,6 +120,7 @@ export function EnhancedFooter() {
         <div className="mt-12 border-t border-border/50 pt-6">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-sm text-muted-foreground">© {currentYear} RahatVerse. {t("rights")}</p>
+            <LighthouseScoreBadge compact locale={locale} />
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               {t("madeWith")} <Heart className="h-4 w-4 fill-red-500 text-red-500" /> {t("by")} Rahat Ahmed
             </p>

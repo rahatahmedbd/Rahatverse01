@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,56 +9,54 @@ import { Counter } from "@/components/animations/Counter";
 import { FadeInUp, FadeInLeft, FadeInRight } from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
 import { motion } from "framer-motion";
-import {
-  Droplets,
-  Users,
-  Heart,
-  Siren,
-  MessageCircle,
-  Database,
-  ExternalLink,
-} from "lucide-react";
+import { Droplets, Siren, MapPin, MessageCircle, ExternalLink, Loader2 } from "lucide-react";
+import { DEFAULT_EXPERIENCE_CONFIG, validateExperienceConfig } from "@/lib/experience/config";
+import { ExperienceIcon } from "@/lib/experience/icons";
+import type { BloodStat, ExperienceConfig } from "@/types/experience";
 
-// ── Blood Society Section ──────────────────────────────
+// ── Blood Society Section (DB-driven) ──────────────────
 interface BloodSocietySectionProps {
   locale?: string;
 }
 
 export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps) {
   const isBn = locale === "bn";
+  const [config, setConfig] = useState<ExperienceConfig>(DEFAULT_EXPERIENCE_CONFIG);
+  const [loading, setLoading] = useState(true);
 
-  const activities = [
-    {
-      icon: Users,
-      title: isBn ? "রক্তদাতা ব্যবস্থাপনা" : "Donor Management",
-      description: isBn ? "জরুরি মুহূর্তে দ্রুত রক্তদাতা খুঁজে পাওয়া নিশ্চিত করা" : "Ensuring quick access to blood donors in emergencies",
-    },
-    {
-      icon: MessageCircle,
-      title: isBn ? "স্বেচ্ছাসেবক সমন্বয়" : "Volunteer Coordination",
-      description: isBn ? "সংগঠনের স্বেচ্ছাসেবকদের কার্যক্রম পরিচালনা ও প্রশিক্ষণ" : "Managing and training organization volunteers",
-    },
-    {
-      icon: Heart,
-      title: isBn ? "সচেতনতা প্রচারাভিযান" : "Awareness Campaigns",
-      description: isBn ? "রক্তদানের গুরুত্ব সম্পর্কে জনসাধারণকে সচেতন করা" : "Raising public awareness about blood donation",
-    },
-    {
-      icon: Siren,
-      title: isBn ? "জরুরি সহায়তা" : "Emergency Support",
-      description: isBn ? "২৪/৭ জরুরি রক্তের প্রয়োজনে সহায়তা প্রদান" : "24/7 emergency blood assistance",
-    },
-    {
-      icon: Droplets,
-      title: isBn ? "ব্লাড ক্যাম্প" : "Blood Camps",
-      description: isBn ? "নিয়মিত রক্তদান ক্যাম্প আয়োজন ও পরিচালনা" : "Regular blood donation camps organization",
-    },
-    {
-      icon: Database,
-      title: isBn ? "ডোনার ডেটাবেস" : "Donor Database",
-      description: isBn ? "নিয়মিত দাতাদের তথ্য সংগ্রহ ও ব্যবস্থাপনা" : "Regular donor information collection and management",
-    },
-  ];
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/experience-config", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        const validated = validateExperienceConfig((json as { data?: unknown } | null)?.data);
+        if (validated) setConfig(validated);
+      })
+      .catch(() => {
+        /* fall back to defaults */
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center gap-2 p-10 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        {isBn ? "লোড হচ্ছে..." : "Loading..."}
+      </div>
+    );
+  }
+
+  const blood = config.blood;
+  const { section, stats, activities, cta, emergency, roleBadgeBn, roleBadgeEn, roleTitleBn, roleTitleEn, roleBodyBn, roleBodyEn } = blood;
+  const activitiesSectionTitleBn = blood.activitiesSectionTitleBn;
+  const activitiesSectionTitleEn = blood.activitiesSectionTitleEn;
 
   return (
     <section className="relative py-20 overflow-hidden">
@@ -69,14 +68,10 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
 
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
-          badge={isBn ? "🩸 রক্তই জীবন" : "🩸 Blood is Life"}
-          title="Shantichakra Blood Society"
-          titleBn="শান্তিচক্র ব্লাড সোসাইটি"
-          subtitle={
-            isBn
-              ? "সুনামগঞ্জ ভিত্তিক একটি স্বেচ্ছাসেবী রক্তদান সংগঠন — যেখানে প্রতিটি ফোঁটা রক্ত একটি জীবন বাঁচায়"
-              : "A voluntary blood donation organization based in Sunamganj"
-          }
+          badge={isBn ? section.badgeBn : section.badgeEn}
+          title={isBn ? section.titleBn : section.titleEn}
+          titleBn={isBn ? section.titleBn : section.titleEn}
+          subtitle={isBn ? section.subtitleBn : section.subtitleEn}
           locale={locale}
         />
 
@@ -87,41 +82,61 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
               <GlassCard className="h-full border-l-4 border-l-red-500/50">
                 <div className="mb-4">
                   <Badge variant="warning" className="mb-3">
-                    {isBn ? "আমার ভূমিকা" : "My Role"}
+                    {isBn ? roleBadgeBn : roleBadgeEn}
                   </Badge>
                   <h3 className="text-xl font-bold bn">
-                    {isBn ? "সহ-প্রতিষ্ঠাতা ও সাধারণ সম্পাদক" : "Co-Founder & General Secretary"}
+                    {isBn ? roleTitleBn : roleTitleEn}
                   </h3>
                 </div>
 
                 <p className="text-muted-foreground bn leading-relaxed">
-                  {isBn
-                    ? "২০২৫ সালে শান্তিচক্র ব্লাড সোসাইটি সুনামগঞ্জ প্রতিষ্ঠায় সক্রিয় ভূমিকা রাখি এবং বর্তমানে সাধারণ সম্পাদক হিসেবে রক্তদাতা ব্যবস্থাপনা, স্বেচ্ছাসেবক সমন্বয় ও সচেতনতামূলক কার্যক্রম পরিচালনার দায়িত্ব পালন করছি।"
-                    : "Played an active role in establishing Shantichakra Blood Society Sunamganj in 2025, currently serving as General Secretary managing donor coordination, volunteer management, and awareness campaigns."}
+                  {isBn ? roleBodyBn : roleBodyEn}
                 </p>
 
                 {/* Stats */}
                 <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  {[
-                    { value: 4, suffix: "", label: isBn ? "বার রক্তদান" : "Donations" },
-                    { value: "A+", label: isBn ? "আমার রক্তের গ্রুপ" : "My Blood Group" },
-                    { value: 2025, suffix: "", label: isBn ? "প্রতিষ্ঠার সাল" : "Founded" },
-                    { value: 100, suffix: "+", label: isBn ? "জীবন বাঁচানোর অঙ্গীকার" : "Lives Committed" },
-                  ].map((stat) => (
-                    <div key={stat.label} className="text-center">
-                      {typeof stat.value === "number" ? (
-                        <Counter
-                          to={stat.value}
-                          suffix={stat.suffix}
-                          className="text-2xl font-bold text-red-400"
-                        />
-                      ) : (
-                        <p className="text-2xl font-bold text-red-400">{stat.value}</p>
-                      )}
-                      <p className="mt-1 text-xs text-muted-foreground bn">{stat.label}</p>
-                    </div>
+                  {stats.map((stat) => (
+                    <StatCell key={stat.id} stat={stat} isBn={isBn} />
                   ))}
                 </div>
+
+                {/* Emergency hotline */}
+                {emergency.hotlineNumber && (
+                  <div className="mt-6 flex flex-col gap-3 rounded-lg border border-red-500/20 bg-red-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <Siren className="h-5 w-5 shrink-0 text-red-400" />
+                      <div>
+                        <p className="text-sm font-semibold bn">{isBn ? emergency.hotlineBn : emergency.hotlineEn}</p>
+                        <p className="text-sm font-mono text-red-400">{emergency.hotlineNumber}</p>
+                      </div>
+                    </div>
+                    {emergency.whatsappLink && (
+                      <Button size="sm" variant="outline" asChild>
+                        <a href={emergency.whatsappLink} target="_blank" rel="noopener noreferrer">
+                          <MessageCircle className="mr-1 h-4 w-4" />
+                          {isBn ? emergency.whatsappLabelBn : emergency.whatsappLabelEn}
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {/* Coverage areas */}
+                {emergency.coverageAreas && emergency.coverageAreas.length > 0 && (
+                  <div className="mt-4">
+                    <p className="mb-2 flex items-center gap-1 text-xs font-semibold text-muted-foreground bn">
+                      <MapPin className="h-3 w-3" />
+                      {isBn ? emergency.coverageTitleBn : emergency.coverageTitleEn}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {emergency.coverageAreas.map((area) => (
+                        <Badge key={area.id} variant="outline" className="text-[10px]">
+                          {isBn ? area.nameBn : area.nameEn}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </GlassCard>
             </FadeInLeft>
           </div>
@@ -137,15 +152,13 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
                 >
                   <Droplets className="h-8 w-8 text-red-400" />
                 </motion.div>
-                <h4 className="text-lg font-bold bn">{isBn ? "রক্তদানে আগ্রহী?" : "Interested in Donating?"}</h4>
+                <h4 className="text-lg font-bold bn">{isBn ? cta.headingBn : cta.headingEn}</h4>
                 <p className="mt-2 text-sm text-muted-foreground bn">
-                  {isBn
-                    ? "আপনার একটু সাহায্য কারো পরিবারের হাসি ফিরিয়ে আনতে পারে।"
-                    : "Your help can bring a smile back to someone's family."}
+                  {isBn ? cta.bodyBn : cta.bodyEn}
                 </p>
                 <Button variant="gradient" size="lg" className="mt-4 w-full" asChild>
-                  <a href="https://www.facebook.com/share/g/192g4S4brD/" target="_blank" rel="noopener noreferrer">
-                    {isBn ? "ফেসবুক গ্রুপে জয়েন করুন" : "Join Facebook Group"}
+                  <a href={cta.buttonHref} target="_blank" rel="noopener noreferrer">
+                    {isBn ? cta.buttonLabelBn : cta.buttonLabelEn}
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 </Button>
@@ -155,13 +168,11 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
             <FadeInRight delay={0.2}>
               <GlassCard className="text-center">
                 <p className="text-sm italic text-muted-foreground bn">
-                  {isBn
-                    ? "নিশ্চয়ই আমরা আল্লাহর জন্য এবং নিশ্চয়ই আমরা তাঁর দিকেই ফিরে যাব"
-                    : "Indeed we belong to Allah, and indeed to Him we will return"}
+                  {isBn ? cta.duaBn : cta.duaEn}
                 </p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  ۞ ইন্না লিল্লাহি ওয়া ইন্না ইলাইহি রাজিউন ۞
-                </p>
+                {cta.duaArabic && (
+                  <p className="mt-2 text-xs text-muted-foreground">{cta.duaArabic}</p>
+                )}
               </GlassCard>
             </FadeInRight>
           </div>
@@ -171,21 +182,23 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
         <div className="mt-12">
           <FadeInUp>
             <h3 className="mb-6 text-center text-xl font-bold bn">
-              {isBn ? "আমাদের কার্যক্রম" : "Our Activities"}
+              {isBn ? activitiesSectionTitleBn : activitiesSectionTitleEn}
             </h3>
           </FadeInUp>
 
           <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {activities.map((activity) => (
-              <StaggerItem key={activity.title}>
+              <StaggerItem key={activity.id}>
                 <GlassCard className="h-full">
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-500/10">
-                      <activity.icon className="h-4 w-4 text-red-400" />
+                      <ExperienceIcon name={activity.icon} className="h-4 w-4 text-red-400" />
                     </div>
                     <div>
-                      <h4 className="font-semibold bn">{activity.title}</h4>
-                      <p className="mt-1 text-xs text-muted-foreground bn">{activity.description}</p>
+                      <h4 className="font-semibold bn">{isBn ? activity.titleBn : activity.titleEn}</h4>
+                      <p className="mt-1 text-xs text-muted-foreground bn">
+                        {isBn ? activity.descriptionBn : activity.descriptionEn}
+                      </p>
                     </div>
                   </div>
                 </GlassCard>
@@ -195,5 +208,33 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
         </div>
       </div>
     </section>
+  );
+}
+
+function StatCell({ stat, isBn }: { stat: BloodStat; isBn: boolean }) {
+  const display =
+    stat.value !== null && stat.value !== undefined
+      ? String(stat.value)
+      : stat.text;
+  return (
+    <div className="text-center">
+      {stat.value !== null && stat.value !== undefined ? (
+        <Counter
+          to={stat.value}
+          suffix={stat.suffix ?? ""}
+          className="text-2xl font-bold text-red-400"
+        />
+      ) : (
+        <p className="text-2xl font-bold text-red-400">
+          {stat.text}
+          {stat.suffix ?? ""}
+        </p>
+      )}
+      <p className="mt-1 text-xs text-muted-foreground bn">{isBn ? stat.labelBn : stat.labelEn}</p>
+      {/* fallback if Counter doesn't render value for odd cases */}
+      {display === "" && (
+        <p className="text-2xl font-bold text-red-400">0</p>
+      )}
+    </div>
   );
 }

@@ -146,6 +146,18 @@ See the **[docs/](docs/README.md)** folder:
 | 30 | **Final Testing & Documentation** | Testing suite, docs, optimization ✅ |
 | Custom 1–2 | 100% Admin Control Foundation | Core access/settings and Hero CMS ✅ |
 | Custom 3 | **About, Education & Achievements CMS** | Bilingual biography, timeline, awards, profile media ✅ |
+| Custom 4 | **Services & Interactive Pricing CMS** | Service cards, website types, packages (BDT/USD), comparison matrix, process timeline ✅ |
+| Custom 5 | **Client Orders, Kanban & Payments** | Wizard config CMS, Kanban pipeline, admin notes/files, payment tracking ✅ |
+| Custom 6 | **Experience, Blood Society & Memorial CMS** | Experience timeline, blood-society command hub, incoming blood requests, memorial tribute ✅ |
+| Custom 7 | **Media Library, Gallery & Video CMS** | Cloudinary media manager, album gallery CMS, video showcase CMS ✅ |
+| Custom 8 | **Bilingual Blog & Comment Moderation** | Blog settings/categories CMS, admin-reply comment moderation ✅ |
+| Custom 9 | **Contact, Bookings & Testimonials** | Messages inbox, booking calendar, testimonial manager, contact settings CMS ✅ |
+| Custom 10 | **Link Hub, Tools & Resume CMS** | Link cards + click tracking, tool recommendations, CV manager ✅ |
+| Custom 11 | **Newsletter & Email CMS** | Newsletter section/topics CMS, topic-preference signup ✅ |
+| Custom 12 | **Theme, XP & Audio CMS** | Theme presets, XP rules/levels, ambient audio, effect toggles ✅ |
+| Custom 13 | **Search, FAQ & Legal CMS** | Search weights, FAQ accordion CMS, legal policy pages ✅ |
+| Custom 14 | **Analytics & Vitals CMS** | Telemetry toggle, dashboard panels, Core Web Vitals thresholds ✅ |
+| Custom 15 | **Global Settings & Maintenance CMS** | Announcement banners, footer, maintenance mode ✅ |
 
 ## 👤 Author
 

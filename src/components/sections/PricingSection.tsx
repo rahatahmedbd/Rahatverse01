@@ -1,95 +1,66 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/sections/SectionTitle";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
-import { Check, ArrowRight, Sparkles, Star } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Star, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
+import type { ServicesConfig } from "@/types/services";
 
-// ── Pricing Section ────────────────────────────────────
+// ── Pricing Section (DB-driven) ────────────────────────
 interface PricingSectionProps {
   locale?: string;
 }
 
-interface Package {
-  id: string;
-  name: string;
-  nameBn: string;
-  price: number;
-  currency: string;
-  description: string;
-  descriptionBn: string;
-  features: string[];
-  featuresBn: string[];
-  popular?: boolean;
-}
-
-const packages: Package[] = [
-  {
-    id: "basic",
-    name: "Basic",
-    nameBn: "বেসিক",
-    price: 5000,
-    currency: "৳",
-    description: "Perfect for personal portfolio sites",
-    descriptionBn: "ব্যক্তিগত পোর্টফোলিও সাইটের জন্য",
-    features: ["1-3 Pages", "Responsive Design", "Contact Form", "Basic SEO", "1 Week Delivery"],
-    featuresBn: ["১-৩ পেজ", "রেসপনসিভ ডিজাইন", "কন্টাক্ট ফর্ম", "বেসিক SEO", "১ সপ্তাহ ডেলিভারি"],
-  },
-  {
-    id: "standard",
-    name: "Standard",
-    nameBn: "স্ট্যান্ডার্ড",
-    price: 15000,
-    currency: "৳",
-    description: "Great for small businesses",
-    descriptionBn: "ছোট ব্যবসার জন্য আদর্শ",
-    features: ["5-10 Pages", "Responsive Design", "Blog Section", "Advanced SEO", "Contact + Map", "2 Week Delivery"],
-    featuresBn: ["৫-১০ পেজ", "রেসপনসিভ ডিজাইন", "ব্লগ সেকশন", "অ্যাডভান্সড SEO", "কন্টাক্ট + ম্যাপ", "২ সপ্তাহ ডেলিভারি"],
-    popular: true,
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    nameBn: "প্রিমিয়াম",
-    price: 30000,
-    currency: "৳",
-    description: "Full e-commerce solution",
-    descriptionBn: "সম্পূর্ণ ই-কমার্স সলিউশন",
-    features: ["Unlimited Pages", "E-Commerce", "Payment Gateway", "Admin Dashboard", "Full SEO", "3 Week Delivery"],
-    featuresBn: ["আনলিমিটেড পেজ", "ই-কমার্স", "পেমেন্ট গেটওয়ে", "অ্যাডমিন ড্যাশবোর্ড", "ফুল SEO", "৩ সপ্তাহ ডেলিভারি"],
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    nameBn: "এন্টারপ্রাইজ",
-    price: 0,
-    currency: "৳",
-    description: "Custom solution for your needs",
-    descriptionBn: "আপনার প্রয়োজনে কাস্টম সলিউশন",
-    features: ["Everything in Premium", "Custom Features", "Priority Support", "Monthly Maintenance", "Training Session"],
-    featuresBn: ["প্রিমিয়ামের সবকিছু", "কাস্টম ফিচার", "প্রায়োরিটি সাপোর্ট", "মাসিক মেইনটেন্যান্স", "ট্রেনিং সেশন"],
-  },
-];
-
 export function PricingSection({ locale = "bn" }: PricingSectionProps) {
   const isBn = locale === "bn";
+  const [config, setConfig] = useState<ServicesConfig>(DEFAULT_SERVICES_CONFIG);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/services-config", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        const validated = validateServicesConfig((json as { data?: unknown } | null)?.data);
+        if (validated) setConfig(validated);
+      })
+      .catch(() => {
+        /* fall back to defaults */
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center gap-2 p-10 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        {isBn ? "প্যাকেজ লোড হচ্ছে..." : "Loading packages..."}
+      </div>
+    );
+  }
+
+  const packages = config.packages.filter((pkg) => pkg.visible);
 
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
-          badge={isBn ? "💰 প্যাকেজ সমূহ" : "💰 Pricing Packages"}
-          title="Website Packages"
-          titleBn="ওয়েবসাইট প্যাকেজ"
-          subtitle={
-            isBn
-              ? "আপনার প্রয়োজন অনুযায়ী প্যাকেজ বেছে নিন"
-              : "Choose a package that fits your needs"
-          }
+          badge={isBn ? config.pricingSection.badgeBn : config.pricingSection.badgeEn}
+          title={isBn ? config.pricingSection.titleBn : config.pricingSection.titleEn}
+          titleBn={isBn ? config.pricingSection.titleBn : config.pricingSection.titleEn}
+          subtitle={isBn ? config.pricingSection.subtitleBn : config.pricingSection.subtitleEn}
           locale={locale}
         />
 
@@ -111,15 +82,18 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
                 )}
 
                 <div className="mb-4 text-center">
-                  <h3 className="text-lg font-bold">
-                    {isBn ? pkg.nameBn : pkg.name}
-                  </h3>
+                  <h3 className="text-lg font-bold">{isBn ? pkg.nameBn : pkg.nameEn}</h3>
                   <div className="mt-3">
-                    {pkg.price > 0 ? (
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-sm text-muted-foreground">{pkg.currency}</span>
-                        <span className="text-4xl font-bold text-primary">
-                          {pkg.price.toLocaleString()}
+                    {pkg.priceBdt > 0 ? (
+                      <div className="flex flex-col items-center gap-0.5">
+                        <div className="flex items-baseline justify-center gap-1">
+                          <span className="text-sm text-muted-foreground">৳</span>
+                          <span className="text-4xl font-bold text-primary">
+                            {pkg.priceBdt.toLocaleString()}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {isBn ? "প্রায়" : "~"} ${pkg.priceUsd.toLocaleString()} USD
                         </span>
                       </div>
                     ) : (
@@ -129,12 +103,12 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
                     )}
                   </div>
                   <p className="mt-2 text-sm text-muted-foreground bn">
-                    {isBn ? pkg.descriptionBn : pkg.description}
+                    {isBn ? pkg.descriptionBn : pkg.descriptionEn}
                   </p>
                 </div>
 
                 <div className="mb-6 flex-1 space-y-2">
-                  {(isBn ? pkg.featuresBn : pkg.features).map((feature) => (
+                  {(isBn ? pkg.featuresBn : pkg.featuresEn).map((feature) => (
                     <div key={feature} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 shrink-0 text-green-400" />
                       <span className="bn">{feature}</span>
@@ -148,7 +122,7 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
                   asChild
                 >
                   <Link href={`/${locale}/order?package=${pkg.id}`}>
-                    {isBn ? "অর্ডার করুন" : "Order Now"}
+                    {isBn ? pkg.ctaBn : pkg.ctaEn}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -156,6 +130,62 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
             </StaggerItem>
           ))}
         </StaggerContainer>
+
+        {/* Side-by-side comparison matrix */}
+        {config.comparisonRows.length > 0 && packages.length > 0 && (
+          <FadeInUp delay={0.2}>
+            <div className="mt-16">
+              <SectionTitle
+                badge={isBn ? config.comparisonSection.badgeBn : config.comparisonSection.badgeEn}
+                title={isBn ? config.comparisonSection.titleBn : config.comparisonSection.titleEn}
+                titleBn={isBn ? config.comparisonSection.titleBn : config.comparisonSection.titleEn}
+                subtitle={isBn ? config.comparisonSection.subtitleBn : config.comparisonSection.subtitleEn}
+                locale={locale}
+              />
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] border-collapse text-sm">
+                  <thead>
+                    <tr>
+                      <th className="p-3 text-left text-muted-foreground">
+                        {isBn ? "বৈশিষ্ট্য" : "Feature"}
+                      </th>
+                      {packages.map((pkg) => (
+                        <th
+                          key={pkg.id}
+                          className={`p-3 text-center font-semibold ${
+                            pkg.popular ? "text-primary" : ""
+                          }`}
+                        >
+                          {isBn ? pkg.nameBn : pkg.nameEn}
+                          {pkg.popular && (
+                            <span className="ml-1 align-middle text-[10px] text-primary">★</span>
+                          )}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {config.comparisonRows.map((row) => (
+                      <tr
+                        key={row.id}
+                        className="border-t border-border/50 transition-colors hover:bg-accent/10"
+                      >
+                        <td className="p-3 font-medium">
+                          {isBn ? row.featureBn : row.featureEn}
+                        </td>
+                        {packages.map((pkg) => (
+                          <td key={pkg.id} className="p-3 text-center">
+                            {row.values?.[pkg.id] ?? "—"}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </FadeInUp>
+        )}
 
         {/* Custom quote */}
         <FadeInUp delay={0.3}>

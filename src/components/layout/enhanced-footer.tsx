@@ -6,6 +6,7 @@ import { Heart, Mail, Phone, MapPin } from "lucide-react";
 import { GlowEffect } from "@/components/animations/GlowEffect";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { LighthouseScoreBadge } from "@/components/seo/LighthouseScoreBadge";
+import { useGlobalConfig } from "@/hooks/useGlobalConfig";
 
 const socialLinks = [
   { href: "https://www.facebook.com/rahat.ahmed.948943", label: "Facebook", symbol: "f" },
@@ -18,6 +19,11 @@ export function EnhancedFooter() {
   const locale = useLocale();
   const t = useTranslations("footer");
   const currentYear = new Date().getFullYear();
+  const isBn = locale === "bn";
+  const globalConfig = useGlobalConfig();
+  const footer = globalConfig.footer;
+  const copyrightText = (isBn ? footer.copyrightBn : footer.copyrightEn).replace("{year}", String(currentYear));
+  const madeWithText = isBn ? footer.madeWithBn : footer.madeWithEn;
 
   const quickLinks = [
     { href: `/${locale}/about`, label: t("about") },
@@ -92,21 +98,21 @@ export function EnhancedFooter() {
             <h4 className="mb-4 font-semibold text-foreground">{t("contact")}</h4>
             <ul className="space-y-3">
               <li>
-                <a href="mailto:rahatbd20505@gmail.com" className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary">
+                <a href={`mailto:${footer.businessEmail}`} className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary">
                   <Mail className="h-4 w-4" />
-                  <span>rahatbd20505@gmail.com</span>
+                  <span>{footer.businessEmail}</span>
                 </a>
               </li>
               <li>
-                <a href="https://wa.me/8801626224878" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary">
+                <a href={footer.businessWhatsapp} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary">
                   <Phone className="h-4 w-4" />
-                  <span>+880 1626-224878</span>
+                  <span>{footer.businessPhone}</span>
                 </a>
               </li>
               <li>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  <span>সুনামগঞ্জ, বাংলাদেশ</span>
+                  <span>{isBn ? footer.locationBn : footer.locationEn}</span>
                 </div>
               </li>
             </ul>
@@ -119,10 +125,10 @@ export function EnhancedFooter() {
 
         <div className="mt-12 border-t border-border/50 pt-6">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <p className="text-sm text-muted-foreground">© {currentYear} RahatVerse. {t("rights")}</p>
+            <p className="text-sm text-muted-foreground">{copyrightText}</p>
             <LighthouseScoreBadge compact locale={locale} />
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
-              {t("madeWith")} <Heart className="h-4 w-4 fill-red-500 text-red-500" /> {t("by")} Rahat Ahmed
+              {madeWithText} <Heart className="h-4 w-4 fill-red-500 text-red-500" /> {t("by")} Rahat Ahmed
             </p>
           </div>
         </div>

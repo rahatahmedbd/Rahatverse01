@@ -54,10 +54,18 @@ next unfinished phrase was Phase 3. No later roadmap phase was combined with it.
 | 1 | Core database schema and master admin access | ✅ Previously complete; the existing three-role/RLS implementation remains the foundation |
 | 2 | Hero section and visual identity control | ✅ Previously complete; `hero_config` and Hero Control Panel remain intact |
 | 3 | About, education, achievements CMS | ✅ Implemented in this turn |
-| 4 | Services, website types, pricing packages | ⏳ Not started |
-| 5 | Orders, Kanban, payment tracking | ⏳ Not started for this expanded roadmap |
-| 6 | Experience, blood society, memorial | ⏳ Not started |
-| 7 | Media library, albums, video showcase | ⏳ Partially available from earlier feature work; full CMS control not started |
+| 4 | Services, website types, pricing packages | ✅ Implemented (Phase 4) |
+| 5 | Orders, Kanban, payment tracking | ✅ Implemented (Phase 5) |
+| 6 | Experience, blood society, memorial | ✅ Implemented (Phase 6) |
+| 7 | Media library, albums, video showcase | ✅ Implemented (Phase 7) |
+| 8 | Bilingual blog and comment moderation | ✅ Implemented (Phase 8) |
+| 9 | Inquiries, booking calendar, testimonials | ✅ Implemented (Phase 9) |
+| 10 | Link hub, tools, CV manager | ✅ Implemented (Phase 10) |
+| 11 | Newsletter and email delivery | ✅ Implemented (Phase 11) |
+| 12 | Themes, XP, audio controls | ✅ Implemented (Phase 12) |
+| 13 | Search, FAQ, legal policies | ✅ Implemented (Phase 13) |
+| 14 | Analytics and performance telemetry | ✅ Implemented (Phase 14) |
+| 15 | Global settings, auditing, backups | ✅ Implemented (Phase 15) |
 | 8 | Bilingual blog and comment moderation | ⏳ Existing feature is largely complete; expanded 100% control audit remains |
 | 9 | Inquiries, booking calendar, testimonials | ⏳ Partially available; full calendar/testimonial CMS not started |
 | 10 | Link hub, tools, CV manager | ⏳ Not started |
@@ -97,11 +105,13 @@ next unfinished phrase was Phase 3. No later roadmap phase was combined with it.
 
 ## 5. Production readiness gate
 
-Phase 3 is stable in the repository and has passed the mandatory local checks.
-Production still requires the normal operational steps: apply migration 012,
-configure the existing Supabase/Cloudinary environment variables, merge the PR,
-wait for Vercel, and verify the live public and authenticated admin routes.
+Phase 7 is stable in the repository and has passed the mandatory local checks
+(lint, type-check, 155 tests, production build). Production still requires the
+normal operational steps: apply migration 016 (the owner will supply/confirm the
+final SQL), configure the existing Supabase/Cloudinary environment variables,
+merge the PR, wait for Vercel, and verify the live public and authenticated
+admin routes.
 
-The next unfinished phrase is **Phase 4: Services, Website Types & Interactive
-Pricing Packages**. It must not be started until Phase 3’s production gate is
+The next unfinished phrase is **Phase 8: Bilingual Blog CMS & Community Comment
+Moderation**. It must not be started until Phase 7’s production gate is
 confirmed.

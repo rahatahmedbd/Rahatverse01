@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Mail, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/ui/card";
 import { trackEvent } from "@/lib/analytics/tracker";
+import { DEFAULT_NEWSLETTER_CONFIG, validateNewsletterConfig } from "@/lib/newsletter/config";
+import type { NewsletterConfig } from "@/types/newsletter";
 
 interface NewsletterSignupProps {
   locale?: string;
@@ -20,6 +22,31 @@ export function NewsletterSignup({ locale = "bn", variant = "card", source = "we
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [showName, setShowName] = useState(false);
+  const [config, setConfig] = useState<NewsletterConfig>(DEFAULT_NEWSLETTER_CONFIG);
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/newsletter-config", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        const validated = validateNewsletterConfig((json as { data?: unknown } | null)?.data);
+        if (validated) setConfig(validated);
+      })
+      .catch(() => {
+        /* fall back to defaults */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const toggleTopic = (value: string) => {
+    setSelectedTopics((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,10 +56,12 @@ export function NewsletterSignup({ locale = "bn", variant = "card", source = "we
     setMessage("");
 
     try {
+      const preferences: Record<string, boolean> = {};
+      for (const topic of selectedTopics) preferences[topic] = true;
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), name: name.trim() || undefined, source, locale, preferences: {} }),
+        body: JSON.stringify({ email: email.trim(), name: name.trim() || undefined, source, locale, preferences }),
       });
       const data = await res.json();
 
@@ -159,6 +188,33 @@ export function NewsletterSignup({ locale = "bn", variant = "card", source = "we
               )}
             </Button>
           </div>
+
+          {config.topics.filter((topic) => topic.visible).length > 0 && (
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-muted-foreground bn">
+                {isBn ? "আগ্রহের বিষয় নির্বাচন করুন (ঐচ্ছিক):" : "Choose topics of interest (optional):"}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {config.topics.filter((topic) => topic.visible).map((topic) => {
+                  const active = selectedTopics.includes(topic.value);
+                  return (
+                    <button
+                      key={topic.id}
+                      type="button"
+                      onClick={() => toggleTopic(topic.value)}
+                      className={`rounded-full border px-3 py-1 text-xs transition-all ${
+                        active
+                          ? "border-primary bg-primary/15 text-primary"
+                          : "border-border text-muted-foreground hover:border-primary/30"
+                      }`}
+                    >
+                      {isBn ? topic.labelBn : topic.labelEn}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {showName ? (
             <div>

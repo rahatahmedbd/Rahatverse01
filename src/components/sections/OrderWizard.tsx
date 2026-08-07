@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { GlassCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,13 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
+import { DEFAULT_ORDERS_CONFIG, validateOrdersConfig } from "@/lib/orders/config";
+import type { OrdersConfig } from "@/types/orders";
 
-// ── Order Wizard ───────────────────────────────────────
-// Multi-step form: Package → Design → Details → Contact → Review
-// Phase 31: unified form kit + inline validation + feature count.
+// ── Order Wizard (DB-driven) ───────────────────────────
+// Multi-step form: Package → Design → Details → Contact → Review.
+// Phase 4: config-driven options via `orders_config`; Phase 5 adds admin-editable
+// design styles and page-count increments to the intake.
 
 interface OrderWizardProps {
   locale?: string;
@@ -37,7 +40,8 @@ interface OrderWizardProps {
 interface OrderData {
   packageType: string;
   websiteType: string;
-  numPages: string;
+  designStyle: string;
+  numPages: number;
   description: string;
   colorPreference: string;
   referenceSites: string;
@@ -51,45 +55,6 @@ interface OrderData {
   timeline: string;
 }
 
-const websiteTypes = [
-  { value: "portfolio", label: "পোর্টফোলিও", labelEn: "Portfolio" },
-  { value: "business", label: "ব্যবসায়িক", labelEn: "Business" },
-  { value: "ecommerce", label: "ই-কমার্স", labelEn: "E-Commerce" },
-  { value: "education", label: "শিক্ষা প্রতিষ্ঠান", labelEn: "Education" },
-  { value: "blood_org", label: "রক্ত সংগঠন", labelEn: "Blood Organization" },
-  { value: "news_portal", label: "নিউজ পোর্টাল", labelEn: "News Portal" },
-  { value: "landing_page", label: "ল্যান্ডিং পেজ", labelEn: "Landing Page" },
-  { value: "custom", label: "কাস্টম", labelEn: "Custom" },
-];
-
-const featureOptions = [
-  { value: "responsive", label: "রেসপনসিভ ডিজাইন", labelEn: "Responsive Design" },
-  { value: "seo", label: "SEO অপটিমাইজেশন", labelEn: "SEO Optimization" },
-  { value: "blog", label: "ব্লগ সেকশন", labelEn: "Blog Section" },
-  { value: "contact_form", label: "কন্টাক্ট ফর্ম", labelEn: "Contact Form" },
-  { value: "map", label: "Google Maps", labelEn: "Google Maps" },
-  { value: "payment", label: "পেমেন্ট ইন্টিগ্রেশন", labelEn: "Payment Integration" },
-  { value: "auth", label: "লগইন/সাইনআপ", labelEn: "Login/Signup" },
-  { value: "admin", label: "অ্যাডমিন প্যানেল", labelEn: "Admin Panel" },
-  { value: "multilang", label: "মাল্টি-ল্যাংগুয়েজ", labelEn: "Multi-Language" },
-  { value: "analytics", label: "অ্যানালিটিক্স", labelEn: "Analytics" },
-];
-
-const budgetRanges = [
-  { value: "5k-10k", label: "৳5,000 - ৳10,000" },
-  { value: "10k-20k", label: "৳10,000 - ৳20,000" },
-  { value: "20k-35k", label: "৳20,000 - ৳35,000" },
-  { value: "35k-50k", label: "৳35,000 - ৳50,000" },
-  { value: "50k+", label: "৳50,000+" },
-];
-
-const timelineOptions = [
-  { value: "1-week", label: "১ সপ্তাহ", labelEn: "1 Week" },
-  { value: "2-weeks", label: "২ সপ্তাহ", labelEn: "2 Weeks" },
-  { value: "1-month", label: "১ মাস", labelEn: "1 Month" },
-  { value: "flexible", label: "ফ্লেক্সিবল", labelEn: "Flexible" },
-];
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()-]{5,24}$/;
 
@@ -97,6 +62,32 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const isBn = locale === "bn";
   const searchParams = useSearchParams();
   const preselectedPackage = searchParams.get("package") || "";
+
+  const [config, setConfig] = useState<OrdersConfig>(DEFAULT_ORDERS_CONFIG);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/orders-config", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        const validated = validateOrdersConfig((json as { data?: unknown } | null)?.data);
+        if (validated) setConfig(validated);
+      })
+      .catch(() => {
+        /* fall back to defaults */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const visiblePackages = config.packages.filter((p) => p.visible);
+  const visibleWebsiteTypes = config.websiteTypes.filter((t) => t.visible);
+  const visibleAddons = config.featureAddons.filter((f) => f.visible);
+  const visibleDesignStyles = config.designStyles.filter((d) => d.visible);
+  const visibleBudgetRanges = config.budgetRanges.filter((b) => b.visible);
+  const visibleTimelines = config.timelineOptions.filter((t) => t.visible);
 
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -107,7 +98,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const [data, setData] = useState<OrderData>({
     packageType: preselectedPackage || "basic",
     websiteType: "",
-    numPages: "",
+    designStyle: "",
+    numPages: 1,
     description: "",
     colorPreference: "",
     referenceSites: "",
@@ -121,9 +113,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     timeline: "",
   });
 
-  const updateData = (field: keyof OrderData, value: string | string[]) => {
+  const updateData = <K extends keyof OrderData>(field: K, value: OrderData[K]) => {
     setData((prev) => ({ ...prev, [field]: value }));
-    // Clear the inline error for the field being edited.
     setErrors((prev) => {
       if (!prev[field]) return prev;
       const next = { ...prev };
@@ -142,11 +133,11 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   };
 
   const steps = [
-    { icon: Package, title: isBn ? "প্যাকেজ" : "Package" },
-    { icon: Palette, title: isBn ? "ডিজাইন" : "Design" },
-    { icon: FileText, title: isBn ? "বিস্তারিত" : "Details" },
-    { icon: User, title: isBn ? "যোগাযোগ" : "Contact" },
-    { icon: CheckCircle2, title: isBn ? "রিভিউ" : "Review" },
+    { icon: Package, title: isBn ? config.steps.packageBn : config.steps.packageEn },
+    { icon: Palette, title: isBn ? config.steps.designBn : config.steps.designEn },
+    { icon: FileText, title: isBn ? config.steps.detailsBn : config.steps.detailsEn },
+    { icon: User, title: isBn ? config.steps.contactBn : config.steps.contactEn },
+    { icon: CheckCircle2, title: isBn ? config.steps.reviewBn : config.steps.reviewEn },
   ];
 
   // ── Per-step validation (returns error map for visible fields) ──
@@ -189,7 +180,6 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   };
 
   const handleSubmit = async () => {
-    // Validate the final contact step once more before submitting.
     const errs = validateStep(3);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
@@ -204,7 +194,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
         body: JSON.stringify({
           package_type: data.packageType,
           website_type: data.websiteType,
-          num_pages: data.numPages ? Number(data.numPages) : 1,
+          design_style: data.designStyle,
+          num_pages: data.numPages || 1,
           description: data.description,
           color_preference: data.colorPreference,
           reference_sites: data.referenceSites
@@ -254,12 +245,10 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 <CheckCircle2 className="h-8 w-8 text-green-400" />
               </div>
               <h2 className="text-heading-md font-bold bn">
-                {isBn ? "অর্ডার সফলভাবে জমা হয়েছে!" : "Order Submitted Successfully!"}
+                {isBn ? config.cta.successTitleBn : config.cta.successTitleEn}
               </h2>
               <p className="mt-4 text-muted-foreground bn">
-                {isBn
-                  ? "আপনার অর্ডার পাওয়া গেছে। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।"
-                  : "We received your order. We will contact you shortly."}
+                {isBn ? config.cta.successMessageBn : config.cta.successMessageEn}
               </p>
               <Badge variant="success" className="mt-4">
                 {isBn ? "অর্ডারটি নিরাপদে গ্রহণ করা হয়েছে" : "Your order was received securely"}
@@ -275,14 +264,10 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     <section className="py-20">
       <div className="mx-auto max-w-3xl px-4">
         <SectionTitle
-          badge={isBn ? "🛒 ওয়েবসাইট অর্ডার" : "🛒 Order Website"}
-          title="Order Your Website"
-          titleBn="আপনার ওয়েবসাইট অর্ডার করুন"
-          subtitle={
-            isBn
-              ? "কয়েকটি সহজ ধাপে আপনার স্বপ্নের ওয়েবসাইট অর্ডার করুন"
-              : "Order your dream website in a few simple steps"
-          }
+          badge={isBn ? config.section.badgeBn : config.section.badgeEn}
+          title={isBn ? config.section.titleBn : config.section.titleEn}
+          titleBn={isBn ? config.section.titleBn : config.section.titleEn}
+          subtitle={isBn ? config.section.subtitleBn : config.section.subtitleEn}
           locale={locale}
         />
 
@@ -321,39 +306,43 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 {isBn ? "প্যাকেজ ও ওয়েবসাইট টাইপ বেছে নিন" : "Choose Package & Website Type"}
               </h3>
 
-              <FormField
-                id="packageType"
-                label={isBn ? "প্যাকেজ" : "Package"}
-                required
-                error={errors.packageType}
-              >
-                <ChipGroup
-                  options={["basic", "standard", "premium", "enterprise"].map((pkg) => ({
-                    value: pkg,
-                    label: pkg.charAt(0).toUpperCase() + pkg.slice(1),
-                  }))}
-                  value={data.packageType}
-                  onChange={(v) => updateData("packageType", v)}
-                  columns={4}
-                />
-              </FormField>
+              {visiblePackages.length > 0 && (
+                <FormField
+                  id="packageType"
+                  label={isBn ? "প্যাকেজ" : "Package"}
+                  required
+                  error={errors.packageType}
+                >
+                  <ChipGroup
+                    options={visiblePackages.map((pkg) => ({
+                      value: pkg.value,
+                      label: isBn ? pkg.labelBn : pkg.labelEn,
+                    }))}
+                    value={data.packageType}
+                    onChange={(v) => updateData("packageType", v)}
+                    columns={4}
+                  />
+                </FormField>
+              )}
 
-              <FormField
-                id="websiteType"
-                label={isBn ? "ওয়েবসাইট টাইপ" : "Website Type"}
-                required
-                error={errors.websiteType}
-              >
-                <ChipGroup
-                  options={websiteTypes.map((t) => ({
-                    value: t.value,
-                    label: isBn ? t.label : t.labelEn,
-                  }))}
-                  value={data.websiteType}
-                  onChange={(v) => updateData("websiteType", v)}
-                  columns={4}
-                />
-              </FormField>
+              {visibleWebsiteTypes.length > 0 && (
+                <FormField
+                  id="websiteType"
+                  label={isBn ? "ওয়েবসাইট টাইপ" : "Website Type"}
+                  required
+                  error={errors.websiteType}
+                >
+                  <ChipGroup
+                    options={visibleWebsiteTypes.map((t) => ({
+                      value: t.value,
+                      label: isBn ? t.labelBn : t.labelEn,
+                    }))}
+                    value={data.websiteType}
+                    onChange={(v) => updateData("websiteType", v)}
+                    columns={4}
+                  />
+                </FormField>
+              )}
             </div>
           )}
 
@@ -361,6 +350,32 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           {step === 1 && (
             <div className="space-y-6">
               <h3 className="text-lg font-bold bn">{isBn ? "ডিজাইন পছন্দ" : "Design Preferences"}</h3>
+
+              {visibleDesignStyles.length > 0 && (
+                <FormField
+                  id="designStyle"
+                  label={isBn ? "ডিজাইন স্টাইল" : "Design Style"}
+                >
+                  <ChipGroup
+                    options={visibleDesignStyles.map((d) => ({
+                      value: d.value,
+                      label: isBn ? d.labelBn : d.labelEn,
+                    }))}
+                    value={data.designStyle}
+                    onChange={(v) => updateData("designStyle", v)}
+                    columns={2}
+                  />
+                  {data.designStyle && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {
+                        visibleDesignStyles.find((d) => d.value === data.designStyle)?.[
+                          isBn ? "descriptionBn" : "descriptionEn"
+                        ]
+                      }
+                    </p>
+                  )}
+                </FormField>
+              )}
 
               <FormField
                 id="colorPreference"
@@ -388,30 +403,32 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 />
               </FormField>
 
-              <FormField
-                id="features"
-                label={isBn ? "ফিচার সমূহ" : "Features Needed"}
-                hint={
-                  data.features.length > 0
-                    ? isBn
-                      ? `${data.features.length}টি ফিচার বাছাই করা হয়েছে`
-                      : `${data.features.length} features selected`
-                    : isBn
-                      ? "প্রয়োজনীয় ফিচারগুলো বেছে নিন"
-                      : "Select the features you need"
-                }
-              >
-                <ChipGroup
-                  options={featureOptions.map((f) => ({
-                    value: f.value,
-                    label: isBn ? f.label : f.labelEn,
-                  }))}
-                  value={data.features}
-                  onChange={toggleFeature}
-                  multi
-                  columns={2}
-                />
-              </FormField>
+              {visibleAddons.length > 0 && (
+                <FormField
+                  id="features"
+                  label={isBn ? "ফিচার সমূহ" : "Features Needed"}
+                  hint={
+                    data.features.length > 0
+                      ? isBn
+                        ? `${data.features.length}টি ফিচার বাছাই করা হয়েছে`
+                        : `${data.features.length} features selected`
+                      : isBn
+                        ? "প্রয়োজনীয় ফিচারগুলো বেছে নিন"
+                        : "Select the features you need"
+                  }
+                >
+                  <ChipGroup
+                    options={visibleAddons.map((f) => ({
+                      value: f.value,
+                      label: isBn ? f.labelBn : f.labelEn,
+                    }))}
+                    value={data.features}
+                    onChange={toggleFeature}
+                    multi
+                    columns={2}
+                  />
+                </FormField>
+              )}
             </div>
           )}
 
@@ -419,6 +436,24 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           {step === 2 && (
             <div className="space-y-6">
               <h3 className="text-lg font-bold bn">{isBn ? "প্রজেক্টের বিস্তারিত" : "Project Details"}</h3>
+
+              {config.pageIncrements.length > 0 && (
+                <FormField
+                  id="numPages"
+                  label={isBn ? "পেজ সংখ্যা" : "Number of Pages"}
+                  hint={isBn ? "প্রয়োজন অনুযায়ী পেজ বাড়ান" : "Increase pages as needed"}
+                >
+                  <ChipGroup
+                    options={config.pageIncrements.map((p) => ({
+                      value: String(p),
+                      label: `${p} ${isBn ? "পেজ" : "pages"}`,
+                    }))}
+                    value={String(data.numPages)}
+                    onChange={(v) => updateData("numPages", Number(v) || 1)}
+                    columns={4}
+                  />
+                </FormField>
+              )}
 
               <FormField
                 id="description"
@@ -440,33 +475,37 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
               </FormField>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="budgetRange" label={isBn ? "বাজেট" : "Budget"}>
-                  <SelectField
-                    id="budgetRange"
-                    value={data.budgetRange}
-                    onChange={(e) => updateData("budgetRange", e.target.value)}
-                    placeholder={isBn ? "বেছে নিন" : "Select"}
-                  >
-                    {budgetRanges.map((b) => (
-                      <option key={b.value} value={b.value}>{b.label}</option>
-                    ))}
-                  </SelectField>
-                </FormField>
+                {visibleBudgetRanges.length > 0 && (
+                  <FormField id="budgetRange" label={isBn ? "বাজেট" : "Budget"}>
+                    <SelectField
+                      id="budgetRange"
+                      value={data.budgetRange}
+                      onChange={(e) => updateData("budgetRange", e.target.value)}
+                      placeholder={isBn ? "বেছে নিন" : "Select"}
+                    >
+                      {visibleBudgetRanges.map((b) => (
+                        <option key={b.value} value={b.value}>{b.label}</option>
+                      ))}
+                    </SelectField>
+                  </FormField>
+                )}
 
-                <FormField id="timeline" label={isBn ? "টাইমলাইন" : "Timeline"}>
-                  <SelectField
-                    id="timeline"
-                    value={data.timeline}
-                    onChange={(e) => updateData("timeline", e.target.value)}
-                    placeholder={isBn ? "বেছে নিন" : "Select"}
-                  >
-                    {timelineOptions.map((t) => (
-                      <option key={t.value} value={t.value}>
-                        {isBn ? t.label : t.labelEn}
-                      </option>
-                    ))}
-                  </SelectField>
-                </FormField>
+                {visibleTimelines.length > 0 && (
+                  <FormField id="timeline" label={isBn ? "টাইমলাইন" : "Timeline"}>
+                    <SelectField
+                      id="timeline"
+                      value={data.timeline}
+                      onChange={(e) => updateData("timeline", e.target.value)}
+                      placeholder={isBn ? "বেছে নিন" : "Select"}
+                    >
+                      {visibleTimelines.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {isBn ? t.labelBn : t.labelEn}
+                        </option>
+                      ))}
+                    </SelectField>
+                  </FormField>
+                )}
               </div>
             </div>
           )}
@@ -555,14 +594,24 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "প্যাকেজ" : "Package"}</span>
-                  <span className="font-medium">{data.packageType.charAt(0).toUpperCase() + data.packageType.slice(1)}</span>
+                  <span className="font-medium">
+                    {visiblePackages.find((p) => p.value === data.packageType)?.[isBn ? "labelBn" : "labelEn"] || data.packageType.charAt(0).toUpperCase() + data.packageType.slice(1)}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "ওয়েবসাইট টাইপ" : "Website Type"}</span>
                   <span className="font-medium bn">
-                    {websiteTypes.find((t) => t.value === data.websiteType)?.[isBn ? "label" : "labelEn"] || data.websiteType}
+                    {visibleWebsiteTypes.find((t) => t.value === data.websiteType)?.[isBn ? "labelBn" : "labelEn"] || data.websiteType}
                   </span>
                 </div>
+                {data.designStyle && (
+                  <div className="flex justify-between border-b border-border/50 pb-2">
+                    <span className="text-muted-foreground bn">{isBn ? "ডিজাইন স্টাইল" : "Design Style"}</span>
+                    <span className="font-medium bn">
+                      {visibleDesignStyles.find((d) => d.value === data.designStyle)?.[isBn ? "labelBn" : "labelEn"] || data.designStyle}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "নাম" : "Name"}</span>
                   <span className="font-medium">{data.clientName}</span>
@@ -593,11 +642,11 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
 
               {data.features.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {featureOptions
+                  {visibleAddons
                     .filter((f) => data.features.includes(f.value))
                     .map((f) => (
                       <Badge key={f.value} variant="outline">
-                        {isBn ? f.label : f.labelEn}
+                        {isBn ? f.labelBn : f.labelEn}
                       </Badge>
                     ))}
                 </div>
@@ -635,7 +684,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
               disabled={step === 0}
             >
               <ArrowLeft className="h-4 w-4" />
-              {isBn ? "পিছনে" : "Back"}
+              {isBn ? config.cta.backBn : config.cta.backEn}
             </Button>
 
             {step < 4 ? (
@@ -644,7 +693,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 onClick={handleNext}
                 disabled={!canAdvance() && Object.keys(errors).length === 0}
               >
-                {isBn ? "পরবর্তী" : "Next"}
+                {isBn ? config.cta.nextBn : config.cta.nextEn}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
@@ -656,12 +705,12 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    {isBn ? "জমা হচ্ছে..." : "Submitting..."}
+                    {isBn ? config.cta.submittingBn : config.cta.submittingEn}
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="h-4 w-4" />
-                    {isBn ? "অর্ডার জমা দিন" : "Submit Order"}
+                    {isBn ? config.cta.submitBn : config.cta.submitEn}
                   </>
                 )}
               </Button>

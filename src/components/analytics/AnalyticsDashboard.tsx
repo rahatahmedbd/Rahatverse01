@@ -119,11 +119,24 @@ function formatVitalValue(metric: string, value: number): string {
   return metric === "CLS" ? value.toFixed(3) : `${Math.round(value)}${unit}`;
 }
 
-function vitalStatus(metric: string, p75: number | null): "good" | "warning" | "poor" | "none" {
+function vitalStatus(
+  metric: string,
+  p75: number | null,
+  overrides?: Partial<DashboardFlags>
+): "good" | "warning" | "poor" | "none" {
   if (p75 === null) return "none";
   const thresholds = VITAL_THRESHOLDS[metric];
   if (!thresholds) return "none";
-  if (p75 <= thresholds.good) return "good";
+  // Apply admin-configured good thresholds for LCP / INP / CLS.
+  const good =
+    metric === "LCP" && overrides?.lcpTargetMs
+      ? overrides.lcpTargetMs
+      : metric === "INP" && overrides?.inpTargetMs
+        ? overrides.inpTargetMs
+        : metric === "CLS" && overrides?.clsTarget
+          ? overrides.clsTarget
+          : thresholds.good;
+  if (p75 <= good) return "good";
   if (p75 <= thresholds.poor) return "warning";
   return "poor";
 }
@@ -132,13 +145,59 @@ interface AnalyticsDashboardProps {
   locale?: string;
 }
 
+interface DashboardFlags {
+  showDevices: boolean;
+  showGeo: boolean;
+  showVitals: boolean;
+  lcpTargetMs: number;
+  inpTargetMs: number;
+  clsTarget: number;
+}
+
+const DEFAULT_FLAGS: DashboardFlags = {
+  showDevices: true,
+  showGeo: true,
+  showVitals: true,
+  lcpTargetMs: 2500,
+  inpTargetMs: 200,
+  clsTarget: 0.1,
+};
+
 export function AnalyticsDashboard({ locale = "bn" }: AnalyticsDashboardProps) {
   const isBn = locale === "bn";
   const [range, setRange] = useState<number>(30);
   const [refreshKey, setRefreshKey] = useState(0);
   const [data, setData] = useState<AnalyticsSummary | null>(null);
+  const [flags, setFlags] = useState<DashboardFlags>(DEFAULT_FLAGS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Load admin-controlled analytics settings (panel toggles + vitals thresholds).
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/analytics-config", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        const settings = (json as { data?: { settings?: DashboardFlags } } | null)?.data?.settings;
+        if (settings) {
+          setFlags({
+            showDevices: settings.showDevices ?? true,
+            showGeo: settings.showGeo ?? true,
+            showVitals: settings.showVitals ?? true,
+            lcpTargetMs: settings.lcpTargetMs ?? 2500,
+            inpTargetMs: settings.inpTargetMs ?? 200,
+            clsTarget: settings.clsTarget ?? 0.1,
+          });
+        }
+      })
+      .catch(() => {
+        /* fall back to defaults */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -350,40 +409,44 @@ export function AnalyticsDashboard({ locale = "bn" }: AnalyticsDashboardProps) {
               />
             </GlassCard>
 
-            <GlassCard className="p-5">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-bold bn">
-                <Smartphone className="h-5 w-5 text-sky-400" />
-                {isBn ? "ডিভাইস ব্রেকডাউন" : "Device Breakdown"}
-              </h3>
-              <DonutChart
-                centerLabel={isBn ? "ভিউ" : "views"}
-                segments={(data?.devices ?? []).map((device) => ({
-                  label: DEVICE_LABELS[device.deviceType] ?? device.deviceType,
-                  value: device.views,
-                  color: DEVICE_COLORS[device.deviceType] ?? "#94a3b8",
-                }))}
-              />
-            </GlassCard>
+            {flags.showDevices && (
+              <GlassCard className="p-5">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-bold bn">
+                  <Smartphone className="h-5 w-5 text-sky-400" />
+                  {isBn ? "ডিভাইস ব্রেকডাউন" : "Device Breakdown"}
+                </h3>
+                <DonutChart
+                  centerLabel={isBn ? "ভিউ" : "views"}
+                  segments={(data?.devices ?? []).map((device) => ({
+                    label: DEVICE_LABELS[device.deviceType] ?? device.deviceType,
+                    value: device.views,
+                    color: DEVICE_COLORS[device.deviceType] ?? "#94a3b8",
+                  }))}
+                />
+              </GlassCard>
+            )}
 
-            <GlassCard className="p-5">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-bold bn">
-                <Globe2 className="h-5 w-5 text-green-400" />
-                {isBn ? "ভৌগোলিক অবস্থান" : "Geographic Visitors"}
-              </h3>
-              <BarList
-                items={(data?.countries ?? []).map((entry) => ({
-                  label:
-                    entry.country === "unknown"
-                      ? isBn
-                        ? "অজানা"
-                        : "Unknown"
-                      : COUNTRY_NAMES[entry.country] ?? entry.country,
-                  value: entry.views,
-                  hint: entry.country,
-                }))}
-                emptyLabel={isBn ? "কোনো ভৌগোলিক ডেটা নেই" : "No geographic data yet"}
-              />
-            </GlassCard>
+            {flags.showGeo && (
+              <GlassCard className="p-5">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-bold bn">
+                  <Globe2 className="h-5 w-5 text-green-400" />
+                  {isBn ? "ভৌগোলিক অবস্থান" : "Geographic Visitors"}
+                </h3>
+                <BarList
+                  items={(data?.countries ?? []).map((entry) => ({
+                    label:
+                      entry.country === "unknown"
+                        ? isBn
+                          ? "অজানা"
+                          : "Unknown"
+                        : COUNTRY_NAMES[entry.country] ?? entry.country,
+                    value: entry.views,
+                    hint: entry.country,
+                  }))}
+                  emptyLabel={isBn ? "কোনো ভৌগোলিক ডেটা নেই" : "No geographic data yet"}
+                />
+              </GlassCard>
+            )}
 
             <GlassCard className="p-5">
               <h3 className="mb-4 text-lg font-bold bn">{isBn ? "ট্রাফিক সোর্স" : "Referral Sources"}</h3>
@@ -410,15 +473,16 @@ export function AnalyticsDashboard({ locale = "bn" }: AnalyticsDashboardProps) {
               />
             </GlassCard>
 
-            <GlassCard className="p-5">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-bold bn">
-                <Gauge className="h-5 w-5 text-purple-400" />
-                {isBn ? "কোর ওয়েব ভাইটালস" : "Core Web Vitals"}
-              </h3>
+            {flags.showVitals && (
+              <GlassCard className="p-5">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-bold bn">
+                  <Gauge className="h-5 w-5 text-purple-400" />
+                  {isBn ? "কোর ওয়েব ভাইটালস" : "Core Web Vitals"}
+                </h3>
               {data && data.vitals.length > 0 ? (
                 <ul className="space-y-3">
                   {data.vitals.map((vital) => {
-                    const status = vitalStatus(vital.metric, vital.p75);
+                    const status = vitalStatus(vital.metric, vital.p75, flags);
                     const statusColor =
                       status === "good"
                         ? "bg-green-500/15 text-green-400"
@@ -447,7 +511,8 @@ export function AnalyticsDashboard({ locale = "bn" }: AnalyticsDashboardProps) {
                   {isBn ? "এখনো ভাইটালস ডেটা নেই" : "No vitals data yet"}
                 </p>
               )}
-            </GlassCard>
+              </GlassCard>
+            )}
           </div>
         </>
       )}

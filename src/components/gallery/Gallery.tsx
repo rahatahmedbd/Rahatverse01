@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { ZoomIn, LayoutGrid, Grid, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,9 @@ import { ImageSkeleton } from "@/components/ui/blur-image";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LightboxModal, LightboxImageItem } from "@/components/gallery/LightboxModal";
 import { getMosaicSpanClass, GalleryLayoutMode } from "@/components/gallery/mosaic-utils";
+import { DEFAULT_GALLERY_CONFIG, validateGalleryConfig } from "@/lib/media/config";
 import { cn } from "@/lib/utils";
+import type { GalleryConfig } from "@/types/media";
 
 interface GalleryImage {
   id: string;
@@ -31,19 +34,44 @@ interface GalleryProps {
 export default function Gallery({ locale = "bn" }: GalleryProps) {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [layoutMode, setLayoutMode] = useState<GalleryLayoutMode>("mosaic");
+  const [config, setConfig] = useState<GalleryConfig>(DEFAULT_GALLERY_CONFIG);
+  const searchParams = useSearchParams();
   const isBn = locale === "bn";
+
+  // Preselect album from ?album= query param (lazy initial state).
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    const album = searchParams.get("album");
+    return album && album !== "all" ? album : "all";
+  });
+
+  // Load gallery config (albums) for the filter chips.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/gallery-config", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        const validated = validateGalleryConfig((json as { data?: unknown } | null)?.data);
+        if (validated) setConfig(validated);
+      })
+      .catch(() => {
+        /* fall back to defaults */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const categories = [
     { value: "all", label: isBn ? "সব" : "All" },
-    { value: "achievements", label: isBn ? "অর্জন" : "Achievements" },
-    { value: "blood-donation", label: isBn ? "রক্তদান" : "Blood Donation" },
-    { value: "experience", label: isBn ? "অভিজ্ঞতা" : "Experience" },
-    { value: "social-service", label: isBn ? "সমাজসেবা" : "Social Service" },
-    { value: "profile", label: isBn ? "প্রোফাইল" : "Profile" },
-    { value: "memorial", label: isBn ? "স্মৃতিচারণ" : "Memorial" },
+    ...config.albums
+      .filter((album) => album.visible)
+      .map((album) => ({
+        value: album.value,
+        label: isBn ? album.nameBn : album.nameEn,
+      })),
   ];
 
   const fetchImages = useCallback(async () => {

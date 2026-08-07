@@ -11,6 +11,150 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/global-config`
+Public, validated global configuration endpoint (Phase 15). Returns `{ data }` —
+the `global_config` document in `site_settings` (announcement banner, header
+announcement, footer settings, maintenance mode). Falls back to defaults when the
+database is unavailable or the value fails validation.
+
+### `GET /api/analytics-config`
+Public, validated analytics configuration endpoint (Phase 14). Returns
+`{ data }` — the `analytics_config` document in `site_settings` (dashboard panel
+toggles, telemetry switch, conversion goal label, Core Web Vitals thresholds).
+Falls back to defaults when the database is unavailable or the value fails
+validation.
+
+### `GET /api/content-config`
+Public, validated search/FAQ/legal configuration endpoint (Phase 13). Returns
+`{ data }` — the `content_config` document in `site_settings` (FAQ categories &
+items, search scope & weights, legal policy pages). Falls back to defaults when
+the database is unavailable or the value fails validation.
+
+### `GET /api/theme-config`
+Public, validated theme/XP/audio/effects configuration endpoint (Phase 12).
+Returns `{ data }` — the `theme_config` document in `site_settings` (theme
+presets, defaults, XP rules/levels, audio playlist, effect toggles). Falls back
+to defaults when the database is unavailable or the value fails validation.
+
+### `GET /api/newsletter-config`
+Public, validated newsletter configuration endpoint (Phase 11). Returns
+`{ data }` — the `newsletter_config` document in `site_settings` (section
+headings, topic preferences, campaign defaults). Falls back to defaults when the
+database is unavailable or the value fails validation.
+
+### `GET /api/links-config`
+Public, validated Link Hub / Tools / Resume configuration endpoint (Phase 10).
+Returns `{ data }` — the `links_config` document in `site_settings` (link cards
+with click counts, tool recommendations, CV settings, profile). Falls back to
+defaults when the database is unavailable or the value fails validation.
+
+### `POST /api/links/click`
+Public, non-blocking. Body: `{ id }`. Increments the click-through count for a
+link card in `links_config`.
+
+### `GET /api/contact-config`
+Public, validated contact / booking / testimonial configuration endpoint
+(Phase 9). Returns `{ data }` — the `contact_config` document in `site_settings`
+(contact section, quick links, booking settings, testimonial display). Falls back
+to defaults when the database is unavailable or the value fails validation.
+
+### `GET|PATCH /api/admin/messages`
+Admin-only. `GET` lists contact-form submissions (`?unread=true|false`);
+`PATCH` marks a message read/unread or archived. Body: `{ id, is_read?, archived? }`.
+
+### `GET|PATCH /api/admin/bookings`
+Admin-only. `GET` lists consultation bookings (`?status=`); `PATCH` approves /
+cancels / completes a booking (`{ id, status }`) or reschedules
+(`{ id, date, time_slot }`).
+
+### `GET|PATCH|DELETE /api/admin/testimonials`
+Admin-only. `GET` lists reviews (`?status=pending|approved`); `PATCH` approves /
+edits / toggles featured (`{ id, is_approved?, featured?, name?, role?, ... }`);
+`DELETE` removes a review.
+
+### `GET /api/blog-config`
+Public, validated blog & comment configuration endpoint (Phase 8). Returns
+`{ data }` — the `blog_config` document in `site_settings` (blog section
+headings, categories, author profile, comment-moderation settings, reading
+speed). Falls back to built-in defaults when the database is unavailable or the
+value fails validation.
+
+### `PATCH /api/admin/comments` (reply)
+Admin-only. Body may include `admin_reply` (and optional `reply_author`) to post
+a verified admin reply on a comment (Phase 8). Also still accepts
+`{ id, approved }` to approve/reject. Adds `admin_reply`/`reply_author` columns
+via migration 017.
+
+### `GET /api/gallery-config`
+Public, validated photo-gallery configuration endpoint (Phase 7). Returns
+`{ data }` — the `gallery_config` document in `site_settings` (albums with
+featured cover public_ids, ordering, visibility, section headings, default
+mosaic/grid layout). Falls back to built-in defaults when the database is
+unavailable or the value fails validation.
+
+### `GET /api/video-config`
+Public, validated video-portfolio configuration endpoint (Phase 7). Returns
+`{ data }` — the `video_config` document in `site_settings` (YouTube/Vimeo/direct
+videos with video ids for modal embeds, categories, ordering, visibility, social
+links). Falls back to built-in defaults when the database is unavailable or the
+value fails validation.
+
+### `GET /api/experience-config`
+Public, validated Experience / Blood Society / Memorial configuration endpoint
+(Phase 6). Returns `{ data }` — the `experience_config` document in
+`site_settings` (professional experience timeline, Shantichakra Blood Society
+counters/hotline/coverage/activities, and the memorial tribute). Falls back to
+built-in defaults when the database is unavailable or the value fails validation.
+
+### `PATCH /api/admin/blood-requests`
+Admin-only update to respond to / close an incoming blood donation request
+(Phase 6). Body: `{ id, status?, admin_notes? }` where `status` is
+`open | responded | closed`. Audited via `audit_logs`. Returns `{ success, data }`.
+
+### `GET /api/orders-config`
+Public, validated order-intake wizard configuration endpoint (Phase 5).
+- Returns `{ data }` where `data` is the `orders_config` document stored in
+  `site_settings` (package options, website types, feature add-ons, design
+  styles, page-count increments, budget ranges, timelines, step & CTA labels).
+- Falls back to built-in defaults when the database is unavailable or the stored
+  value fails validation.
+
+### `PATCH /api/admin/orders`
+Admin-only partial update of an order (Phase 5 Kanban + payment tracking).
+- **Auth:** admin only (server-side RBAC guard + audit log entry).
+- **Body:** `{ id, status?, admin_notes?, project_links?, payment?, communication_log? }`.
+  - `status`: one of `new_lead | under_review | in_progress | client_feedback | completed | archived`.
+  - `project_links`: `{ repo?, staging?, figma?, live? }` (https or relative URLs only).
+  - `payment`: `{ status?, method?, advanceAmount?, totalAmount?, currency?, milestones? }`
+    where `status` is `unpaid | pending_advance | fifty_percent | fully_settled | refunded`
+    and `method` is `bkash | nagad | bank_transfer | sslcommerz | other`.
+  - `communication_log`: array of `{ id, date, authorBn, authorEn, messageBn, messageEn }`.
+- Mirrors the primary payment status/amount onto the legacy `payment_status` /
+  `payment_amount` scalar columns.
+- Returns `{ success, data }` or `400/401/403/500` on errors.
+
+### `POST /api/orders`
+Submit a website order (public). Also accepts an optional `design_style` field
+(Phase 5) captured from the configurable design-style selector in the wizard.
+
+### `GET /api/services-config`
+Public, validated Services / pricing / process configuration endpoint (Phase 4).
+- Returns `{ data }` where `data` is the `services_config` document stored in
+  `site_settings` (service offerings, website types, features, featured packages,
+  pricing packages with BDT/USD amounts, comparison matrix, process timeline, CTA).
+- Falls back to built-in defaults when the database is unavailable or the stored
+  value fails validation — the public site never breaks.
+
+### `GET /api/about-config`
+Public, validated About / Education / Achievements configuration endpoint (Phase 3).
+- Returns `{ data }` where `data` is the `about_config` document stored in
+  `site_settings`. Falls back to built-in defaults when unavailable/invalid.
+
+### `GET /api/hero-config`
+Public, validated Hero section configuration endpoint (Phase 2).
+- Returns `{ data }` where `data` is the `hero_config` document stored in
+  `site_settings`. Falls back to built-in defaults when unavailable/invalid.
+
 ### `POST /api/analytics`
 Client-side first-party tracking ingestion (used by `lib/analytics/tracker.ts`).
 - **Body:** `{ sessionId, pageViews: [{path, referrer?, screenWidth?, ts?}], events: [{name, category?, label?, path?, value?, metadata?, ts?}] }`

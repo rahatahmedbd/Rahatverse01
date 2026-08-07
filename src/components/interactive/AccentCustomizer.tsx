@@ -5,6 +5,7 @@ import { Palette, Check, Sparkles, X } from "lucide-react";
 import { useAppStore, ACCENT_THEMES } from "@/store";
 import { AccentColor, SUPPORTED_ACCENTS } from "@/types";
 import { cn } from "@/lib/utils";
+import { useThemeConfig, applyPresetToDOM } from "@/hooks/useThemeConfig";
 
 interface AccentCustomizerProps {
   locale?: string;
@@ -19,6 +20,13 @@ export function AccentCustomizer({
   const { accent, setAccent } = useAppStore();
   const menuRef = React.useRef<HTMLDivElement>(null);
   const isBn = locale === "bn";
+  const themeConfig = useThemeConfig();
+  const [customAccent, setCustomAccent] = React.useState<string | null>(null);
+
+  const applyCustomPreset = (preset: { id: string; nameBn: string; nameEn: string; primary: string; primaryForeground: string; ring: string; gradientStart: string; gradientMiddle: string; gradientEnd: string; selectionBg: string }) => {
+    setCustomAccent(preset.id);
+    applyPresetToDOM(preset);
+  };
 
   // Hydrate saved accent from localStorage on mount
   React.useEffect(() => {
@@ -145,6 +153,42 @@ export function AccentCustomizer({
               );
             })}
           </div>
+
+          {/* Admin-defined presets (from theme_config) */}
+          {themeConfig.presets.filter((preset) => preset.visible).length > 0 && (
+            <>
+              <div className="mt-2 border-t border-border/40 pt-2 text-center text-[11px] text-muted-foreground bn">
+                {isBn ? "সাইট প্রিসেট" : "Site presets"}
+              </div>
+              <div className="space-y-1.5">
+                {themeConfig.presets.filter((preset) => preset.visible).map((preset) => {
+                  const isSelected = customAccent === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => applyCustomPreset(preset)}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs sm:text-sm font-medium transition-all",
+                        isSelected
+                          ? "bg-primary/15 text-primary border border-primary/30"
+                          : "text-foreground/80 hover:bg-muted/50 hover:text-foreground"
+                      )}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <span
+                          className="h-5 w-5 rounded-full shadow-xs shrink-0 border border-white/20"
+                          style={{ background: `linear-gradient(135deg, ${preset.gradientStart}, ${preset.gradientEnd})` }}
+                        />
+                        <span className="bn">{isBn ? preset.nameBn : preset.nameEn}</span>
+                      </span>
+                      {isSelected && <Check className="h-4 w-4 shrink-0 text-primary" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
           {/* Footer note */}
           <div className="mt-3 border-t border-border/40 pt-2 text-center text-[11px] text-muted-foreground bn">

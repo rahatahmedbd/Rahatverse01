@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import {
   initAnalyticsQueue,
+  setTelemetryEnabled,
   shouldTrack,
   trackEvent,
   trackPageView,
@@ -29,6 +30,20 @@ export function AnalyticsProvider() {
   // Queue lifecycle: periodic flush + flush on tab hide / page unload.
   useEffect(() => {
     initAnalyticsQueue();
+  }, []);
+
+  // Apply admin-controlled telemetry switch from analytics_config.
+  useEffect(() => {
+    fetch("/api/analytics-config", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((json) => {
+        const enabled = (json as { data?: { settings?: { telemetryEnabled?: boolean } } } | null)
+          ?.data?.settings?.telemetryEnabled;
+        if (typeof enabled === "boolean") setTelemetryEnabled(enabled);
+      })
+      .catch(() => {
+        /* fall back to enabled */
+      });
   }, []);
 
   // Page view tracking on route change.

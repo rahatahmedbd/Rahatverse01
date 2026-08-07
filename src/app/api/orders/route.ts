@@ -43,6 +43,7 @@ export async function POST(request: Request) {
     const client_company = optionalText(input.client_company, 150);
     const package_type = enumValue(input.package_type, packageTypes);
     const website_type = enumValue(input.website_type, websiteTypes);
+    const design_style = optionalText(input.design_style, 100);
     const description = optionalText(input.description, 5_000);
     const num_pages = positiveInteger(input.num_pages, 1, 100);
     const features = stringArray(input.features ?? [], 30, 80);
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
         client_company,
         package_type,
         website_type,
+        design_style,
         description,
         num_pages,
         features,

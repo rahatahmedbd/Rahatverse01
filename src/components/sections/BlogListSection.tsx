@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,8 @@ import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
 import { ArrowRight, Clock, BookOpen, Search, Sparkles } from "lucide-react";
 import { CloudinaryImage } from "@/components/ui/cloudinary-image";
 import { Input } from "@/components/ui/input";
+import { DEFAULT_BLOG_CONFIG, validateBlogConfig } from "@/lib/blog/config";
+import type { BlogConfig } from "@/types/blog";
 
 // ── Types ──────────────────────────────────────────────
 interface BlogPost {
@@ -99,14 +101,35 @@ export function BlogListSection({
   posts = fallbackPosts,
 }: BlogListSectionProps) {
   const isBn = locale === "bn";
+  const [config, setConfig] = useState<BlogConfig>(DEFAULT_BLOG_CONFIG);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/blog-config", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        const validated = validateBlogConfig((json as { data?: unknown } | null)?.data);
+        if (validated) setConfig(validated);
+      })
+      .catch(() => {
+        /* fall back to defaults */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const categories = [
     { key: "all", label: isBn ? "সব পোস্ট" : "All Posts" },
-    { key: "science", label: isBn ? "🔬 বিজ্ঞান" : "🔬 Science" },
-    { key: "education", label: isBn ? "📚 শিক্ষা" : "📚 Education" },
-    { key: "social", label: isBn ? "🤝 সমাজসেবা" : "🤝 Social" },
+    ...config.categories
+      .filter((category) => category.visible)
+      .map((category) => ({
+        key: category.value,
+        label: isBn ? category.labelBn : category.labelEn,
+      })),
   ];
 
   const filteredPosts = posts.filter((post) => {

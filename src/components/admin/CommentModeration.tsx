@@ -26,6 +26,8 @@ interface CommentRow {
   content: string;
   is_approved: boolean;
   created_at: string;
+  admin_reply?: string | null;
+  reply_author?: string | null;
   blog_posts?: { title: string; slug: string } | null;
 }
 
@@ -42,8 +44,28 @@ export function CommentModeration({ locale = "bn" }: CommentModerationProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actingId, setActingId] = useState<string | null>(null);
+  const [replyDraft, setReplyDraft] = useState<Record<string, string>>({});
 
   const pageSize = 20;
+
+  const saveReply = async (comment: CommentRow) => {
+    const reply = (replyDraft[comment.id] ?? "").trim();
+    if (!reply) return;
+    setActingId(comment.id);
+    try {
+      const res = await fetch("/api/admin/comments", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: comment.id, admin_reply: reply, reply_author: "Rahat Ahmed" }),
+      });
+      if (res.ok) {
+        setReplyDraft((prev) => ({ ...prev, [comment.id]: "" }));
+        fetchComments();
+      }
+    } finally {
+      setActingId(null);
+    }
+  };
 
   const fetchComments = useCallback(async () => {
     setLoading(true);
@@ -63,8 +85,7 @@ export function CommentModeration({ locale = "bn" }: CommentModerationProps) {
   }, [status, page, isBn]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchComments();
+    void fetchComments();
   }, [fetchComments]);
 
   const act = async (id: string, action: "approve" | "reject" | "delete") => {
@@ -139,6 +160,17 @@ export function CommentModeration({ locale = "bn" }: CommentModerationProps) {
                 </span>
               </div>
               <p className="mt-3 text-sm leading-relaxed">{comment.content}</p>
+              {comment.admin_reply && (
+                <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
+                  <div className="mb-1 flex items-center gap-1.5">
+                    <Badge variant="glow" className="text-[10px]">
+                      {isBn ? "অ্যাডমিন / লেখক" : "Admin / Author"}
+                    </Badge>
+                    <span className="text-xs font-semibold">{comment.reply_author || "Rahat Ahmed"}</span>
+                  </div>
+                  <p className="text-sm">{comment.admin_reply}</p>
+                </div>
+              )}
               <div className="mt-3 flex items-center justify-between gap-2">
                 <p className="text-xs text-muted-foreground">
                   {comment.blog_posts?.title ?? isBn ? "পোস্ট" : "Post"}
@@ -160,6 +192,18 @@ export function CommentModeration({ locale = "bn" }: CommentModerationProps) {
                     <Trash2 className="h-4 w-4 text-red-400" />
                   </Button>
                 </div>
+              </div>
+              {/* Admin reply composer */}
+              <div className="mt-3 flex items-center gap-2">
+                <input
+                  value={replyDraft[comment.id] ?? ""}
+                  onChange={(e) => setReplyDraft((prev) => ({ ...prev, [comment.id]: e.target.value }))}
+                  placeholder={isBn ? "অ্যাডমিন উত্তর লিখুন..." : "Write an admin reply..."}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                />
+                <Button size="sm" variant="outline" disabled={actingId === comment.id || !(replyDraft[comment.id] ?? "").trim()} onClick={() => saveReply(comment)}>
+                  {isBn ? "উত্তর" : "Reply"}
+                </Button>
               </div>
             </GlassCard>
           ))

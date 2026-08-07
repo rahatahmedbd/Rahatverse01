@@ -148,22 +148,22 @@ export function NewsletterSignup({ locale = "bn", variant = "card", source = "we
   }
 
   return (
-    <GlassCard className="p-6 md:p-8">
-      <div className="mx-auto max-w-xl text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10">
-          <Mail className="h-6 w-6 text-amber-400" />
+    <GlassCard className="p-5 sm:p-6">
+      <div className="mx-auto max-w-lg text-center">
+        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 sm:h-11 sm:w-11">
+          <Mail className="h-5 w-5 text-amber-400 sm:h-6 sm:w-6" />
         </div>
-        <h3 className="mt-4 text-xl font-bold bn">
+        <h3 className="mt-3 text-lg font-bold tracking-tight bn sm:text-xl">
           {isBn ? "নিউজলেটারে যুক্ত হোন" : "Join the newsletter"}
         </h3>
-        <p className="mt-2 text-sm text-muted-foreground bn">
+        <p className="mx-auto mt-1.5 max-w-[32ch] text-xs leading-relaxed text-muted-foreground bn sm:text-sm">
           {isBn
-            ? "শিক্ষা, প্রযুক্তি ও সমাজসেবা নিয়ে আমার নতুন লেখা এবং প্রজেক্ট আপডেট — সরাসরি ইনবক্সে। স্প্যাম নয়।"
+            ? "শিক্ষা, প্রযুক্তি ও সমাজসেবা নিয়ে নতুন লেখা এবং প্রজেক্ট আপডেট — সরাসরি ইনবক্সে। স্প্যাম নয়।"
             : "New stories on education, tech & social service — plus project updates. No spam, unsubscribe anytime."}
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-3 text-left">
-          <div className="flex flex-col gap-3 sm:flex-row">
+        <form onSubmit={handleSubmit} className="mt-5 space-y-3 text-left sm:mt-6">
+          <div className="flex flex-col gap-2.5 sm:flex-row">
             <div className="relative flex-1">
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -172,11 +172,11 @@ export function NewsletterSignup({ locale = "bn", variant = "card", source = "we
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={isBn ? "আপনার ইমেইল *" : "Your email *"}
-                className="pl-9"
+                className="h-10 pl-9 text-sm"
                 disabled={status === "loading"}
               />
             </div>
-            <Button type="submit" variant="gradient" disabled={status === "loading"} className="sm:w-auto w-full">
+            <Button type="submit" variant="gradient" disabled={status === "loading"} className="h-10 w-full sm:w-auto">
               {status === "loading" ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" /> {isBn ? "পাঠানো হচ্ছে..." : "Sending..."}
@@ -202,7 +202,7 @@ export function NewsletterSignup({ locale = "bn", variant = "card", source = "we
                       key={topic.id}
                       type="button"
                       onClick={() => toggleTopic(topic.value)}
-                      className={`rounded-full border px-3 py-1 text-xs transition-all ${
+                      className={`rounded-full border px-2.5 py-1 text-xs transition-all sm:px-3 ${
                         active
                           ? "border-primary bg-primary/15 text-primary"
                           : "border-border text-muted-foreground hover:border-primary/30"
@@ -225,6 +225,7 @@ export function NewsletterSignup({ locale = "bn", variant = "card", source = "we
                 placeholder={isBn ? "আপনার নাম (ঐচ্ছিক)" : "Your name (optional)"}
                 maxLength={100}
                 disabled={status === "loading"}
+                className="h-10 text-sm"
               />
             </div>
           ) : (
@@ -238,13 +239,13 @@ export function NewsletterSignup({ locale = "bn", variant = "card", source = "we
           )}
 
           {status === "error" && (
-            <div className="flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-400">
+            <div className="flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/5 p-2.5 text-xs text-red-400">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{message}</span>
             </div>
           )}
 
-          <p className="text-xs text-muted-foreground text-center bn">
+          <p className="text-center text-[11px] leading-relaxed text-muted-foreground bn">
             {isBn ? "ডাবল অপ্ট-ইন — ইমেইল নিশ্চিত করতে হবে। ৪৮ ঘণ্টা মেয়াদ।" : "Double opt-in — you’ll confirm via email. Link valid 48h."}
           </p>
         </form>

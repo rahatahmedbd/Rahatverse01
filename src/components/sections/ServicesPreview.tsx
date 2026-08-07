@@ -15,7 +15,6 @@ import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/
 import { ServicesIcon } from "@/lib/services/icons";
 import type { ServicesConfig } from "@/types/services";
 
-// ── Services Preview Section (DB-driven) ───────────────
 interface ServicesPreviewProps {
   locale?: string;
 }
@@ -42,9 +41,7 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
         const validated = validateServicesConfig((json as { data?: unknown } | null)?.data);
         if (validated) setConfig(validated);
       })
-      .catch(() => {
-        /* fall back to defaults */
-      });
+      .catch(() => {});
     return () => {
       cancelled = true;
     };
@@ -58,8 +55,8 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
   if (featuredPackages.length === 0) return null;
 
   return (
-    <section className="py-20">
-      <div className="mx-auto max-w-7xl px-4">
+    <section className="py-12 sm:py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionTitle
           badge={isBn ? section.badgeBn : section.badgeEn}
           title={isBn ? section.titleBn : section.titleEn}
@@ -68,10 +65,10 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
           locale={locale}
         />
 
-        {/* Featured packages — 3D Flip / Interactive Glow Cards */}
-        <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+        {/* Featured packages — responsive: 1 col on 320, 2 on 768, 3 on 1024+ */}
+        <div className="mb-10 grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {featuredPackages.slice(0, 3).map((pkg) => (
-            <div key={pkg.id} className="h-full">
+            <div key={pkg.id} className="h-full min-w-0">
               <FlipCard3D
                 locale={locale}
                 frontIcon={<ServicesIcon name={pkg.icon} className="h-6 w-6" />}
@@ -93,7 +90,7 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
                         className="flex items-center gap-2 text-xs sm:text-sm text-foreground/90"
                       >
                         <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary" />
-                        <span>{f}</span>
+                        <span className="line-clamp-2">{f}</span>
                       </li>
                     ))}
                   </ul>
@@ -108,15 +105,15 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
           ))}
         </div>
 
-        {/* Website Types Grid */}
+        {/* Website Types Grid — 2→3→6 balanced */}
         {websiteTypes.length > 0 && (
-          <StaggerGrid className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <StaggerGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
             {websiteTypes.map((type) => (
               <StaggerItem key={type.id}>
                 <HoverCard3D className="h-full">
-                  <GlassCard className="h-full text-center transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
-                    <ServicesIcon name={type.icon} className="mx-auto mb-2 h-8 w-8 text-primary" />
-                    <p className="text-sm font-medium bn">{isBn ? type.labelBn : type.labelEn}</p>
+                  <GlassCard className="h-full min-h-[92px] p-4 text-center transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 sm:min-h-[104px]">
+                    <ServicesIcon name={type.icon} className="mx-auto mb-2 h-7 w-7 text-primary sm:h-8 sm:w-8" />
+                    <p className="text-xs font-medium leading-tight bn sm:text-sm">{isBn ? type.labelBn : type.labelEn}</p>
                   </GlassCard>
                 </HoverCard3D>
               </StaggerItem>
@@ -124,14 +121,14 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
           </StaggerGrid>
         )}
 
-        {/* Features */}
+        {/* Features — compact */}
         {features.length > 0 && (
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             {features.map((feature) => (
               <StaggerItem key={feature.id}>
-                <div className="flex items-center gap-3 rounded-xl border border-border/50 p-4 transition-all hover:border-primary/20 hover:bg-accent/10">
-                  <ServicesIcon name={feature.icon} className="h-5 w-5 text-primary shrink-0" />
-                  <span className="text-sm font-medium bn">{isBn ? feature.titleBn : feature.titleEn}</span>
+                <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/50 p-3.5 transition-all hover:border-primary/20 hover:bg-accent/10 sm:p-4">
+                  <ServicesIcon name={feature.icon} className="h-5 w-5 shrink-0 text-primary" />
+                  <span className="text-sm font-medium leading-tight bn">{isBn ? feature.titleBn : feature.titleEn}</span>
                 </div>
               </StaggerItem>
             ))}
@@ -139,11 +136,11 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
         )}
 
         {/* CTA */}
-        <div className="mt-12 text-center">
-          <Button variant="gradient" size="lg" asChild>
-            <Link href={`/${locale}/order`}>
+        <div className="mt-10 text-center sm:mt-12">
+          <Button variant="gradient" size="lg" asChild className="w-full sm:w-auto">
+            <Link href={`/${locale}/order`} className="inline-flex items-center justify-center gap-2">
               {isBn ? "প্রজেক্টের জন্য যোগাযোগ করুন" : "Start Your Project"}
-              <ArrowRight className="h-4 w-4 ml-1" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>

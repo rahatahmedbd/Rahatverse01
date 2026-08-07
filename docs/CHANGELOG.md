@@ -4,6 +4,22 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.18.0] — Phase 15 — Global Site Settings, Security & Maintenance CMS
+
+### Added
+- `global_config` site_settings document (migration `024_global_admin_control.sql`)
+  driving the announcement banner, header announcement, footer settings (copyright,
+  made-with, business contacts, location) and maintenance mode.
+- Public `/api/global-config` endpoint with resilient defaults + cached
+  `useGlobalConfig` hook.
+- `GlobalControlPanel` at `/[locale]/dashboard/global-settings` (new "Global
+  Settings" nav entry).
+- `AnnouncementBanner` rendered above the navbar in the locale layout.
+- Refactored `EnhancedFooter` to render DB-driven copyright, made-with, business
+  contacts and location.
+- Seven unit tests covering the new CMS validation contract.
+- This is the final phase of the 15-phase 100% Admin Control roadmap.
+
 ## [0.17.0] — Phase 14 — Analytics, Real-Time Visitor Telemetry & Performance Vitals CMS
 
 ### Added

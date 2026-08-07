@@ -11,6 +11,12 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/global-config`
+Public, validated global configuration endpoint (Phase 15). Returns `{ data }` —
+the `global_config` document in `site_settings` (announcement banner, header
+announcement, footer settings, maintenance mode). Falls back to defaults when the
+database is unavailable or the value fails validation.
+
 ### `GET /api/analytics-config`
 Public, validated analytics configuration endpoint (Phase 14). Returns
 `{ data }` — the `analytics_config` document in `site_settings` (dashboard panel

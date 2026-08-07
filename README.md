@@ -157,6 +157,7 @@ See the **[docs/](docs/README.md)** folder:
 | Custom 12 | **Theme, XP & Audio CMS** | Theme presets, XP rules/levels, ambient audio, effect toggles ✅ |
 | Custom 13 | **Search, FAQ & Legal CMS** | Search weights, FAQ accordion CMS, legal policy pages ✅ |
 | Custom 14 | **Analytics & Vitals CMS** | Telemetry toggle, dashboard panels, Core Web Vitals thresholds ✅ |
+| Custom 15 | **Global Settings & Maintenance CMS** | Announcement banners, footer, maintenance mode ✅ |
 
 ## 👤 Author
 

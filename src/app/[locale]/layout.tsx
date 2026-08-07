@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { Navbar } from "@/components/layout/navbar";
+import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
 import { AnimationProviders } from "@/components/animations/Providers";
@@ -68,6 +69,9 @@ export default async function LocaleLayout({
             <div className="site-gradient-canvas flex min-h-screen flex-col">
               {/* Global Animation Effects */}
               <AnimationProviders />
+
+              {/* Admin-controlled announcement banner */}
+              <AnnouncementBanner locale={locale} />
 
               {/* Glass Navigation Bar */}
               <Navbar />

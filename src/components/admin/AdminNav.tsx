@@ -35,6 +35,7 @@ import {
   Palette,
   HelpCircle,
   Activity,
+  Globe2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -78,6 +79,7 @@ const sections = [
   { href: "health", icon: HeartPulse, labelBn: "সিস্টেম হেলথ", labelEn: "System Health" },
   { href: "logs", icon: Terminal, labelBn: "সিস্টেম লগ", labelEn: "System Logs" },
   { href: "settings", icon: Settings, labelBn: "সেটিংস", labelEn: "Settings" },
+  { href: "global-settings", icon: Globe2, labelBn: "গ্লোবাল সেটিংস", labelEn: "Global Settings" },
   { href: "export", icon: Download, labelBn: "এক্সপোর্ট", labelEn: "Export" },
 ];
 

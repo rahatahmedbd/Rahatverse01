@@ -37,6 +37,34 @@ The legacy public site contains the approved historic media:
 
 Only upload media that you own or have permission to use.
 
+## How to upload
+
+Every public ID above is already wired to a section of the site
+(hero/about profile, memorial portrait, Shantichakra logo, achievements,
+experience, gallery). The only remaining step is getting the files into
+Cloudinary. Pick one of the two ready-made tools:
+
+### Option A — Browser tool (no install, one click)
+
+Open `scripts/cloudinary-upload-tool.html` in any browser (double-click works).
+Cloud name and API key are pre-filled; paste only your **API Secret** and press
+the button. The page runs entirely in your browser — the secret never touches
+any server; it computes the signed upload locally and posts directly to
+Cloudinary over HTTPS, then verifies every delivery URL.
+
+### Option B — Command line (Node 18+, zero dependencies)
+
+```bash
+CLOUDINARY_CLOUD_NAME=your_cloud_name \
+CLOUDINARY_API_KEY=your_api_key \
+CLOUDINARY_API_SECRET=your_api_secret \
+node scripts/upload-cloudinary.mjs
+```
+
+The script auto-loads `.env.local` if present, uploads all 14 legacy images
+from `rahatahmedbd.github.io` (Cloudinary fetches them server-side), and
+verifies the delivery URLs. Safe to re-run (`overwrite: true`).
+
 ## Vercel configuration
 
 Set the following environment variables for **Production**, **Preview**, and local development as appropriate:

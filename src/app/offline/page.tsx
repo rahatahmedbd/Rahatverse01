@@ -12,7 +12,7 @@ export default function OfflinePage() {
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10">
           <WifiOff className="h-10 w-10 text-amber-400" />
         </div>
-        <h1 className="text-2xl font-bold bn">ইন্টারনেট সংযোগ নেই</h1>
+        <h1 className="text-heading-md font-bold bn">ইন্টারনেট সংযোগ নেই</h1>
         <p className="mt-2 text-sm text-amber-400/60">No Internet Connection</p>
         <p className="mt-4 text-muted-foreground bn">
           আপনার ইন্টারনেট সংযোগ চেক করুন এবং আবার চেষ্টা করুন।

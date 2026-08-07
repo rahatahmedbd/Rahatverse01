@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { FadeInUp } from "@/components/animations/FadeIn"
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger"
+import { SectionTitle } from "@/components/sections/SectionTitle"
 import { Star, Quote } from "lucide-react"
 
 interface Testimonial {
@@ -24,8 +24,6 @@ interface TestimonialsSectionProps {
 export default function TestimonialsSection({ locale = "bn", limit = 6 }: TestimonialsSectionProps) {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [loading, setLoading] = useState(true)
-
-  const isBn = locale === "bn"
 
   const fetchTestimonials = useCallback(async () => {
     try {
@@ -65,18 +63,13 @@ export default function TestimonialsSection({ locale = "bn", limit = 6 }: Testim
 
   return (
     <div className="py-12">
-      <FadeInUp>
-        <div className="text-center mb-12">
-          <h2 className="text-gradient mb-4 text-3xl font-bold">
-            {isBn ? "ক্লায়েন্টদের মতামত" : "Client Testimonials"}
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            {isBn 
-              ? "আমার ক্লায়েন্টরা কী বলছেন" 
-              : "What my clients say about my work"}
-          </p>
-        </div>
-      </FadeInUp>
+      <SectionTitle
+        title="Client Testimonials"
+        titleBn="ক্লায়েন্টদের মতামত"
+        subtitle="What my clients say about my work"
+        subtitleBn="আমার ক্লায়েন্টরা কী বলছেন"
+        locale={locale}
+      />
 
       <StaggerContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {testimonials.map((testimonial) => (

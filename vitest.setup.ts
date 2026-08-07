@@ -30,3 +30,28 @@ if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
 if (typeof globalThis.structuredClone === "undefined") {
   globalThis.structuredClone = (value: unknown) => JSON.parse(JSON.stringify(value));
 }
+
+// jsdom does not implement IntersectionObserver; stub it so components that
+// use viewport-triggered animations (framer-motion `whileInView`, e.g.
+// SectionTitle) do not throw during unit tests.
+if (typeof window !== "undefined" && typeof window.IntersectionObserver !== "function") {
+  class IntersectionObserverStub {
+    readonly root = null;
+    readonly rootMargin = "0px";
+    readonly thresholds = [0];
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  }
+  Object.defineProperty(window, "IntersectionObserver", {
+    writable: true,
+    value: IntersectionObserverStub,
+  });
+  Object.defineProperty(globalThis, "IntersectionObserver", {
+    writable: true,
+    value: IntersectionObserverStub,
+  });
+}

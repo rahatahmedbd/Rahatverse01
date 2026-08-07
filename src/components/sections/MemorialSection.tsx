@@ -125,7 +125,7 @@ export function MemorialSection({ locale = "bn" }: MemorialSectionProps) {
               />
             </motion.div>
 
-            <h3 className="text-2xl font-bold bn">
+            <h3 className="text-heading-md font-bold bn">
               {isBn ? "মরহুম জনাব ফরিদ আহমেদ" : "Late Md. Farid Ahmed"}
             </h3>
             <p className="mt-1 text-muted-foreground bn">

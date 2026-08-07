@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMotionPreference } from "@/components/animations/motion-preferences";
+import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
 
 // ── Check if intro already played ──────────────────────
 function shouldPlayIntro(): boolean {
@@ -17,6 +18,21 @@ function shouldPlayIntro(): boolean {
 export function CinematicIntro() {
   const [isPlaying, setIsPlaying] = useState(shouldPlayIntro);
   const prefersReducedMotion = useMotionPreference();
+  const [greeting, setGreeting] = useState(DEFAULT_HERO_CONFIG.intro.greetingBn);
+  const [durationMs, setDurationMs] = useState(DEFAULT_HERO_CONFIG.intro.durationMs);
+
+  useEffect(() => {
+    fetch("/api/hero-config", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((json) => {
+        const v = validateHeroConfig(json.data);
+        if (v) {
+          setGreeting(v.intro.greetingBn);
+          setDurationMs(v.intro.durationMs);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleComplete = () => {
     setIsPlaying(false);
@@ -44,20 +60,18 @@ export function CinematicIntro() {
             <div className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/10 blur-3xl" />
           </motion.div>
 
-          {/* Bismillah */}
+          {/* Greeting — admin editable, duration synced */}
           <motion.div
             className="absolute top-1/4 left-1/2 -translate-x-1/2 text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: [0, 1, 1, 0], y: [20, 0, 0, -10] }}
             transition={{
-              duration: 3.5,
+              duration: durationMs / 1000,
               times: [0, 0.2, 0.6, 1],
               ease: "easeInOut",
             }}
           >
-            <p className="text-lg text-amber-400/80 bn">
-              বিসমিল্লাহির রাহমানির রাহিম
-            </p>
+            <p className="text-lg text-amber-400/80 bn">{greeting}</p>
           </motion.div>
 
           {/* Main Logo */}

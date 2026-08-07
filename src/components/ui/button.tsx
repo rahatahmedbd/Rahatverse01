@@ -23,7 +23,7 @@ const buttonVariants = cva(
         // Custom cinematic variants
         glow: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 animate-pulse-glow",
         gradient:
-          "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white hover:opacity-90 shadow-lg shadow-amber-500/25",
+          "gradient-cta text-white shadow-lg shadow-primary/25 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30",
         glass:
           "glass text-foreground hover:bg-white/10 border border-border/50",
       },

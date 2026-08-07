@@ -16,6 +16,7 @@ export { Badge, badgeVariants } from "./badge";
 export type { BadgeProps } from "./badge";
 
 export { Separator } from "./separator";
+export { AuroraDivider } from "./aurora-divider";
 
 export { Skeleton, CardSkeleton, PageLoader } from "./skeleton";
 

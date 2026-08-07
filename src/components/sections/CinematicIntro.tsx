@@ -71,7 +71,7 @@ export function CinematicIntro() {
 
             {/* Logo */}
             <motion.div
-              className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-3xl font-bold text-white shadow-2xl shadow-amber-500/30"
+              className="bg-brand-gradient gradient-border relative flex h-20 w-20 items-center justify-center rounded-2xl text-3xl font-bold text-white shadow-2xl shadow-primary/30"
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: [0, 1.1, 1], rotate: [-180, 0] }}
               transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}

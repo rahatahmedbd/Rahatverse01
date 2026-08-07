@@ -14,7 +14,7 @@ export default async function TermsPage({ params }: TermsPageProps) {
     <div className="mx-auto max-w-3xl px-4 py-12">
       <FadeInUp>
         <GlassCard>
-          <h1 className="text-3xl font-bold bn">{isBn ? "সেবার শর্তাবলী" : "Terms of Service"}</h1>
+          <h1 className="text-gradient text-3xl font-bold bn">{isBn ? "সেবার শর্তাবলী" : "Terms of Service"}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {isBn ? "সর্বশেষ আপডেট: আগস্ট ২০২৬" : "Last updated: August 2026"}
           </p>

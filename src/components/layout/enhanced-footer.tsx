@@ -39,7 +39,7 @@ export function EnhancedFooter() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-4">
             <Link href={`/${locale}`} className="inline-block">
-              <h3 className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-2xl font-bold text-transparent">
+              <h3 className="text-gradient text-2xl font-bold">
                 RahatVerse
               </h3>
             </Link>

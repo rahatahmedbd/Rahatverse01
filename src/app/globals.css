@@ -83,11 +83,60 @@
   --input: #1e293b;
   --ring: #f59e0b;
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #f59e0b, #f97316, #ef4444);
+  /* Phase B — unified gradient palette */
+  --gradient-start: #fbbf24;
+  --gradient-middle: #f97316;
+  --gradient-end: #ef4444;
+  --gradient-cool: #8b5cf6;
+  --gradient-sky: #3b82f6;
+  --gradient-primary: linear-gradient(
+    110deg,
+    var(--gradient-start) 0%,
+    var(--gradient-middle) 28%,
+    var(--gradient-end) 52%,
+    var(--gradient-cool) 76%,
+    var(--gradient-start) 100%
+  );
+  --gradient-primary-soft: linear-gradient(
+    120deg,
+    rgba(251, 191, 36, 0.18),
+    rgba(249, 115, 22, 0.12) 38%,
+    rgba(139, 92, 246, 0.1) 72%,
+    rgba(59, 130, 246, 0.08)
+  );
+  --gradient-border: linear-gradient(
+    120deg,
+    rgba(251, 191, 36, 0.85),
+    rgba(249, 115, 22, 0.7),
+    rgba(239, 68, 68, 0.65),
+    rgba(139, 92, 246, 0.75),
+    rgba(251, 191, 36, 0.85)
+  );
   --gradient-surface: linear-gradient(180deg, #0a1628, #050a15);
   --gradient-glow: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
   --gradient-aurora: linear-gradient(135deg, #0a1628 0%, #1e3a5f 25%, #0a1628 50%, #1a1f3c 75%, #050a15 100%);
+  --gradient-mesh:
+    radial-gradient(circle at 12% 18%, rgba(251, 191, 36, 0.09), transparent 28%),
+    radial-gradient(circle at 88% 16%, rgba(139, 92, 246, 0.08), transparent 30%),
+    radial-gradient(circle at 72% 76%, rgba(59, 130, 246, 0.07), transparent 32%),
+    radial-gradient(circle at 20% 82%, rgba(249, 115, 22, 0.07), transparent 30%);
+  --gradient-divider: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(251, 191, 36, 0.65) 20%,
+    rgba(249, 115, 22, 0.8) 38%,
+    rgba(139, 92, 246, 0.75) 62%,
+    rgba(59, 130, 246, 0.6) 80%,
+    transparent 100%
+  );
+  --gradient-shine: linear-gradient(
+    105deg,
+    transparent 18%,
+    rgba(255, 255, 255, 0.18) 36%,
+    rgba(255, 255, 255, 0.72) 50%,
+    rgba(255, 255, 255, 0.18) 64%,
+    transparent 82%
+  );
 }
 
 /* ── Light Theme ──────────────────────────────────────── */
@@ -111,6 +160,45 @@
   --border: #cbd5e1;
   --input: #e2e8f0;
   --ring: #d97706;
+
+  /* Keep the same brand spectrum with light-theme contrast and softer atmosphere. */
+  --gradient-start: #b45309;
+  --gradient-middle: #c2410c;
+  --gradient-end: #be123c;
+  --gradient-cool: #6d28d9;
+  --gradient-sky: #1d4ed8;
+  --gradient-primary-soft: linear-gradient(
+    120deg,
+    rgba(180, 83, 9, 0.12),
+    rgba(194, 65, 12, 0.09) 38%,
+    rgba(109, 40, 217, 0.08) 72%,
+    rgba(29, 78, 216, 0.06)
+  );
+  --gradient-border: linear-gradient(
+    120deg,
+    rgba(180, 83, 9, 0.75),
+    rgba(194, 65, 12, 0.68),
+    rgba(190, 18, 60, 0.6),
+    rgba(109, 40, 217, 0.65),
+    rgba(180, 83, 9, 0.75)
+  );
+  --gradient-surface: linear-gradient(180deg, #ffffff, #f8fafc);
+  --gradient-glow: radial-gradient(circle, rgba(180, 83, 9, 0.1) 0%, transparent 70%);
+  --gradient-aurora: linear-gradient(135deg, #f8fafc 0%, #fff7ed 28%, #f5f3ff 60%, #eff6ff 100%);
+  --gradient-mesh:
+    radial-gradient(circle at 12% 18%, rgba(180, 83, 9, 0.07), transparent 28%),
+    radial-gradient(circle at 88% 16%, rgba(109, 40, 217, 0.06), transparent 30%),
+    radial-gradient(circle at 72% 76%, rgba(29, 78, 216, 0.05), transparent 32%),
+    radial-gradient(circle at 20% 82%, rgba(194, 65, 12, 0.05), transparent 30%);
+  --gradient-divider: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(180, 83, 9, 0.52) 20%,
+    rgba(194, 65, 12, 0.65) 38%,
+    rgba(109, 40, 217, 0.6) 62%,
+    rgba(29, 78, 216, 0.5) 80%,
+    transparent 100%
+  );
 }
 
 /* ── Base Styles ──────────────────────────────────────── */
@@ -179,14 +267,175 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  .site-gradient-canvas::before {
+    transform: none;
+    will-change: auto;
+  }
+
+  .text-gradient,
+  .bg-brand-gradient,
+  .bg-brand-gradient-soft,
+  .gradient-badge,
+  .gradient-cta,
+  .gradient-border::before,
+  .aurora-divider,
+  .aurora-divider::before {
+    animation: none !important;
+    background-position: 50% 50%;
+  }
+
+  .gradient-cta::after {
+    display: none;
+  }
 }
 
 /* ── Utility Classes ──────────────────────────────────── */
+.site-gradient-canvas {
+  position: relative;
+  isolation: isolate;
+}
+
+.site-gradient-canvas::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: -18%;
+  pointer-events: none;
+  background-image: var(--gradient-mesh);
+  transform: translate3d(-1.5%, -1%, 0) scale(1.02);
+  transform-origin: center;
+  animation: mesh-drift 22s ease-in-out infinite;
+  will-change: transform;
+}
+
 .text-gradient {
-  background: var(--gradient-primary);
+  color: var(--primary);
+  background-image: var(--gradient-primary);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: gradient-flow 9s ease-in-out infinite;
+}
+
+.bg-brand-gradient {
+  background-image: var(--gradient-primary);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  animation: gradient-flow 9s ease-in-out infinite;
+}
+
+.bg-brand-gradient-soft {
+  background-image: var(--gradient-primary-soft);
+  background-size: 220% 220%;
+  animation: gradient-flow 12s ease-in-out infinite;
+}
+
+/* Animated border that does not alter a component's own surface. */
+.gradient-border {
+  position: relative;
+  isolation: isolate;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background-image: var(--gradient-border);
+  background-size: 300% 300%;
+  animation: gradient-border-flow 8s linear infinite;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.gradient-badge {
+  background-image: var(--gradient-primary-soft);
+  background-size: 220% 220%;
+  color: var(--gradient-start);
+  animation: gradient-flow 10s ease-in-out infinite;
+}
+
+.light .gradient-badge {
+  color: var(--gradient-middle);
+}
+
+/* Conversion CTA: palette motion plus an independent shine sweep. */
+.gradient-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-image: var(--gradient-primary);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  animation: gradient-flow 7s ease-in-out infinite;
+}
+
+.gradient-cta::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -80%;
+  bottom: -80%;
+  left: -55%;
+  width: 38%;
+  pointer-events: none;
+  background-image: var(--gradient-shine);
+  transform: translate3d(-220%, 0, 0) rotate(12deg);
+  animation: cta-shine 3.8s ease-in-out infinite;
+}
+
+.gradient-cta:disabled::after,
+.gradient-cta[aria-disabled="true"]::after {
+  display: none;
+}
+
+/* Reusable flowing aurora divider for adjacent content sections. */
+.aurora-divider {
+  position: relative;
+  width: min(82%, 64rem);
+  height: 1px;
+  margin-inline: auto;
+  background-image: var(--gradient-divider);
+  background-size: 240% 100%;
+  opacity: 0.75;
+  animation: divider-flow 10s ease-in-out infinite;
+}
+
+.aurora-divider::before {
+  content: "";
+  position: absolute;
+  inset: -1.25rem 8%;
+  pointer-events: none;
+  background-image: var(--gradient-divider);
+  background-size: 240% 100%;
+  filter: blur(18px);
+  opacity: 0.38;
+  transform: scaleX(0.92);
+  animation: divider-aurora 10s ease-in-out infinite;
+}
+
+.aurora-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: var(--gradient-start);
+  box-shadow:
+    0 0 0.8rem rgba(251, 191, 36, 0.75),
+    0 0 1.8rem rgba(139, 92, 246, 0.4);
+  transform: translate(-50%, -50%);
 }
 
 .glass {
@@ -220,6 +469,45 @@ body {
 }
 
 /* ── Animations ───────────────────────────────────────── */
+@keyframes gradient-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes gradient-border-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes mesh-drift {
+  0%, 100% { transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
+  50% { transform: translate3d(1.5%, 1%, 0) scale(1.06); }
+}
+
+@keyframes divider-flow {
+  0%, 100% { background-position: 0% 50%; opacity: 0.58; }
+  50% { background-position: 100% 50%; opacity: 0.88; }
+}
+
+@keyframes divider-aurora {
+  0%, 100% {
+    background-position: 0% 50%;
+    opacity: 0.26;
+    transform: scaleX(0.9);
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.48;
+    transform: scaleX(1.04);
+  }
+}
+
+@keyframes cta-shine {
+  0%, 28% { transform: translate3d(-220%, 0, 0) rotate(12deg); }
+  58%, 100% { transform: translate3d(520%, 0, 0) rotate(12deg); }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }

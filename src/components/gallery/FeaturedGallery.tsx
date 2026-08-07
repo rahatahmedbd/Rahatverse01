@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface GalleryImage {
   id: string;
@@ -104,25 +105,25 @@ export default function FeaturedGallery({
 
       {/* View All Button */}
       <div className="text-center">
-        <Link
-          href={`/${locale}/gallery`}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          {isBn ? "সব ছবি দেখুন" : "View All Images"}
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </Link>
+        <Button variant="gradient" size="lg" asChild>
+          <Link href={`/${locale}/gallery`}>
+            {isBn ? "সব ছবি দেখুন" : "View All Images"}
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Link>
+        </Button>
       </div>
     </div>
   );

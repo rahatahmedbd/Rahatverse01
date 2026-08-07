@@ -155,7 +155,7 @@ export function LinkHubSection({ locale = "bn" }: LinkHubSectionProps) {
         {/* Profile */}
         <FadeInUp>
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/20 to-orange-600/20 border-2 border-amber-500/30">
+            <div className="bg-brand-gradient-soft gradient-border mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary/30">
               <span className="text-2xl font-bold text-amber-400">RA</span>
             </div>
             <h3 className="text-xl font-bold bn">রাহাত আহমেদ</h3>

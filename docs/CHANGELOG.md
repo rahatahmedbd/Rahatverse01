@@ -4,6 +4,21 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.13.0] — Phase 10 — Link Hub, Tool Recommendations & Resume/CV Manager
+
+### Added
+- `links_config` site_settings document (migration `019_links_admin_control.sql`)
+  driving link-hub cards (with click counts), tool recommendations, resume/CV
+  settings and the profile header.
+- Public `/api/links-config` endpoint with resilient defaults and a
+  `POST /api/links/click` counter.
+- `LinksControlPanel` at `/[locale]/dashboard/links` (new "Links & Tools" nav
+  entry) — link cards CRUD/reorder/visibility/icon/colors, tool recommendations
+  (development/design/productivity), CV URLs + in-browser-preview toggle.
+- Refactored `LinkHubSection` to render DB-driven links, tools and a working
+  CV download/preview, with per-link click tracking.
+- Eight unit tests covering the new CMS validation contract.
+
 ## [0.12.0] — Phase 9 — Contact, Booking Calendar & Social Testimonials CMS
 
 ### Added

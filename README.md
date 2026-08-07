@@ -152,6 +152,7 @@ See the **[docs/](docs/README.md)** folder:
 | Custom 7 | **Media Library, Gallery & Video CMS** | Cloudinary media manager, album gallery CMS, video showcase CMS ✅ |
 | Custom 8 | **Bilingual Blog & Comment Moderation** | Blog settings/categories CMS, admin-reply comment moderation ✅ |
 | Custom 9 | **Contact, Bookings & Testimonials** | Messages inbox, booking calendar, testimonial manager, contact settings CMS ✅ |
+| Custom 10 | **Link Hub, Tools & Resume CMS** | Link cards + click tracking, tool recommendations, CV manager ✅ |
 
 ## 👤 Author
 

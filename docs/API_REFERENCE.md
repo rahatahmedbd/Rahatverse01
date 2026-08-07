@@ -11,6 +11,16 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/links-config`
+Public, validated Link Hub / Tools / Resume configuration endpoint (Phase 10).
+Returns `{ data }` — the `links_config` document in `site_settings` (link cards
+with click counts, tool recommendations, CV settings, profile). Falls back to
+defaults when the database is unavailable or the value fails validation.
+
+### `POST /api/links/click`
+Public, non-blocking. Body: `{ id }`. Increments the click-through count for a
+link card in `links_config`.
+
 ### `GET /api/contact-config`
 Public, validated contact / booking / testimonial configuration endpoint
 (Phase 9). Returns `{ data }` — the `contact_config` document in `site_settings`

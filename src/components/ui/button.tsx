@@ -21,9 +21,9 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         // Custom cinematic variants
-        glow: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 animate-pulse-glow",
+        glow: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 animate-pulse-glow relative overflow-hidden shimmer-sweep",
         gradient:
-          "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white hover:opacity-90 shadow-lg shadow-amber-500/25",
+          "relative overflow-hidden shimmer-sweep bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white hover:opacity-90 shadow-lg shadow-amber-500/25",
         glass:
           "glass text-foreground hover:bg-white/10 border border-border/50",
       },

@@ -98,7 +98,9 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
             <StaggerItem key={pkg.id}>
               <GlassCard
                 className={`relative h-full flex flex-col ${
-                  pkg.popular ? "border-primary/50 shadow-lg shadow-primary/10" : ""
+                  pkg.popular
+                    ? "gradient-border shadow-lg shadow-primary/10"
+                    : ""
                 }`}
               >
                 {pkg.popular && (

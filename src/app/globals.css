@@ -219,6 +219,91 @@ body {
   background: var(--gradient-aurora);
 }
 
+/* ── Animated Gradient System — Phase B "গ্র্যাডিয়েন্ট ম্যাজিক" ── */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes aurora-flow {
+  0% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+  50% { background-position: 100% 100%, 0% 0%, 100% 50%; }
+  100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+}
+
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-120%) skewX(-20deg); }
+  60%, 100% { transform: translateX(320%) skewX(-20deg); }
+}
+
+/* Unified animated gradient palette (shifted background) */
+.bg-gradient-animated {
+  background: linear-gradient(
+    120deg,
+    #f59e0b, #f97316, #ef4444, #8b5cf6, #3b82f6, #10b981, #f59e0b
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 14s ease infinite;
+}
+
+/* Animated gradient text */
+.text-gradient-animated {
+  background: linear-gradient(
+    120deg,
+    #f59e0b, #f97316, #ef4444, #8b5cf6, #3b82f6, #10b981, #f59e0b
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 9s ease infinite;
+}
+
+/* Animated gradient border (padding-box keeps the inner fill, border-box carries the gradient) */
+.gradient-border {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(
+      120deg,
+      #f59e0b, #f97316, #ef4444, #8b5cf6, #3b82f6, #10b981, #f59e0b
+    ) border-box;
+  background-size: 100% 100%, 300% 300%;
+  background-origin: padding-box, border-box;
+  animation: gradient-shift 9s ease infinite;
+}
+
+/* Mesh / aurora section divider backdrop */
+.aurora-divider {
+  background:
+    radial-gradient(38% 90% at 18% 50%, rgba(245, 158, 11, 0.35), transparent 62%),
+    radial-gradient(38% 90% at 50% 50%, rgba(139, 92, 246, 0.30), transparent 62%),
+    radial-gradient(38% 90% at 82% 50%, rgba(59, 130, 246, 0.35), transparent 62%);
+  background-size: 220% 220%, 220% 220%, 220% 220%;
+  animation: aurora-flow 16s ease-in-out infinite;
+}
+
+/* CTA shine / shimmer sweep (wrap in overflow-hidden + relative) */
+.shimmer-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-sweep::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.45),
+    transparent
+  );
+  animation: shimmer-sweep 3.2s ease-in-out infinite;
+}
+
 /* ── Animations ───────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }

@@ -1,5 +1,6 @@
 // ── Section Components ─────────────────────────────────
 export { CinematicIntro } from "./CinematicIntro";
+export { SectionDivider } from "./SectionDivider";
 export { HeroSection } from "./HeroSection";
 export { ProfileImage } from "./ProfileImage";
 export { SectionTitle } from "./SectionTitle";

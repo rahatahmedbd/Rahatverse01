@@ -2,6 +2,7 @@ import { CinematicIntro } from "@/components/sections/CinematicIntro";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { AboutPreview } from "@/components/sections/AboutPreview";
 import { ServicesPreview } from "@/components/sections/ServicesPreview";
+import { SectionDivider } from "@/components/sections/SectionDivider";
 import { QuickActions } from "@/components/interactive/QuickActions";
 import FeaturedGallery from "@/components/gallery/FeaturedGallery";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
@@ -37,9 +38,11 @@ export default async function HomePage({ params }: HomePageProps) {
       </div>
 
       {/* Services Preview */}
+      <SectionDivider variant="mesh" className="-my-4" />
       <ServicesPreview locale={locale} />
 
       {/* Testimonials */}
+      <SectionDivider variant="aurora" height={120} />
       <div className="container mx-auto px-4">
         <TestimonialsSection locale={locale} limit={6} />
       </div>

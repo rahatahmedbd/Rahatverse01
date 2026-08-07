@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useSpring } from "framer-motion";
+import { useMotionPreference } from "./motion-preferences";
 
 // ── Detect touch device (outside component) ────────────
 function getIsTouchDevice(): boolean {
@@ -16,17 +17,18 @@ export function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isTouchDevice] = useState(getIsTouchDevice);
+  const prefersReducedMotion = useMotionPreference();
 
   const cursorX = useSpring(0, { stiffness: 500, damping: 50 });
   const cursorY = useSpring(0, { stiffness: 500, damping: 50 });
 
   useEffect(() => {
-    if (isTouchDevice) return;
+    if (isTouchDevice || prefersReducedMotion) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
-      if (!isVisible) setIsVisible(true);
+      setIsVisible(true);
     };
 
     const handleMouseEnter = () => setIsVisible(true);
@@ -57,10 +59,10 @@ export function CustomCursor() {
         el.removeEventListener("mouseleave", handleHoverEnd);
       });
     };
-  }, [cursorX, cursorY, isTouchDevice, isVisible]);
+  }, [cursorX, cursorY, isTouchDevice, prefersReducedMotion]);
 
-  // Don't render on touch devices
-  if (isTouchDevice) return null;
+  // Do not replace the system cursor on touch devices or for reduced motion.
+  if (isTouchDevice || prefersReducedMotion) return null;
 
   return (
     <>

@@ -369,6 +369,20 @@ html[lang="bn"] .heading-kicker,
   .gradient-cta::after {
     display: none;
   }
+
+  .magnetic-target {
+    translate: 0 0 !important;
+    transition: none !important;
+  }
+
+  .tilt-card {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .tilt-card::after {
+    display: none;
+  }
 }
 
 /* ── Utility Classes ──────────────────────────────────── */
@@ -388,6 +402,87 @@ html[lang="bn"] .heading-kicker,
   transform-origin: center;
   animation: mesh-drift 22s ease-in-out infinite;
   will-change: transform;
+}
+
+/* ── Phase E — Motion & micro-interaction primitives ─── */
+.page-transition {
+  min-height: 1px;
+  will-change: opacity, transform;
+}
+
+/* Click ripples use a pseudo-element so Button can safely render as a link
+   through Radix Slot without adding a second child. */
+.button-ripple {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.button-ripple::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: var(--ripple-y, 50%);
+  left: var(--ripple-x, 50%);
+  width: 12rem;
+  aspect-ratio: 1;
+  pointer-events: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.32);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.button-ripple[data-rippling="true"]::before {
+  animation: button-ripple 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Individual translate composes with existing Tailwind transforms, so a
+   magnetic pull never overrides a hover lift, scale, or Framer transform. */
+.magnetic-target {
+  translate: var(--magnetic-x, 0px) var(--magnetic-y, 0px);
+  transition: translate 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: translate;
+}
+
+.tilt-card {
+  position: relative;
+  overflow: hidden;
+  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.tilt-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: var(--tilt-glare-opacity, 0);
+  background: radial-gradient(
+    circle at var(--tilt-glare-x, 50%) var(--tilt-glare-y, 50%),
+    rgba(255, 255, 255, 0.8),
+    transparent 48%
+  );
+  transition: opacity 180ms ease-out;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .magnetic-target {
+    translate: 0 0;
+    will-change: auto;
+  }
+
+  .tilt-card {
+    transform: none;
+    will-change: auto;
+  }
+
+  .tilt-card::after {
+    display: none;
+  }
 }
 
 .text-gradient {
@@ -662,6 +757,17 @@ html[lang="bn"] .heading-kicker,
 @keyframes cta-shine {
   0%, 28% { transform: translate3d(-220%, 0, 0) rotate(12deg); }
   58%, 100% { transform: translate3d(520%, 0, 0) rotate(12deg); }
+}
+
+@keyframes button-ripple {
+  0% {
+    opacity: 0.42;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 @keyframes fadeIn {

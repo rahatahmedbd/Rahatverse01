@@ -4,6 +4,8 @@ import { Navbar } from "@/components/layout/navbar";
 import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
 import { AnimationProviders } from "@/components/animations/Providers";
+import { MotionProvider } from "@/components/animations/MotionProvider";
+import { PageTransition } from "@/components/animations/PageTransition";
 import { WebVitalsReporter } from "@/components/seo/web-vitals-reporter";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
@@ -62,24 +64,26 @@ export default async function LocaleLayout({
         <AnalyticsProvider />
         <ErrorReporter />
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <div className="site-gradient-canvas flex min-h-screen flex-col">
-            {/* Global Animation Effects */}
-            <AnimationProviders />
+          <MotionProvider>
+            <div className="site-gradient-canvas flex min-h-screen flex-col">
+              {/* Global Animation Effects */}
+              <AnimationProviders />
 
-            {/* Glass Navigation Bar */}
-            <Navbar />
+              {/* Glass Navigation Bar */}
+              <Navbar />
 
-            {/* Main Content */}
-            <main className="relative flex-1 pt-24 pb-24 lg:pb-8">
-              {children}
-            </main>
+              {/* Main Content */}
+              <main className="relative flex-1 pt-24 pb-24 lg:pb-8">
+                <PageTransition>{children}</PageTransition>
+              </main>
 
-            {/* Enhanced Footer */}
-            <EnhancedFooter />
+              {/* Enhanced Footer */}
+              <EnhancedFooter />
 
-            {/* Mobile Bottom Navigation */}
-            <BottomNavBar />
-          </div>
+              {/* Mobile Bottom Navigation */}
+              <BottomNavBar />
+            </div>
+          </MotionProvider>
         </NextIntlClientProvider>
       </body>
     </html>

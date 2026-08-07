@@ -29,15 +29,17 @@ export function QuickActions({ className }: QuickActionsProps) {
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-          "flex h-12 w-12 items-center justify-center rounded-full",
-          "bg-green-500 text-white shadow-lg shadow-green-500/30",
-          "transition-all hover:scale-110 hover:shadow-xl hover:shadow-green-500/40"
+          "glass-frost glass-sheen flex h-12 w-12 items-center justify-center rounded-full",
+          "text-green-400",
+          "transition-all hover:scale-110"
         )}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         aria-label="WhatsApp"
       >
-        <MessageCircle className="h-5 w-5" />
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-500/20 text-green-400">
+          <MessageCircle className="h-5 w-5" />
+        </span>
       </motion.a>
     </motion.div>
   );

@@ -25,10 +25,8 @@ export function BottomNavBar() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
       <div
         className={cn(
-          "glass mx-4 mb-4 rounded-2xl px-2 py-2",
-          "flex items-center justify-around",
-          "shadow-xl shadow-black/30",
-          "border border-border/50"
+          "glass-frost mx-4 mb-4 rounded-2xl px-2 py-2",
+          "flex items-center justify-around"
         )}
       >
         {bottomNavItems.map((item) => {

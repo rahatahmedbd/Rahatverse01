@@ -37,9 +37,8 @@ export function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50">
       <nav
         className={cn(
-          "glass mx-4 mt-4 rounded-xl px-4 py-3",
-          "flex items-center justify-between",
-          "shadow-lg shadow-black/20"
+          "glass-frost glass-sheen mx-4 mt-4 rounded-xl px-4 py-3",
+          "flex items-center justify-between"
         )}
       >
         {/* Logo */}
@@ -104,7 +103,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="glass mx-4 mt-2 rounded-xl p-4 shadow-xl lg:hidden animate-fade-in-down">
+        <div className="glass-frost mx-4 mt-2 rounded-xl p-4 lg:hidden animate-fade-in-down">
           <div className="flex flex-col gap-1">
             {NAVIGATION_ITEMS.map((item) => {
               const href = `${basePath}${item.path}`;

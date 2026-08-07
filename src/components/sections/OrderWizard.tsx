@@ -5,6 +5,13 @@ import { useSearchParams } from "next/navigation";
 import { GlassCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  FormField,
+  TextField,
+  TextAreaField,
+  SelectField,
+  ChipGroup,
+} from "@/components/ui/form";
 import { SectionTitle } from "@/components/sections/SectionTitle";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import {
@@ -16,10 +23,12 @@ import {
   ArrowLeft,
   ArrowRight,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 
 // ── Order Wizard ───────────────────────────────────────
 // Multi-step form: Package → Design → Details → Contact → Review
+// Phase 31: unified form kit + inline validation + feature count.
 
 interface OrderWizardProps {
   locale?: string;
@@ -81,6 +90,9 @@ const timelineOptions = [
   { value: "flexible", label: "ফ্লেক্সিবল", labelEn: "Flexible" },
 ];
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^[+\d][\d\s()-]{5,24}$/;
+
 export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const isBn = locale === "bn";
   const searchParams = useSearchParams();
@@ -90,6 +102,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [errors, setErrors] = useState<Partial<Record<keyof OrderData, string>>>({});
 
   const [data, setData] = useState<OrderData>({
     packageType: preselectedPackage || "basic",
@@ -110,6 +123,13 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
 
   const updateData = (field: keyof OrderData, value: string | string[]) => {
     setData((prev) => ({ ...prev, [field]: value }));
+    // Clear the inline error for the field being edited.
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   };
 
   const toggleFeature = (feature: string) => {
@@ -129,18 +149,51 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     { icon: CheckCircle2, title: isBn ? "রিভিউ" : "Review" },
   ];
 
-  const canNext = () => {
-    switch (step) {
-      case 0: return data.packageType && data.websiteType;
-      case 1: return true;
-      case 2: return data.description;
-      case 3: return data.clientName && data.clientEmail && data.clientPhone;
-      case 4: return true;
-      default: return false;
+  // ── Per-step validation (returns error map for visible fields) ──
+  const validateStep = (current: number): Partial<Record<keyof OrderData, string>> => {
+    const errs: Partial<Record<keyof OrderData, string>> = {};
+    if (current === 0) {
+      if (!data.packageType) errs.packageType = isBn ? "প্যাকেজ বাছাই করুন" : "Please choose a package";
+      if (!data.websiteType) errs.websiteType = isBn ? "ওয়েবসাইটের ধরন বাছাই করুন" : "Please choose a website type";
     }
+    if (current === 2) {
+      if (!data.description.trim())
+        errs.description = isBn ? "প্রজেক্টের বিবরণ লিখুন" : "Please describe your project";
+    }
+    if (current === 3) {
+      if (!data.clientName.trim())
+        errs.clientName = isBn ? "আপনার নাম লিখুন" : "Please enter your name";
+      if (!data.clientEmail.trim()) {
+        errs.clientEmail = isBn ? "ইমেইল লিখুন" : "Please enter your email";
+      } else if (!EMAIL_RE.test(data.clientEmail.trim())) {
+        errs.clientEmail = isBn ? "সঠিক ইমেইল দিন" : "Enter a valid email address";
+      }
+      if (!data.clientPhone.trim()) {
+        errs.clientPhone = isBn ? "ফোন নম্বর লিখুন" : "Please enter your phone number";
+      } else if (!PHONE_RE.test(data.clientPhone.trim())) {
+        errs.clientPhone = isBn ? "সঠিক ফোন নম্বর দিন" : "Enter a valid phone number";
+      }
+    }
+    return errs;
+  };
+
+  const canAdvance = (): boolean => {
+    const errs = validateStep(step);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleNext = () => {
+    const errs = validateStep(step);
+    setErrors(errs);
+    if (Object.keys(errs).length === 0) setStep((s) => s + 1);
   };
 
   const handleSubmit = async () => {
+    // Validate the final contact step once more before submitting.
+    const errs = validateStep(3);
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+
     setSubmitError("");
     setIsSubmitting(true);
 
@@ -237,20 +290,22 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
         <div className="mb-8 flex items-center justify-center gap-2">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center">
-              <div
+              <button
+                type="button"
+                onClick={() => i < step && setStep(i)}
+                disabled={i > step}
+                aria-current={i === step ? "step" : undefined}
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
                   i <= step
                     ? "border-primary bg-primary/20 text-primary"
                     : "border-border text-muted-foreground"
-                }`}
+                } ${i < step ? "cursor-pointer hover:bg-primary/30" : "cursor-default"}`}
               >
                 <s.icon className="h-4 w-4" />
-              </div>
+              </button>
               {i < steps.length - 1 && (
                 <div
-                  className={`h-0.5 w-8 transition-all ${
-                    i < step ? "bg-primary" : "bg-border"
-                  }`}
+                  className={`h-0.5 w-8 transition-all ${i < step ? "bg-primary" : "bg-border"}`}
                 />
               )}
             </div>
@@ -266,43 +321,39 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 {isBn ? "প্যাকেজ ও ওয়েবসাইট টাইপ বেছে নিন" : "Choose Package & Website Type"}
               </h3>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium bn">{isBn ? "প্যাকেজ" : "Package"}</label>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {["basic", "standard", "premium", "enterprise"].map((pkg) => (
-                    <button
-                      key={pkg}
-                      onClick={() => updateData("packageType", pkg)}
-                      className={`rounded-lg border-2 p-3 text-sm font-medium transition-all ${
-                        data.packageType === pkg
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border hover:border-primary/30"
-                      }`}
-                    >
-                      {pkg.charAt(0).toUpperCase() + pkg.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <FormField
+                id="packageType"
+                label={isBn ? "প্যাকেজ" : "Package"}
+                required
+                error={errors.packageType}
+              >
+                <ChipGroup
+                  options={["basic", "standard", "premium", "enterprise"].map((pkg) => ({
+                    value: pkg,
+                    label: pkg.charAt(0).toUpperCase() + pkg.slice(1),
+                  }))}
+                  value={data.packageType}
+                  onChange={(v) => updateData("packageType", v)}
+                  columns={4}
+                />
+              </FormField>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium bn">{isBn ? "ওয়েবসাইট টাইপ" : "Website Type"}</label>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {websiteTypes.map((type) => (
-                    <button
-                      key={type.value}
-                      onClick={() => updateData("websiteType", type.value)}
-                      className={`rounded-lg border-2 p-3 text-xs font-medium transition-all bn ${
-                        data.websiteType === type.value
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border hover:border-primary/30"
-                      }`}
-                    >
-                      {isBn ? type.label : type.labelEn}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <FormField
+                id="websiteType"
+                label={isBn ? "ওয়েবসাইট টাইপ" : "Website Type"}
+                required
+                error={errors.websiteType}
+              >
+                <ChipGroup
+                  options={websiteTypes.map((t) => ({
+                    value: t.value,
+                    label: isBn ? t.label : t.labelEn,
+                  }))}
+                  value={data.websiteType}
+                  onChange={(v) => updateData("websiteType", v)}
+                  columns={4}
+                />
+              </FormField>
             </div>
           )}
 
@@ -311,46 +362,56 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             <div className="space-y-6">
               <h3 className="text-lg font-bold bn">{isBn ? "ডিজাইন পছন্দ" : "Design Preferences"}</h3>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium bn">{isBn ? "পছন্দের রং" : "Color Preference"}</label>
-                <input
-                  type="text"
+              <FormField
+                id="colorPreference"
+                label={isBn ? "পছন্দের রং" : "Color Preference"}
+                hint={isBn ? "যেমন: নীল, সবুজ, কালো..." : "e.g., Blue, Green, Dark..."}
+              >
+                <TextField
+                  id="colorPreference"
                   value={data.colorPreference}
                   onChange={(e) => updateData("colorPreference", e.target.value)}
                   placeholder={isBn ? "যেমন: নীল, সবুজ, কালো..." : "e.g., Blue, Green, Dark..."}
-                  className="w-full rounded-lg border border-border bg-background p-3 text-sm"
                 />
-              </div>
+              </FormField>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium bn">{isBn ? "রেফারেন্স সাইট" : "Reference Sites"}</label>
-                <input
-                  type="text"
+              <FormField
+                id="referenceSites"
+                label={isBn ? "রেফারেন্স সাইট" : "Reference Sites"}
+                hint={isBn ? "কমা দিয়ে আলাদা করুন" : "Separate multiple sites with commas"}
+              >
+                <TextField
+                  id="referenceSites"
                   value={data.referenceSites}
                   onChange={(e) => updateData("referenceSites", e.target.value)}
                   placeholder={isBn ? "যেমন: example.com, site.com" : "e.g., example.com, site.com"}
-                  className="w-full rounded-lg border border-border bg-background p-3 text-sm"
                 />
-              </div>
+              </FormField>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium bn">{isBn ? "ফিচার সমূহ" : "Features Needed"}</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {featureOptions.map((feature) => (
-                    <button
-                      key={feature.value}
-                      onClick={() => toggleFeature(feature.value)}
-                      className={`rounded-lg border-2 p-2 text-xs transition-all bn ${
-                        data.features.includes(feature.value)
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border hover:border-primary/30"
-                      }`}
-                    >
-                      {isBn ? feature.label : feature.labelEn}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <FormField
+                id="features"
+                label={isBn ? "ফিচার সমূহ" : "Features Needed"}
+                hint={
+                  data.features.length > 0
+                    ? isBn
+                      ? `${data.features.length}টি ফিচার বাছাই করা হয়েছে`
+                      : `${data.features.length} features selected`
+                    : isBn
+                      ? "প্রয়োজনীয় ফিচারগুলো বেছে নিন"
+                      : "Select the features you need"
+                }
+              >
+                <ChipGroup
+                  options={featureOptions.map((f) => ({
+                    value: f.value,
+                    label: isBn ? f.label : f.labelEn,
+                  }))}
+                  value={data.features}
+                  onChange={toggleFeature}
+                  multi
+                  columns={2}
+                />
+              </FormField>
             </div>
           )}
 
@@ -359,47 +420,53 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             <div className="space-y-6">
               <h3 className="text-lg font-bold bn">{isBn ? "প্রজেক্টের বিস্তারিত" : "Project Details"}</h3>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium bn">{isBn ? "প্রজেক্টের বিবরণ" : "Project Description"}</label>
-                <textarea
+              <FormField
+                id="description"
+                label={isBn ? "প্রজেক্টের বিবরণ" : "Project Description"}
+                required
+                error={errors.description}
+              >
+                <TextAreaField
+                  id="description"
                   value={data.description}
                   onChange={(e) => updateData("description", e.target.value)}
-                  placeholder={isBn ? "আপনার প্রজেক্ট সম্পর্কে বিস্তারিত লিখুন..." : "Describe your project in detail..."}
+                  placeholder={
+                    isBn
+                      ? "আপনার প্রজেক্ট সম্পর্কে বিস্তারিত লিখুন..."
+                      : "Describe your project in detail..."
+                  }
                   rows={4}
-                  className="w-full rounded-lg border border-border bg-background p-3 text-sm resize-none"
                 />
-              </div>
+              </FormField>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium bn">{isBn ? "বাজেট" : "Budget"}</label>
-                  <select
+                <FormField id="budgetRange" label={isBn ? "বাজেট" : "Budget"}>
+                  <SelectField
+                    id="budgetRange"
                     value={data.budgetRange}
                     onChange={(e) => updateData("budgetRange", e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background p-3 text-sm bn"
+                    placeholder={isBn ? "বেছে নিন" : "Select"}
                   >
-                    <option value="">{isBn ? "বেছে নিন" : "Select"}</option>
                     {budgetRanges.map((b) => (
                       <option key={b.value} value={b.value}>{b.label}</option>
                     ))}
-                  </select>
-                </div>
+                  </SelectField>
+                </FormField>
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium bn">{isBn ? "টাইমলাইন" : "Timeline"}</label>
-                  <select
+                <FormField id="timeline" label={isBn ? "টাইমলাইন" : "Timeline"}>
+                  <SelectField
+                    id="timeline"
                     value={data.timeline}
                     onChange={(e) => updateData("timeline", e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background p-3 text-sm bn"
+                    placeholder={isBn ? "বেছে নিন" : "Select"}
                   >
-                    <option value="">{isBn ? "বেছে নিন" : "Select"}</option>
                     {timelineOptions.map((t) => (
                       <option key={t.value} value={t.value}>
                         {isBn ? t.label : t.labelEn}
                       </option>
                     ))}
-                  </select>
-                </div>
+                  </SelectField>
+                </FormField>
               </div>
             </div>
           )}
@@ -410,56 +477,72 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
               <h3 className="text-lg font-bold bn">{isBn ? "যোগাযোগের তথ্য" : "Contact Information"}</h3>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium bn">{isBn ? "নাম *" : "Name *"}</label>
-                  <input
-                    type="text"
+                <FormField
+                  id="clientName"
+                  label={isBn ? "নাম" : "Name"}
+                  required
+                  error={errors.clientName}
+                >
+                  <TextField
+                    id="clientName"
                     value={data.clientName}
                     onChange={(e) => updateData("clientName", e.target.value)}
                     placeholder={isBn ? "আপনার নাম" : "Your name"}
-                    className="w-full rounded-lg border border-border bg-background p-3 text-sm"
+                    invalid={!!errors.clientName}
                   />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium bn">{isBn ? "কোম্পানি" : "Company"}</label>
-                  <input
-                    type="text"
+                </FormField>
+                <FormField id="clientCompany" label={isBn ? "কোম্পানি" : "Company"}>
+                  <TextField
+                    id="clientCompany"
                     value={data.clientCompany}
                     onChange={(e) => updateData("clientCompany", e.target.value)}
                     placeholder={isBn ? "কোম্পানির নাম" : "Company name"}
-                    className="w-full rounded-lg border border-border bg-background p-3 text-sm"
                   />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium bn">{isBn ? "ইমেইল *" : "Email *"}</label>
-                  <input
+                </FormField>
+                <FormField
+                  id="clientEmail"
+                  label={isBn ? "ইমেইল" : "Email"}
+                  required
+                  error={errors.clientEmail}
+                >
+                  <TextField
+                    id="clientEmail"
                     type="email"
                     value={data.clientEmail}
                     onChange={(e) => updateData("clientEmail", e.target.value)}
                     placeholder="email@example.com"
-                    className="w-full rounded-lg border border-border bg-background p-3 text-sm"
+                    invalid={!!errors.clientEmail}
                   />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium bn">{isBn ? "ফোন *" : "Phone *"}</label>
-                  <input
+                </FormField>
+                <FormField
+                  id="clientPhone"
+                  label={isBn ? "ফোন" : "Phone"}
+                  required
+                  error={errors.clientPhone}
+                >
+                  <TextField
+                    id="clientPhone"
                     type="tel"
                     value={data.clientPhone}
                     onChange={(e) => updateData("clientPhone", e.target.value)}
                     placeholder="+880 1XXX-XXXXXX"
-                    className="w-full rounded-lg border border-border bg-background p-3 text-sm"
+                    invalid={!!errors.clientPhone}
                   />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="mb-2 block text-sm font-medium bn">{isBn ? "হোয়াটসঅ্যাপ" : "WhatsApp"}</label>
-                  <input
+                </FormField>
+                <FormField
+                  id="clientWhatsapp"
+                  label={isBn ? "হোয়াটসঅ্যাপ" : "WhatsApp"}
+                  hint={isBn ? "ঐচ্ছিক" : "Optional"}
+                  className="sm:col-span-2"
+                >
+                  <TextField
+                    id="clientWhatsapp"
                     type="tel"
                     value={data.clientWhatsapp}
                     onChange={(e) => updateData("clientWhatsapp", e.target.value)}
                     placeholder="+880 1XXX-XXXXXX"
-                    className="w-full rounded-lg border border-border bg-background p-3 text-sm"
                   />
-                </div>
+                </FormField>
               </div>
             </div>
           )}
@@ -498,9 +581,27 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "ফিচার" : "Features"}</span>
-                  <span className="font-medium">{data.features.length > 0 ? data.features.length : "—"}</span>
+                  <span className="font-medium">
+                    {data.features.length > 0
+                      ? isBn
+                        ? `${data.features.length}টি`
+                        : `${data.features.length}`
+                      : "—"}
+                  </span>
                 </div>
               </div>
+
+              {data.features.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {featureOptions
+                    .filter((f) => data.features.includes(f.value))
+                    .map((f) => (
+                      <Badge key={f.value} variant="outline">
+                        {isBn ? f.label : f.labelEn}
+                      </Badge>
+                    ))}
+                </div>
+              )}
 
               {data.description && (
                 <div>
@@ -508,6 +609,15 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   <p className="rounded-lg bg-background p-3 text-sm bn">{data.description}</p>
                 </div>
               )}
+
+              <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
+                <Sparkles className="h-4 w-4 shrink-0 text-primary" />
+                <span className="bn">
+                  {isBn
+                    ? "অর্ডার জমা দিলে আমরা ইমেইলে কনফার্মেশন পাঠাব এবং শীঘ্রই যোগাযোগ করব।"
+                    : "After submitting, you'll receive an email confirmation and we'll contact you shortly."}
+                </span>
+              </div>
             </div>
           )}
 
@@ -531,8 +641,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             {step < 4 ? (
               <Button
                 variant="default"
-                onClick={() => setStep((s) => s + 1)}
-                disabled={!canNext()}
+                onClick={handleNext}
+                disabled={!canAdvance() && Object.keys(errors).length === 0}
               >
                 {isBn ? "পরবর্তী" : "Next"}
                 <ArrowRight className="h-4 w-4" />

@@ -1,180 +1,116 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";
 import { FadeInUp } from "@/components/animations/FadeIn";
-import {
-  GraduationCap,
-  Users,
-  Shield,
-  Video,
-  Building2,
-  Calendar,
-  ExternalLink,
-} from "lucide-react";
+import { Calendar, ExternalLink, Loader2 } from "lucide-react";
+import { DEFAULT_EXPERIENCE_CONFIG, validateExperienceConfig } from "@/lib/experience/config";
+import { ExperienceIcon } from "@/lib/experience/icons";
+import type { ExperienceConfig, ExperienceStatus } from "@/types/experience";
 
-// ── Experience Section ─────────────────────────────────
+// ── Experience Section (DB-driven) ─────────────────────
 interface ExperienceSectionProps {
   locale?: string;
 }
 
-interface ExperienceItem {
-  icon: React.ElementType;
-  title: string;
-  titleBn: string;
-  role: string;
-  roleBn: string;
-  period: string;
-  periodBn: string;
-  status: "active" | "paused";
-  description: string;
-  descriptionBn: string;
-  details?: { label: string; labelBn: string; value: string }[];
-  link?: string;
-}
+const STATUS_LABELS: Record<ExperienceStatus, { bn: string; en: string; variant: "success" | "warning" | "default" }> = {
+  active: { bn: "সক্রিয়", en: "Active", variant: "success" },
+  paused: { bn: "সাময়িক বন্ধ", en: "Paused", variant: "warning" },
+  completed: { bn: "সম্পন্ন", en: "Completed", variant: "default" },
+};
 
 export function ExperienceSection({ locale = "bn" }: ExperienceSectionProps) {
   const isBn = locale === "bn";
+  const [config, setConfig] = useState<ExperienceConfig>(DEFAULT_EXPERIENCE_CONFIG);
+  const [loading, setLoading] = useState(true);
 
-  const experiences: ExperienceItem[] = [
-    {
-      icon: Building2,
-      title: "FS Coaching Center",
-      titleBn: "FS কোচিং সেন্টার",
-      role: "Founder & Director",
-      roleBn: "প্রতিষ্ঠাতা ও পরিচালক",
-      period: "Established Dec 31, 2024 — Temporarily Paused",
-      periodBn: "প্রতিষ্ঠিত ৩১ ডিসেম্বর, ২০২৪ — সাময়িক বন্ধ",
-      status: "paused",
-      description:
-        "Founded FS Coaching Center to provide quality education at affordable prices for underprivileged students in Jibdara Bazar.",
-      descriptionBn:
-        "গ্রামের গরিব, দরিদ্র ও অসহায় মেধাবী শিক্ষার্থীদের অত্যন্ত সুলভ মূল্যে মানসম্মত শিক্ষা প্রদানের লক্ষ্যে জীবদাড়া বাজারে FS কোচিং সেন্টার প্রতিষ্ঠা করি।",
-      details: [
-        { label: "Location", labelBn: "ঠিকানা", value: isBn ? "জীবদাড়া বাজার, শান্তিগঞ্জ, সুনামগঞ্জ" : "Jibdara Bazar, Shantiganj, Sunamganj" },
-        { label: "Classes", labelBn: "শ্রেণি", value: isBn ? "৬ষ্ঠ — ১০ম শ্রেণি" : "Class 6 — 10" },
-        { label: "Duration", labelBn: "সময়কাল", value: isBn ? "প্রায় ১ বছর সফল পরিচালনা" : "~1 year of successful operation" },
-      ],
-    },
-    {
-      icon: Users,
-      title: "Helping Hand Organization",
-      titleBn: "হেল্পিং হ্যান্ড অর্গানাইজেশন",
-      role: "Founder",
-      roleBn: "প্রতিষ্ঠাতা",
-      period: "2023 — Temporarily Paused",
-      periodBn: "২০২৩ — সাময়িক বন্ধ",
-      status: "paused",
-      description:
-        "Founded Helping Hand Organization in late 2023 to support poor and helpless people in the community.",
-      descriptionBn:
-        "গরিব, দুঃখী ও অসহায় মানুষের পাশে দাঁড়ানোর লক্ষ্যে ২০২৩ সালের শেষের দিকে হেল্পিং হ্যান্ড অর্গানাইজেশন প্রতিষ্ঠা করি।",
-      details: [
-        { label: "Purpose", labelBn: "উদ্দেশ্য", value: isBn ? "দরিদ্র ও অসহায় মানুষদের সহায়তা" : "Support for the poor and helpless" },
-      ],
-      link: "https://www.facebook.com/share/p/1JDAkxehvJ/",
-    },
-    {
-      icon: GraduationCap,
-      title: "Private Tutor",
-      titleBn: "গৃহশিক্ষক",
-      role: "Teacher",
-      roleBn: "শিক্ষক",
-      period: "2023 — Present",
-      periodBn: "২০২৩ — বর্তমান",
-      status: "active",
-      description:
-        "Teaching academic subjects to students of class 7, 8, and 9 since class 9 myself.",
-      descriptionBn:
-        "ক্লাস নাইন থেকে শুরু করে ৭ম, ৮ম এবং ৯ম শ্রেণির শিক্ষার্থীদের একাডেমিক পাঠদান করি।",
-    },
-    {
-      icon: Shield,
-      title: "BNCC Cadet",
-      titleBn: "BNCC ক্যাডেট",
-      role: "Active Cadet",
-      roleBn: "সক্রিয় ক্যাডেট",
-      period: "Present",
-      periodBn: "বর্তমান",
-      status: "active",
-      description:
-        "Active cadet of Bangladesh National Cadet Corps, practicing discipline, leadership, and patriotism.",
-      descriptionBn:
-        "বাংলাদেশ ন্যাশনাল ক্যাডেট কোরের একজন সক্রিয় ক্যাডেট হিসেবে শৃঙ্খলা, নেতৃত্ব ও দেশপ্রেমের চর্চা করছি।",
-      details: [
-        { label: "Cadet No", labelBn: "ক্যাডেট নং", value: "25071152" },
-      ],
-    },
-    {
-      icon: Video,
-      title: "Content Creator",
-      titleBn: "কনটেন্ট ক্রিয়েটর",
-      role: "YouTube · TikTok",
-      roleBn: "YouTube · TikTok",
-      period: "Active",
-      periodBn: "সক্রিয়",
-      status: "active",
-      description:
-        "Creating content on education, technology, and social awareness across multiple platforms.",
-      descriptionBn:
-        "শিক্ষা, প্রযুক্তি ও সামাজিক সচেতনতা নিয়ে বিভিন্ন প্ল্যাটফর্মে কনটেন্ট তৈরি করি।",
-    },
-  ];
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/experience-config", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        const validated = validateExperienceConfig((json as { data?: unknown } | null)?.data);
+        if (validated) setConfig(validated);
+      })
+      .catch(() => {
+        /* fall back to defaults */
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center gap-2 p-10 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        {isBn ? "অভিজ্ঞতা লোড হচ্ছে..." : "Loading experience..."}
+      </div>
+    );
+  }
+
+  const { section, items } = config.experience;
+  const experiences = items;
 
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
-          badge={isBn ? "💼 কর্মজীবন ও উদ্যোগ" : "💼 Experience & Initiatives"}
-          title="Experience & Organizations"
-          titleBn="অভিজ্ঞতা ও প্রতিষ্ঠান"
-          subtitle={
-            isBn
-              ? "শিক্ষা, সমাজসেবা এবং প্রযুক্তির ক্ষেত্রে আমার প্রতিষ্ঠিত সংগঠন ও ভূমিকাসমূহ"
-              : "Organizations and roles in education, social service, and technology"
-          }
+          badge={isBn ? section.badgeBn : section.badgeEn}
+          title={isBn ? section.titleBn : section.titleEn}
+          titleBn={isBn ? section.titleBn : section.titleEn}
+          subtitle={isBn ? section.subtitleBn : section.subtitleEn}
           locale={locale}
         />
 
         <div className="grid gap-6 lg:grid-cols-2">
           {experiences.map((exp, index) => (
-            <FadeInUp key={exp.title} delay={index * 0.1}>
+            <FadeInUp key={exp.id} delay={index * 0.1}>
               <GlassCard className="group h-full transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
                 {/* Header */}
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <exp.icon className="h-5 w-5 text-primary" />
+                      <ExperienceIcon name={exp.icon} className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-bold bn">{isBn ? exp.titleBn : exp.title}</h3>
-                      <p className="text-sm text-primary font-medium bn">{isBn ? exp.roleBn : exp.role}</p>
+                      <h3 className="font-bold bn">{isBn ? exp.titleBn : exp.titleEn}</h3>
+                      <p className="text-sm text-primary font-medium bn">{isBn ? exp.roleBn : exp.roleEn}</p>
                     </div>
                   </div>
-                  <Badge variant={exp.status === "active" ? "success" : "warning"} className="text-[10px]">
-                    {exp.status === "active" ? (isBn ? "সক্রিয়" : "Active") : (isBn ? "সাময়িক বন্ধ" : "Paused")}
+                  <Badge variant={STATUS_LABELS[exp.status]?.variant ?? "outline"} className="text-[10px]">
+                    {isBn
+                      ? STATUS_LABELS[exp.status]?.bn ?? exp.status
+                      : STATUS_LABELS[exp.status]?.en ?? exp.status}
                   </Badge>
                 </div>
 
                 {/* Period */}
                 <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
-                  <span className="bn">{isBn ? exp.periodBn : exp.period}</span>
+                  <span className="bn">{isBn ? exp.periodBn : exp.periodEn}</span>
                 </div>
 
                 {/* Description */}
                 <p className="mb-4 text-sm text-muted-foreground bn leading-relaxed">
-                  {isBn ? exp.descriptionBn : exp.description}
+                  {isBn ? exp.descriptionBn : exp.descriptionEn}
                 </p>
 
                 {/* Details */}
                 {exp.details && exp.details.length > 0 && (
                   <div className="space-y-2 border-t border-border/50 pt-4">
                     {exp.details.map((detail) => (
-                      <div key={detail.label} className="flex items-center gap-2 text-xs">
-                        <span className="font-medium text-muted-foreground bn">{isBn ? detail.labelBn : detail.label}:</span>
-                        <span className="bn">{detail.value}</span>
+                      <div key={detail.id} className="flex items-center gap-2 text-xs">
+                        <span className="font-medium text-muted-foreground bn">
+                          {isBn ? detail.labelBn : detail.labelEn}:
+                        </span>
+                        <span className="bn">{isBn ? detail.valueBn : detail.valueEn}</span>
                       </div>
                     ))}
                   </div>

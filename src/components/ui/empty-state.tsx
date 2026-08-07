@@ -1,63 +1,138 @@
 "use client";
 
-import { motion } from "framer-motion";
+import * as React from "react";
+import { LucideIcon, Inbox } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Inbox } from "lucide-react";
 
-// ── Empty State — Phase G "স্টেট বিউটিফিকেশন" ──
-// A beautiful, animated empty state with an icon, message, optional
-// description, and an optional CTA button.
+export interface EmptyStateAction {
+  label: string;
+  onClick?: () => void;
+  href?: string;
+  variant?: "default" | "gradient" | "glow" | "outline" | "secondary" | "ghost";
+}
 
-interface EmptyStateProps {
-  icon?: React.ReactNode;
-  title: string;
-  description?: string;
-  action?: React.ReactNode;
+export interface EmptyStateProps {
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  icon?: LucideIcon | React.ComponentType<{ className?: string }>;
+  action?: EmptyStateAction;
+  size?: "sm" | "md" | "lg";
   className?: string;
-  compact?: boolean;
+  iconClassName?: string;
 }
 
 export function EmptyState({
-  icon,
   title,
   description,
+  icon: Icon = Inbox,
   action,
+  size = "md",
   className,
-  compact = false,
+  iconClassName,
 }: EmptyStateProps) {
+  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+    return false;
+  });
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const handleChange = (event: MediaQueryListEvent) => {
+        setPrefersReducedMotion(event.matches);
+      };
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+  }, []);
+
+  const sizeClasses = {
+    sm: {
+      container: "py-8 px-4",
+      iconWrapper: "h-12 w-12",
+      icon: "h-6 w-6",
+      title: "text-base font-semibold",
+      description: "text-xs mt-1",
+    },
+    md: {
+      container: "py-12 px-6",
+      iconWrapper: "h-16 w-16",
+      icon: "h-8 w-8",
+      title: "text-lg sm:text-xl font-semibold",
+      description: "text-sm mt-2",
+    },
+    lg: {
+      container: "py-16 px-8",
+      iconWrapper: "h-20 w-20",
+      icon: "h-10 w-10",
+      title: "text-xl sm:text-2xl font-bold",
+      description: "text-base mt-3",
+    },
+  };
+
+  const currentSize = sizeClasses[size];
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
+    <div
+      data-testid="empty-state"
       className={cn(
-        "flex flex-col items-center justify-center text-center",
-        compact ? "px-4 py-10" : "px-4 py-20",
+        "glass relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-card/40 text-center shadow-lg transition-all",
+        currentSize.container,
         className
       )}
     >
-      {/* Icon with soft glow ring */}
-      <motion.div
-        className={cn(
-          "relative mb-5 flex items-center justify-center rounded-full border border-border/60 bg-card",
-          compact ? "h-16 w-16" : "h-20 w-20"
-        )}
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+      {/* Subtle background radial glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
       >
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-500/10 to-blue-500/10" />
-        <div className="relative text-muted-foreground">
-          {icon || <Inbox className={compact ? "h-7 w-7" : "h-9 w-9"} />}
-        </div>
-      </motion.div>
+        <div className="h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+      </div>
 
-      <h3 className={cn("font-semibold text-foreground", compact ? "text-base" : "text-lg")}>
-        {title}
-      </h3>
-      {description && (
-        <p className="mt-2 max-w-sm text-sm text-muted-foreground">{description}</p>
+      {/* Floating / Pulsing Icon Container */}
+      <div
+        className={cn(
+          "relative mb-4 flex items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary shadow-inner",
+          currentSize.iconWrapper,
+          !prefersReducedMotion && "animate-float"
+        )}
+      >
+        <Icon className={cn(currentSize.icon, iconClassName)} />
+      </div>
+
+      {/* Title & Description */}
+      <div className="relative z-10 max-w-md">
+        <h3 className={cn("text-foreground bn", currentSize.title)}>
+          {title}
+        </h3>
+        {description && (
+          <div
+            className={cn(
+              "text-muted-foreground bn leading-relaxed",
+              currentSize.description
+            )}
+          >
+            {description}
+          </div>
+        )}
+      </div>
+
+      {/* CTA Action Button */}
+      {action && (
+        <div className="relative z-10 mt-6">
+          <Button
+            variant={action.variant || "gradient"}
+            size={size === "sm" ? "sm" : size === "lg" ? "lg" : "default"}
+            onClick={action.onClick}
+            className="shadow-md"
+          >
+            {action.label}
+          </Button>
+        </div>
       )}
-      {action && <div className="mt-6">{action}</div>}
-    </motion.div>
+    </div>
   );
 }

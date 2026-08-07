@@ -1,58 +1,88 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { useFinePointer, useMotionPreference } from "@/components/animations/motion-preferences";
 
-// ── Magnetic Cursor Effect ─────────────────────────────
-// Elements with data-magnetic will attract the cursor
+// ── Magnetic Button Effect ─────────────────────────────
+// Targets opt in through `data-magnetic` (the shared Button does so by default).
+// It intentionally has no visible cursor: CustomCursor owns that visual layer.
 
 export function MagneticCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
+  const hasFinePointer = useFinePointer();
+  const prefersReducedMotion = useMotionPreference();
 
   useEffect(() => {
-    const cursor = cursorRef.current;
-    if (!cursor) return;
+    if (!hasFinePointer || prefersReducedMotion) return;
 
-    const magneticElements = document.querySelectorAll("[data-magnetic]");
+    const targets = new Set<HTMLElement>();
+    const selector = "[data-magnetic='true']";
+    let frame: number | null = null;
+    let pointer = { x: 0, y: 0 };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-
-      // Move cursor to mouse position
-      cursor.style.left = `${clientX}px`;
-      cursor.style.top = `${clientY}px`;
-
-      // Magnetic effect on elements
-      magneticElements.forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-
-        const distanceX = clientX - centerX;
-        const distanceY = clientY - centerY;
-        const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
-
-        const maxDistance = 100;
-        if (distance < maxDistance) {
-          const strength = (maxDistance - distance) / maxDistance;
-          const moveX = distanceX * strength * 0.3;
-          const moveY = distanceY * strength * 0.3;
-
-          (el as HTMLElement).style.transform = `translate(${moveX}px, ${moveY}px)`;
-        } else {
-          (el as HTMLElement).style.transform = "translate(0, 0)";
+    const collectTargets = () => {
+      document.querySelectorAll<HTMLElement>(selector).forEach((element) => targets.add(element));
+      for (const element of targets) {
+        if (!element.isConnected || element.dataset.magnetic !== "true") {
+          targets.delete(element);
         }
-      });
+      }
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+    const resetTarget = (element: HTMLElement) => {
+      element.style.setProperty("--magnetic-x", "0px");
+      element.style.setProperty("--magnetic-y", "0px");
+    };
 
-  return (
-    <div
-      ref={cursorRef}
-      className="pointer-events-none fixed z-[9999] h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary/50 mix-blend-difference transition-transform duration-100 hidden md:block"
-      aria-hidden="true"
-    />
-  );
+    const applyMagnetism = () => {
+      frame = null;
+
+      for (const element of targets) {
+        const bounds = element.getBoundingClientRect();
+        const centerX = bounds.left + bounds.width / 2;
+        const centerY = bounds.top + bounds.height / 2;
+        const deltaX = pointer.x - centerX;
+        const deltaY = pointer.y - centerY;
+        const distance = Math.hypot(deltaX, deltaY);
+        const maximumDistance = Math.max(72, Math.min(140, Math.max(bounds.width, bounds.height) * 1.25));
+
+        if (distance < maximumDistance) {
+          const strength = (maximumDistance - distance) / maximumDistance;
+          element.style.setProperty("--magnetic-x", `${(deltaX * strength * 0.18).toFixed(2)}px`);
+          element.style.setProperty("--magnetic-y", `${(deltaY * strength * 0.18).toFixed(2)}px`);
+        } else {
+          resetTarget(element);
+        }
+      }
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      pointer = { x: event.clientX, y: event.clientY };
+      if (frame === null) frame = window.requestAnimationFrame(applyMagnetism);
+    };
+
+    const resetAll = () => {
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame);
+        frame = null;
+      }
+      targets.forEach(resetTarget);
+    };
+
+    collectTargets();
+    const observer = new MutationObserver(collectTargets);
+    observer.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("blur", resetAll);
+    document.addEventListener("pointerleave", resetAll);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("blur", resetAll);
+      document.removeEventListener("pointerleave", resetAll);
+      resetAll();
+    };
+  }, [hasFinePointer, prefersReducedMotion]);
+
+  return null;
 }

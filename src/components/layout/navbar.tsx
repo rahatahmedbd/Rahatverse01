@@ -8,6 +8,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { AccentCustomizer } from "./accent-customizer";
 import { LanguageToggle } from "./language-toggle";
 import { SearchDialog } from "@/components/interactive/SearchDialog";
+import { AccentCustomizer } from "@/components/interactive/AccentCustomizer";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { NAVIGATION_ITEMS } from "@/lib/constants";
@@ -47,7 +48,7 @@ export function Navbar() {
           href={basePath}
           className="flex items-center gap-2 transition-opacity hover:opacity-80"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 font-bold text-white shadow-md shadow-amber-500/30">
+          <div className="bg-brand-gradient gradient-border flex h-9 w-9 items-center justify-center rounded-lg font-bold text-white shadow-md shadow-primary/30">
             R
           </div>
           <span className="hidden text-lg font-bold sm:block">
@@ -85,7 +86,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <SearchDialog locale={locale} />
           <LanguageToggle />
-          <AccentCustomizer />
+          <AccentCustomizer locale={locale} />
           <ThemeToggle />
 
           {/* Mobile Menu Button */}

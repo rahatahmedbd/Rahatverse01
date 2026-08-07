@@ -1,143 +1,219 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SectionTitle } from "@/components/sections/SectionTitle";
+import { SectionTitle } from "./SectionTitle";
+import { EmptyState } from "@/components/ui/empty-state";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
-import { ShoppingCart, Mail, Phone, Calendar, Eye } from "lucide-react";
+import {
+  ShoppingCart,
+  Calendar,
+  DollarSign,
+  Package,
+} from "lucide-react";
 
-// ── Orders Management ──────────────────────────────────
+// ── Types ──────────────────────────────────────────────
+interface OrderItem {
+  id: string;
+  orderNumber: string;
+  clientName: string;
+  email: string;
+  projectType: string;
+  packageType: "starter" | "professional" | "enterprise";
+  status: "pending" | "in_progress" | "review" | "completed" | "cancelled";
+  budget: string;
+  createdAt: string;
+  createdAtBn: string;
+}
+
 interface OrdersManagementProps {
   locale?: string;
+  orders?: OrderItem[];
 }
 
-interface Order {
-  id: string;
-  client_name: string;
-  client_email: string;
-  client_phone: string;
-  package_type: string;
-  website_type: string;
-  status: string;
-  created_at: string;
-}
+// ── Demo Fallback Orders ───────────────────────────────
+const fallbackOrders: OrderItem[] = [
+  {
+    id: "1",
+    orderNumber: "ORD-2025-001",
+    clientName: "Mahmudul Hasan",
+    email: "mahmud@example.com",
+    projectType: "Personal Portfolio & Blog",
+    packageType: "professional",
+    status: "in_progress",
+    budget: "৳ ২৫,০০০",
+    createdAt: "July 25, 2025",
+    createdAtBn: "২৫ জুলাই, ২০২৫",
+  },
+  {
+    id: "2",
+    orderNumber: "ORD-2025-002",
+    clientName: "Sunrise Blood Foundation",
+    email: "info@sunriseblood.org",
+    projectType: "Blood Donor Management System",
+    packageType: "enterprise",
+    status: "pending",
+    budget: "৳ ৫৫,০০০",
+    createdAt: "July 28, 2025",
+    createdAtBn: "২৮ জুলাই, ২০২৫",
+  },
+  {
+    id: "3",
+    orderNumber: "ORD-2025-003",
+    clientName: "Ahsan Habib",
+    email: "ahsan@school.edu",
+    projectType: "Coaching Center Website",
+    packageType: "starter",
+    status: "completed",
+    budget: "৳ ১৫,০০০",
+    createdAt: "July 10, 2025",
+    createdAtBn: "১০ জুলাই, ২০২৫",
+  },
+];
 
-const statusColors: Record<string, string> = {
-  pending: "warning",
-  confirmed: "info",
-  in_progress: "info",
-  review: "glow",
-  delivered: "success",
-  cancelled: "destructive",
-};
-
-const statusLabels: Record<string, Record<string, string>> = {
-  pending: { bn: "অপেক্ষমান", en: "Pending" },
-  confirmed: { bn: "নিশ্চিত", en: "Confirmed" },
-  in_progress: { bn: "চলমান", en: "In Progress" },
-  review: { bn: "রিভিউ", en: "Review" },
-  delivered: { bn: "ডেলিভার্ড", en: "Delivered" },
-  cancelled: { bn: "বাতিল", en: "Cancelled" },
-};
-
-export function OrdersManagement({ locale = "bn" }: OrdersManagementProps) {
+export function OrdersManagement({
+  locale = "bn",
+  orders = fallbackOrders,
+}: OrdersManagementProps) {
   const isBn = locale === "bn";
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orderList] = useState<OrderItem[]>(orders);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  useEffect(() => {
-    fetch("/api/orders")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.data) setOrders(data.data);
-      })
-      .catch(() => {});
-  }, []);
+  const statusMap: Record<
+    string,
+    { labelEn: string; labelBn: string; variant: "default" | "glow" | "outline" | "secondary" }
+  > = {
+    pending: { labelEn: "Pending", labelBn: "অপেক্ষমান", variant: "outline" },
+    in_progress: { labelEn: "In Progress", labelBn: "চলমান", variant: "glow" },
+    review: { labelEn: "In Review", labelBn: "রিভিউ চলছে", variant: "secondary" },
+    completed: { labelEn: "Completed", labelBn: "সম্পন্ন", variant: "default" },
+    cancelled: { labelEn: "Cancelled", labelBn: "বাতিল", variant: "outline" },
+  };
+
+  const packageLabels: Record<string, { en: string; bn: string }> = {
+    starter: { en: "Starter", bn: "স্টার্টার" },
+    professional: { en: "Professional", bn: "প্রফেশনাল" },
+    enterprise: { en: "Enterprise", bn: "এন্টারপ্রাইজ" },
+  };
+
+  const filteredOrders =
+    statusFilter === "all"
+      ? orderList
+      : orderList.filter((ord) => ord.status === statusFilter);
+
+  const filters = [
+    { key: "all", label: isBn ? "সব" : "All" },
+    { key: "pending", label: isBn ? "অপেক্ষমান" : "Pending" },
+    { key: "in_progress", label: isBn ? "চলমান" : "In Progress" },
+    { key: "completed", label: isBn ? "সম্পন্ন" : "Completed" },
+  ];
 
   return (
-    <section className="py-8">
-      <div className="mx-auto max-w-7xl px-4">
+    <section className="py-20">
+      <div className="mx-auto max-w-6xl px-4">
         <SectionTitle
-          badge={isBn ? "🛒 অর্ডার" : "🛒 Orders"}
-          title="Order Management"
+          badge={isBn ? "📦 অর্ডার সমূহ" : "📦 Orders"}
+          title="Orders Management"
           titleBn="অর্ডার ম্যানেজমেন্ট"
           locale={locale}
         />
 
+        {/* Filter Toolbar */}
+        <FadeInUp>
+          <div className="mb-8 flex flex-wrap justify-center gap-2">
+            {filters.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setStatusFilter(f.key)}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                  statusFilter === f.key
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                    : "border border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </FadeInUp>
+
         {/* Orders List */}
-        {orders.length === 0 ? (
+        {filteredOrders.length === 0 ? (
           <FadeInUp>
-            <GlassCard className="text-center py-12">
-              <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <p className="mt-4 text-lg font-medium bn">
-                {isBn ? "এখনো কোনো অর্ডার নেই" : "No orders yet"}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground bn">
-                {isBn ? "নতুন অর্ডার আসলে এখানে দেখাবে" : "New orders will appear here"}
-              </p>
-            </GlassCard>
+            <EmptyState
+              icon={ShoppingCart}
+              title={isBn ? "এখনো কোনো অর্ডার নেই" : "No orders yet"}
+              description={
+                statusFilter === "all"
+                  ? isBn
+                    ? "নতুন অর্ডার আসলে এখানে দেখাবে"
+                    : "New website orders will appear here once submitted."
+                  : isBn
+                    ? "এই স্ট্যাটাসে কোনো অর্ডার নেই। অন্য ফিল্টার চেষ্টা করুন।"
+                    : "No orders found with this status filter."
+              }
+              action={
+                statusFilter !== "all"
+                  ? {
+                      label: isBn ? "সব অর্ডার দেখুন" : "View All Orders",
+                      onClick: () => setStatusFilter("all"),
+                    }
+                  : undefined
+              }
+            />
           </FadeInUp>
         ) : (
-          <StaggerContainer className="space-y-3">
-            {orders.map((order) => (
+          <StaggerContainer className="space-y-4">
+            {filteredOrders.map((order) => (
               <StaggerItem key={order.id}>
-                <GlassCard
-                  className="cursor-pointer transition-all hover:border-primary/30"
-                  onClick={() => setSelectedOrder(order)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <ShoppingCart className="h-5 w-5 text-primary" />
+                <GlassCard className="p-6 transition-all hover:border-primary/40">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono text-sm font-bold text-primary">
+                          {order.orderNumber}
+                        </span>
+                        <Badge
+                          variant={statusMap[order.status]?.variant || "outline"}
+                          className="text-xs"
+                        >
+                          {isBn
+                            ? statusMap[order.status]?.labelBn || order.status
+                            : statusMap[order.status]?.labelEn || order.status}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          <Package className="mr-1 h-3 w-3" />
+                          {isBn
+                            ? packageLabels[order.packageType]?.bn || order.packageType
+                            : packageLabels[order.packageType]?.en || order.packageType}
+                        </Badge>
                       </div>
-                      <div>
-                        <p className="font-semibold">{order.client_name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {order.package_type} • {order.website_type}
-                        </p>
+
+                      <h4 className="text-base font-semibold text-foreground">
+                        {order.clientName}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        {order.projectType} • {order.email}
+                      </p>
+
+                      <div className="flex items-center gap-4 pt-1 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1 font-semibold text-foreground">
+                          <DollarSign className="h-3.5 w-3.5 text-primary" />
+                          {order.budget}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {isBn ? order.createdAtBn : order.createdAt}
+                        </span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge variant={(statusColors[order.status] || "default") as "warning" | "info" | "glow" | "success" | "destructive"}>
-                        {isBn ? statusLabels[order.status]?.bn : statusLabels[order.status]?.en}
-                      </Badge>
-                      <Eye className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </div>
                 </GlassCard>
               </StaggerItem>
             ))}
           </StaggerContainer>
-        )}
-
-        {/* Order Detail Modal */}
-        {selectedOrder && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setSelectedOrder(null)}>
-            <GlassCard className="max-w-md w-full" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <h3 className="text-xl font-bold mb-4">{selectedOrder.client_name}</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{selectedOrder.client_email}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span>{selectedOrder.client_phone}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>{new Date(selectedOrder.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-border/50">
-                <p className="text-xs text-muted-foreground bn">
-                  {isBn ? "বিস্তারিত দেখতে Supabase Dashboard ব্যবহার করুন" : "Use Supabase Dashboard for full details"}
-                </p>
-              </div>
-            </GlassCard>
-          </div>
         )}
       </div>
     </section>

@@ -10,14 +10,18 @@ interface BlogPost {
   id: string;
   slug: string;
   title: string;
-  title_bn?: string;
-  excerpt: string;
-  excerpt_bn?: string;
-  cover_image?: string;
+  title_bn?: string | null;
+  excerpt?: string | null;
+  excerpt_bn?: string | null;
+  summary?: string | null;
+  summary_bn?: string | null;
+  cover_image?: string | null;
+  featured_image?: string | null;
   category?: string;
   tags?: string[];
-  reading_time?: number;
-  published_at?: string;
+  reading_time?: number | null;
+  read_time?: number | null;
+  published_at?: string | null;
 }
 
 interface BlogCardProps {
@@ -28,16 +32,21 @@ interface BlogCardProps {
 export default function BlogCard({ post, locale = "bn" }: BlogCardProps) {
   const isBn = locale === "bn";
   const title = isBn && post.title_bn ? post.title_bn : post.title;
-  const excerpt = isBn && post.excerpt_bn ? post.excerpt_bn : post.excerpt;
+  const excerpt =
+    isBn && (post.excerpt_bn || post.summary_bn)
+      ? post.excerpt_bn || post.summary_bn
+      : post.excerpt || post.summary || "";
+  const coverImage = post.cover_image || post.featured_image;
+  const readingTime = post.reading_time ?? post.read_time;
 
   return (
     <Link href={`/${locale}/blog/${post.slug}`}>
       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
-        {post.cover_image && (
+        {coverImage && (
           <div className="relative h-48 overflow-hidden rounded-t-lg">
             <Image
-              src={post.cover_image}
-              alt={title}
+              src={coverImage}
+              alt={title || "Blog cover"}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -50,10 +59,10 @@ export default function BlogCard({ post, locale = "bn" }: BlogCardProps) {
           </div>
         )}
         <CardHeader>
-          <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+          <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors bn">
             {title}
           </h3>
-          <p className="text-muted-foreground line-clamp-2">
+          <p className="text-muted-foreground line-clamp-2 bn">
             {excerpt}
           </p>
         </CardHeader>
@@ -70,11 +79,11 @@ export default function BlogCard({ post, locale = "bn" }: BlogCardProps) {
                   </span>
                 </div>
               )}
-              {post.reading_time && (
+              {readingTime && (
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
                   <span>
-                    {post.reading_time} {isBn ? "মিনিট" : "min"}
+                    {readingTime} {isBn ? "মিনিট" : "min"}
                   </span>
                 </div>
               )}

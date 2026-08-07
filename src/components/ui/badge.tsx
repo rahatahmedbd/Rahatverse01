@@ -25,7 +25,7 @@ const badgeVariants = cva(
         glow:
           "border-primary/50 bg-primary/10 text-primary shadow-sm shadow-primary/20",
         gradient:
-          "border-transparent bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border-amber-500/30",
+          "gradient-badge gradient-border border-transparent",
       },
     },
     defaultVariants: {

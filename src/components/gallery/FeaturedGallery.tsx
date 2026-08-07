@@ -2,9 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ImageOff } from "lucide-react";
-import { BlurUpImage } from "@/components/ui/blur-image";
+import { ZoomIn, Camera } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ImageSkeleton } from "@/components/ui/blur-image";
 import { EmptyState } from "@/components/ui/empty-state";
+import { LightboxModal, LightboxImageItem } from "@/components/gallery/LightboxModal";
+import { getMosaicSpanClass } from "@/components/gallery/mosaic-utils";
+import { cn } from "@/lib/utils";
 
 interface GalleryImage {
   id: string;
@@ -12,6 +17,10 @@ interface GalleryImage {
   category: string;
   title: string | null;
   title_bn: string | null;
+  description?: string | null;
+  description_bn?: string | null;
+  width?: number | null;
+  height?: number | null;
   created_at?: string;
 }
 
@@ -28,6 +37,7 @@ export default function FeaturedGallery({
 }: FeaturedGalleryProps) {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const isBn = locale === "bn";
 
   const fetchFeaturedImages = useCallback(async () => {
@@ -66,8 +76,21 @@ export default function FeaturedGallery({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div
+        data-testid="featured-gallery-skeleton"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        {Array.from({ length: limit }).map((_, index) => (
+          <div
+            key={index}
+            className={cn(
+              "relative overflow-hidden rounded-xl border border-border/50 bg-card",
+              getMosaicSpanClass(index, "mosaic")
+            )}
+          >
+            <ImageSkeleton />
+          </div>
+        ))}
       </div>
     );
   }
@@ -94,13 +117,34 @@ export default function FeaturedGallery({
     );
   }
 
+  const selectedIndex = selectedImage
+    ? images.findIndex((img) => img.id === selectedImage.id)
+    : -1;
+
+  const handlePrev = () => {
+    if (selectedIndex === -1) return;
+    const prevIndex = (selectedIndex - 1 + images.length) % images.length;
+    setSelectedImage(images[prevIndex]);
+  };
+
+  const handleNext = () => {
+    if (selectedIndex === -1) return;
+    const nextIndex = (selectedIndex + 1) % images.length;
+    setSelectedImage(images[nextIndex]);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((image) => (
+      {/* Bento / Mosaic Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {images.map((image, index) => (
           <div
             key={image.id}
-            className="group relative overflow-hidden rounded-lg border bg-card aspect-square"
+            className={cn(
+              "group relative overflow-hidden rounded-xl border border-border/50 bg-card cursor-pointer transition-all hover:shadow-xl",
+              getMosaicSpanClass(index, "mosaic")
+            )}
+            onClick={() => setSelectedImage(image)}
           >
             <BlurUpImage
               src={image.url}
@@ -120,27 +164,40 @@ export default function FeaturedGallery({
         ))}
       </div>
 
+      {/* Lightbox Modal */}
+      {selectedImage && (
+        <LightboxModal
+          image={selectedImage as LightboxImageItem}
+          locale={locale}
+          currentIndex={selectedIndex}
+          totalCount={images.length}
+          onClose={() => setSelectedImage(null)}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
+      )}
+
       {/* View All Button */}
       <div className="text-center">
-        <Link
-          href={`/${locale}/gallery`}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          {isBn ? "সব ছবি দেখুন" : "View All Images"}
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </Link>
+        <Button variant="gradient" size="lg" asChild>
+          <Link href={`/${locale}/gallery`}>
+            {isBn ? "সব ছবি দেখুন" : "View All Images"}
+            <svg
+              className="h-4 w-4 ml-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Link>
+        </Button>
       </div>
     </div>
   );

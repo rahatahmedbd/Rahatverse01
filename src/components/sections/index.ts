@@ -24,3 +24,4 @@ export { LinkHubSection } from "./LinkHubSection";
 export { DashboardOverview } from "./DashboardOverview";
 export { OrdersManagement } from "./OrdersManagement";
 export { MessagesInbox } from "./MessagesInbox";
+export { PerformanceReport } from "./PerformanceReport";

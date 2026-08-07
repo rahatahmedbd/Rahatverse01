@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { LayoutGrid, Grid3x3, ZoomIn, ImageOff } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import { ZoomIn, LayoutGrid, Grid, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BlurUpImage } from "@/components/ui/blur-image";
-import { Lightbox } from "@/components/ui/lightbox";
+import { Badge } from "@/components/ui/badge";
+import { ImageSkeleton } from "@/components/ui/blur-image";
 import { EmptyState } from "@/components/ui/empty-state";
+import { LightboxModal, LightboxImageItem } from "@/components/gallery/LightboxModal";
+import { getMosaicSpanClass, GalleryLayoutMode } from "@/components/gallery/mosaic-utils";
+import { DEFAULT_GALLERY_CONFIG, validateGalleryConfig } from "@/lib/media/config";
 import { cn } from "@/lib/utils";
+import type { GalleryConfig } from "@/types/media";
 
 interface GalleryImage {
   id: string;
@@ -46,12 +52,12 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
 
   const categories = [
     { value: "all", label: isBn ? "সব" : "All" },
-    { value: "achievements", label: isBn ? "অর্জন" : "Achievements" },
-    { value: "blood-donation", label: isBn ? "রক্তদান" : "Blood Donation" },
-    { value: "experience", label: isBn ? "অভিজ্ঞতা" : "Experience" },
-    { value: "social-service", label: isBn ? "সমাজসেবা" : "Social Service" },
-    { value: "profile", label: isBn ? "প্রোফাইল" : "Profile" },
-    { value: "memorial", label: isBn ? "স্মৃতিচারণ" : "Memorial" },
+    ...config.albums
+      .filter((album) => album.visible)
+      .map((album) => ({
+        value: album.value,
+        label: isBn ? album.nameBn : album.nameEn,
+      })),
   ];
 
   const fetchImages = useCallback(async () => {
@@ -83,6 +89,22 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
     if (selectedCategory === "all") return true;
     return img.category === selectedCategory;
   });
+
+  const selectedIndex = selectedImage
+    ? filteredImages.findIndex((img) => img.id === selectedImage.id)
+    : -1;
+
+  const handlePrev = () => {
+    if (selectedIndex === -1) return;
+    const prevIndex = (selectedIndex - 1 + filteredImages.length) % filteredImages.length;
+    setSelectedImage(filteredImages[prevIndex]);
+  };
+
+  const handleNext = () => {
+    if (selectedIndex === -1) return;
+    const nextIndex = (selectedIndex + 1) % filteredImages.length;
+    setSelectedImage(filteredImages[nextIndex]);
+  };
 
   return (
     <div className="space-y-6">
@@ -130,7 +152,7 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
         </div>
       </div>
 
-      {/* Gallery Grid */}
+      {/* Gallery Grid / Mosaic */}
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -142,55 +164,60 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
         </div>
       ) : filteredImages.length === 0 ? (
         <EmptyState
-          icon={<ImageOff className="h-9 w-9" />}
+          icon={Camera}
           title={isBn ? "কোনো ছবি পাওয়া যায়নি" : "No images found"}
           description={
-            isBn
-              ? "এই ক্যাটাগরিতে এখনো কোনো ছবি যোগ করা হয়নি"
-              : "No images have been added to this category yet"
+            selectedCategory === "all"
+              ? isBn
+                ? "এই মুহূর্তে গ্যালারিতে কোনো ছবি আপলোড করা হয়নি।"
+                : "No photos have been uploaded to the gallery yet."
+              : isBn
+                ? "এই ক্যাটাগরির জন্য কোনো ছবি পাওয়া যায়নি। অন্য ক্যাটাগরি চেষ্টা করুন।"
+                : "No photos found for this category. Please try another category."
+          }
+          action={
+            selectedCategory !== "all"
+              ? {
+                  label: isBn ? "সব ছবি দেখুন" : "View All Categories",
+                  onClick: () => setSelectedCategory("all"),
+                }
+              : undefined
           }
         />
       ) : (
-        <div
-          className={cn(
-            "grid gap-4",
-            view === "grid"
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-              : "grid-cols-2 md:grid-cols-3"
-          )}
-        >
-          {filteredImages.map((image, i) => {
-            // Bento / mosaic layout: accent the 1st & 6th tiles to span 2 rows
-            const mosaicSpan =
-              view === "mosaic" && (i === 0 || i === 5);
-            return (
-              <div
-                key={image.id}
-                className={cn(
-                  "group relative overflow-hidden rounded-xl border bg-card cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-primary/10",
-                  mosaicSpan && "row-span-2"
-                )}
-                onClick={() => setLightboxIndex(filteredImages.indexOf(image))}
-              >
-                <div className="relative h-full min-h-48">
-                  <BlurUpImage
-                    src={image.url}
-                    alt={isBn ? image.title_bn || image.title || "" : image.title || image.title_bn || ""}
-                    className="h-full w-full"
-                    imgClassName="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  />
-                </div>
-                {/* Glass caption overlay */}
-                <div className="absolute inset-x-0 bottom-0 translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                  <div className="glass mx-2 mb-2 flex items-center justify-between gap-2 rounded-lg px-3 py-2">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {isBn ? image.title_bn || image.title : image.title || image.title_bn}
-                      </p>
-                      <p className="truncate text-xs opacity-70">{image.category}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredImages.map((image, index) => (
+            <div
+              key={image.id}
+              className={cn(
+                "group relative overflow-hidden rounded-xl border border-border/50 bg-card cursor-pointer transition-all hover:shadow-xl",
+                getMosaicSpanClass(index, layoutMode)
+              )}
+              onClick={() => setSelectedImage(image)}
+            >
+              <Image
+                src={image.url}
+                alt={isBn ? image.title_bn || image.title || "" : image.title || image.title_bn || ""}
+                fill
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
+
+              {/* Hover Glass Caption Overlay */}
+              <div className="glass-interactive absolute inset-x-2 bottom-2 rounded-xl p-3 sm:p-4 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out backdrop-blur-md bg-black/60 border border-white/20 shadow-lg flex flex-col justify-end">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-center gap-1.5">
+                      <Badge variant="glow" className="text-[10px] py-0 px-2 uppercase">
+                        {image.category}
+                      </Badge>
                     </div>
-                    <ZoomIn className="h-4 w-4 shrink-0 opacity-80" />
+                    <p className="text-white text-sm font-semibold truncate">
+                      {isBn ? image.title_bn || image.title : image.title || image.title_bn}
+                    </p>
+                  </div>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm">
+                    <ZoomIn className="h-4 w-4" />
                   </div>
                 </div>
               </div>

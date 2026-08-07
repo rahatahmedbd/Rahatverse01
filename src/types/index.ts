@@ -28,66 +28,73 @@ export type WebsiteType =
   | "business"
   | "ecommerce"
   | "education"
-  | "blood_org"
-  | "ngo"
-  | "news_portal"
-  | "landing_page"
-  | "event"
+  | "nonprofit"
   | "custom";
 
-export type PackageType = "basic" | "standard" | "premium" | "enterprise";
-
-export interface Order {
+export interface OrderFeature {
   id: string;
-  user_id: string;
-  package_type: PackageType;
-  website_type: WebsiteType;
-  status: OrderStatus;
-  requirements: OrderRequirements;
-  contact_info: ContactInfo;
-  payment_status: "unpaid" | "partial" | "paid";
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface OrderRequirements {
-  description: string;
-  num_pages: number;
-  features: string[];
-  color_preference: string | null;
-  reference_sites: string[];
-  budget_range: string | null;
-  timeline: string | null;
-}
-
-export interface ContactInfo {
   name: string;
-  email: string;
-  phone: string;
-  whatsapp: string | null;
-  company: string | null;
+  nameBn: string;
+  price: number;
+}
+
+export interface WebsitePackage {
+  id: string;
+  name: string;
+  nameBn: string;
+  basePrice: number;
+  features: string[];
+  featuresBn: string[];
 }
 
 // ── Blog Types ─────────────────────────────────────────
 export interface BlogPost {
   id: string;
-  title: string;
   slug: string;
+  title: string;
+  title_bn: string | null;
   content: string;
-  excerpt: string;
-  cover_image: string | null;
+  content_bn: string | null;
+  excerpt: string | null;
+  excerpt_bn: string | null;
   category: string;
   tags: string[];
-  published: boolean;
-  published_at: string | null;
+  cover_image: string | null;
   reading_time: number;
+  author_id: string;
+  published: boolean;
   created_at: string;
   updated_at: string;
 }
 
-// ── Message Types ──────────────────────────────────────
-export interface ContactMessage {
+// ── Gallery Types ──────────────────────────────────────
+export interface GalleryImage {
+  id: string;
+  public_id: string;
+  url: string;
+  category: string;
+  title: string | null;
+  title_bn: string | null;
+  description: string | null;
+  description_bn: string | null;
+  width: number | null;
+  height: number | null;
+  created_at: string;
+}
+
+// ── Newsletter Types ───────────────────────────────────
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  active: boolean;
+  confirmed: boolean;
+  locale: string;
+  subscribed_at: string;
+  preferences: string[];
+}
+
+// ── Contact Types ──────────────────────────────────────
+export interface ContactSubmission {
   id: string;
   name: string;
   email: string;
@@ -98,38 +105,29 @@ export interface ContactMessage {
   created_at: string;
 }
 
-// ── Blood Request Types ────────────────────────────────
-export type BloodGroup = "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
-
-export interface BloodRequest {
-  id: string;
-  name: string;
-  phone: string;
-  blood_group: BloodGroup;
-  location: string;
-  urgency: "normal" | "urgent" | "critical";
-  message: string | null;
-  status: "open" | "fulfilled" | "expired";
-  created_at: string;
-}
-
-// ── Testimonial Types ──────────────────────────────────
-export interface Testimonial {
-  id: string;
-  name: string;
-  role: string | null;
-  company: string | null;
-  content: string;
-  rating: number;
-  approved: boolean;
-  created_at: string;
-}
-
 // ── Locale Types ───────────────────────────────────────
 export type Locale = "bn" | "en";
 
 export const SUPPORTED_LOCALES: Locale[] = ["bn", "en"];
 export const DEFAULT_LOCALE: Locale = "bn";
+
+// ── Theme & Accent Customization Types (Phase H) ───────
+export type AccentColor =
+  | "emerald"
+  | "sapphire"
+  | "amethyst"
+  | "amber"
+  | "crimson"
+  | "teal";
+
+export const SUPPORTED_ACCENTS: AccentColor[] = [
+  "emerald",
+  "sapphire",
+  "amethyst",
+  "amber",
+  "crimson",
+  "teal",
+];
 
 // ── Navigation Types ───────────────────────────────────
 export interface NavItemConfig {

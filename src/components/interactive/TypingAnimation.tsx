@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "@/components/animations/motion-preferences";
 
 // ── Typing Animation ───────────────────────────────────
 // Cycles through multiple texts with typing/deleting effect
@@ -25,6 +26,7 @@ export function TypingAnimation({
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [currentChar, setCurrentChar] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const prefersReducedMotion = useMotionPreference();
 
   const tick = useCallback(() => {
     const fullText = texts[currentTextIndex];
@@ -51,21 +53,27 @@ export function TypingAnimation({
   }, [currentChar, currentTextIndex, isDeleting, texts, pauseDuration]);
 
   useEffect(() => {
+    if (prefersReducedMotion) return;
+
     const speed = isDeleting ? deletingSpeed : typingSpeed;
     const timer = setTimeout(tick, speed);
     return () => clearTimeout(timer);
-  }, [tick, isDeleting, typingSpeed, deletingSpeed]);
+  }, [tick, isDeleting, typingSpeed, deletingSpeed, prefersReducedMotion]);
 
-  const displayText = texts[currentTextIndex].substring(0, currentChar);
+  const displayText = prefersReducedMotion
+    ? texts[0] ?? ""
+    : texts[currentTextIndex].substring(0, currentChar);
 
   return (
     <span className={cn("inline-flex items-center", className)}>
       <span>{displayText}</span>
-      <motion.span
-        className="ml-0.5 inline-block h-[1.1em] w-[2px] bg-primary"
-        animate={{ opacity: [1, 0] }}
-        transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-      />
+      {!prefersReducedMotion && (
+        <motion.span
+          className="ml-0.5 inline-block h-[1.1em] w-[2px] bg-primary"
+          animate={{ opacity: [1, 0] }}
+          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+        />
+      )}
     </span>
   );
 }

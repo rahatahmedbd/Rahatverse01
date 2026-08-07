@@ -5,8 +5,9 @@ import { GlassCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Loader2, UserCog, ShieldCheck } from "lucide-react";
+import { Search, UserCog, ShieldCheck, Users } from "lucide-react";
 import { SectionTitle } from "@/components/sections/SectionTitle";
+import { EmptyState, TableSkeleton } from "@/components/ui";
 
 // ── User Management + RBAC ─────────────────────────────
 // Lists profiles and lets an admin change roles (admin/client/visitor).
@@ -24,182 +25,224 @@ interface UserManagementProps {
   locale?: string;
 }
 
-const roleVariants: Record<string, "glow" | "info" | "secondary"> = {
-  admin: "glow",
-  client: "info",
-  visitor: "secondary",
-};
-
 export function UserManagement({ locale = "bn" }: UserManagementProps) {
   const isBn = locale === "bn";
   const [users, setUsers] = useState<UserRow[]>([]);
-  const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError("");
     try {
-      const params = new URLSearchParams({ role: roleFilter });
-      if (search) params.set("search", search);
-      const res = await fetch(`/api/admin/users?${params.toString()}`, { cache: "no-store" });
+      const q = search ? `?search=${encodeURIComponent(search)}` : "";
+      const res = await fetch(`/api/admin/users${q}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      setUsers(json.data || []);
-      setTotal(json.total ?? 0);
+      const data = await res.json();
+      setUsers(data.users || []);
     } catch {
-      setError(isBn ? "ইউজার লোড করা যায়নি" : "Failed to load users");
+      setError(
+        isBn
+          ? "ইউজার তালিকা লোড করা যায়নি। পরে চেষ্টা করুন।"
+          : "Unable to load users."
+      );
     } finally {
       setLoading(false);
     }
-  }, [search, roleFilter, isBn]);
+  }, [search, isBn]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers();
   }, [fetchUsers]);
 
-  const changeRole = async (user: UserRow, role: string) => {
-    setSavingId(user.id);
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    setSavingId(userId);
     try {
       const res = await fetch("/api/admin/users", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: user.id, role }),
+        body: JSON.stringify({ userId, role: newRole }),
       });
-      const json = await res.json();
-      if (!res.ok) {
-        alert(json.error || "Failed");
-      } else {
-        fetchUsers();
-      }
+      if (!res.ok) throw new Error();
+      setUsers((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+      );
+    } catch {
+      setError(
+        isBn ? "রোল আপডেট করা যায়নি।" : "Failed to update user role."
+      );
     } finally {
       setSavingId(null);
     }
   };
 
-  const roleLabels: Record<string, string> = {
-    admin: isBn ? "অ্যাডমিন" : "Admin",
-    client: isBn ? "ক্লায়েন্ট" : "Client",
-    visitor: isBn ? "ভিজিটর" : "Visitor",
+  const roleVariants: Record<string, "default" | "secondary" | "outline"> = {
+    admin: "default",
+    client: "secondary",
+    visitor: "outline",
   };
 
   return (
-    <section className="py-4">
+    <div className="space-y-6">
       <SectionTitle
-        badge="🛡️ RBAC"
-        title="User Management"
-        titleBn="ইউজার ম্যানেজমেন্ট"
+        badge={isBn ? "👥 ইউজার ম্যানেজমেন্ট" : "👥 User Management"}
+        title="User Roles & Access Control"
+        titleBn="ইউজার রোল ও পারমিশন"
+        subtitle={
+          isBn
+            ? "সুপাবেস auth ও profiles টেবিল থেকে ইউজার পরিচালনা ও রোল পরিবর্তন করুন"
+            : "Manage profile accounts and update RBAC roles"
+        }
         locale={locale}
       />
 
-      <GlassCard className="mb-6 p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <GlassCard className="p-6">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:max-w-xs">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              className="pl-9"
-              placeholder={isBn ? "ইমেইল বা নাম দিয়ে খুঁজুন..." : "Search by email or name..."}
+              type="search"
+              placeholder={
+                isBn ? "ইমেইল বা নাম দিয়ে খুঁজুন…" : "Search email or name…"
+              }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
             />
           </div>
-          <div className="flex items-center gap-2">
-            {["all", "admin", "client", "visitor"].map((role) => (
-              <Button
-                key={role}
-                size="sm"
-                variant={roleFilter === role ? "default" : "outline"}
-                onClick={() => setRoleFilter(role)}
-              >
-                {role === "all" ? (isBn ? "সব" : "All") : roleLabels[role]}
-              </Button>
-            ))}
-          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchUsers}
+            disabled={loading}
+          >
+            {isBn ? "রিফ্রেশ" : "Refresh"}
+          </Button>
         </div>
-      </GlassCard>
 
-      {error && (
-        <GlassCard className="mb-4 p-4 text-center text-sm text-red-400">{error}</GlassCard>
-      )}
+        {error && (
+          <p className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </p>
+        )}
 
-      {loading ? (
-        <GlassCard className="p-8 text-center text-muted-foreground">
-          <Loader2 className="mx-auto h-6 w-6 animate-spin" />
-        </GlassCard>
-      ) : (
-        <GlassCard className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-sm">
-            <thead>
-              <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="px-4 py-3">{isBn ? "ইউজার" : "User"}</th>
-                <th className="px-4 py-3">{isBn ? "ইমেইল" : "Email"}</th>
-                <th className="px-4 py-3">{isBn ? "রোল" : "Role"}</th>
-                <th className="px-4 py-3">{isBn ? "জয়েন" : "Joined"}</th>
-                <th className="px-4 py-3 text-right">{isBn ? "অ্যাকশন" : "Action"}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                    {isBn ? "কোনো ইউজার পাওয়া যায়নি" : "No users found"}
-                  </td>
+        {loading ? (
+          <TableSkeleton rows={4} columns={5} />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-border text-xs font-semibold uppercase text-muted-foreground">
+                  <th className="px-4 py-3">{isBn ? "ইউজার" : "User"}</th>
+                  <th className="px-4 py-3">{isBn ? "ইমেইল" : "Email"}</th>
+                  <th className="px-4 py-3">{isBn ? "রোল" : "Role"}</th>
+                  <th className="px-4 py-3">{isBn ? "জয়েন" : "Joined"}</th>
+                  <th className="px-4 py-3 text-right">
+                    {isBn ? "অ্যাকশন" : "Action"}
+                  </th>
                 </tr>
-              ) : (
-                users.map((user) => (
-                  <tr key={user.id} className="border-b border-border/30 last:border-0">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                          <UserCog className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="font-medium">{user.full_name || "—"}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant={roleVariants[user.role] ?? "secondary"}>
-                        {roleLabels[user.role] ?? user.role}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">
-                      {new Date(user.created_at).toLocaleDateString(isBn ? "bn-BD" : "en-US")}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {savingId === user.id ? (
-                        <Loader2 className="ml-auto h-4 w-4 animate-spin" />
-                      ) : (
-                        <select
-                          className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-                          value={user.role}
-                          onChange={(e) => changeRole(user, e.target.value)}
-                        >
-                          {Object.keys(roleLabels).map((role) => (
-                            <option key={role} value={role}>
-                              {roleLabels[role]}
-                            </option>
-                          ))}
-                        </select>
-                      )}
+              </thead>
+              <tbody>
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8">
+                      <EmptyState
+                        size="sm"
+                        icon={Users}
+                        title={
+                          isBn ? "কোনো ইউজার পাওয়া যায়নি" : "No users found"
+                        }
+                        description={
+                          search
+                            ? isBn
+                              ? "আপনার সার্চের সাথে কোনো ইউজার মিলছে না।"
+                              : "No users match your search query."
+                            : isBn
+                              ? "কোনো নিবন্ধিত ইউজার নেই।"
+                              : "No registered users found."
+                        }
+                        action={
+                          search
+                            ? {
+                                label: isBn
+                                  ? "সার্চ রিসেট করুন"
+                                  : "Clear Search",
+                                onClick: () => setSearch(""),
+                              }
+                            : undefined
+                        }
+                      />
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-          <div className="flex items-center gap-2 border-t border-border/40 px-4 py-3 text-xs text-muted-foreground">
-            <ShieldCheck className="h-4 w-4 text-green-400" />
-            {isBn
-              ? `মোট ${total} জন ইউজার`
-              : `${total} users total`}
+                ) : (
+                  users.map((user) => (
+                    <tr
+                      key={user.id}
+                      className="border-b border-border/30 last:border-0"
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                            <UserCog className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="font-medium">
+                            {user.full_name || "—"}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {user.email}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge
+                          variant={roleVariants[user.role] || "secondary"}
+                          className="capitalize"
+                        >
+                          {user.role}
+                        </Badge>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
+                        {new Date(user.created_at).toLocaleDateString(
+                          isBn ? "bn-BD" : "en-US"
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="inline-flex items-center gap-1">
+                          {(["admin", "client", "visitor"] as const).map(
+                            (r) => (
+                              <Button
+                                key={r}
+                                variant={
+                                  user.role === r ? "default" : "outline"
+                                }
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                disabled={
+                                  user.role === r || savingId === user.id
+                                }
+                                onClick={() => handleRoleChange(user.id, r)}
+                              >
+                                {r === "admin" && (
+                                  <ShieldCheck className="mr-1 h-3 w-3" />
+                                )}
+                                {r}
+                              </Button>
+                            )
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-        </GlassCard>
-      )}
-    </section>
+        )}
+      </GlassCard>
+    </div>
   );
 }

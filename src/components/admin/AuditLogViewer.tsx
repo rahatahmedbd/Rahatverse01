@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { GlassCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShieldAlert } from "lucide-react";
 import { SectionTitle } from "@/components/sections/SectionTitle";
+import { EmptyState, TableSkeleton } from "@/components/ui";
 
 // ── Audit Log Viewer ───────────────────────────────────
 // Paginated, filterable table of admin actions.
@@ -28,139 +28,200 @@ interface AuditLogViewerProps {
 export function AuditLogViewer({ locale = "bn" }: AuditLogViewerProps) {
   const isBn = locale === "bn";
   const [entries, setEntries] = useState<AuditEntry[]>([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [action, setAction] = useState("");
-  const [entity, setEntity] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
-  const pageSize = 30;
+  // Filters + pagination
+  const [entityFilter, setEntityFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError("");
     try {
-      const params = new URLSearchParams({ page: String(page), limit: String(pageSize) });
-      if (action) params.set("action", action);
-      if (entity) params.set("entity", entity);
-      const res = await fetch(`/api/admin/audit-logs?${params.toString()}`, { cache: "no-store" });
+      const p = new URLSearchParams();
+      if (entityFilter) p.set("entity", entityFilter);
+      p.set("limit", String(pageSize));
+      p.set("offset", String((page - 1) * pageSize));
+
+      const res = await fetch(`/api/admin/audit-logs?${p.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      setEntries(json.data || []);
-      setTotal(json.pagination?.total ?? 0);
+      const data = await res.json();
+      setEntries(data.entries || []);
     } catch {
-      setError(isBn ? "অডিট লগ লোড করা যায়নি" : "Failed to load audit logs");
+      setError(
+        isBn
+          ? "অডিট লগ লোড করা যায়নি। পরে চেষ্টা করুন।"
+          : "Unable to load audit logs."
+      );
     } finally {
       setLoading(false);
     }
-  }, [page, action, entity, isBn]);
+  }, [entityFilter, page, isBn]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLogs();
   }, [fetchLogs]);
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
   return (
-    <section className="py-4">
+    <div className="space-y-6">
       <SectionTitle
-        badge="📜"
-        title="Audit Log Viewer"
-        titleBn="অডিট লগ ভিউয়ার"
+        badge={isBn ? "🛡️ অডিট লগ" : "🛡️ Audit Trail"}
+        title="Admin Activity Log"
+        titleBn="অ্যাডমিন অ্যাক্টিভিটি লগ"
+        subtitle={
+          isBn
+            ? "সিস্টেমে অ্যাডমিনদের সকল কাজের রেকর্ড ও বিস্তারিত ট্রেইল"
+            : "Detailed trail of administrative actions across the application"
+        }
         locale={locale}
       />
 
-      <GlassCard className="mb-6 p-4">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Input
-            className="flex-1"
-            placeholder={isBn ? "অ্যাকশন দিয়ে খুঁজুন (যেমন: user.role_update)..." : "Search by action..."}
-            value={action}
-            onChange={(e) => {
-              setAction(e.target.value);
-              setPage(1);
-            }}
-          />
-          <Input
-            className="flex-1"
-            placeholder={isBn ? "এনটিটি (যেমন: user, blog)..." : "Entity (e.g. user, blog)..."}
-            value={entity}
-            onChange={(e) => {
-              setEntity(e.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
-      </GlassCard>
-
-      {error && (
-        <GlassCard className="mb-4 p-4 text-center text-sm text-red-400">{error}</GlassCard>
-      )}
-
-      <GlassCard className="overflow-x-auto">
-        {loading ? (
-          <div className="flex items-center justify-center gap-2 p-10 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            <span className="bn">{isBn ? "লোড হচ্ছে..." : "Loading..."}</span>
+      <GlassCard className="p-6">
+        {/* Filter bar */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { label: isBn ? "সব" : "All", val: "" },
+              { label: "Blog", val: "blog" },
+              { label: "Comment", val: "comment" },
+              { label: "Settings", val: "settings" },
+              { label: "RBAC", val: "rbac" },
+            ].map((cat) => (
+              <Button
+                key={cat.val}
+                variant={entityFilter === cat.val ? "default" : "outline"}
+                size="sm"
+                className="h-8 text-xs"
+                onClick={() => {
+                  setEntityFilter(cat.val);
+                  setPage(1);
+                }}
+              >
+                {cat.label}
+              </Button>
+            ))}
           </div>
-        ) : entries.length === 0 ? (
-          <p className="p-10 text-center text-sm text-muted-foreground">
-            {isBn ? "কোনো অডিট এন্ট্রি নেই" : "No audit entries"}
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchLogs}
+              disabled={loading}
+              className="h-8 text-xs"
+            >
+              {isBn ? "রিফ্রেশ" : "Refresh"}
+            </Button>
+          </div>
+        </div>
+
+        {error && (
+          <p className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
           </p>
-        ) : (
-          <table className="w-full min-w-[720px] text-sm">
-            <thead>
-              <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="px-4 py-3">{isBn ? "সময়" : "Time"}</th>
-                <th className="px-4 py-3">{isBn ? "অ্যাকশন" : "Action"}</th>
-                <th className="px-4 py-3">{isBn ? "এনটিটি" : "Entity"}</th>
-                <th className="px-4 py-3">{isBn ? "অভিনেতা" : "Actor"}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry) => (
-                <tr key={entry.id} className="border-b border-border/30 last:border-0">
-                  <td className="whitespace-nowrap px-4 py-2.5 text-xs text-muted-foreground">
-                    {new Date(entry.created_at).toLocaleString(isBn ? "bn-BD" : "en-US")}
-                  </td>
-                  <td className="px-4 py-2.5 font-mono text-xs">{entry.action}</td>
-                  <td className="px-4 py-2.5 text-xs text-muted-foreground">{entry.entity}</td>
-                  <td className="px-4 py-2.5 text-xs text-muted-foreground">{entry.actor_email ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         )}
 
-        <div className="flex items-center justify-between border-t border-border/40 px-4 py-3 text-sm">
-          <span className="text-xs text-muted-foreground">
-            {isBn ? `মোট ${total}টি` : `${total} total`}
+        {/* Content */}
+        {loading ? (
+          <TableSkeleton rows={5} columns={4} />
+        ) : entries.length === 0 ? (
+          <EmptyState
+            size="sm"
+            icon={ShieldAlert}
+            title={isBn ? "কোনো অডিট এন্ট্রি নেই" : "No audit entries"}
+            description={
+              entityFilter
+                ? isBn
+                  ? "এই ক্যাটাগরিতে কোনো অডিট রেকর্ড পাওয়া যায়নি।"
+                  : "No audit records found for this entity filter."
+                : isBn
+                  ? "এখনো কোনো অডিট রেকর্ড তৈরি হয়নি।"
+                  : "No administrative actions have been logged yet."
+            }
+            action={
+              entityFilter
+                ? {
+                    label: isBn ? "সব লগ দেখুন" : "View All Logs",
+                    onClick: () => setEntityFilter(""),
+                  }
+                : undefined
+            }
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead>
+                <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="px-4 py-3">{isBn ? "সময়" : "Time"}</th>
+                  <th className="px-4 py-3">{isBn ? "অ্যাকশন" : "Action"}</th>
+                  <th className="px-4 py-3">{isBn ? "এনটিটি" : "Entity"}</th>
+                  <th className="px-4 py-3">{isBn ? "অভিনেতা" : "Actor"}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/30">
+                {entries.map((entry) => (
+                  <tr
+                    key={entry.id}
+                    className="hover:bg-muted/30 transition-colors"
+                  >
+                    <td className="whitespace-nowrap px-4 py-2.5 text-xs text-muted-foreground">
+                      {new Date(entry.created_at).toLocaleString(
+                        isBn ? "bn-BD" : "en-US"
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 font-mono text-xs font-semibold">
+                      {entry.action}
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary">
+                        {entry.entity}
+                      </span>
+                      {entry.entity_id && (
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          #{entry.entity_id.slice(0, 6)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 text-xs">
+                      {entry.actor_email || (isBn ? "সিস্টেম" : "System")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        <div className="mt-4 flex items-center justify-between border-t border-border/30 pt-3 text-xs text-muted-foreground">
+          <span>
+            {isBn ? `পৃষ্ঠা ${page}` : `Page ${page}`}
           </span>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              disabled={page <= 1}
+              disabled={page <= 1 || loading}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="h-7 px-2 text-xs"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3 w-3" />
             </Button>
-            <span className="text-xs text-muted-foreground">
-              {page} / {totalPages}
-            </span>
             <Button
               variant="outline"
               size="sm"
-              disabled={page >= totalPages}
+              disabled={entries.length < pageSize || loading}
               onClick={() => setPage((p) => p + 1)}
+              className="h-7 px-2 text-xs"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3" />
             </Button>
           </div>
         </div>
       </GlassCard>
-    </section>
+    </div>
   );
 }

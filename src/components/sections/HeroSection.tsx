@@ -1,44 +1,82 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProfileImage } from "./ProfileImage";
 import { TypingAnimation } from "@/components/interactive/TypingAnimation";
+import {
+  ParallaxOrb,
+  OrbitingRings,
+  Parallax3DContainer,
+} from "@/components/interactive";
 import { FadeInUp, FadeInDown } from "@/components/animations/FadeIn";
 import { ParticleBackground } from "@/components/animations/ParticleBackground";
 import { ScrollIndicator } from "@/components/animations/ScrollProgress";
-import { Sparkles, Zap, Eye, MessageCircle } from "lucide-react";
+import { Sparkles, Zap, Eye, MessageCircle, Star, Award, Heart, Code, Users, ShoppingCart, Briefcase, GraduationCap, Droplets, Trophy, Mail } from "lucide-react";
 import { Counter } from "@/components/animations/Counter";
 import { MagneticButton } from "@/components/interactive/MagneticButton";
 import { Ripple } from "@/components/interactive/Ripple";
 import Link from "next/link";
+import type { HeroConfig } from "@/types/hero";
+import type { AboutConfig } from "@/types/about";
+import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
+
+// ── Icon map for dynamic CTAs ────────────────────────
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Zap,
+  Eye,
+  MessageCircle,
+  Sparkles,
+  Star,
+  Award,
+  Heart,
+  Code,
+  Users,
+  ShoppingCart,
+  Briefcase,
+  GraduationCap,
+  Droplets,
+  Trophy,
+  Mail,
+};
+
+function getIcon(name: string) {
+  return ICON_MAP[name] ?? Sparkles;
+}
 
 // ── Hero Section ───────────────────────────────────────
-// The main cinematic hero for the landing page
+// Phase 2: 100% admin-controllable via site_settings.hero_config (with fallback)
 
 interface HeroSectionProps {
   locale?: string;
+  aboutConfig?: AboutConfig;
 }
 
-export function HeroSection({ locale = "bn" }: HeroSectionProps) {
+export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
   const isBn = locale === "bn";
+  const [config, setConfig] = useState<HeroConfig>(DEFAULT_HERO_CONFIG);
 
-  const taglines = isBn
-    ? [
-        "ওয়েব ডেভেলপার",
-        "শিক্ষার্থী",
-        "গৃহশিক্ষক",
-        "রক্তদাতা",
-        "BNCC ক্যাডেট",
-      ]
-    : [
-        "Web Developer",
-        "Student",
-        "Teacher",
-        "Blood Donor",
-        "BNCC Cadet",
-      ];
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/hero-config", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((json) => {
+        if (!alive) return;
+        const validated = validateHeroConfig(json.data);
+        if (validated) setConfig(validated);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (!config.visible) return null;
+
+  const taglines = isBn ? config.typewriter.bn : config.typewriter.en;
+  const welcomeText = isBn ? config.intro.welcomeTextBn : config.intro.welcomeTextEn;
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
@@ -51,8 +89,10 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
         />
       </div>
 
-      {/* Ambient Glow */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
+      {/* Ambient Glow & Phase I Parallax Orb */}
+      <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
+        <ParallaxOrb size="xl" color="primary" />
+        <OrbitingRings size="lg" className="opacity-70" />
         <div className="absolute top-1/3 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/5 blur-3xl" />
         <div className="absolute bottom-1/4 left-1/4 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl" />
         <div className="absolute bottom-1/3 right-1/4 h-64 w-64 rounded-full bg-purple-500/5 blur-3xl" />
@@ -60,28 +100,51 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
 
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
-        {/* Badge */}
+        {/* Badge - admin editable welcome */}
         <FadeInDown delay={0.5}>
           <Badge variant="gradient" className="mb-6 text-sm">
             <Sparkles className="mr-1 h-3 w-3" />
-            {isBn ? "স্বাগতম আমার ডিজিটাল জগতে" : "Welcome to my digital world"}
+            {welcomeText}
           </Badge>
         </FadeInDown>
 
-        {/* Profile Image */}
+        {/* Role Badges - admin reorderable */}
+        {config.badges.length > 0 && (
+          <FadeInDown delay={0.55}>
+            <div className="mb-6 flex flex-wrap justify-center gap-2">
+              {config.badges.map((b) => (
+                <Badge key={b.id} variant="glow" className="bn text-xs">
+                  {isBn ? b.labelBn : b.labelEn}
+                </Badge>
+              ))}
+            </div>
+          </FadeInDown>
+        )}
+
+        {/* Profile Image with Phase I 3D Mouse Parallax */}
         <motion.div
           className="mb-8"
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
         >
-          <ProfileImage size="lg" />
+          <Parallax3DContainer intensity={14} className="inline-block">
+            <ProfileImage
+              size="lg"
+              src={aboutConfig?.profileImage.url || undefined}
+              publicId={aboutConfig?.profileImage.publicId}
+              alt={isBn ? aboutConfig?.profileImage.altBn : aboutConfig?.profileImage.altEn}
+              frame={aboutConfig?.profileImage.frame}
+              showStatus={aboutConfig?.profileImage.showStatus}
+              statusLabel={isBn ? aboutConfig?.profileImage.statusLabelBn : aboutConfig?.profileImage.statusLabelEn}
+            />
+          </Parallax3DContainer>
         </motion.div>
 
         {/* Name */}
         <FadeInUp delay={0.6}>
-          <h1 className="bn font-display text-display">
-            <span className="text-gradient-animated">রাহাত আহমেদ</span>
+          <h1 className="bn text-display-xl font-bold">
+            <span className="text-gradient">রাহাত আহমেদ</span>
           </h1>
           <p className="mt-1 text-lg text-muted-foreground sm:text-xl">
             Rahat Ahmed
@@ -105,13 +168,13 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
 
         {/* Description */}
         <FadeInUp delay={1.2}>
-          <p className="mx-auto mt-6 max-w-xl text-muted-foreground bn">
+          <p className="text-lead mx-auto mt-6 max-w-xl text-muted-foreground bn">
             শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।
             সুনামগঞ্জ থেকে স্বপ্ন দেখি একটি better digital world গড়ার।
           </p>
         </FadeInUp>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons - admin editable, pulse per button */}
         <FadeInUp delay={1.5}>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <MagneticButton strength={0.3}>
@@ -145,26 +208,18 @@ export function HeroSection({ locale = "bn" }: HeroSectionProps) {
           </div>
         </FadeInUp>
 
-        {/* Quick Stats */}
+        {/* Quick Stats - admin editable floating counters */}
         <FadeInUp delay={1.8}>
           <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {[
-              { value: 9, suffix: "", label: isBn ? "অর্জন" : "Achievements" },
-              { value: 5, suffix: "×", label: isBn ? "১ম স্থান" : "1st Places" },
-              { value: 4, suffix: "", label: isBn ? "রক্তদান" : "Blood Donations" },
-              { value: 2, suffix: "×", label: "GPA 5.00", labelBn: "GPA 5.00" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="glass rounded-xl px-4 py-3"
-              >
+            {config.counters.map((stat) => (
+              <div key={stat.id} className="glass rounded-xl px-4 py-3">
                 <Counter
                   to={stat.value}
                   suffix={stat.suffix}
                   className="text-2xl font-bold text-primary sm:text-3xl"
                 />
                 <p className="mt-1 text-xs text-muted-foreground bn sm:text-sm">
-                  {isBn && stat.labelBn ? stat.labelBn : stat.label}
+                  {isBn ? stat.labelBn : stat.labelEn}
                 </p>
               </div>
             ))}

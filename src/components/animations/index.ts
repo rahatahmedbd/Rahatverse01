@@ -27,5 +27,7 @@ export { LazySection } from "./LazySection";
 // Cursor
 export { CustomCursor } from "./CustomCursor";
 
-// Providers
+// Providers and global route motion
 export { AnimationProviders } from "./Providers";
+export { MotionProvider } from "./MotionProvider";
+export { PageTransition } from "./PageTransition";

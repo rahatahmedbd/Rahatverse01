@@ -50,10 +50,28 @@
 
   /* Font */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-display: "Sora", "Inter", system-ui, -apple-system, sans-serif;
-  --font-bengali: "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
-  --font-bengali-display: "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
+  --font-bengali: "Hind Siliguri", "Inter", "Noto Sans Bengali", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* ── Phase C — Fluid Type Scale (display / heading / body) ──
+     Responsive clamp(): fluid between 375px (min) and 1024px (max) */
+  --text-display-xl: clamp(2.5rem, 1.344rem + 4.93vw, 4.5rem);
+  --text-display-xl--line-height: 1.12;
+  --text-display-xl--letter-spacing: -0.025em;
+  --text-display-lg: clamp(2.125rem, 1.33rem + 3.39vw, 3.5rem);
+  --text-display-lg--line-height: 1.14;
+  --text-display-lg--letter-spacing: -0.022em;
+  --text-heading-lg: clamp(1.75rem, 1.317rem + 1.85vw, 2.5rem);
+  --text-heading-lg--line-height: 1.2;
+  --text-heading-lg--letter-spacing: -0.018em;
+  --text-heading-md: clamp(1.375rem, 1.086rem + 1.23vw, 1.875rem);
+  --text-heading-md--line-height: 1.28;
+  --text-heading-md--letter-spacing: -0.012em;
+  --text-heading-sm: clamp(1.125rem, 0.98rem + 0.62vw, 1.375rem);
+  --text-heading-sm--line-height: 1.38;
+  --text-heading-sm--letter-spacing: -0.006em;
+  --text-lead: clamp(1.0625rem, 0.954rem + 0.46vw, 1.25rem);
+  --text-lead--line-height: 1.65;
 
   /* Animations */
   --animate-accordion-down: accordion-down 0.2s ease-out;
@@ -84,9 +102,37 @@
   --border: #1e3a5f;
   --input: #1e293b;
   --ring: #f59e0b;
+  --selection-bg: rgba(16, 185, 129, 0.35);
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #f59e0b, #f97316, #ef4444);
+  /* Phase B — unified gradient palette */
+  --gradient-start: #fbbf24;
+  --gradient-middle: #f97316;
+  --gradient-end: #ef4444;
+  --gradient-cool: #8b5cf6;
+  --gradient-sky: #3b82f6;
+  --gradient-primary: linear-gradient(
+    110deg,
+    var(--gradient-start) 0%,
+    var(--gradient-middle) 28%,
+    var(--gradient-end) 52%,
+    var(--gradient-cool) 76%,
+    var(--gradient-start) 100%
+  );
+  --gradient-primary-soft: linear-gradient(
+    120deg,
+    rgba(251, 191, 36, 0.18),
+    rgba(249, 115, 22, 0.12) 38%,
+    rgba(139, 92, 246, 0.1) 72%,
+    rgba(59, 130, 246, 0.08)
+  );
+  --gradient-border: linear-gradient(
+    120deg,
+    rgba(251, 191, 36, 0.85),
+    rgba(249, 115, 22, 0.7),
+    rgba(239, 68, 68, 0.65),
+    rgba(139, 92, 246, 0.75),
+    rgba(251, 191, 36, 0.85)
+  );
   --gradient-surface: linear-gradient(180deg, #0a1628, #050a15);
   --gradient-glow: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
   --gradient-aurora: linear-gradient(135deg, #0a1628 0%, #1e3a5f 25%, #0a1628 50%, #1a1f3c 75%, #050a15 100%);
@@ -102,6 +148,28 @@
   --text-4xl: clamp(2.25rem, 1.78rem + 2.4vw, 3.125rem);
   --text-5xl: clamp(2.75rem, 2.05rem + 3.6vw, 4.25rem);
   --text-display: clamp(3rem, 2rem + 5vw, 5.5rem);
+  --gradient-mesh:
+    radial-gradient(circle at 12% 18%, rgba(251, 191, 36, 0.09), transparent 28%),
+    radial-gradient(circle at 88% 16%, rgba(139, 92, 246, 0.08), transparent 30%),
+    radial-gradient(circle at 72% 76%, rgba(59, 130, 246, 0.07), transparent 32%),
+    radial-gradient(circle at 20% 82%, rgba(249, 115, 22, 0.07), transparent 30%);
+  --gradient-divider: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(251, 191, 36, 0.65) 20%,
+    rgba(249, 115, 22, 0.8) 38%,
+    rgba(139, 92, 246, 0.75) 62%,
+    rgba(59, 130, 246, 0.6) 80%,
+    transparent 100%
+  );
+  --gradient-shine: linear-gradient(
+    105deg,
+    transparent 18%,
+    rgba(255, 255, 255, 0.18) 36%,
+    rgba(255, 255, 255, 0.72) 50%,
+    rgba(255, 255, 255, 0.18) 64%,
+    transparent 82%
+  );
 }
 
 /* ── Light Theme ──────────────────────────────────────── */
@@ -117,14 +185,54 @@
   --secondary: #e2e8f0;
   --secondary-foreground: #050a15;
   --muted: #e2e8f0;
-  --muted-foreground: #64748b;
+  --muted-foreground: #475569;
   --accent: #dbeafe;
+  --selection-bg: rgba(16, 185, 129, 0.25);
   --accent-foreground: #050a15;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   --border: #cbd5e1;
   --input: #e2e8f0;
   --ring: #d97706;
+
+  /* Keep the same brand spectrum with light-theme contrast and softer atmosphere. */
+  --gradient-start: #b45309;
+  --gradient-middle: #c2410c;
+  --gradient-end: #be123c;
+  --gradient-cool: #6d28d9;
+  --gradient-sky: #1d4ed8;
+  --gradient-primary-soft: linear-gradient(
+    120deg,
+    rgba(180, 83, 9, 0.12),
+    rgba(194, 65, 12, 0.09) 38%,
+    rgba(109, 40, 217, 0.08) 72%,
+    rgba(29, 78, 216, 0.06)
+  );
+  --gradient-border: linear-gradient(
+    120deg,
+    rgba(180, 83, 9, 0.75),
+    rgba(194, 65, 12, 0.68),
+    rgba(190, 18, 60, 0.6),
+    rgba(109, 40, 217, 0.65),
+    rgba(180, 83, 9, 0.75)
+  );
+  --gradient-surface: linear-gradient(180deg, #ffffff, #f8fafc);
+  --gradient-glow: radial-gradient(circle, rgba(180, 83, 9, 0.1) 0%, transparent 70%);
+  --gradient-aurora: linear-gradient(135deg, #f8fafc 0%, #fff7ed 28%, #f5f3ff 60%, #eff6ff 100%);
+  --gradient-mesh:
+    radial-gradient(circle at 12% 18%, rgba(180, 83, 9, 0.07), transparent 28%),
+    radial-gradient(circle at 88% 16%, rgba(109, 40, 217, 0.06), transparent 30%),
+    radial-gradient(circle at 72% 76%, rgba(29, 78, 216, 0.05), transparent 32%),
+    radial-gradient(circle at 20% 82%, rgba(194, 65, 12, 0.05), transparent 30%);
+  --gradient-divider: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(180, 83, 9, 0.52) 20%,
+    rgba(194, 65, 12, 0.65) 38%,
+    rgba(109, 40, 217, 0.6) 62%,
+    rgba(29, 78, 216, 0.5) 80%,
+    transparent 100%
+  );
 }
 
 /* ── Accent Palettes — Phase H "থিম পোলিশ" ──────────────
@@ -236,79 +344,75 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  line-height: 1.6;
   overflow-x: hidden;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ── Bengali Text ─────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════
+   Phase C — টাইপোগ্রাফি সিম্ফনি (Typography System)
+   Locale-driven font pairing + Bengali metrics +
+   section-heading kicker / accent underline primitives
+   ════════════════════════════════════════════════════════ */
+
+/* ── Bengali Text (inline, e.g. Bengali spans in English pages) ── */
 .bn {
   font-family: var(--font-bengali);
-  line-height: 1.65;
-  letter-spacing: 0.01em;
+  line-height: 1.75;
+  letter-spacing: 0;
 }
 
-/* ── Typography System — Phase C ─────────────────────── */
-.font-display {
-  font-family: var(--font-display);
+/* ── Bengali Locale: pair Hind Siliguri (with Inter fallback for Latin) ── */
+html[lang="bn"] body {
+  font-family: var(--font-bengali);
+  line-height: 1.75;
 }
 
-/* Fluid display / heading / body scale utilities */
-.text-display {
-  font-size: var(--text-display);
-  line-height: 1.04;
-  letter-spacing: -0.02em;
-  font-weight: 800;
+/* ── Bengali glyph metrics: taller vowel signs need taller lines,
+   and Bengali script must never use negative/expanded tracking ── */
+:is(html[lang="bn"] .text-display-xl, .bn.text-display-xl),
+:is(html[lang="bn"] .text-display-lg, .bn.text-display-lg) {
+  line-height: 1.3;
+  letter-spacing: 0;
 }
-.text-h1 {
-  font-size: var(--text-5xl);
-  line-height: 1.08;
-  letter-spacing: -0.015em;
-  font-weight: 800;
+
+:is(html[lang="bn"] .text-heading-lg, .bn.text-heading-lg),
+:is(html[lang="bn"] .text-heading-md, .bn.text-heading-md),
+:is(html[lang="bn"] .text-heading-sm, .bn.text-heading-sm) {
+  line-height: 1.42;
+  letter-spacing: 0;
 }
-.text-h2 {
-  font-size: var(--text-4xl);
-  line-height: 1.12;
-  letter-spacing: -0.012em;
-  font-weight: 700;
+
+:is(html[lang="bn"] .text-lead, .bn.text-lead) {
+  line-height: 1.85;
+  letter-spacing: 0;
 }
-.text-h3 {
-  font-size: var(--text-2xl);
-  line-height: 1.2;
-  letter-spacing: -0.008em;
-  font-weight: 700;
-}
-.text-h4 {
-  font-size: var(--text-xl);
-  line-height: 1.28;
-  letter-spacing: -0.005em;
+
+/* ── Section heading: gradient kicker label ───────────── */
+.heading-kicker {
+  font-size: 0.8125rem;
   font-weight: 600;
-}
-.text-body {
-  font-size: var(--text-base);
-  line-height: 1.7;
-  letter-spacing: 0;
-}
-.text-small {
-  font-size: var(--text-sm);
-  line-height: 1.55;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
 }
 
-/* Default heading rhythm & body readability (overridable by utilities) */
-h1, h2, h3, h4, h5, h6 {
-  text-wrap: balance;
-  letter-spacing: -0.01em;
-  color: var(--foreground);
+html[lang="bn"] .heading-kicker,
+.bn.heading-kicker {
+  letter-spacing: 0.02em;
 }
-p {
-  text-wrap: pretty;
-}
-.bn.text-display,
-.bn.text-h1,
-.bn.text-h2,
-.bn.text-h3 {
-  font-family: var(--font-bengali-display);
-  letter-spacing: 0;
+
+/* ── Section heading: animated gradient accent underline ── */
+.heading-underline {
+  display: block;
+  width: 3.5rem;
+  height: 3px;
+  margin-top: 0.875rem;
+  border-radius: 999px;
+  background-image: var(--gradient-primary);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  animation: gradient-flow 9s ease-in-out infinite;
 }
 
 /* Gradient kicker (uppercase accent label) */
@@ -409,147 +513,357 @@ p {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  .site-gradient-canvas::before {
+    transform: none;
+    will-change: auto;
+  }
+
+  .text-gradient,
+  .bg-brand-gradient,
+  .bg-brand-gradient-soft,
+  .gradient-badge,
+  .gradient-cta,
+  .gradient-border::before,
+  .aurora-divider,
+  .aurora-divider::before {
+    animation: none !important;
+    background-position: 50% 50%;
+  }
+
+  .gradient-cta::after {
+    display: none;
+  }
+
+  .magnetic-target {
+    translate: 0 0 !important;
+    transition: none !important;
+  }
+
+  .tilt-card {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .tilt-card::after {
+    display: none;
+  }
 }
 
 /* ── Utility Classes ──────────────────────────────────── */
+.site-gradient-canvas {
+  position: relative;
+  isolation: isolate;
+}
+
+.site-gradient-canvas::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: -18%;
+  pointer-events: none;
+  background-image: var(--gradient-mesh);
+  transform: translate3d(-1.5%, -1%, 0) scale(1.02);
+  transform-origin: center;
+  animation: mesh-drift 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ── Phase E — Motion & micro-interaction primitives ─── */
+.page-transition {
+  min-height: 1px;
+  will-change: opacity, transform;
+}
+
+/* Click ripples use a pseudo-element so Button can safely render as a link
+   through Radix Slot without adding a second child. */
+.button-ripple {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.button-ripple::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: var(--ripple-y, 50%);
+  left: var(--ripple-x, 50%);
+  width: 12rem;
+  aspect-ratio: 1;
+  pointer-events: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.32);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.button-ripple[data-rippling="true"]::before {
+  animation: button-ripple 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Individual translate composes with existing Tailwind transforms, so a
+   magnetic pull never overrides a hover lift, scale, or Framer transform. */
+.magnetic-target {
+  translate: var(--magnetic-x, 0px) var(--magnetic-y, 0px);
+  transition: translate 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: translate;
+}
+
+.tilt-card {
+  position: relative;
+  overflow: hidden;
+  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.tilt-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: var(--tilt-glare-opacity, 0);
+  background: radial-gradient(
+    circle at var(--tilt-glare-x, 50%) var(--tilt-glare-y, 50%),
+    rgba(255, 255, 255, 0.8),
+    transparent 48%
+  );
+  transition: opacity 180ms ease-out;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .magnetic-target {
+    translate: 0 0;
+    will-change: auto;
+  }
+
+  .tilt-card {
+    transform: none;
+    will-change: auto;
+  }
+
+  .tilt-card::after {
+    display: none;
+  }
+}
+
 .text-gradient {
-  background: var(--gradient-primary);
+  color: var(--primary);
+  background-image: var(--gradient-primary);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: gradient-flow 9s ease-in-out infinite;
 }
 
-.glass {
-  background: linear-gradient(
-    135deg,
-    rgba(30, 58, 95, 0.32),
-    rgba(10, 22, 40, 0.52)
-  );
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+.bg-brand-gradient {
+  background-image: var(--gradient-primary);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  animation: gradient-flow 9s ease-in-out infinite;
 }
 
-.light .glass {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.7),
-    rgba(241, 245, 249, 0.55)
-  );
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+.bg-brand-gradient-soft {
+  background-image: var(--gradient-primary-soft);
+  background-size: 220% 220%;
+  animation: gradient-flow 12s ease-in-out infinite;
 }
 
-/* ── Premium Glass: gradient border + inner glow ─────── */
-.glass-glow {
-  box-shadow:
-    inset 0 0 26px rgba(245, 158, 11, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 8px 32px rgba(0, 0, 0, 0.25);
-}
-.light .glass-glow {
-  box-shadow:
-    inset 0 0 26px rgba(217, 119, 6, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 8px 32px rgba(15, 23, 42, 0.12);
-}
-
-/* Animated gradient-border glass (keeps translucency via padding-box) */
-.glass-gradient {
-  border: 1px solid transparent;
-  background:
-    linear-gradient(rgba(10, 22, 40, 0.5), rgba(10, 22, 40, 0.5)) padding-box,
-    linear-gradient(
-      120deg,
-      rgba(245, 158, 11, 0.7),
-      rgba(59, 130, 246, 0.5),
-      rgba(139, 92, 246, 0.6)
-    ) border-box;
-  background-origin: padding-box, border-box;
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-}
-.light .glass-gradient {
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)) padding-box,
-    linear-gradient(
-      120deg,
-      rgba(217, 119, 6, 0.5),
-      rgba(59, 130, 246, 0.4),
-      rgba(139, 92, 246, 0.45)
-    ) border-box;
-  background-origin: padding-box, border-box;
-}
-
-/* Frosted glass for the top navbar / floating bars */
-.glass-frost {
-  border: 1px solid transparent;
-  background:
-    linear-gradient(rgba(10, 22, 40, 0.5), rgba(10, 22, 40, 0.5)) padding-box,
-    linear-gradient(
-      120deg,
-      rgba(245, 158, 11, 0.5),
-      rgba(59, 130, 246, 0.3),
-      rgba(139, 92, 246, 0.4)
-    ) border-box;
-  background-origin: padding-box, border-box;
-  backdrop-filter: blur(22px) saturate(170%);
-  -webkit-backdrop-filter: blur(22px) saturate(170%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 10px 40px rgba(0, 0, 0, 0.35);
-}
-.light .glass-frost {
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.7)) padding-box,
-    linear-gradient(
-      120deg,
-      rgba(217, 119, 6, 0.4),
-      rgba(59, 130, 246, 0.3),
-      rgba(139, 92, 246, 0.35)
-    ) border-box;
-  background-origin: padding-box, border-box;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 10px 40px rgba(15, 23, 42, 0.18);
-}
-
-/* Alive reflection / sheen sweep on hover */
-.glass-sheen {
+/* Animated border that does not alter a component's own surface. */
+.gradient-border {
   position: relative;
-  overflow: hidden;
+  isolation: isolate;
 }
-.glass-sheen::before {
+
+.gradient-border::before {
   content: "";
   position: absolute;
-  top: -60%;
-  bottom: -60%;
-  width: 45%;
-  left: -70%;
+  z-index: 1;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background-image: var(--gradient-border);
+  background-size: 300% 300%;
+  animation: gradient-border-flow 8s linear infinite;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.gradient-badge {
+  background-image: var(--gradient-primary-soft);
+  background-size: 220% 220%;
+  color: var(--gradient-start);
+  animation: gradient-flow 10s ease-in-out infinite;
+}
+
+.light .gradient-badge {
+  color: var(--gradient-middle);
+}
+
+/* Conversion CTA: palette motion plus an independent shine sweep. */
+.gradient-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-image: var(--gradient-primary);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  animation: gradient-flow 7s ease-in-out infinite;
+}
+
+.gradient-cta::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -80%;
+  bottom: -80%;
+  left: -55%;
+  width: 38%;
+  pointer-events: none;
+  background-image: var(--gradient-shine);
+  transform: translate3d(-220%, 0, 0) rotate(12deg);
+  animation: cta-shine 3.8s ease-in-out infinite;
+}
+
+.gradient-cta:disabled::after,
+.gradient-cta[aria-disabled="true"]::after {
+  display: none;
+}
+
+/* Reusable flowing aurora divider for adjacent content sections. */
+.aurora-divider {
+  position: relative;
+  width: min(82%, 64rem);
+  height: 1px;
+  margin-inline: auto;
+  background-image: var(--gradient-divider);
+  background-size: 240% 100%;
+  opacity: 0.75;
+  animation: divider-flow 10s ease-in-out infinite;
+}
+
+.aurora-divider::before {
+  content: "";
+  position: absolute;
+  inset: -1.25rem 8%;
+  pointer-events: none;
+  background-image: var(--gradient-divider);
+  background-size: 240% 100%;
+  filter: blur(18px);
+  opacity: 0.38;
+  transform: scaleX(0.92);
+  animation: divider-aurora 10s ease-in-out infinite;
+}
+
+.aurora-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: var(--gradient-start);
+  box-shadow:
+    0 0 0.8rem rgba(251, 191, 36, 0.75),
+    0 0 1.8rem rgba(139, 92, 246, 0.4);
+  transform: translate(-50%, -50%);
+}
+
+/* Glassmorphism 2.0 - Dark Mode (Base) */
+.glass {
+  background-image: linear-gradient(rgba(10, 22, 40, 0.65), rgba(10, 22, 40, 0.65)), 
+                    linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(59, 130, 246, 0.15) 100%);
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+  border: 1px solid transparent;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.12), 
+              0 8px 32px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Glassmorphism 2.0 - Light Mode (Base) */
+.light .glass {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), 
+                    linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(59, 130, 246, 0.2) 100%);
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+  border: 1px solid transparent;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.4), 
+              0 8px 32px 0 rgba(31, 38, 135, 0.04);
+}
+
+/* Glassmorphism 2.0 Interactive Class for hover micro-interactions & alive reflection sheen */
+.glass-interactive {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-interactive::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
   background: linear-gradient(
-    100deg,
+    90deg,
     transparent,
-    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0.04) 20%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0.04) 80%,
     transparent
   );
-  transform: skewX(-20deg);
-  transition: left 0.75s ease;
+  transform: skewX(-25deg);
+  transition: none;
   pointer-events: none;
-  z-index: 1;
 }
-.glass-sheen:hover::before {
-  left: 130%;
+
+.glass-interactive:hover {
+  background-image: linear-gradient(rgba(10, 22, 40, 0.72), rgba(10, 22, 40, 0.72)), 
+                    linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(59, 130, 246, 0.4) 50%, rgba(245, 158, 11, 0.3) 100%);
+  box-shadow: inset 0 1px 2px 0 rgba(255, 255, 255, 0.25), 
+              0 12px 40px 0 rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(59, 130, 246, 0.12);
+  transform: translateY(-2px);
 }
-@media (prefers-reduced-motion: reduce) {
-  .glass-sheen::before {
-    transition: none;
-    display: none;
-  }
+
+.glass-interactive:hover::after {
+  left: 150%;
+  transition: left 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Light Theme interactive support */
+.light .glass-interactive::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.12) 20%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.12) 80%,
+    transparent
+  );
+}
+
+.light .glass-interactive:hover {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), 
+                    linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(245, 158, 11, 0.15) 100%);
+  box-shadow: inset 0 1px 2px 0 rgba(255, 255, 255, 0.6), 
+              0 12px 40px 0 rgba(31, 38, 135, 0.08),
+              0 0 20px rgba(59, 130, 246, 0.06);
 }
 
 .glow-amber {
@@ -656,6 +970,56 @@ p {
 }
 
 /* ── Animations ───────────────────────────────────────── */
+@keyframes gradient-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes gradient-border-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes mesh-drift {
+  0%, 100% { transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
+  50% { transform: translate3d(1.5%, 1%, 0) scale(1.06); }
+}
+
+@keyframes divider-flow {
+  0%, 100% { background-position: 0% 50%; opacity: 0.58; }
+  50% { background-position: 100% 50%; opacity: 0.88; }
+}
+
+@keyframes divider-aurora {
+  0%, 100% {
+    background-position: 0% 50%;
+    opacity: 0.26;
+    transform: scaleX(0.9);
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.48;
+    transform: scaleX(1.04);
+  }
+}
+
+@keyframes cta-shine {
+  0%, 28% { transform: translate3d(-220%, 0, 0) rotate(12deg); }
+  58%, 100% { transform: translate3d(520%, 0, 0) rotate(12deg); }
+}
+
+@keyframes button-ripple {
+  0% {
+    opacity: 0.42;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -716,6 +1080,11 @@ p {
   to { transform: rotate(360deg); }
 }
 
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
 .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
 .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
 .animate-fade-in-down { animation: fadeInDown 0.6s ease-out forwards; }
@@ -732,6 +1101,7 @@ p {
   animation: shimmer 2s infinite;
 }
 .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+.animate-spin-reverse { animation: spin-reverse 12s linear infinite; }
 
 /* ── Stagger delays ───────────────────────────────────── */
 .stagger-1 { animation-delay: 0.1s; }
@@ -750,4 +1120,107 @@ p {
 @keyframes accordion-up {
   from { height: var(--radix-accordion-content-height); }
   to { height: 0; }
+}
+
+/* ── Phase H — Theme Polish & Customization Styles ─────────── */
+
+/* 1. Custom Text Selection Color (Dark & Light) */
+::selection {
+  background-color: var(--selection-bg, rgba(16, 185, 129, 0.35));
+  color: var(--foreground);
+}
+
+::-moz-selection {
+  background-color: var(--selection-bg, rgba(16, 185, 129, 0.35));
+  color: var(--foreground);
+}
+
+/* 2. Custom Scrollbar Styling (Dark & Light themes) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) var(--background);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 8px;
+  border: 2px solid var(--background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* 3. Theme Crossfade & Color Morph Transition */
+.theme-morph-transition,
+.theme-morph-transition *,
+.theme-morph-transition *::before,
+.theme-morph-transition *::after {
+  transition: background-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.45s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* 4. Native View Transitions API support for cinematic theme crossfade */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 999;
+}
+
+/* ── Phase J — Performance, Core Web Vitals & Cross-Browser QA ──────── */
+
+/* 1. GPU Acceleration & Animation Jank Prevention */
+.tilt-card,
+.glass-interactive,
+.animate-float,
+.animate-pulse-glow,
+.animate-shimmer {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* 2. CSS Content-Visibility for Below-The-Fold Section Optimization */
+@media (min-width: 768px) {
+  main > section:not(:first-child) {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 650px;
+  }
+}
+
+/* 3. Safari iOS Momentum Scrolling & Touch-Callout Safeguards */
+html,
+body {
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 4. Minimum accessible touch targets on mobile devices */
+@media (max-width: 640px) {
+  button,
+  [role="button"],
+  a.inline-flex {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }

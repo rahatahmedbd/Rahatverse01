@@ -1,6 +1,5 @@
-import { OrdersManagement } from "@/components/sections/OrdersManagement";
+import { OrderKanbanBoard } from "@/components/admin/OrderKanbanBoard";
 
-// ── Orders Management Page ─────────────────────────────
 interface OrdersPageProps {
   params: Promise<{ locale: string }>;
 }
@@ -8,5 +7,5 @@ interface OrdersPageProps {
 export default async function OrdersPage({ params }: OrdersPageProps) {
   const { locale } = await params;
 
-  return <OrdersManagement locale={locale} />;
+  return <OrderKanbanBoard locale={locale} />;
 }

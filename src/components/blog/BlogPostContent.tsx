@@ -32,10 +32,10 @@ export default function BlogPostContent({
   const renderContent = (content: string) => {
     return content.split('\n').map((paragraph, index) => {
       if (paragraph.startsWith('# ')) {
-        return <h1 key={index} className="text-3xl font-bold mb-4 mt-8">{paragraph.slice(2)}</h1>;
+        return <h1 key={index} className="text-heading-lg font-bold mb-4 mt-8">{paragraph.slice(2)}</h1>;
       }
       if (paragraph.startsWith('## ')) {
-        return <h2 key={index} className="text-2xl font-bold mb-3 mt-6">{paragraph.slice(3)}</h2>;
+        return <h2 key={index} className="text-heading-md font-bold mb-3 mt-6">{paragraph.slice(3)}</h2>;
       }
       if (paragraph.startsWith('### ')) {
         return <h3 key={index} className="text-xl font-bold mb-2 mt-4">{paragraph.slice(4)}</h3>;
@@ -60,7 +60,7 @@ export default function BlogPostContent({
               {category}
             </Badge>
           )}
-          <h1 className="text-4xl font-bold mb-4">{title}</h1>
+          <h1 className="text-display-lg font-bold mb-4">{title}</h1>
           
           {/* Meta Information */}
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">

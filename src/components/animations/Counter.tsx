@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "./motion-preferences";
 
 // ── Animated Counter ───────────────────────────────────
 interface CounterProps {
@@ -28,41 +29,36 @@ export function Counter({
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const hasAnimated = useRef(false);
-  const hasMounted = useRef(false);
+  const prefersReducedMotion = useMotionPreference();
 
   useEffect(() => {
-    // On first mount, if in view, animate from 0 to target
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      if (isInView && !hasAnimated.current) {
-        setCount(from); // Reset to from value to start animation
-        hasAnimated.current = true;
+    if (prefersReducedMotion || !isInView || hasAnimated.current) return;
+    hasAnimated.current = true;
+    setCount(from);
 
-        let startTime: number | null = null;
-        let animationFrame: number;
+    let startTime: number | null = null;
+    let animationFrame: number;
 
-        const animate = (timestamp: number) => {
-          if (startTime === null) startTime = timestamp;
-          const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+    const animate = (timestamp: number) => {
+      if (startTime === null) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
 
-          // Ease out cubic
-          const eased = 1 - Math.pow(1 - progress, 3);
-          const current = Math.floor(from + (to - from) * eased);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(from + (to - from) * eased);
 
-          setCount(current);
+      setCount(current);
 
-          if (progress < 1) {
-            animationFrame = requestAnimationFrame(animate);
-          } else {
-            setCount(to);
-          }
-        };
-
+      if (progress < 1) {
         animationFrame = requestAnimationFrame(animate);
-        return () => cancelAnimationFrame(animationFrame);
+      } else {
+        setCount(to);
       }
-    }
-  }, [isInView, from, to, duration]);
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [isInView, from, to, duration, prefersReducedMotion]);
 
   const formatNumber = (num: number) => {
     if (separator) {
@@ -77,7 +73,7 @@ export function Counter({
       className={cn("tabular-nums", className)}
     >
       {prefix}
-      {formatNumber(count)}
+      {formatNumber(prefersReducedMotion ? to : count)}
       {suffix}
     </span>
   );
@@ -97,18 +93,21 @@ export function PercentageCounter({
   size = 100,
   strokeWidth = 8,
 }: PercentageCounterProps) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(value);
   const ref = useRef<SVGSVGElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const hasAnimated = useRef(false);
+  const prefersReducedMotion = useMotionPreference();
 
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (count / 100) * circumference;
+  const displayedCount = prefersReducedMotion ? value : count;
+  const offset = circumference - (displayedCount / 100) * circumference;
 
   useEffect(() => {
-    if (!isInView || hasAnimated.current) return;
+    if (prefersReducedMotion || !isInView || hasAnimated.current) return;
     hasAnimated.current = true;
+    setCount(0);
 
     let startTime: number | null = null;
     let animationFrame: number;
@@ -130,7 +129,7 @@ export function PercentageCounter({
 
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [isInView, value]);
+  }, [isInView, prefersReducedMotion, value]);
 
   return (
     <div className={cn("relative inline-flex items-center justify-center", className)}>
@@ -157,7 +156,7 @@ export function PercentageCounter({
           className="text-primary transition-all duration-100"
         />
       </svg>
-      <span className="absolute text-xl font-bold">{count}%</span>
+      <span className="absolute text-xl font-bold">{displayedCount}%</span>
     </div>
   );
 }

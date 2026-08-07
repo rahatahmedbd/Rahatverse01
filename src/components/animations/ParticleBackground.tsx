@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "./motion-preferences";
 
 // ── Particle Background ────────────────────────────────
 interface ParticleBackgroundProps {
@@ -34,126 +35,138 @@ export function ParticleBackground({
   const mouseRef = useRef({ x: 0, y: 0 });
   const particlesRef = useRef<Particle[]>([]);
   const animationRef = useRef<number | null>(null);
+  const prefersReducedMotion = useMotionPreference();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const context = canvas.getContext("2d");
+    if (!context) return;
 
-    // Resize handler
     const resize = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
     };
-    resize();
-    window.addEventListener("resize", resize);
 
-    // Initialize particles
-    particlesRef.current = Array.from({ length: particleCount }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * speed,
-      vy: (Math.random() - 0.5) * speed,
-      size: Math.random() * particleSize + 1,
-      opacity: Math.random() * 0.5 + 0.2,
-    }));
-
-    // Mouse handler
-    const handleMouse = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
+    const initialiseParticles = () => {
+      particlesRef.current = Array.from({ length: particleCount }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * speed,
+        vy: (Math.random() - 0.5) * speed,
+        size: Math.random() * particleSize + 1,
+        opacity: Math.random() * 0.5 + 0.2,
+      }));
     };
 
-    if (mouseInteraction) {
-      canvas.addEventListener("mousemove", handleMouse);
-    }
-
-    // Animation loop
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const draw = (updatePositions: boolean) => {
+      context.clearRect(0, 0, canvas.width, canvas.height);
 
       particlesRef.current.forEach((particle) => {
-        // Update position
-        particle.x += particle.vx;
-        particle.y += particle.vy;
+        if (updatePositions) {
+          particle.x += particle.vx;
+          particle.y += particle.vy;
 
-        // Wrap around
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-        if (particle.y > canvas.height) particle.y = 0;
+          if (particle.x < 0) particle.x = canvas.width;
+          if (particle.x > canvas.width) particle.x = 0;
+          if (particle.y < 0) particle.y = canvas.height;
+          if (particle.y > canvas.height) particle.y = 0;
 
-        // Mouse interaction
-        if (mouseInteraction) {
-          const dx = mouseRef.current.x - particle.x;
-          const dy = mouseRef.current.y - particle.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (mouseInteraction) {
+            const deltaX = mouseRef.current.x - particle.x;
+            const deltaY = mouseRef.current.y - particle.y;
+            const distance = Math.hypot(deltaX, deltaY);
 
-          if (distance < 150) {
-            const force = (150 - distance) / 150;
-            particle.vx -= (dx / distance) * force * 0.02;
-            particle.vy -= (dy / distance) * force * 0.02;
+            if (distance > 0 && distance < 150) {
+              const force = (150 - distance) / 150;
+              particle.vx -= (deltaX / distance) * force * 0.02;
+              particle.vy -= (deltaY / distance) * force * 0.02;
+            }
+          }
+
+          const maxSpeed = speed * 2;
+          const currentSpeed = Math.hypot(particle.vx, particle.vy);
+          if (currentSpeed > maxSpeed) {
+            particle.vx = (particle.vx / currentSpeed) * maxSpeed;
+            particle.vy = (particle.vy / currentSpeed) * maxSpeed;
           }
         }
 
-        // Speed limit
-        const maxSpeed = speed * 2;
-        const currentSpeed = Math.sqrt(
-          particle.vx * particle.vx + particle.vy * particle.vy
-        );
-        if (currentSpeed > maxSpeed) {
-          particle.vx = (particle.vx / currentSpeed) * maxSpeed;
-          particle.vy = (particle.vy / currentSpeed) * maxSpeed;
-        }
-
-        // Draw particle
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = particleColor.replace("0.5", particle.opacity.toString());
-        ctx.fill();
+        context.beginPath();
+        context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        context.fillStyle = particleColor.replace("0.5", particle.opacity.toString());
+        context.fill();
       });
 
-      // Draw connections
-      particlesRef.current.forEach((p1, i) => {
-        particlesRef.current.slice(i + 1).forEach((p2) => {
-          const dx = p1.x - p2.x;
-          const dy = p1.y - p2.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+      particlesRef.current.forEach((firstParticle, index) => {
+        particlesRef.current.slice(index + 1).forEach((secondParticle) => {
+          const distance = Math.hypot(
+            firstParticle.x - secondParticle.x,
+            firstParticle.y - secondParticle.y
+          );
 
           if (distance < 120) {
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = particleColor.replace(
+            context.beginPath();
+            context.moveTo(firstParticle.x, firstParticle.y);
+            context.lineTo(secondParticle.x, secondParticle.y);
+            context.strokeStyle = particleColor.replace(
               "0.5",
-              ((120 - distance) / 120 * 0.2).toString()
+              (((120 - distance) / 120) * 0.2).toString()
             );
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
+            context.lineWidth = 0.5;
+            context.stroke();
           }
         });
       });
-
-      animationRef.current = requestAnimationFrame(animate);
     };
 
+    const handleResize = () => {
+      resize();
+      initialiseParticles();
+      draw(false);
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+    };
+
+    resize();
+    initialiseParticles();
+
+    // A static, decorative frame preserves the visual atmosphere without a
+    // continuous animation loop for visitors who request less motion.
+    if (prefersReducedMotion) {
+      draw(false);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+
+    const animate = () => {
+      draw(true);
+      animationRef.current = window.requestAnimationFrame(animate);
+    };
+
+    window.addEventListener("resize", handleResize);
+    if (mouseInteraction) {
+      canvas.addEventListener("pointermove", handlePointerMove, { passive: true });
+    }
     animate();
 
     return () => {
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", handleResize);
       if (mouseInteraction) {
-        canvas.removeEventListener("mousemove", handleMouse);
+        canvas.removeEventListener("pointermove", handlePointerMove);
       }
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+      if (animationRef.current !== null) {
+        window.cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [particleCount, particleColor, particleSize, speed, mouseInteraction]);
+  }, [mouseInteraction, particleColor, particleCount, particleSize, prefersReducedMotion, speed]);
 
   return (
     <canvas

@@ -58,7 +58,7 @@ export function LoginForm({ locale }: LoginFormProps) {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
           <LockKeyhole className="h-6 w-6" />
         </div>
-        <h1 className="text-2xl font-bold bn">{isBn ? "অ্যাডমিন লগইন" : "Admin sign in"}</h1>
+        <h1 className="text-heading-md font-bold bn">{isBn ? "অ্যাডমিন লগইন" : "Admin sign in"}</h1>
         <p className="mt-2 text-sm text-muted-foreground bn">
           {isBn ? "ড্যাশবোর্ড ব্যবহারের জন্য লগইন করুন।" : "Sign in to access the dashboard."}
         </p>

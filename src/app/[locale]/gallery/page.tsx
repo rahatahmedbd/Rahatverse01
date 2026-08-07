@@ -14,7 +14,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
       <div className="container mx-auto px-4">
         <FadeInUp>
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">
+            <h1 className="text-gradient text-display-lg mb-4 font-bold">
               {isBn ? "গ্যালারি" : "Gallery"}
             </h1>
             <p className="text-muted-foreground text-lg">

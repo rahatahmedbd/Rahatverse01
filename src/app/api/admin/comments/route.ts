@@ -47,13 +47,34 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const id = typeof body.id === "string" ? body.id : null;
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
-    if (typeof body.approved !== "boolean") {
-      return NextResponse.json({ error: "approved must be a boolean" }, { status: 400 });
+
+    // Support three actions: approve/reject (approved boolean) and admin reply
+    // (admin_reply string, optional author). Phase 8 comment moderation.
+    const update: Record<string, unknown> = {};
+    let actionLabel = "";
+
+    if (body.admin_reply !== undefined) {
+      if (typeof body.admin_reply !== "string" || body.admin_reply.length > 2000) {
+        return NextResponse.json({ error: "Invalid admin_reply" }, { status: 400 });
+      }
+      update.admin_reply = body.admin_reply || null;
+      if (typeof body.reply_author === "string") {
+        update.reply_author = body.reply_author.slice(0, 200);
+      }
+      // Replying implies approval.
+      update.is_approved = true;
+      actionLabel = "comments.reply";
+    } else {
+      if (typeof body.approved !== "boolean") {
+        return NextResponse.json({ error: "approved must be a boolean or admin_reply provided" }, { status: 400 });
+      }
+      update.is_approved = body.approved;
+      actionLabel = body.approved ? "comments.approve" : "comments.reject";
     }
 
     const { data, error: dbError } = await supabase
       .from("blog_comments")
-      .update({ is_approved: body.approved })
+      .update(update)
       .eq("id", id)
       .select()
       .maybeSingle();
@@ -62,10 +83,10 @@ export async function PATCH(request: Request) {
     if (!data) return NextResponse.json({ error: "Comment not found" }, { status: 404 });
 
     await logAudit({
-      action: body.approved ? "comments.approve" : "comments.reject",
+      action: actionLabel,
       entity: "comment",
       entityId: id,
-      metadata: { by: user.email },
+      metadata: { by: user.email, hasReply: Boolean(update.admin_reply) },
       ip: getClientIpSafe(request),
     });
 

@@ -21,8 +21,7 @@ import {
   TextAreaField,
   SelectField,
 } from "@/components/ui/form";
-import { Feedback } from "@/components/ui/feedback";
-import { toast } from "@/components/ui/toast";
+import { OrbitingRings } from "@/components/interactive";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()-]{5,24}$/;
@@ -117,7 +116,12 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
   ];
 
   return (
-    <section className="py-20">
+    <section className="relative py-20 overflow-hidden">
+      {/* Phase I Decorative Orbiting Element */}
+      <div className="pointer-events-none absolute left-10 bottom-10 -z-10 flex items-center justify-center opacity-30">
+        <OrbitingRings size="lg" />
+      </div>
+
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
           badge={isBn ? "📞 যোগাযোগ" : "📞 Contact"}
@@ -135,7 +139,8 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
           {/* Left: Quick Contact */}
           <div className="space-y-4">
             <FadeInLeft>
-              <GlassCard>
+              <GlassCard className="relative overflow-hidden">
+                <OrbitingRings size="sm" className="absolute -right-16 -top-16 opacity-30 pointer-events-none" />
                 <h3 className="mb-4 text-lg font-bold bn">{isBn ? "দ্রুত যোগাযোগ" : "Quick Contact"}</h3>
                 <div className="space-y-3">
                   {quickLinks.map((link) => (

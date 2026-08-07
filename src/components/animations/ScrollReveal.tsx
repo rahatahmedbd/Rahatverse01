@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "./motion-preferences";
 
 // ── Scroll Reveal Animation ────────────────────────────
-// Elements fade in as they scroll into view
+// Elements fade in once as they enter the viewport.
 
 interface ScrollRevealProps {
   children: React.ReactNode;
@@ -24,8 +25,11 @@ export function ScrollReveal({
 }: ScrollRevealProps) {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useMotionPreference();
 
   useEffect(() => {
+    if (prefersReducedMotion) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -41,7 +45,7 @@ export function ScrollReveal({
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [prefersReducedMotion]);
 
   const directionMap = {
     up: { y: distance, x: 0 },
@@ -54,9 +58,13 @@ export function ScrollReveal({
     <motion.div
       ref={ref}
       className={cn(className)}
-      initial={{ opacity: 0, ...directionMap[direction] }}
-      animate={isVisible ? { opacity: 1, x: 0, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.25, 0.4, 0.25, 1] }}
+      initial={prefersReducedMotion ? false : { opacity: 0, ...directionMap[direction] }}
+      animate={isVisible || prefersReducedMotion ? { opacity: 1, x: 0, y: 0 } : undefined}
+      transition={
+        prefersReducedMotion
+          ? { duration: 0 }
+          : { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }
+      }
     >
       {children}
     </motion.div>

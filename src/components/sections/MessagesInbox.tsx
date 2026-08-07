@@ -1,147 +1,176 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SectionTitle } from "@/components/sections/SectionTitle";
+import { SectionTitle } from "./SectionTitle";
+import { EmptyState } from "@/components/ui/empty-state";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
-import { MessageSquare, Mail, Calendar, Eye } from "lucide-react";
+import { MessageSquare, Calendar, Mail, CheckCircle2 } from "lucide-react";
 
-// ── Messages Inbox ─────────────────────────────────────
-interface MessagesInboxProps {
-  locale?: string;
-}
-
-interface Message {
+// ── Types ──────────────────────────────────────────────
+interface ContactMessage {
   id: string;
   name: string;
   email: string;
-  phone: string | null;
   subject: string;
   message: string;
-  is_read: boolean;
-  created_at: string;
+  date: string;
+  dateBn: string;
+  read: boolean;
+  category?: "general" | "blood" | "project" | "collaboration";
 }
 
-export function MessagesInbox({ locale = "bn" }: MessagesInboxProps) {
+interface MessagesInboxProps {
+  locale?: string;
+  messages?: ContactMessage[];
+}
+
+// ── Demo Fallback Data ─────────────────────────────────
+const fallbackMessages: ContactMessage[] = [
+  {
+    id: "1",
+    name: "Dr. Anisur Rahman",
+    email: "anisur.rahman@example.com",
+    subject: "Invitation for Science Fair Panel Discussion",
+    message:
+      "Hello Rahat, we saw your science fair project and would love to invite you as a guest speaker for our upcoming youth science summit.",
+    date: "2 hours ago",
+    dateBn: "২ ঘণ্টা আগে",
+    read: false,
+    category: "project",
+  },
+  {
+    id: "2",
+    name: "Shantichakra Blood Coordinator",
+    email: "coordinator@blood.org",
+    subject: "Emergency O+ Blood Request in Bogura",
+    message:
+      "We need an O+ blood donor at Bogura Medical College Hospital by tonight. Can your network assist?",
+    date: "1 day ago",
+    dateBn: "১ দিন আগে",
+    read: false,
+    category: "blood",
+  },
+  {
+    id: "3",
+    name: "Tanvir Ahmed",
+    email: "tanvir.dev@example.com",
+    subject: "Collaboration on Next.js Portfolio Project",
+    message:
+      "Hi Rahat! Great work on RahatVerse. I am working on an open-source educational platform and would like to collaborate with you.",
+    date: "3 days ago",
+    dateBn: "৩ দিন আগে",
+    read: true,
+    category: "collaboration",
+  },
+];
+
+export function MessagesInbox({
+  locale = "bn",
+  messages = fallbackMessages,
+}: MessagesInboxProps) {
   const isBn = locale === "bn";
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [msgList, setMsgList] = useState<ContactMessage[]>(messages);
 
-  useEffect(() => {
-    fetch("/api/messages")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.data) setMessages(data.data);
-      })
-      .catch(() => {});
-  }, []);
+  const handleMarkAsRead = (id: string) => {
+    setMsgList((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, read: true } : m))
+    );
+  };
 
-  const subjectLabels: Record<string, Record<string, string>> = {
-    web_dev: { bn: "ওয়েব ডেভেলপমেন্ট", en: "Web Development" },
-    tutoring: { bn: "টিউশন", en: "Tutoring" },
-    blood: { bn: "রক্তদান", en: "Blood Donation" },
-    collaboration: { bn: "সহযোগিতা", en: "Collaboration" },
-    general: { bn: "সাধারণ", en: "General" },
+  const categoryLabels: Record<string, { en: string; bn: string }> = {
+    general: { en: "General", bn: "সাধারণ" },
+    blood: { en: "Blood Request", bn: "রক্তদান" },
+    project: { en: "Project", bn: "প্রজেক্ট" },
+    collaboration: { en: "Collaboration", bn: "সহযোগিতা" },
   };
 
   return (
-    <section className="py-8">
-      <div className="mx-auto max-w-7xl px-4">
+    <section className="py-20">
+      <div className="mx-auto max-w-5xl px-4">
         <SectionTitle
-          badge={isBn ? "💬 বার্তা" : "💬 Messages"}
-          title="Message Inbox"
+          badge={isBn ? "📬 বার্তা সমূহ" : "📬 Messages"}
+          title="Contact Inbox"
           titleBn="বার্তা ইনবক্স"
           locale={locale}
         />
 
-        {messages.length === 0 ? (
+        {msgList.length === 0 ? (
           <FadeInUp>
-            <GlassCard className="text-center py-12">
-              <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <p className="mt-4 text-lg font-medium bn">
-                {isBn ? "এখনো কোনো বার্তা নেই" : "No messages yet"}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground bn">
-                {isBn ? "নতুন বার্তা আসলে এখানে দেখাবে" : "New messages will appear here"}
-              </p>
-            </GlassCard>
+            <EmptyState
+              icon={MessageSquare}
+              title={isBn ? "এখনো কোনো বার্তা নেই" : "No messages yet"}
+              description={
+                isBn
+                  ? "নতুন বার্তা আসলে এখানে দেখাবে"
+                  : "New contact messages will appear here when visitors get in touch."
+              }
+            />
           </FadeInUp>
         ) : (
-          <StaggerContainer className="space-y-3">
-            {messages.map((msg) => (
+          <StaggerContainer className="space-y-4">
+            {msgList.map((msg) => (
               <StaggerItem key={msg.id}>
                 <GlassCard
-                  className="cursor-pointer transition-all hover:border-primary/30"
-                  onClick={() => setSelectedMessage(msg)}
+                  className={`relative p-6 transition-all ${
+                    !msg.read ? "border-l-4 border-l-primary bg-primary/5" : ""
+                  }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${msg.is_read ? "bg-muted" : "bg-primary/10"}`}>
-                        <MessageSquare className={`h-5 w-5 ${msg.is_read ? "text-muted-foreground" : "text-primary"}`} />
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-foreground">
+                          {msg.name}
+                        </span>
+                        {!msg.read && (
+                          <Badge variant="glow" className="text-[10px]">
+                            {isBn ? "নতুন" : "New"}
+                          </Badge>
+                        )}
+                        {msg.category && (
+                          <Badge variant="outline" className="text-[10px]">
+                            {isBn
+                              ? categoryLabels[msg.category]?.bn || msg.category
+                              : categoryLabels[msg.category]?.en || msg.category}
+                          </Badge>
+                        )}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold">{msg.name}</p>
-                          {!msg.is_read && (
-                            <span className="h-2 w-2 rounded-full bg-primary" />
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {subjectLabels[msg.subject]?.[locale] || msg.subject}
-                        </p>
+
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          {msg.email}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {isBn ? msg.dateBn : msg.date}
+                        </span>
                       </div>
+
+                      <h4 className="mt-2 text-sm font-medium text-foreground">
+                        {msg.subject}
+                      </h4>
+                      <p className="mt-1 text-sm text-muted-foreground bn leading-relaxed">
+                        {msg.message}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(msg.created_at).toLocaleDateString(isBn ? "bn-BD" : "en-US")}
-                      </span>
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    </div>
+
+                    {!msg.read && (
+                      <button
+                        onClick={() => handleMarkAsRead(msg.id)}
+                        className="flex shrink-0 items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                      >
+                        <CheckCircle2 className="h-3 w-3" />
+                        {isBn ? "পড়া হয়েছে" : "Mark read"}
+                      </button>
+                    )}
                   </div>
                 </GlassCard>
               </StaggerItem>
             ))}
           </StaggerContainer>
-        )}
-
-        {/* Message Detail Modal */}
-        {selectedMessage && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setSelectedMessage(null)}>
-            <GlassCard className="max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold">{selectedMessage.name}</h3>
-                <Badge variant={selectedMessage.is_read ? "secondary" : "glow"}>
-                  {selectedMessage.is_read ? (isBn ? "পঠিত" : "Read") : (isBn ? "নতুন" : "New")}
-                </Badge>
-              </div>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <a href={`mailto:${selectedMessage.email}`} className="text-primary hover:underline">
-                    {selectedMessage.email}
-                  </a>
-                </div>
-                {selectedMessage.phone && (
-                  <div className="flex items-center gap-2">
-                    <span className="h-4 w-4" />
-                    <span>{selectedMessage.phone}</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>{new Date(selectedMessage.created_at).toLocaleString(isBn ? "bn-BD" : "en-US")}</span>
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-border/50">
-                <p className="text-xs text-muted-foreground mb-2">
-                  {isBn ? "বিষয়" : "Subject"}: {subjectLabels[selectedMessage.subject]?.[locale] || selectedMessage.subject}
-                </p>
-                <p className="text-sm leading-relaxed">{selectedMessage.message}</p>
-              </div>
-            </GlassCard>
-          </div>
         )}
       </div>
     </section>

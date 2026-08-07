@@ -7,6 +7,8 @@ import { QuickActions } from "@/components/interactive/QuickActions";
 import FeaturedGallery from "@/components/gallery/FeaturedGallery";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
+import { AuroraDivider } from "@/components/ui/aurora-divider";
+import { getAboutConfig } from "@/lib/about/server";
 
 // ── Home Page ──────────────────────────────────────────
 // Phase 22: Enhanced with Featured Gallery and Testimonials
@@ -17,6 +19,7 @@ interface HomePageProps {
 
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
+  const aboutConfig = await getAboutConfig();
 
   return (
     <>
@@ -27,25 +30,35 @@ export default async function HomePage({ params }: HomePageProps) {
       <QuickActions />
 
       {/* Hero Section */}
-      <HeroSection locale={locale} />
+      <HeroSection locale={locale} aboutConfig={aboutConfig} />
+
+      <AuroraDivider />
 
       {/* About Preview */}
-      <AboutPreview locale={locale} />
+      <AboutPreview locale={locale} config={aboutConfig} />
+
+      <AuroraDivider />
 
       {/* Featured Gallery */}
       <div className="container mx-auto px-4 py-12">
         <FeaturedGallery locale={locale} limit={8} />
       </div>
 
+      <AuroraDivider />
+
       {/* Services Preview */}
       <SectionDivider variant="mesh" className="-my-4" />
       <ServicesPreview locale={locale} />
+
+      <AuroraDivider />
 
       {/* Testimonials */}
       <SectionDivider variant="aurora" height={120} />
       <div className="container mx-auto px-4">
         <TestimonialsSection locale={locale} limit={6} />
       </div>
+
+      <AuroraDivider />
 
       {/* Newsletter — Phase 27 */}
       <div id="newsletter" className="container mx-auto px-4 py-12">

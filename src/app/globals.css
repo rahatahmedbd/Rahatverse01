@@ -976,3 +976,117 @@ body {
     min-width: 44px;
   }
 }
+
+/* ── Mobile UI Polish — Premium Button & Navigation ───────
+// Phase Mobile: refined CTA hierarchy, floating nav, safe spacing
+// Targets 360 / 375 / 390 / 412 / 430 without breaking desktop/tablet.
+*/
+
+/* Prevent horizontal overflow on narrow viewports (360px) */
+html, body {
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
+/* Ensure images/SVGs never force overflow on 360px */
+img, svg, video, canvas {
+  max-width: 100%;
+}
+
+/* ── Primary CTA glow — restrained, premium (not flashy) ── */
+.gradient-cta {
+  box-shadow:
+    0 8px 24px rgba(245, 158, 11, 0.22),
+    0 4px 12px rgba(139, 92, 246, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.gradient-cta:hover {
+  box-shadow:
+    0 12px 32px rgba(245, 158, 11, 0.26),
+    0 6px 16px rgba(139, 92, 246, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Light theme: soften primary glow so it stays premium, not harsh */
+.light .gradient-cta {
+  box-shadow:
+    0 8px 20px rgba(180, 83, 9, 0.18),
+    0 4px 12px rgba(109, 40, 217, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* Secondary glass buttons — subtle neon edge (cyan / violet) */
+.light .glass {
+  border-color: rgba(203, 213, 225, 0.9);
+}
+
+/* Focus visibility for keyboard users (premium ring) */
+.gradient-cta:focus-visible,
+.glass:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ── Hero mobile tweaks for 360–430 ───────────────────── */
+@media (max-width: 390px) {
+  /* Slightly tighter badges & description on very small screens */
+  .text-display-xl {
+    font-size: clamp(2.2rem, 1.1rem + 5vw, 2.75rem);
+  }
+}
+
+@media (max-width: 360px) {
+  /* Ensure secondary buttons never overflow 360px */
+  /* (flex gap + padding accounted for in HeroSection's max-w container) */
+  .glass.rounded-xl {
+    font-size: 13px;
+  }
+}
+
+/* Safe-area: floating nav never hides behind iPhone home indicator */
+@supports (padding: max(0px)) {
+  nav[aria-label="Mobile navigation"] {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ── Mobile section bottom padding — guarantees last section visible above nav */
+@media (max-width: 1024px) {
+  main {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  footer {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── Bottom nav — light theme premium adaptation ────── */
+.light nav[aria-label="Mobile navigation"] > div > div {
+  background: rgba(255, 255, 255, 0.84) !important;
+  border-color: rgba(203, 213, 225, 0.85) !important;
+  box-shadow:
+    0 8px 32px rgba(31, 38, 135, 0.08),
+    0 2px 8px rgba(31, 38, 135, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+.light nav[aria-label="Mobile navigation"] [class*="text-white"] {
+  color: rgb(71 85 105) !important;
+}
+.light nav[aria-label="Mobile navigation"] a[aria-current="page"],
+.light nav[aria-label="Mobile navigation"] a[aria-current="page"] span {
+  color: rgb(5 150 105) !important;
+}
+.light nav[aria-label="Mobile navigation"] [class*="from-emerald"] {
+  border-color: rgba(16, 185, 129, 0.18) !important;
+}
+
+/* ── Subtle arrow & icon micro-interactions ──────────── */
+/* Primary arrow: movement handled via group-hover in JSX, but ensure reduced-motion disables */
+@media (prefers-reduced-motion: reduce) {
+  .group\/cta .transition-transform,
+  .group\/sec .transition-transform {
+    transition: none !important;
+    transform: none !important;
+  }
+}

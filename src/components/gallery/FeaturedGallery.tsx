@@ -33,7 +33,7 @@ interface FeaturedGalleryProps {
 const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   {
     id: "gallery-ssc-2025",
-    url: "https://rahatahmedbd.github.io/assets/images/ssc-gpa5-2025.jpg",
+    url: "/images/gallery-science.svg",
     category: "achievements",
     title: "SSC 2025 — GPA 5.00 (A+)",
     title_bn: "SSC ২০২৫ — জিপিএ ৫.০০ (A+)",
@@ -45,7 +45,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-ssc-songbordhona",
-    url: "https://rahatahmedbd.github.io/assets/images/ssc-songbordhona-2025.jpg",
+    url: "/images/gallery-science.svg",
     category: "achievements",
     title: "Meritorious Student Honor Ceremony 2025",
     title_bn: "কৃতী শিক্ষার্থী সংবর্ধনা ২০২৫",
@@ -57,7 +57,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-ssc-crest",
-    url: "https://rahatahmedbd.github.io/assets/images/ssc-crest-shantichakra.jpg",
+    url: "/images/gallery-blood.svg",
     category: "achievements",
     title: "Shantichakra Recognition Crest 2025",
     title_bn: "শান্তিচক্র সম্মাননা ক্রেস্ট ২০২৫",
@@ -69,7 +69,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-shantichakra-activities",
-    url: "https://rahatahmedbd.github.io/assets/images/shantichakra-blood-society.jpg",
+    url: "/images/gallery-blood.svg",
     category: "blood-donation",
     title: "Shantichakra Blood Society - Activities & Leadership",
     title_bn: "শান্তিচক্র ব্লাড সোসাইটি — রক্তদান ও সমাজসেবা",
@@ -81,7 +81,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-science-fair-46",
-    url: "https://rahatahmedbd.github.io/assets/images/46-science-fair-2025.jpg",
+    url: "/images/gallery-science.svg",
     category: "achievements",
     title: "46th National Science & Technology Week 2025",
     title_bn: "৪৬তম জাতীয় বিজ্ঞান মেলা ২০২৫ — ১ম স্থান (কুইজ)",
@@ -93,7 +93,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-srijonshil-medha",
-    url: "https://rahatahmedbd.github.io/assets/images/srijonshil-medha-2024.jpg",
+    url: "/images/gallery-bncc.svg",
     category: "achievements",
     title: "Creative Talent Search Competition 2024",
     title_bn: "সৃজনশীল মেধা অন্বেষণ ২০২৪ — বিজ্ঞানে ১ম স্থান",
@@ -105,7 +105,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-science-fair-44",
-    url: "https://rahatahmedbd.github.io/assets/images/44-science-fair-2024.jpg",
+    url: "/images/gallery-science.svg",
     category: "achievements",
     title: "44th National Science Exhibition 2024",
     title_bn: "৪৪তম বিজ্ঞান প্রদর্শনী ২০২৪ — ১ম স্থান",
@@ -117,7 +117,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-science-fair-45",
-    url: "https://rahatahmedbd.github.io/assets/images/45-science-fair-2023.jpg",
+    url: "/images/gallery-science.svg",
     category: "achievements",
     title: "45th National Science Fair 2023",
     title_bn: "৪৫তম বিজ্ঞান মেলা ২০২৩ — ১ম স্থান",
@@ -129,7 +129,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-science-fair-42",
-    url: "https://rahatahmedbd.github.io/assets/images/42-science-fair-2020.jpg",
+    url: "/images/gallery-science.svg",
     category: "achievements",
     title: "42nd National Science Fair 2020",
     title_bn: "৪২তম বিজ্ঞান মেলা ২০২০ — ১ম স্থান (প্রথম জয়)",
@@ -141,7 +141,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-fs-coaching",
-    url: "https://rahatahmedbd.github.io/assets/images/fs-coaching-center.jpg",
+    url: "/images/gallery-web.svg",
     category: "experience",
     title: "FS Coaching Center - Founder & Director",
     title_bn: "FS কোচিং সেন্টার — প্রতিষ্ঠাতা ও পরিচালক",
@@ -153,7 +153,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-helping-hand",
-    url: "https://rahatahmedbd.github.io/assets/images/helping-hand-org.jpg",
+    url: "/images/gallery-web.svg",
     category: "experience",
     title: "Helping Hand Organization - Founder",
     title_bn: "হেল্পিং হ্যান্ড অর্গানাইজেশন — প্রতিষ্ঠাতা",
@@ -165,7 +165,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-father-photo",
-    url: "https://rahatahmedbd.github.io/assets/images/baba-farid-ahmed.jpg",
+    url: "/images/gallery-web.svg",
     category: "experience",
     title: "Late Md. Farid Ahmed - Beloved Father & Former Chairman",
     title_bn: "মরহুম জনাব ফরিদ আহমেদ — শ্রদ্ধেয় পিতা ও সাবেক চেয়ারম্যান",

@@ -160,6 +160,10 @@ export function CloudinaryImage({
         alt={alt}
         width={width || 800}
         height={height || 600}
+        // Always pass a cloud name so CldImage never throws when
+        // NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is missing locally; the real
+        // cloud is used whenever the env var is configured.
+        config={{ cloud: { cloudName } }}
         className={cn(
           "object-cover transition-all duration-700 ease-out",
           isLoading

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
+import { AccentCustomizer } from "./accent-customizer";
 import { LanguageToggle } from "./language-toggle";
 import { SearchDialog } from "@/components/interactive/SearchDialog";
 import { Menu, X } from "lucide-react";
@@ -84,6 +85,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <SearchDialog locale={locale} />
           <LanguageToggle />
+          <AccentCustomizer />
           <ThemeToggle />
 
           {/* Mobile Menu Button */}

@@ -127,6 +127,100 @@
   --ring: #d97706;
 }
 
+/* ── Accent Palettes — Phase H "থিম পোলিশ" ──────────────
+   data-accent is set on <html> by the app store. Dark + light values are
+   defined per accent so contrast stays correct in both themes. */
+:root[data-accent="blue"] {
+  --primary: #3b82f6; --primary-foreground: #ffffff; --ring: #3b82f6;
+  --accent: #1d4ed8; --accent-foreground: #ffffff;
+  --gradient-primary: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
+  --selection: rgba(59, 130, 246, 0.35);
+}
+.light[data-accent="blue"] {
+  --primary: #2563eb; --primary-foreground: #ffffff; --ring: #2563eb;
+  --accent: #dbeafe; --accent-foreground: #1e3a8a;
+  --gradient-primary: linear-gradient(135deg, #2563eb, #6366f1, #8b5cf6);
+  --selection: rgba(59, 130, 246, 0.35);
+}
+
+:root[data-accent="green"] {
+  --primary: #10b981; --primary-foreground: #022c22; --ring: #10b981;
+  --accent: #065f46; --accent-foreground: #f0fdf4;
+  --gradient-primary: linear-gradient(135deg, #10b981, #14b8a6, #0ea5e9);
+  --selection: rgba(16, 185, 129, 0.35);
+}
+.light[data-accent="green"] {
+  --primary: #059669; --primary-foreground: #ffffff; --ring: #059669;
+  --accent: #d1fae5; --accent-foreground: #064e3b;
+  --gradient-primary: linear-gradient(135deg, #059669, #14b8a6, #0ea5e9);
+  --selection: rgba(16, 185, 129, 0.35);
+}
+
+:root[data-accent="purple"] {
+  --primary: #8b5cf6; --primary-foreground: #ffffff; --ring: #8b5cf6;
+  --accent: #6d28d9; --accent-foreground: #f5f3ff;
+  --gradient-primary: linear-gradient(135deg, #8b5cf6, #a855f7, #ec4899);
+  --selection: rgba(139, 92, 246, 0.35);
+}
+.light[data-accent="purple"] {
+  --primary: #7c3aed; --primary-foreground: #ffffff; --ring: #7c3aed;
+  --accent: #ede9fe; --accent-foreground: #5b21b6;
+  --gradient-primary: linear-gradient(135deg, #7c3aed, #a855f7, #ec4899);
+  --selection: rgba(139, 92, 246, 0.35);
+}
+
+:root[data-accent="rose"] {
+  --primary: #f43f5e; --primary-foreground: #ffffff; --ring: #f43f5e;
+  --accent: #be123c; --accent-foreground: #fff1f2;
+  --gradient-primary: linear-gradient(135deg, #f43f5e, #fb7185, #f97316);
+  --selection: rgba(244, 63, 94, 0.35);
+}
+.light[data-accent="rose"] {
+  --primary: #e11d48; --primary-foreground: #ffffff; --ring: #e11d48;
+  --accent: #ffe4e6; --accent-foreground: #9f1239;
+  --gradient-primary: linear-gradient(135deg, #e11d48, #fb7185, #f97316);
+  --selection: rgba(244, 63, 94, 0.35);
+}
+
+:root[data-accent="teal"] {
+  --primary: #14b8a6; --primary-foreground: #042f2e; --ring: #14b8a6;
+  --accent: #0f766e; --accent-foreground: #f0fdfa;
+  --gradient-primary: linear-gradient(135deg, #14b8a6, #22d3ee, #3b82f6);
+  --selection: rgba(20, 184, 166, 0.35);
+}
+.light[data-accent="teal"] {
+  --primary: #0d9488; --primary-foreground: #ffffff; --ring: #0d9488;
+  --accent: #ccfbf1; --accent-foreground: #115e59;
+  --gradient-primary: linear-gradient(135deg, #0d9488, #22d3ee, #3b82f6);
+  --selection: rgba(20, 184, 166, 0.35);
+}
+
+/* ── Theme color morph (Phase H) ─────────────────────── */
+/* Smoothly animate the palette when toggling dark/light or accent.
+   background-image can't transition, but the primary flat colors can. */
+:root,
+:root.light {
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease;
+}
+html,
+body,
+.card,
+.bg-card,
+.border-border,
+button,
+a,
+input,
+textarea,
+select {
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
 /* ── Base Styles ──────────────────────────────────────── */
 * {
   border-color: var(--border);
@@ -263,10 +357,10 @@ p {
   transform: translateX(-50%);
 }
 
-/* ── Scrollbar ────────────────────────────────────────── */
+/* ── Scrollbar (Phase H polish) ──────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -274,17 +368,28 @@ p {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
+  background: color-mix(in srgb, var(--primary) 35%, var(--border));
+  border-radius: 8px;
+  border: 2px solid var(--background);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
 }
 
-/* ── Selection ────────────────────────────────────────── */
+::-webkit-scrollbar-corner {
+  background: var(--background);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--primary) 35%, var(--border)) var(--background);
+}
+
+/* ── Selection (Phase H accent-aware) ─────────────────── */
 ::selection {
-  background-color: rgba(245, 158, 11, 0.3);
+  background-color: var(--selection, rgba(245, 158, 11, 0.3));
   color: var(--foreground);
 }
 

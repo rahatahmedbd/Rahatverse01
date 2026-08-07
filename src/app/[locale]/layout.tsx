@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { Navbar } from "@/components/layout/navbar";
 import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
+import { ThemeApplier } from "@/components/layout/theme-applier";
 import { Toaster } from "@/components/ui/toast";
 import { AnimationProviders } from "@/components/animations/Providers";
 import { PageTransition } from "@/components/animations/PageTransition";
@@ -65,6 +66,9 @@ export default async function LocaleLayout({
         <ErrorReporter />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <div className="flex min-h-screen flex-col">
+            {/* Apply persisted theme + accent */}
+            <ThemeApplier />
+
             {/* Global Animation Effects */}
             <AnimationProviders />
 

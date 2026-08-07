@@ -147,6 +147,7 @@ See the **[docs/](docs/README.md)** folder:
 | Custom 1–2 | 100% Admin Control Foundation | Core access/settings and Hero CMS ✅ |
 | Custom 3 | **About, Education & Achievements CMS** | Bilingual biography, timeline, awards, profile media ✅ |
 | Custom 4 | **Services & Interactive Pricing CMS** | Service cards, website types, packages (BDT/USD), comparison matrix, process timeline ✅ |
+| Custom 5 | **Client Orders, Kanban & Payments** | Wizard config CMS, Kanban pipeline, admin notes/files, payment tracking ✅ |
 
 ## 👤 Author
 

@@ -11,6 +11,32 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/orders-config`
+Public, validated order-intake wizard configuration endpoint (Phase 5).
+- Returns `{ data }` where `data` is the `orders_config` document stored in
+  `site_settings` (package options, website types, feature add-ons, design
+  styles, page-count increments, budget ranges, timelines, step & CTA labels).
+- Falls back to built-in defaults when the database is unavailable or the stored
+  value fails validation.
+
+### `PATCH /api/admin/orders`
+Admin-only partial update of an order (Phase 5 Kanban + payment tracking).
+- **Auth:** admin only (server-side RBAC guard + audit log entry).
+- **Body:** `{ id, status?, admin_notes?, project_links?, payment?, communication_log? }`.
+  - `status`: one of `new_lead | under_review | in_progress | client_feedback | completed | archived`.
+  - `project_links`: `{ repo?, staging?, figma?, live? }` (https or relative URLs only).
+  - `payment`: `{ status?, method?, advanceAmount?, totalAmount?, currency?, milestones? }`
+    where `status` is `unpaid | pending_advance | fifty_percent | fully_settled | refunded`
+    and `method` is `bkash | nagad | bank_transfer | sslcommerz | other`.
+  - `communication_log`: array of `{ id, date, authorBn, authorEn, messageBn, messageEn }`.
+- Mirrors the primary payment status/amount onto the legacy `payment_status` /
+  `payment_amount` scalar columns.
+- Returns `{ success, data }` or `400/401/403/500` on errors.
+
+### `POST /api/orders`
+Submit a website order (public). Also accepts an optional `design_style` field
+(Phase 5) captured from the configurable design-style selector in the wizard.
+
 ### `GET /api/services-config`
 Public, validated Services / pricing / process configuration endpoint (Phase 4).
 - Returns `{ data }` where `data` is the `services_config` document stored in

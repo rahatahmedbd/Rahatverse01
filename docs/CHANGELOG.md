@@ -4,6 +4,35 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.8.0] — Phase 5 — Client Orders, Kanban Pipeline & Payment Tracking
+
+### Added
+- **Order intake wizard CMS** — `site_settings.orders_config` (migration
+  `014_orders_admin_control.sql`) drives package options, website types, feature
+  add-ons, design styles, page-count increments, budget ranges, timelines, step
+  labels and CTA/success messages.
+- Public `/api/orders-config` endpoint with resilient defaults.
+- `OrderSettingsControlPanel` at `/[locale]/dashboard/orders-settings` (new
+  "Order Settings" nav entry) — CRUD/reorder/visibility for every wizard option.
+- **Order Wizard refactor** — now renders from `orders_config`, adds a configurable
+  **design-style selector** and **page-count increment** selector, and submits an
+  optional `design_style`.
+- **Kanban order pipeline** — `OrderKanbanBoard` at `/[locale]/dashboard/orders`
+  groups orders by workflow stage (New Lead → Under Review → In Progress → Client
+  Feedback → Completed → Archived) with drag-and-drop and click-to-open detail.
+- **Order detail editor** — pipeline stage, private admin notes, project links
+  (repo/staging/Figma/live), payment status/method/amounts with configurable
+  milestones, and a client communication log.
+- **Admin API** `PATCH /api/admin/orders` (admin-only, audited) to persist the
+  above; mirrors payment status/amount onto the legacy scalar columns.
+- Ten unit tests covering the orders config validation contract and Kanban stage
+  normalization.
+
+### Changed
+- `src/app/[locale]/dashboard/orders` now hosts the Kanban pipeline instead of the
+  static demo list.
+- The orders POST route accepts an optional `design_style`.
+
 ## [0.7.0] — Phase 4 — Services, Website Types & Interactive Pricing Packages CMS
 
 ### Added

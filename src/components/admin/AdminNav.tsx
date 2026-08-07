@@ -20,6 +20,7 @@ import {
   Download,
   Clapperboard,
   BookUser,
+  Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +35,7 @@ const sections = [
   { href: "overview", icon: LayoutDashboard, labelBn: "ওভারভিউ", labelEn: "Overview" },
   { href: "hero", icon: Clapperboard, labelBn: "হিরো", labelEn: "Hero" },
   { href: "about", icon: BookUser, labelBn: "অ্যাবাউট", labelEn: "About & Awards" },
+  { href: "services", icon: Briefcase, labelBn: "সেবা ও প্যাকেজ", labelEn: "Services & Pricing" },
   { href: "analytics", icon: BarChart3, labelBn: "অ্যানালিটিক্স", labelEn: "Analytics" },
   { href: "newsletter", icon: Mail, labelBn: "নিউজলেটার", labelEn: "Newsletter" },
   { href: "email", icon: Mail, labelBn: "ইমেইল ডেলিভারি", labelEn: "Email Delivery" },

@@ -146,6 +146,7 @@ See the **[docs/](docs/README.md)** folder:
 | 30 | **Final Testing & Documentation** | Testing suite, docs, optimization ✅ |
 | Custom 1–2 | 100% Admin Control Foundation | Core access/settings and Hero CMS ✅ |
 | Custom 3 | **About, Education & Achievements CMS** | Bilingual biography, timeline, awards, profile media ✅ |
+| Custom 4 | **Services & Interactive Pricing CMS** | Service cards, website types, packages (BDT/USD), comparison matrix, process timeline ✅ |
 
 ## 👤 Author
 

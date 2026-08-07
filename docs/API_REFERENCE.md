@@ -11,6 +11,24 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/services-config`
+Public, validated Services / pricing / process configuration endpoint (Phase 4).
+- Returns `{ data }` where `data` is the `services_config` document stored in
+  `site_settings` (service offerings, website types, features, featured packages,
+  pricing packages with BDT/USD amounts, comparison matrix, process timeline, CTA).
+- Falls back to built-in defaults when the database is unavailable or the stored
+  value fails validation — the public site never breaks.
+
+### `GET /api/about-config`
+Public, validated About / Education / Achievements configuration endpoint (Phase 3).
+- Returns `{ data }` where `data` is the `about_config` document stored in
+  `site_settings`. Falls back to built-in defaults when unavailable/invalid.
+
+### `GET /api/hero-config`
+Public, validated Hero section configuration endpoint (Phase 2).
+- Returns `{ data }` where `data` is the `hero_config` document stored in
+  `site_settings`. Falls back to built-in defaults when unavailable/invalid.
+
 ### `POST /api/analytics`
 Client-side first-party tracking ingestion (used by `lib/analytics/tracker.ts`).
 - **Body:** `{ sessionId, pageViews: [{path, referrer?, screenWidth?, ts?}], events: [{name, category?, label?, path?, value?, metadata?, ts?}] }`

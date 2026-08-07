@@ -54,7 +54,7 @@ next unfinished phrase was Phase 3. No later roadmap phase was combined with it.
 | 1 | Core database schema and master admin access | ✅ Previously complete; the existing three-role/RLS implementation remains the foundation |
 | 2 | Hero section and visual identity control | ✅ Previously complete; `hero_config` and Hero Control Panel remain intact |
 | 3 | About, education, achievements CMS | ✅ Implemented in this turn |
-| 4 | Services, website types, pricing packages | ⏳ Not started |
+| 4 | Services, website types, pricing packages | ✅ Implemented (Phase 4) |
 | 5 | Orders, Kanban, payment tracking | ⏳ Not started for this expanded roadmap |
 | 6 | Experience, blood society, memorial | ⏳ Not started |
 | 7 | Media library, albums, video showcase | ⏳ Partially available from earlier feature work; full CMS control not started |
@@ -97,11 +97,11 @@ next unfinished phrase was Phase 3. No later roadmap phase was combined with it.
 
 ## 5. Production readiness gate
 
-Phase 3 is stable in the repository and has passed the mandatory local checks.
-Production still requires the normal operational steps: apply migration 012,
-configure the existing Supabase/Cloudinary environment variables, merge the PR,
-wait for Vercel, and verify the live public and authenticated admin routes.
+Phase 4 is stable in the repository and has passed the mandatory local checks
+(lint, type-check, 123 tests, production build). Production still requires the
+normal operational steps: apply migration 013, configure the existing
+Supabase/Cloudinary environment variables, merge the PR, wait for Vercel, and
+verify the live public and authenticated admin routes.
 
-The next unfinished phrase is **Phase 4: Services, Website Types & Interactive
-Pricing Packages**. It must not be started until Phase 3’s production gate is
-confirmed.
+The next unfinished phrase is **Phase 5: Client Orders, Kanban Board & Payment
+Tracking**. It must not be started until Phase 4’s production gate is confirmed.

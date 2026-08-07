@@ -7,6 +7,7 @@ import FeaturedGallery from "@/components/gallery/FeaturedGallery";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
+import { getAboutConfig } from "@/lib/about/server";
 
 // ── Home Page ──────────────────────────────────────────
 // Phase 22: Enhanced with Featured Gallery and Testimonials
@@ -17,6 +18,7 @@ interface HomePageProps {
 
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
+  const aboutConfig = await getAboutConfig();
 
   return (
     <>
@@ -27,12 +29,12 @@ export default async function HomePage({ params }: HomePageProps) {
       <QuickActions />
 
       {/* Hero Section */}
-      <HeroSection locale={locale} />
+      <HeroSection locale={locale} aboutConfig={aboutConfig} />
 
       <AuroraDivider />
 
       {/* About Preview */}
-      <AboutPreview locale={locale} />
+      <AboutPreview locale={locale} config={aboutConfig} />
 
       <AuroraDivider />
 

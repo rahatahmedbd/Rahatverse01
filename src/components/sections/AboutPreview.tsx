@@ -4,92 +4,61 @@ import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";
 import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
-import {
-  GraduationCap,
-  MapPin,
-  Droplets,
-  Calendar,
-  BookOpen,
-  Award,
-} from "lucide-react";
+import { ABOUT_ICON_MAP } from "@/lib/about/icons";
+import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";
+import type { AboutConfig } from "@/types/about";
 
 // ── About Preview Section ──────────────────────────────
 interface AboutPreviewProps {
   locale?: string;
+  config?: AboutConfig;
 }
 
-export function AboutPreview({ locale = "bn" }: AboutPreviewProps) {
+export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
   const isBn = locale === "bn";
+  const about = config ?? DEFAULT_ABOUT_CONFIG;
 
-  const infoCards = [
-    {
-      icon: GraduationCap,
-      label: isBn ? "শিক্ষা" : "Education",
-      value: isBn ? "HSC ২য় বর্ষ (বিজ্ঞান)" : "HSC 2nd Year (Science)",
-    },
-    {
-      icon: MapPin,
-      label: isBn ? "অবস্থান" : "Location",
-      value: isBn ? "সুনামগঞ্জ, বাংলাদেশ" : "Sunamganj, Bangladesh",
-    },
-    {
-      icon: Droplets,
-      label: isBn ? "রক্তের গ্রুপ" : "Blood Group",
-      value: "A+ Positive",
-    },
-    {
-      icon: Calendar,
-      label: isBn ? "জন্ম তারিখ" : "Birth Date",
-      value: "২১ জুন, ২০০৬",
-    },
-    {
-      icon: BookOpen,
-      label: isBn ? "প্রতিষ্ঠান" : "Institution",
-      value: isBn ? "সুনামগঞ্জ সরকারি কলেজ" : "Sunamganj Govt. College",
-    },
-    {
-      icon: Award,
-      label: isBn ? "অর্জন" : "Achievements",
-      value: isBn ? "৯ পুরস্কার" : "9 Awards",
-    },
-  ];
+  if (!about.visible) return null;
 
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
-          badge={isBn ? "👤 পরিচয়" : "👤 Introduction"}
-          title="About Me"
-          titleBn="আমার সম্পর্কে"
-          subtitle={
-            isBn
-              ? "গ্রাম থেকে শহর, স্বপ্ন থেকে বাস্তব — একটি অবিরাম যাত্রার গল্প"
-              : "From village to city, from dream to reality — a continuous journey"
-          }
+          badge={isBn ? about.section.badgeBn : about.section.badgeEn}
+          title={about.section.titleEn}
+          titleBn={about.section.titleBn}
+          subtitle={isBn ? about.section.subtitleBn : about.section.subtitleEn}
           locale={locale}
         />
 
-        {/* Info Cards */}
+        {/* Admin-controlled personal information cards */}
         <StaggerGrid columns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" gap="gap-4">
-          {infoCards.map((card) => (
-            <StaggerItem key={card.label}>
-              <GlassCard className="h-full text-center">
-                <card.icon className="mx-auto mb-3 h-6 w-6 text-primary" />
-                <p className="text-xs text-muted-foreground">{card.label}</p>
-                <p className="mt-1 text-sm font-semibold bn">{card.value}</p>
-              </GlassCard>
-            </StaggerItem>
-          ))}
+          {about.personalInfo.map((card) => {
+            const Icon = ABOUT_ICON_MAP[card.icon];
+            return (
+              <StaggerItem key={card.id}>
+                <GlassCard className="h-full text-center">
+                  <Icon className="mx-auto mb-3 h-6 w-6 text-primary" />
+                  <p className="text-xs text-muted-foreground">
+                    {isBn ? card.labelBn : card.labelEn}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold bn">
+                    {isBn ? card.valueBn : card.valueEn}
+                  </p>
+                </GlassCard>
+              </StaggerItem>
+            );
+          })}
         </StaggerGrid>
 
-        {/* Quote */}
+        {/* Admin-controlled quote */}
         <div className="mt-12">
           <GlassCard className="border-l-4 border-l-primary text-center">
             <p className="text-lg italic text-muted-foreground bn">
-              &ldquo;মানুষের পাশে দাঁড়ানো, শেখা এবং শেখানো — এই তিনটি জিনিস আমাকে এগিয়ে নিয়ে যায়।&rdquo;
+              &ldquo;{isBn ? about.biography.quote.bn : about.biography.quote.en}&rdquo;
             </p>
             <Badge variant="glow" className="mt-4">
-              {isBn ? "— রাহাত আহমেদ" : "— Rahat Ahmed"}
+              {isBn ? about.biography.quoteBy.bn : about.biography.quoteBy.en}
             </Badge>
           </GlassCard>
         </div>

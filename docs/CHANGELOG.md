@@ -4,6 +4,22 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] — Phase 3 — About, Education & Achievements CMS
+
+### Added
+- Bilingual About CMS configuration with Supabase migration `012_about_admin_control.sql`.
+- Admin control panel for biography, personal info, interests, education milestones,
+  achievement badges, statistics, profile uploads, frame presets, and certificates.
+- Validated public `/api/about-config` endpoint with resilient defaults.
+- Server-loaded About content on the home, About, and Achievements pages.
+- Six unit tests covering the new CMS validation contract.
+
+### Changed
+- Profile image rendering now supports CMS-controlled Cloudinary/URL sources and
+  configurable glow frames/status labels.
+- Shared education storyline supports location and GPA badges.
+- Generic admin settings payload limit is now 100 KB to support bounded bilingual CMS documents.
+
 ## [0.5.0] — Phase 31 — "প্রিমিয়াম UI কিট" Premium Form & Feedback System
 
 ### Added

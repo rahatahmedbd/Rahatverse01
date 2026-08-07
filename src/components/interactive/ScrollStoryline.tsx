@@ -16,6 +16,9 @@ export interface StorylineItem {
   description: string;
   descriptionBn?: string;
   badge?: string;
+  location?: string;
+  locationBn?: string;
+  gpa?: string;
   badgeType?:
     | "default"
     | "glow"
@@ -77,6 +80,8 @@ export function ScrollStoryline({
             isBn && item.titleBn ? item.titleBn : item.title;
           const subText =
             isBn && item.subtitleBn ? item.subtitleBn : item.subtitle;
+          const locationText =
+            isBn && item.locationBn ? item.locationBn : item.location;
           const descText =
             isBn && item.descriptionBn ? item.descriptionBn : item.description;
 
@@ -111,12 +116,22 @@ export function ScrollStoryline({
                     <Badge variant="glow" className="text-xs font-semibold">
                       {item.year}
                     </Badge>
+                    {locationText && (
+                      <Badge variant="outline" className="text-xs">
+                        {locationText}
+                      </Badge>
+                    )}
                     {item.badge && (
                       <Badge
                         variant={item.badgeType || "outline"}
                         className="text-xs"
                       >
                         {item.badge}
+                      </Badge>
+                    )}
+                    {item.gpa && (
+                      <Badge variant="success" className="text-xs">
+                        GPA {item.gpa}
                       </Badge>
                     )}
                   </div>

@@ -11,6 +11,18 @@ when Supabase is not configured the server returns `503`.
 
 ## Public endpoints
 
+### `GET /api/experience-config`
+Public, validated Experience / Blood Society / Memorial configuration endpoint
+(Phase 6). Returns `{ data }` — the `experience_config` document in
+`site_settings` (professional experience timeline, Shantichakra Blood Society
+counters/hotline/coverage/activities, and the memorial tribute). Falls back to
+built-in defaults when the database is unavailable or the value fails validation.
+
+### `PATCH /api/admin/blood-requests`
+Admin-only update to respond to / close an incoming blood donation request
+(Phase 6). Body: `{ id, status?, admin_notes? }` where `status` is
+`open | responded | closed`. Audited via `audit_logs`. Returns `{ success, data }`.
+
 ### `GET /api/orders-config`
 Public, validated order-intake wizard configuration endpoint (Phase 5).
 - Returns `{ data }` where `data` is the `orders_config` document stored in

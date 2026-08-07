@@ -4,6 +4,27 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.9.0] — Phase 6 — Experience, Shantichakra Blood Society & Memorial CMS
+
+### Added
+- **Experience / Blood / Memorial CMS** — `site_settings.experience_config`
+  (migration `015_experience_admin_control.sql`) drives the professional
+  experience timeline, the Shantichakra Blood Society command hub, and the
+  memorial tribute page.
+- Public `/api/experience-config` endpoint with resilient defaults.
+- `ExperienceControlPanel` at `/[locale]/dashboard/experience` (new "Experience &
+  Memorial" nav entry) — experience timeline CRUD with status badges
+  (Active/Paused/Completed), blood society role text, public counters, emergency
+  hotline & WhatsApp link, coverage areas, activities, and memorial tribute/roles/
+  developments/dua with photo upload.
+- `BloodRequestsManager` at `/[locale]/dashboard/blood-requests` (new "Blood
+  Requests" nav entry) — filter, private notes, mark responded / close incoming
+  emergency blood requests.
+- Admin-only audited `PATCH /api/admin/blood-requests`.
+- Refactored `ExperienceSection`, `BloodSocietySection` (now showing emergency
+  hotline + coverage areas) and `MemorialSection` to render DB-driven content.
+- Ten unit tests covering the new CMS validation contract.
+
 ## [0.8.0] — Phase 5 — Client Orders, Kanban Pipeline & Payment Tracking
 
 ### Added

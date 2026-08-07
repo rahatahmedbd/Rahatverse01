@@ -56,7 +56,7 @@ next unfinished phrase was Phase 3. No later roadmap phase was combined with it.
 | 3 | About, education, achievements CMS | ✅ Implemented in this turn |
 | 4 | Services, website types, pricing packages | ✅ Implemented (Phase 4) |
 | 5 | Orders, Kanban, payment tracking | ✅ Implemented (Phase 5) |
-| 6 | Experience, blood society, memorial | ⏳ Not started |
+| 6 | Experience, blood society, memorial | ✅ Implemented (Phase 6) |
 | 7 | Media library, albums, video showcase | ⏳ Partially available from earlier feature work; full CMS control not started |
 | 8 | Bilingual blog and comment moderation | ⏳ Existing feature is largely complete; expanded 100% control audit remains |
 | 9 | Inquiries, booking calendar, testimonials | ⏳ Partially available; full calendar/testimonial CMS not started |
@@ -97,13 +97,13 @@ next unfinished phrase was Phase 3. No later roadmap phase was combined with it.
 
 ## 5. Production readiness gate
 
-Phase 5 is stable in the repository and has passed the mandatory local checks
-(lint, type-check, 133 tests, production build). Production still requires the
-normal operational steps: apply migration 014 (the owner will supply/confirm the
+Phase 6 is stable in the repository and has passed the mandatory local checks
+(lint, type-check, 143 tests, production build). Production still requires the
+normal operational steps: apply migration 015 (the owner will supply/confirm the
 final SQL), configure the existing Supabase/Cloudinary environment variables,
 merge the PR, wait for Vercel, and verify the live public and authenticated
 admin routes.
 
-The next unfinished phrase is **Phase 6: Experience, Shantichakra Blood Society
-& Memorial Section**. It must not be started until Phase 5’s production gate is
+The next unfinished phrase is **Phase 7: Cloudinary Media Library, Photo Gallery
+& Video Showcase**. It must not be started until Phase 6’s production gate is
 confirmed.

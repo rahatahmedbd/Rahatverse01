@@ -22,6 +22,8 @@ import {
   BookUser,
   Briefcase,
   Settings2,
+  Building2,
+  Droplets,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +44,8 @@ const sections = [
   { href: "email", icon: Mail, labelBn: "ইমেইল ডেলিভারি", labelEn: "Email Delivery" },
   { href: "orders", icon: ShoppingCart, labelBn: "অর্ডার পাইপলাইন", labelEn: "Orders" },
   { href: "orders-settings", icon: Settings2, labelBn: "অর্ডার সেটিংস", labelEn: "Order Settings" },
+  { href: "experience", icon: Building2, labelBn: "অভিজ্ঞতা ও স্মৃতিচারণ", labelEn: "Experience & Memorial" },
+  { href: "blood-requests", icon: Droplets, labelBn: "রক্ত অনুরোধ", labelEn: "Blood Requests" },
   { href: "messages", icon: MessageSquare, labelBn: "বার্তা", labelEn: "Messages" },
   { href: "images", icon: ImageIcon, labelBn: "মিডিয়া লাইব্রেরি", labelEn: "Media Library" },
   { href: "blog", icon: FileText, labelBn: "CMS / ব্লগ", labelEn: "CMS / Blog" },

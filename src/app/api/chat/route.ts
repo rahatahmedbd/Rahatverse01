@@ -6,7 +6,7 @@ import {
   type AiLink,
 } from "@/lib/ai/knowledge";
 
-// ── Rahat AI — Chat API ────────────────────────────────
+// ── Nuva (AI assistant) — Chat API ────────────────────────────────
 // POST /api/chat  { messages: ChatMessage[], locale: "en" | "bn" }
 //
 // Resolution order:

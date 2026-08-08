@@ -13,7 +13,7 @@ import { Home, ShoppingCart, MessageCircle, FolderOpen, Sparkles } from "lucide-
 const bottomNavItems = [
   { key: "home", path: "/", icon: Home, labelKey: "home" as const },
   { key: "portfolio", path: "/portfolio", icon: FolderOpen, labelKey: "portfolio" as const },
-  // AI button — opens the Rahat AI chat assistant (see components/ai/AIChatWidget)
+  // AI button — opens the Nuva chat assistant (see components/ai/AIChatWidget)
   // Slightly elevated professional look with distinct subtle gold accent
   { key: "ai", path: "#", icon: Sparkles, labelKey: "ai" as const },
   { key: "order", path: "/order", icon: ShoppingCart, labelKey: "order" as const },

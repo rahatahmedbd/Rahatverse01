@@ -1,10 +1,10 @@
 "use client";
 
-// ── Rahat AI — Chat Widget ─────────────────────────────
+// ── Nuva — AI Chat Widget ─────────────────────────────
 // Floating assistant available on every page:
 //   • Desktop (lg+): floating gold bubble, bottom-right
 //   • Mobile: opened from the bottom navigation "AI" button
-// The panel talks to /api/chat, which answers with a real (free-tier) LLM
+// Nuva talks to /api/chat, which answers with a real (free-tier) LLM
 // when a key is configured, or with the built-in knowledge base otherwise.
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -23,8 +23,8 @@ interface WidgetMessage {
 
 const UI_TEXT = {
   en: {
-    title: "Rahat AI",
-    subtitle: "Always here to help",
+    title: "Nuva",
+    subtitle: "Rahat's AI assistant — always here to help",
     placeholder: "Ask about services, prices…",
     send: "Send message",
     close: "Close AI chat",
@@ -33,8 +33,8 @@ const UI_TEXT = {
     poweredBy: "Free built-in assistant",
   },
   bn: {
-    title: "রাহাত এআই",
-    subtitle: "সবসময় সাহায্যের জন্য আছি",
+    title: "নুভা",
+    subtitle: "রাহাতের এআই সহকারী — সবসময় সাহায্যের জন্য আছি",
     placeholder: "সেবা, দাম ইত্যাদি জিজ্ঞেস করুন…",
     send: "বার্তা পাঠান",
     close: "এআই চ্যাট বন্ধ করুন",

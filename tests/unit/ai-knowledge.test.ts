@@ -6,7 +6,7 @@ import {
   matchFaq,
 } from "@/lib/ai/knowledge";
 
-describe("Rahat AI knowledge base", () => {
+describe("Nuva knowledge base", () => {
   it("matches an English pricing question", () => {
     const match = matchFaq("How much does a website cost?");
     expect(match?.entry.id).toBe("pricing");
@@ -33,12 +33,12 @@ describe("Rahat AI knowledge base", () => {
 
   it("greets short greetings in English", () => {
     const answer = answerFromKnowledgeBase("hello", "en");
-    expect(answer.reply).toContain("Rahat AI");
+    expect(answer.reply).toContain("Nuva");
   });
 
   it("answers in Bangla when the bn locale is active", () => {
     const answer = answerFromKnowledgeBase("hello", "bn");
-    expect(answer.reply).toContain("রাহাত এআই");
+    expect(answer.reply).toContain("নুভা");
   });
 
   it("falls back gracefully for unknown questions", () => {

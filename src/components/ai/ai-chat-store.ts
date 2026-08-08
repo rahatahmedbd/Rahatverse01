@@ -1,6 +1,6 @@
 "use client";
 
-// ── Rahat AI — Chat Widget Store ───────────────────────
+// ── Nuva — Chat Widget Store ───────────────────────
 // Shared open/closed state so both the desktop floating bubble and the
 // mobile bottom-nav AI button can open the same chat panel.
 

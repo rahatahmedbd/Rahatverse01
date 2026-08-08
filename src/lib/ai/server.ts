@@ -1,4 +1,4 @@
-// ── Rahat AI — LLM Providers (server only) ─────────────
+// ── Nuva — LLM Providers (server only) ─────────────
 // Free-tier friendly providers, called over plain HTTPS (no SDK needed):
 //   1. Google Gemini  — free key at https://aistudio.google.com/apikey
 //   2. Groq           — free key at https://console.groq.com/keys

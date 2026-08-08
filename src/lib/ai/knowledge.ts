@@ -1,4 +1,4 @@
-// ── Rahat AI — Knowledge Base ──────────────────────────
+// ── Nuva — AI Knowledge Base ──────────────────────────
 // Single source of truth about the site for the AI assistant.
 // Used in two ways:
 //   1. As the system prompt context for real LLM providers (Gemini / Groq)
@@ -43,7 +43,7 @@ export const AI_LINKS = {
 // Keep this accurate: it mirrors src/lib/services/config.ts and
 // src/lib/contact/config.ts defaults.
 export const SITE_FACTS = `
-You are "Rahat AI", the friendly assistant built into Rahat's personal website (RahatVerse).
+You are "Nuva", the friendly AI assistant built into Rahat's personal website (RahatVerse).
 Rahat is a web developer from Bangladesh who builds modern websites and web applications
 with Next.js, React, TypeScript, Tailwind CSS, Supabase and Cloudinary.
 
@@ -173,9 +173,9 @@ export const AI_FAQ: AiFaqEntry[] = [
       "রাহাত কে", "তুমি কে", "আপনি কে", "রাহাত",
     ],
     answerEn:
-      "I'm Rahat AI — the assistant on Rahat's website. Rahat is a web developer from Bangladesh who builds fast, modern websites for individuals, businesses and organizations. Ask me about his services, prices or how to order!",
+      "I'm Nuva — the AI assistant on Rahat's website. Rahat is a web developer from Bangladesh who builds fast, modern websites for individuals, businesses and organizations. Ask me about his services, prices or how to order!",
     answerBn:
-      "আমি রাহাত এআই — রাহাতের ওয়েবসাইটের সহকারী। রাহাত বাংলাদেশের একজন ওয়েব ডেভেলপার, যিনি ব্যক্তি, ব্যবসা ও প্রতিষ্ঠানের জন্য দ্রুত ও আধুনিক ওয়েবসাইট তৈরি করেন। তার সেবা, দাম বা অর্ডার প্রক্রিয়া সম্পর্কে আমাকে জিজ্ঞেস করুন!",
+      "আমি নুভা — রাহাতের ওয়েবসাইটের এআই সহকারী। রাহাত বাংলাদেশের একজন ওয়েব ডেভেলপার, যিনি ব্যক্তি, ব্যবসা ও প্রতিষ্ঠানের জন্য দ্রুত ও আধুনিক ওয়েবসাইট তৈরি করেন। তার সেবা, দাম বা অর্ডার প্রক্রিয়া সম্পর্কে আমাকে জিজ্ঞেস করুন!",
   },
   {
     id: "maintenance",
@@ -199,9 +199,9 @@ const GREETING_WORDS = [
 
 export const AI_TEXTS = {
   greetingEn:
-    "Hi! 👋 I'm Rahat AI. Ask me anything about services, pricing, delivery time or how to order — or just tap a suggestion below.",
+    "Hi! 👋 I'm Nuva, Rahat's AI assistant. Ask me anything about services, pricing, delivery time or how to order — or just tap a suggestion below.",
   greetingBn:
-    "হাই! 👋 আমি রাহাত এআই। সেবা, মূল্য, ডেলিভারির সময় বা কীভাবে অর্ডার করবেন — যা জানতে চান, জিজ্ঞেস করুন অথবা নিচের সাজেশনে ট্যাপ করুন।",
+    "হাই! 👋 আমি নুভা, রাহাতের এআই সহকারী। সেবা, মূল্য, ডেলিভারির সময় বা কীভাবে অর্ডার করবেন — যা জানতে চান, জিজ্ঞেস করুন অথবা নিচের সাজেশনে ট্যাপ করুন।",
   fallbackEn:
     "I want to make sure you get the right answer! I can help with:\n• Services & pricing\n• How to order\n• Delivery time\n• Contacting Rahat\n\nTry asking about one of those, or message Rahat directly on WhatsApp.",
   fallbackBn:

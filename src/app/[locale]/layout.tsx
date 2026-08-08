@@ -134,7 +134,7 @@ export default async function LocaleLayout({
               {/* Mobile Bottom Navigation */}
               <BottomNavBar />
 
-              {/* Rahat AI — chat assistant (bottom nav on mobile, floating bubble on desktop) */}
+              {/* Nuva — AI chat assistant (bottom nav on mobile, floating bubble on desktop) */}
               <AIChatWidget />
             </div>
           </MotionProvider>

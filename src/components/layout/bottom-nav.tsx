@@ -12,10 +12,11 @@ import { Home, ShoppingCart, MessageCircle, FolderOpen, Sparkles } from "lucide-
 const bottomNavItems = [
   { key: "home", path: "/", icon: Home, labelKey: "home" as const },
   { key: "portfolio", path: "/portfolio", icon: FolderOpen, labelKey: "portfolio" as const },
+  // AI button — non-functional placeholder (you will implement in another session)
+  // Slightly elevated professional look with distinct subtle gold accent
+  { key: "ai", path: "#", icon: Sparkles, labelKey: "ai" as const },
   { key: "order", path: "/order", icon: ShoppingCart, labelKey: "order" as const },
   { key: "contact", path: "/contact", icon: MessageCircle, labelKey: "contact" as const },
-  // AI button added — non-functional placeholder (you will implement in another session)
-  { key: "ai", path: "#", icon: Sparkles, labelKey: "ai" as const },
 ];
 
 // ── Bottom Navigation Bar (Premium Floating Glass) ──────
@@ -85,7 +86,7 @@ export function BottomNavBar() {
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
                   "active:scale-[0.98]",
                   isAI
-                    ? "cursor-default opacity-70 hover:opacity-80 text-white/60"
+                    ? "cursor-default text-amber-300/90 hover:text-amber-300 opacity-85 hover:opacity-100"
                     : isActive
                     ? "text-emerald-400"
                     : "text-white/55 hover:text-white/85"

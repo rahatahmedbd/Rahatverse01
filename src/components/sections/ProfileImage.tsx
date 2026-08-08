@@ -109,15 +109,14 @@ export function ProfileImage({
     <div className={cn("relative inline-flex flex-col items-center justify-center pb-3", className)}>
       <motion.div
         className="relative inline-flex items-center justify-center"
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
         whileHover={{ scale: 1.03 }}
       >
-        {/* Ambient Halo — reduced intensity on mobile for visual noise control */}
+        {/* Ambient Halo — gently breathes via opacity only (no scale/position
+            motion, so the page never looks like it is shaking) */}
         <motion.div
           className={cn("absolute rounded-3xl blur-2xl", ringSizeMap[size], styles.glow)}
-          animate={{ scale: [1, 1.1, 1], opacity: [0.30, 0.55, 0.30] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ opacity: [0.28, 0.5, 0.28] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden="true"
         />
 

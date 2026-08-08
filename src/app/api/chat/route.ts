@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { chatWithProviders, type ChatMessage } from "@/lib/ai/server";
+import {
+  chatWithProviders,
+  isFirstExchange,
+  type ChatMessage,
+} from "@/lib/ai/server";
 import {
   answerFromKnowledgeBase,
   type AiLocale,
@@ -10,12 +14,15 @@ import {
 // POST /api/chat  { messages: ChatMessage[], locale: "en" | "bn" }
 //
 // Resolution order:
-//   1. Groq when a (free) API key is configured → real AI answer
-//   2. Built-in knowledge base otherwise → instant, free FAQ answer
+//   1. Grok AI (the owner's Vercel deployment) when configured → real AI answer
+//   2. Groq when a (free) API key is configured → real AI answer
+//   3. Built-in knowledge base otherwise → instant, free FAQ answer
 // The endpoint never hard-fails for provider problems: visitors always get
 // a useful reply.
 //
-// GREETING RULE: ALWAYS Salam, NEVER Nomoskar — enforced here for all sources
+// GREETING RULE: Salam ("Assalamu Alaikum") is used ONLY on the very first
+// message of a conversation — never repeated on follow-ups — enforced here
+// for all sources.
 
 export const dynamic = "force-dynamic";
 
@@ -73,17 +80,35 @@ function sanitizeMessages(input: unknown): ChatMessage[] | null {
   return cleaned[cleaned.length - 1]?.role === "user" ? cleaned : null;
 }
 
-function ensureSalam(text: string, locale: AiLocale): string {
+/**
+ * Salam enforcement:
+ * - First exchange of a conversation → ensure the reply starts with Salam
+ *   (and never with Nomoskar/Hello/Hi).
+ * - Follow-up messages → the greeting must NOT be repeated: a leading Salam
+ *   (if the LLM added one anyway) is stripped so replies stay natural.
+ */
+function ensureSalam(text: string, locale: AiLocale, isFirst: boolean): string {
   const trimmed = text.trim();
   const lower = trimmed.toLowerCase();
-  if (
+  const hasSalam =
     lower.startsWith("assalamu alaikum") ||
     lower.startsWith("আসসালামু আলাইকুম") ||
     lower.startsWith("আসসালামু") ||
-    lower.startsWith("assalamu")
-  ) {
-    return trimmed;
+    lower.startsWith("assalamu");
+
+  if (!isFirst) {
+    if (!hasSalam) return trimmed;
+    // Strip a repeated greeting from a follow-up reply.
+    const stripped = trimmed
+      .replace(
+        /^(assalamu alaikum|আসসালামু আলাইকুম|আসসালামু|assalamu)[\s!.,।:;—–]*/i,
+        "",
+      )
+      .trim();
+    return stripped || trimmed;
   }
+
+  if (hasSalam) return trimmed;
   // Remove accidental Nomoskar/Hello prefix from LLM
   const withoutBadGreeting = trimmed
     .replace(/^(nomoskar|nomoshkar|namaskar|namaste|নমস্কার|নমস|hello|hi|hey)[!,.।\s]*/i, "")
@@ -119,17 +144,18 @@ export async function POST(request: Request) {
 
   const locale: AiLocale = input.locale === "bn" ? "bn" : "en";
   const lastUserMessage = messages[messages.length - 1].content;
+  const firstExchange = isFirstExchange(messages);
 
-  // 1) Real AI providers (free tiers) when a key is configured.
+  // 1) Real AI providers — Grok AI (Vercel) first, then Groq free tier.
   const ai = await chatWithProviders(messages, locale);
   if (ai) {
-    const safeReply = ensureSalam(ai.reply, locale);
+    const safeReply = ensureSalam(ai.reply, locale, firstExchange);
     return NextResponse.json({ reply: safeReply, source: ai.provider, links: [] });
   }
 
   // 2) Built-in knowledge base — always available, always free.
-  const kb = answerFromKnowledgeBase(lastUserMessage, locale);
+  const kb = answerFromKnowledgeBase(lastUserMessage, locale, firstExchange);
   const links: AiLink[] = kb.links;
-  const safeKbReply = ensureSalam(kb.reply, locale);
+  const safeKbReply = ensureSalam(kb.reply, locale, firstExchange);
   return NextResponse.json({ reply: safeKbReply, source: "kb", links });
 }

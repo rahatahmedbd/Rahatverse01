@@ -6,6 +6,7 @@ import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
 import { AIChatWidget } from "@/components/ai/AIChatWidget";
 import { AnimationProviders } from "@/components/animations/Providers";
+import { ScientificBackdrop } from "@/components/animations/ScientificBackdrop";
 import { MotionProvider } from "@/components/animations/MotionProvider";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { WebVitalsReporter } from "@/components/seo/web-vitals-reporter";
@@ -114,6 +115,9 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <MotionProvider>
             <div className="site-gradient-canvas flex min-h-screen flex-col">
+              {/* Ambient science background — faint motifs behind all content */}
+              <ScientificBackdrop />
+
               {/* Global Animation Effects */}
               <AnimationProviders />
 

@@ -91,32 +91,6 @@ function NuvaCenterButton({
           aria-hidden="true"
         />
 
-        {/* Pulse ring — extremely subtle */}
-        {!shouldReduceMotion && (
-          <motion.span
-            className="pointer-events-none absolute inset-0 rounded-full border border-emerald-300/30"
-            initial={{ scale: 1, opacity: 0.5 }}
-            animate={{ scale: [1, 1.55], opacity: [0.5, 0] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: "easeOut", repeatDelay: 0.4 }}
-            aria-hidden="true"
-          />
-        )}
-        {!shouldReduceMotion && (
-          <motion.span
-            className="pointer-events-none absolute inset-0 rounded-full border border-cyan-300/20"
-            initial={{ scale: 1, opacity: 0.35 }}
-            animate={{ scale: [1, 1.75], opacity: [0.35, 0] }}
-            transition={{
-              duration: 2.6,
-              repeat: Infinity,
-              ease: "easeOut",
-              delay: 0.5,
-              repeatDelay: 0.2,
-            }}
-            aria-hidden="true"
-          />
-        )}
-
         {/* ── Main Nuva Button ── */}
         <motion.button
           type="button"
@@ -132,7 +106,6 @@ function NuvaCenterButton({
             "border border-white/20 bg-gradient-to-br from-amber-300 via-emerald-400 to-cyan-500",
             "shadow-[0_10px_28px_rgba(16,185,129,0.38),0_4px_12px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(0,0,0,0.12)]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgba(10,22,40,0.75)]",
-            !shouldReduceMotion && "animate-nuva-float",
             "will-change-transform"
           )}
           style={{

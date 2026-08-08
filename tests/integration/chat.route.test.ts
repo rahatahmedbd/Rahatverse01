@@ -45,7 +45,7 @@ describe("POST /api/chat", () => {
   it("returns the AI provider reply when one is available", async () => {
     vi.mocked(chatWithProviders).mockResolvedValue({
       reply: "A Basic site starts at ৳5,000.",
-      provider: "gemini",
+      provider: "groq",
     });
 
     const response = await POST(
@@ -53,7 +53,7 @@ describe("POST /api/chat", () => {
     );
     const data = await response.json();
     expect(response.status).toBe(200);
-    expect(data.source).toBe("gemini");
+    expect(data.source).toBe("groq");
     expect(data.reply).toContain("৳5,000");
   });
 

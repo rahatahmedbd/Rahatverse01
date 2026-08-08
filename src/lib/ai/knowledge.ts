@@ -1,7 +1,7 @@
 // ── Nuva — AI Knowledge Base ──────────────────────────
 // Single source of truth about the site for the AI assistant.
 // Used in two ways:
-//   1. As the system prompt context for real LLM providers (Gemini / Groq)
+//   1. As the system prompt context for the real LLM provider (Groq)
 //      when a free API key is configured (see /api/chat).
 //   2. As a built-in keyword-matched FAQ so the assistant still answers
 //      common questions instantly and for free when no API key is set.

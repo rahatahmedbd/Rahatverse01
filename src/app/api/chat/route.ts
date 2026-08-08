@@ -10,7 +10,7 @@ import {
 // POST /api/chat  { messages: ChatMessage[], locale: "en" | "bn" }
 //
 // Resolution order:
-//   1. Gemini / Groq when a (free) API key is configured → real AI answer
+//   1. Groq when a (free) API key is configured → real AI answer
 //   2. Built-in knowledge base otherwise → instant, free FAQ answer
 // The endpoint never hard-fails for provider problems: visitors always get
 // a useful reply.

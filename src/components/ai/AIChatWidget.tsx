@@ -30,7 +30,7 @@ const UI_TEXT = {
     close: "Close AI chat",
     open: "Open AI chat",
     error: "Something went wrong — please try again, or reach us on WhatsApp.",
-    poweredBy: "Free built-in assistant",
+    poweredBy: "Powered by Groq",
   },
   bn: {
     title: "নুভা",
@@ -40,7 +40,7 @@ const UI_TEXT = {
     close: "এআই চ্যাট বন্ধ করুন",
     open: "এআই চ্যাট খুলুন",
     error: "একটি সমস্যা হয়েছে — আবার চেষ্টা করুন, অথবা হোয়াটসঅ্যাপে যোগাযোগ করুন।",
-    poweredBy: "ফ্রি বিল্ট-ইন সহকারী",
+    poweredBy: "Groq দ্বারা চালিত",
   },
 } as const;
 

@@ -18,7 +18,13 @@ function systemPrompt(locale: AiLocale): string {
     locale === "bn"
       ? "The visitor is browsing the Bangla version of the site, so prefer Bangla unless they write in English."
       : "The visitor is browsing the English version of the site, so prefer English unless they write in Bangla.";
-  return `${SITE_FACTS}\n\n${languageNote}`;
+
+  const salamEnforcement =
+    locale === "bn"
+      ? "CRITICAL: Every reply MUST start with 'আসসালামু আলাইকুম!'. NEVER use Nomoskar/Namaskar. Always Salam, in every single response."
+      : "CRITICAL: Every reply MUST start with 'Assalamu Alaikum!'. NEVER use Nomoskar/Namaskar. Always Salam, in every single response.";
+
+  return `${SITE_FACTS}\n\n${languageNote}\n\n${salamEnforcement}`;
 }
 
 /** Groq (free tier) via its OpenAI-compatible endpoint. */

@@ -14,6 +14,8 @@ import {
 //   2. Built-in knowledge base otherwise → instant, free FAQ answer
 // The endpoint never hard-fails for provider problems: visitors always get
 // a useful reply.
+//
+// GREETING RULE: ALWAYS Salam, NEVER Nomoskar — enforced here for all sources
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +73,25 @@ function sanitizeMessages(input: unknown): ChatMessage[] | null {
   return cleaned[cleaned.length - 1]?.role === "user" ? cleaned : null;
 }
 
+function ensureSalam(text: string, locale: AiLocale): string {
+  const trimmed = text.trim();
+  const lower = trimmed.toLowerCase();
+  if (
+    lower.startsWith("assalamu alaikum") ||
+    lower.startsWith("আসসালামু আলাইকুম") ||
+    lower.startsWith("আসসালামু") ||
+    lower.startsWith("assalamu")
+  ) {
+    return trimmed;
+  }
+  // Remove accidental Nomoskar/Hello prefix from LLM
+  const withoutBadGreeting = trimmed
+    .replace(/^(nomoskar|nomoshkar|namaskar|namaste|নমস্কার|নমস|hello|hi|hey)[!,.।\s]*/i, "")
+    .trim();
+  const prefix = locale === "bn" ? "আসসালামু আলাইকুম! " : "Assalamu Alaikum! ";
+  return prefix + (withoutBadGreeting || trimmed);
+}
+
 export async function POST(request: Request) {
   if (isRateLimited(clientKey(request))) {
     return NextResponse.json(
@@ -102,11 +123,13 @@ export async function POST(request: Request) {
   // 1) Real AI providers (free tiers) when a key is configured.
   const ai = await chatWithProviders(messages, locale);
   if (ai) {
-    return NextResponse.json({ reply: ai.reply, source: ai.provider, links: [] });
+    const safeReply = ensureSalam(ai.reply, locale);
+    return NextResponse.json({ reply: safeReply, source: ai.provider, links: [] });
   }
 
   // 2) Built-in knowledge base — always available, always free.
   const kb = answerFromKnowledgeBase(lastUserMessage, locale);
   const links: AiLink[] = kb.links;
-  return NextResponse.json({ reply: kb.reply, source: "kb", links });
+  const safeKbReply = ensureSalam(kb.reply, locale);
+  return NextResponse.json({ reply: safeKbReply, source: "kb", links });
 }

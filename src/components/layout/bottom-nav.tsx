@@ -49,8 +49,10 @@ export function BottomNavBar() {
 
           {bottomNavItems.map((item) => {
             const normalizedPathname = pathname.replace(/\/+$/, "");
-            const href = `${basePath}${item.path}`.replace(/\/+$/, "");
-            const isActive = normalizedPathname === href;
+            const rawHref = `${basePath}${item.path}`.replace(/\/+$/, "");
+            // Scroll to checkout when tapping the Order nav item
+            const href = item.key === "order" ? `${rawHref}#order-checkout` : rawHref;
+            const isActive = normalizedPathname === rawHref;
             const Icon = item.icon;
 
             // Label: Work keeps achievements route but shows premium label.

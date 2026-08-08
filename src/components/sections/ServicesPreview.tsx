@@ -98,7 +98,7 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
                 backActionLabel={
                   isBn ? "অর্ডার করতে ক্লিক করুন" : "Order This Package"
                 }
-                onBackAction={() => router.push(`/${locale}/order`)}
+                onBackAction={() => router.push(`/${locale}/order#order-checkout`)}
                 className="hover:glow-amber transition-shadow"
               />
             </div>
@@ -138,7 +138,7 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
         {/* CTA */}
         <div className="mt-10 text-center sm:mt-12">
           <Button variant="gradient" size="lg" asChild className="w-full sm:w-auto">
-            <Link href={`/${locale}/order`} className="inline-flex items-center justify-center gap-2">
+            <Link href={`/${locale}/order#order-checkout`} className="inline-flex items-center justify-center gap-2">
               {isBn ? "প্রজেক্টের জন্য যোগাযোগ করুন" : "Start Your Project"}
               <ArrowRight className="h-4 w-4" />
             </Link>

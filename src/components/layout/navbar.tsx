@@ -58,8 +58,10 @@ export function Navbar() {
           <div className="hidden items-center gap-0.5 lg:flex xl:gap-1">
             {NAVIGATION_ITEMS.map((item) => {
               const normalizedPathname = pathname.replace(/\/+$/, "");
-              const href = `${basePath}${item.path}`.replace(/\/+$/, "");
-              const isActive = normalizedPathname === href;
+              const rawHref = `${basePath}${item.path}`.replace(/\/+$/, "");
+              // Scroll to checkout when clicking the Order nav item
+              const href = item.key === "order" ? `${rawHref}#order-checkout` : rawHref;
+              const isActive = normalizedPathname === rawHref;
               return (
                 <Link
                   key={item.key}

@@ -27,10 +27,12 @@ export default async function OrderPage({ params }: OrderPageProps) {
 
       <AuroraDivider />
 
-      {/* Order Wizard */}
-      <Suspense>
-        <OrderWizard locale={locale} />
-      </Suspense>
+      {/* Order Wizard (Checkout) — anchored so "Order Now" links scroll here */}
+      <div id="order-checkout">
+        <Suspense>
+          <OrderWizard locale={locale} />
+        </Suspense>
+      </div>
     </div>
   );
 }

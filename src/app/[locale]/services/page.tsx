@@ -114,7 +114,7 @@ export default function ServicesPage() {
                               {isBn ? "শুরু ৳X থেকে" : "Starting from ৳X"}
                             </div>
                             <Button asChild>
-                              <Link href={`/${locale}/order`}>
+                              <Link href={`/${locale}/order#order-checkout`}>
                                 {isBn ? "অর্ডার করুন" : "Order Now"}
                                 <ArrowRight className="ml-2 h-4 w-4" />
                               </Link>
@@ -169,7 +169,7 @@ export default function ServicesPage() {
                           )}
                         </div>
                         <Button asChild>
-                          <Link href={`/${locale}/order`}>
+                          <Link href={`/${locale}/order#order-checkout`}>
                             {isBn ? "অর্ডার করুন" : "Order Now"}
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Link>
@@ -271,7 +271,7 @@ export default function ServicesPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" variant="gradient" asChild>
-                  <Link href={`/${locale}/order`}>
+                  <Link href={`/${locale}/order#order-checkout`}>
                     {isBn ? cta.primaryLabelBn : cta.primaryLabelEn}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>

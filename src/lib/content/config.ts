@@ -73,7 +73,13 @@ const TERMS_BODY_BN = `## ১. কাজের পরিধি ও চুক্�
 প্রজেক্টের কাজ শুরু হওয়ার পূর্বে কোনো কারণে চুক্তি বাতিল করা হলে প্রদত্ত অগ্রিম ১০০% ফেরতযোগ্য। কাজ শুরু হওয়ার পর প্রজেক্ট বাতিল করা হলে সম্পন্ন কাজের অংশ কেটে অবশিষ্ট অর্থ ফেরত দেওয়া হবে। ফাইনাল কোড বা প্রজেক্ট ডেলিভারি সম্পন্ন হওয়ার পর কোনো রিফান্ড প্রযোজ্য হবে না।
 
 ## ৫. কোড মালিকানা ও স্বত্বাধিকার (Intellectual Property & Ownership)
-সম্পূর্ণ পেমেন্ট পরিশোধের পর প্রজেক্টের সমস্ত কাস্টম সোর্স কোড এবং ডিজাইন অ্যাসেটের পূর্ণ স্বত্বাধিকার ক্লায়েন্টকে হস্তান্তর করা হয়। রাহাতভার্স প্রজেক্টটিকে নিজের পোর্টফোলিও এবং কেস স্টাডিতে প্রদর্শনের অধিকার সংরক্ষণ করে (যদি না প্রজেক্ট শুরুর পূর্বে কোনো NDA বা গোপনীয়তা চুক্তি স্বাক্ষরিত হয়)।`;
+সম্পূর্ণ পেমেন্ট পরিশোধের পর প্রজেক্টের সমস্ত কাস্টম সোর্স কোড এবং ডিজাইন অ্যাসেটের পূর্ণ স্বত্বাধিকার ক্লায়েন্টকে হস্তান্তর করা হয়। রাহাতভার্স প্রজেক্টটিকে নিজের পোর্টফোলিও এবং কেস স্টাডিতে প্রদর্শনের অধিকার সংরক্ষণ করে (যদি না প্রজেক্ট শুরুর পূর্বে কোনো NDA বা গোপনীয়তা চুক্তি স্বাক্ষরিত হয়)।
+
+## ৬. ক্লায়েন্টের দায়িত্ব (Client Responsibilities)
+সফল ও সময়মতো ডেলিভারির জন্য ক্লায়েন্টকে প্রয়োজনীয় তথ্য (কনটেন্ট, ছবি, লোগো, টেক্সট), সিদ্ধান্ত গ্রহণ এবং নির্ধারিত সময়ে ফিডব্যাক প্রদান করতে হবে। বিলম্বিত ফিডব্যাক বা প্রয়োজনীয় সামগ্রীর অভাবে ডেলিভারির সময়সূচি পেছাতে পারে। ক্লায়েন্টকে নিশ্চিত করতে হবে যে সরবরাহকৃত যেকোনো কনটেন্ট, ছবি বা ট্রেডমার্কের ব্যবহারের বৈধ অধিকার তার রয়েছে।
+
+## ৭. দায় সীমাবদ্ধতা (Limitation of Liability)
+রাহাতভার্স শুধুমাত্র চুক্তির আওতায় প্রদত্ত কাজের জন্য দায়ী থাকবে এবং কোনো ক্ষেত্রেই প্রকল্পের চুক্তিমূল্যের বেশি ক্ষতিপূরণের জন্য দায়বদ্ধ নয়। তৃতীয় পক্ষের সেবা (যেমন হোস্টিং, পেমেন্ট গেটওয়ে, ডোমেইন) ব্যবহারে কোনো ত্রুটি, ডাউনটাইম বা ডেটা ক্ষতির জন্য সরাসরি দায়বদ্ধতা রাহাতভার্স বহন করবে না। সর্বোচ্চ প্রচেষ্টা সত্ত্বেও কোনো গ্যারান্টি নেই যে প্রজেক্টটি সম্পূর্ণ বাগমুক্ত হবে; পাওয়া গেলে বাগগুলো চুক্তিভুক্ত সময়ের মধ্যে বিনামূল্যে ঠিক করা হবে।`;
 
 const TERMS_BODY_EN = `## 1. Freelance Engagement & Scope
 RahatVerse (Rahat Ahmed) operates as a Bangladesh-based professional web development and software engineering studio. Every project commences upon written confirmation (email or WhatsApp) outlining feature specifications, timeline, and package costs.
@@ -90,7 +96,13 @@ All web development packages include up to **3 rounds of complimentary revisions
 **During Active Development:** If a project is cancelled while underway, refunds are calculated proportionally based on completed deliverables. No refunds are issued after final delivery and codebase transfer.
 
 ## 5. Intellectual Property & Code Ownership
-Upon receipt of full 100% payment, total ownership of all custom-developed source code, graphics, and project assets transfers to the client. RahatVerse retains the right to display the completed work in our public portfolio and case studies unless a Non-Disclosure Agreement (NDA) has been signed.`;
+Upon receipt of full 100% payment, total ownership of all custom-developed source code, graphics, and project assets transfers to the client. RahatVerse retains the right to display the completed work in our public portfolio and case studies unless a Non-Disclosure Agreement (NDA) has been signed.
+
+## 6. Client Responsibilities
+For a smooth, on-time delivery, the client agrees to provide all required materials (text content, images, logos, and branding assets), respond to questions promptly, and review deliverables within the agreed feedback windows. Delays in feedback or missing materials may extend the delivery timeline. The client warrants that they have the legal right to use any content, images, or trademarks they supply for the project.
+
+## 7. Limitation of Liability & Disclaimers
+RahatVerse's liability is limited to the scope of work defined in the signed agreement and shall in no event exceed the total contract value paid for the project. We are not directly liable for outages, downtime, or data loss arising from third-party services (hosting, payment gateways, domain registrars) used to operate the delivered website. While we make every effort to ship robust code, the project is provided on an "as-is" basis with no guarantee that it is entirely bug-free; any bugs reported after delivery are fixed free of charge within the agreed warranty period.`;
 
 const DEFAULT_LEGAL: LegalPage[] = [
   { key: "privacy", titleBn: "প্রাইভেসি পলিসি", titleEn: "Privacy Policy", bodyBn: PRIVACY_BODY_BN, bodyEn: PRIVACY_BODY_EN, updatedAtBn: "৭ আগস্ট, ২০২৬", updatedAtEn: "August 7, 2026", visible: true },

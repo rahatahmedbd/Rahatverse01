@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { FadeInUp, FadeInLeft, FadeInRight } from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, ArrowRight, Clock, Loader2 } from "lucide-react";
+import { Check, ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
@@ -16,39 +17,42 @@ import TestimonialsSection from "@/components/sections/TestimonialsSection";
 export default function ServicesPage() {
   const locale = useLocale();
   const isBn = locale === "bn";
+  // Initialize with rich defaults so the page renders immediately even if the
+  // config API is slow or unreachable (never blocks the UI on "Loading...").
   const [config, setConfig] = useState<ServicesConfig>(DEFAULT_SERVICES_CONFIG);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
-    fetch("/api/services-config", { cache: "no-store" })
+    const controller = new AbortController();
+    // Hard timeout so a slow/hung config endpoint can never leave this page
+    // in a perpetual loading state — content always renders from defaults.
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    fetch("/api/services-config", { cache: "no-store", signal: controller.signal })
       .then((response) => (response.ok ? response.json() : null))
       .then((json) => {
-        if (cancelled) return;
         const validated = validateServicesConfig((json as { data?: unknown } | null)?.data);
         if (validated) setConfig(validated);
       })
       .catch(() => {
         /* fall back to defaults */
       })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+      .finally(() => clearTimeout(timeoutId));
     return () => {
-      cancelled = true;
+      controller.abort();
+      clearTimeout(timeoutId);
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center gap-2 p-10 text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        {isBn ? "লোড হচ্ছে..." : "Loading..."}
-      </div>
-    );
-  }
-
-  const services = config.services.filter((service) => service.visible);
+  // If the stored config ends up with no visible packages (e.g. an empty DB
+  // row), fall back to the rich defaults so the page is never blank.
+  const services = (config.services.filter((service) => service.visible).length > 0
+    ? config.services
+    : DEFAULT_SERVICES_CONFIG.services
+  ).filter((service) => service.visible);
+  const featuredPackages = (
+    config.featuredPackages.filter((pkg) => pkg.visible).length > 0
+      ? config.featuredPackages
+      : DEFAULT_SERVICES_CONFIG.featuredPackages
+  ).filter((pkg) => pkg.visible);
   const features = config.features.filter((feature) => feature.visible);
   const process = config.processSteps;
   const section = config.section;
@@ -69,6 +73,62 @@ export default function ServicesPage() {
             </p>
           </div>
         </FadeInUp>
+
+        {/* Featured Packages — the three headline packages with a price placeholder */}
+        {featuredPackages.length > 0 && (
+          <FadeInUp>
+            <div className="mb-16">
+              <h2 className="text-heading-lg font-bold text-center mb-8">
+                {isBn ? "ওয়েবসাইট প্যাকেজ" : "Website Packages"}
+              </h2>
+              <StaggerContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {featuredPackages.slice(0, 3).map((pkg) => (
+                  <StaggerItem key={pkg.id}>
+                    <Card className="h-full hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-center justify-between gap-3 mb-2">
+                          <div className="flex items-center gap-3">
+                            <ServicesIcon name={pkg.icon} className="h-8 w-8 text-primary" />
+                            <CardTitle className="text-xl">{isBn ? pkg.titleBn : pkg.titleEn}</CardTitle>
+                          </div>
+                          {pkg.badgeEn && (
+                            <Badge variant="outline" className="shrink-0 text-xs">
+                              {isBn ? pkg.badgeBn : pkg.badgeEn}
+                            </Badge>
+                          )}
+                        </div>
+                        <CardDescription>{isBn ? pkg.subtitleBn : pkg.subtitleEn}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <ul className="space-y-2">
+                            {(isBn ? pkg.featuresBn : pkg.featuresEn).map((feature) => (
+                              <li key={feature} className="flex items-start gap-2">
+                                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                <span className="text-sm bn">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <div className="pt-4 border-t flex items-center justify-between gap-3">
+                            <div className="text-2xl font-bold text-primary">
+                              {isBn ? "শুরু ৳X থেকে" : "Starting from ৳X"}
+                            </div>
+                            <Button asChild>
+                              <Link href={`/${locale}/order`}>
+                                {isBn ? "অর্ডার করুন" : "Order Now"}
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            </div>
+          </FadeInUp>
+        )}
 
         {/* Services Grid */}
         <StaggerContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-20">

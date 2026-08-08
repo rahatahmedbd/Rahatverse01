@@ -24,9 +24,13 @@ export async function GET() {
     }
 
     const validated = validatePortfolioConfig(data.value);
-    return NextResponse.json({
-      data: validated || DEFAULT_PORTFOLIO_CONFIG,
-    });
+    // Guard against a stored config with an empty/blank project list (or no
+    // visible projects) — fall back to the seeded placeholder projects so the
+    // portfolio page is never blank.
+    if (!validated || validated.projects.filter((p) => p.visible).length === 0) {
+      return NextResponse.json({ data: DEFAULT_PORTFOLIO_CONFIG });
+    }
+    return NextResponse.json({ data: validated });
   } catch {
     return NextResponse.json({ data: DEFAULT_PORTFOLIO_CONFIG });
   }

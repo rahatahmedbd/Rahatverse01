@@ -88,7 +88,7 @@ export function EnhancedFooter() {
           </div>
 
           <div>
-            <h4 className="mb-3 text-sm font-semibold text-foreground sm:mb-4">{t("services")}</h4>
+            <h4 className="mb-3 text-sm font-semibold text-foreground sm:mb-4">{t("company")}</h4>
             <ul className="space-y-1.5 sm:space-y-2">
               {serviceLinks.map((link) => (
                 <li key={link.href}>

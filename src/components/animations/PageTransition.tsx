@@ -18,14 +18,18 @@ export function PageTransition({ children }: PageTransitionProps) {
   const prefersReducedMotion = useMotionPreference();
 
   return (
-    <AnimatePresence initial={false} mode="wait">
+    <AnimatePresence initial={false} mode="sync">
       <motion.div
         key={pathname}
         className="page-transition"
-        initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={prefersReducedMotion ? undefined : { opacity: 0, y: -6 }}
-        transition={prefersReducedMotion ? { duration: 0 } : undefined}
+        exit={prefersReducedMotion ? undefined : { opacity: 0 }}
+        transition={
+          prefersReducedMotion
+            ? { duration: 0 }
+            : { duration: 0.28, ease: [0.16, 1, 0.3, 1] }
+        }
       >
         {children}
       </motion.div>

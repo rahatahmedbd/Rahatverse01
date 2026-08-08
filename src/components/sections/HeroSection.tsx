@@ -107,16 +107,19 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
       {/* Particle Background — reduced on mobile for performance */}
       <div className="absolute inset-0">
         <ParticleBackground
-          particleCount={isMobile ? 18 : 32}
-          speed={isMobile ? 0.12 : 0.18}
+          particleCount={isMobile ? 12 : 24}
+          speed={isMobile ? 0.1 : 0.15}
           mouseInteraction={!isMobile}
         />
       </div>
 
-      {/* Ambient Glow — one soft, low-opacity amber radial blur (no concentric rings) */}
-      <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
-        <div className="absolute top-1/2 left-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/[0.07] blur-3xl lg:h-[540px] lg:w-[540px]" />
-        <div className="absolute bottom-1/4 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-amber-500/[0.05] blur-3xl lg:h-72 lg:w-72" />
+      {/* Restrained studio lighting and architectural guide lines */}
+      <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center" aria-hidden="true">
+        <div className="absolute top-[42%] left-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/[0.07] blur-3xl lg:h-[560px] lg:w-[560px]" />
+        <div className="absolute right-[8%] top-[14%] h-64 w-64 rounded-full bg-blue-500/[0.045] blur-3xl lg:h-80 lg:w-80" />
+        <div className="absolute inset-y-[8%] left-[8%] w-px bg-gradient-to-b from-transparent via-white/[0.055] to-transparent" />
+        <div className="absolute inset-y-[8%] right-[8%] w-px bg-gradient-to-b from-transparent via-white/[0.055] to-transparent" />
+        <div className="absolute inset-x-[5%] bottom-[7%] h-px bg-gradient-to-r from-transparent via-amber-400/10 to-transparent" />
       </div>
 
       {/* Content container — 320..1536+ */}

@@ -27,6 +27,7 @@ import {
   Images,
   Video,
   PenSquare,
+  UploadCloud,
   CalendarDays,
   Star,
   PhoneCall,
@@ -68,6 +69,7 @@ const sections = [
   { href: "theme", icon: Palette, labelBn: "থিম ও ইফেক্ট", labelEn: "Theme & Effects" },
   { href: "content", icon: HelpCircle, labelBn: "FAQ ও লিগ্যাল", labelEn: "FAQ & Legal" },
   { href: "images", icon: ImageIcon, labelBn: "মিডিয়া লাইব্রেরি", labelEn: "Media Library" },
+  { href: "upload", icon: UploadCloud, labelBn: "মিডিয়া আপলোড", labelEn: "Media Upload" },
   { href: "gallery", icon: Images, labelBn: "গ্যালারি CMS", labelEn: "Gallery CMS" },
   { href: "videos", icon: Video, labelBn: "ভিডিও CMS", labelEn: "Video CMS" },
   { href: "blog", icon: FileText, labelBn: "CMS / ব্লগ", labelEn: "CMS / Blog" },
@@ -89,7 +91,14 @@ export function AdminNav({ locale }: AdminNavProps) {
 
   const isActive = (href: string) => {
     if (href === "overview") return pathname === `/${locale}/dashboard`;
+    if (href === "upload") return pathname.startsWith(`/${locale}/admin/upload`);
     return pathname.startsWith(`/${locale}/dashboard/${href}`);
+  };
+
+  const linkHref = (href: string) => {
+    if (href === "overview") return `/${locale}/dashboard`;
+    if (href === "upload") return `/${locale}/admin/upload`;
+    return `/${locale}/dashboard/${href}`;
   };
 
   return (
@@ -100,11 +109,7 @@ export function AdminNav({ locale }: AdminNavProps) {
           return (
             <Link
               key={section.href}
-              href={
-                section.href === "overview"
-                  ? `/${locale}/dashboard`
-                  : `/${locale}/dashboard/${section.href}`
-              }
+              href={linkHref(section.href)}
               className={cn(
                 "flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all",
                 active

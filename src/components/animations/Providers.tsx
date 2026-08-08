@@ -17,10 +17,12 @@ interface ProvidersProps {
 }
 
 export function AnimationProviders({
-  showCursor = true,
+  // Native cursors and direct button feedback feel faster and more familiar.
+  // The effects remain opt-in for campaign pages that explicitly need them.
+  showCursor = false,
   showProgress = true,
   showScrollTop = true,
-  showMagnetic = true,
+  showMagnetic = false,
 }: ProvidersProps) {
   return (
     <>

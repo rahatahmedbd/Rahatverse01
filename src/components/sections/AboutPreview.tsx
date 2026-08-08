@@ -7,6 +7,7 @@ import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
 import { ABOUT_ICON_MAP } from "@/lib/about/icons";
 import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";
 import type { AboutConfig } from "@/types/about";
+import { UserRound } from "lucide-react";
 
 interface AboutPreviewProps {
   locale?: string;
@@ -20,7 +21,8 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
   if (!about.visible) return null;
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20">
+    <section className="section-atmosphere py-12 sm:py-16 lg:py-20">
+      <UserRound className="section-watermark -right-5 top-10 sm:right-[6%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionTitle
           badge={isBn ? about.section.badgeBn : about.section.badgeEn}
@@ -37,7 +39,9 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
             return (
               <StaggerItem key={card.id}>
                 <GlassCard className="h-full min-h-[104px] p-4 text-center sm:min-h-[120px]">
-                  <Icon className="mx-auto mb-2.5 h-5 w-5 text-primary sm:h-6 sm:w-6" />
+                  <span className="icon-frame mx-auto mb-2.5 h-9 w-9 rounded-xl sm:h-10 sm:w-10">
+                    <Icon className="h-4.5 w-4.5 sm:h-5 sm:w-5" aria-hidden="true" />
+                  </span>
                   <p className="text-[11px] font-medium leading-tight text-muted-foreground sm:text-xs">
                     {isBn ? card.labelBn : card.labelEn}
                   </p>

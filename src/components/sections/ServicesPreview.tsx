@@ -8,7 +8,7 @@ import { SectionTitle } from "./SectionTitle";
 import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
 import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 import { FlipCard3D } from "@/components/interactive/FlipCard3D";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Layers3 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
@@ -55,7 +55,8 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
   if (featuredPackages.length === 0) return null;
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20">
+    <section className="section-atmosphere py-12 sm:py-16 lg:py-20">
+      <Layers3 className="section-watermark -left-6 bottom-12 sm:left-[5%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionTitle
           badge={isBn ? section.badgeBn : section.badgeEn}
@@ -111,8 +112,10 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
             {websiteTypes.map((type) => (
               <StaggerItem key={type.id}>
                 <HoverCard3D className="h-full">
-                  <GlassCard className="h-full min-h-[92px] p-4 text-center transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 sm:min-h-[104px]">
-                    <ServicesIcon name={type.icon} className="mx-auto mb-2 h-7 w-7 text-primary sm:h-8 sm:w-8" />
+                  <GlassCard className="h-full min-h-[104px] p-4 text-center transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 sm:min-h-[116px]">
+                    <span className="icon-frame mx-auto mb-2.5 h-10 w-10 rounded-xl sm:h-11 sm:w-11">
+                      <ServicesIcon name={type.icon} className="h-5 w-5 sm:h-5.5 sm:w-5.5" />
+                    </span>
                     <p className="text-xs font-medium leading-tight bn sm:text-sm">{isBn ? type.labelBn : type.labelEn}</p>
                   </GlassCard>
                 </HoverCard3D>
@@ -126,8 +129,10 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
           <div className="mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             {features.map((feature) => (
               <StaggerItem key={feature.id}>
-                <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/50 p-3.5 transition-all hover:border-primary/20 hover:bg-accent/10 sm:p-4">
-                  <ServicesIcon name={feature.icon} className="h-5 w-5 shrink-0 text-primary" />
+                <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/50 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-accent/10 sm:p-4">
+                  <span className="icon-frame h-9 w-9 shrink-0 rounded-lg">
+                    <ServicesIcon name={feature.icon} className="h-4.5 w-4.5" />
+                  </span>
                   <span className="text-sm font-medium leading-tight bn">{isBn ? feature.titleBn : feature.titleEn}</span>
                 </div>
               </StaggerItem>

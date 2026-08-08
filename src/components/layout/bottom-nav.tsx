@@ -5,14 +5,16 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Home, Briefcase, ShoppingCart, MessageCircle, FolderOpen } from "lucide-react";
+import { Home, ShoppingCart, MessageCircle, FolderOpen, Sparkles } from "lucide-react";
 
 // ── Bottom Navigation Items ────────────────────────────
 // Mobile polish: Work label keeps /achievements route intact.
 const bottomNavItems = [
   { key: "home", path: "/", icon: Home, labelKey: "home" as const },
   { key: "portfolio", path: "/portfolio", icon: FolderOpen, labelKey: "portfolio" as const },
-  { key: "work", path: "/experience", icon: Briefcase, labelKey: "experience" as const },
+  // AI button — non-functional placeholder (you will implement in another session)
+  // Slightly elevated professional look with distinct subtle gold accent
+  { key: "ai", path: "#", icon: Sparkles, labelKey: "ai" as const },
   { key: "order", path: "/order", icon: ShoppingCart, labelKey: "order" as const },
   { key: "contact", path: "/contact", icon: MessageCircle, labelKey: "contact" as const },
 ];
@@ -54,17 +56,18 @@ export function BottomNavBar() {
             const href = item.key === "order" ? `${rawHref}#order-checkout` : rawHref;
             const isActive = normalizedPathname === rawHref;
             const Icon = item.icon;
+            const isAI = item.key === "ai";
 
-            // Label: Work keeps achievements route but shows premium label.
+            // Label handling — portfolio + custom AI button
             let label: string;
-            if (item.key === "work") {
-              label = isBn ? "অভিজ্ঞতা" : "Experience";
-            } else if (item.key === "portfolio") {
+            if (item.key === "portfolio") {
               label = isBn ? "পোর্টফোলিও" : "Portfolio";
+            } else if (item.key === "ai") {
+              label = isBn ? "এআই" : "AI";
             } else {
-              // t() expects nav keys; achievements/order etc. exist
+              // t() expects nav keys; order/contact/home etc. exist
               try {
-                label = t(item.labelKey as "home" | "achievements" | "order" | "contact");
+                label = t(item.labelKey as "home" | "order" | "contact");
               } catch {
                 label = item.key;
               }
@@ -73,16 +76,22 @@ export function BottomNavBar() {
             return (
               <Link
                 key={item.key}
-                href={href}
+                href={isAI ? "#" : href}
                 aria-current={isActive ? "page" : undefined}
                 aria-label={label}
+                aria-disabled={isAI}
                 className={cn(
                   "group relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-2 text-center",
-                  "transition-colors duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
                   "active:scale-[0.98]",
-                  isActive ? "text-emerald-400" : "text-white/55 hover:text-white/85"
+                  isAI
+                    ? "cursor-default text-amber-300/90 hover:text-amber-300 opacity-85 hover:opacity-100"
+                    : isActive
+                    ? "text-emerald-400"
+                    : "text-white/55 hover:text-white/85"
                 )}
+                onClick={isAI ? (e) => e.preventDefault() : undefined}
               >
                 {/* Active pill — glass + soft emerald/cyan glow */}
                 {isActive && (

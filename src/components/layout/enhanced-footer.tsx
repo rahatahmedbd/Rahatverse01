@@ -37,7 +37,7 @@ export function EnhancedFooter() {
   ];
 
   const serviceLinks = [
-    { href: `/${locale}/order`, label: t("orderWebsite") },
+    { href: `/${locale}/order#order-checkout`, label: t("orderWebsite") },
     { href: `/${locale}/services`, label: t("services") },
     { href: `/${locale}/privacy-policy`, label: isBn ? "প্রাইভেসি পলিসি" : "Privacy Policy" },
     { href: `/${locale}/terms-of-service`, label: isBn ? "সেবা শর্তাবলি" : "Terms of Service" },

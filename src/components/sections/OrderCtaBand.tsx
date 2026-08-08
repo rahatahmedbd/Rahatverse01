@@ -37,7 +37,7 @@ export function OrderCtaBand({ locale = "bn" }: OrderCtaBandProps) {
 
           <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:mt-8 sm:flex-row sm:items-center sm:gap-4">
             <Button variant="gradient" size="lg" asChild className="w-full sm:w-auto">
-              <Link href={`/${locale}/order`} className="inline-flex items-center justify-center gap-2">
+              <Link href={`/${locale}/order#order-checkout`} className="inline-flex items-center justify-center gap-2">
                 <ShoppingCart className="h-4 w-4" />
                 {isBn ? "ওয়েবসাইট অর্ডার করুন" : "Order a Website"}
               </Link>

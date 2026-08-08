@@ -121,7 +121,7 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
                   className="w-full"
                   asChild
                 >
-                  <Link href={`/${locale}/order?package=${pkg.id}`}>
+                  <Link href={`/${locale}/order?package=${pkg.id}#order-checkout`}>
                     {isBn ? pkg.ctaBn : pkg.ctaEn}
                     <ArrowRight className="h-4 w-4" />
                   </Link>

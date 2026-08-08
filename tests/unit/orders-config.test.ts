@@ -59,6 +59,32 @@ describe("orders config validation", () => {
     bad.cta.submitBn = "";
     expect(validateOrdersConfig(bad)).toBeNull();
   });
+
+  it("hydrates live-quote fields on legacy stored config", () => {
+    const legacy = clone(DEFAULT_ORDERS_CONFIG);
+    delete (legacy as unknown as Record<string, unknown>).quote;
+    for (const addon of legacy.featureAddons) {
+      delete (addon as unknown as Record<string, unknown>).priceBdt;
+      delete (addon as unknown as Record<string, unknown>).priceUsd;
+    }
+
+    const validated = validateOrdersConfig(legacy);
+    expect(validated?.quote.enabled).toBe(true);
+    expect(validated?.featureAddons.find((addon) => addon.value === "payment")).toMatchObject({
+      priceBdt: 5_000,
+      priceUsd: 60,
+    });
+  });
+
+  it("rejects invalid quote values and duplicate option values", () => {
+    const invalidQuote = clone(DEFAULT_ORDERS_CONFIG);
+    invalidQuote.quote.rangePercent = 101;
+    expect(validateOrdersConfig(invalidQuote)).toBeNull();
+
+    const duplicate = clone(DEFAULT_ORDERS_CONFIG);
+    duplicate.packages[1].value = duplicate.packages[0].value;
+    expect(validateOrdersConfig(duplicate)).toBeNull();
+  });
 });
 
 describe("order kanban stage normalization", () => {

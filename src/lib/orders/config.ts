@@ -5,6 +5,7 @@ import type {
   OrdersDesignStyle,
   OrdersFeatureAddon,
   OrdersOption,
+  OrdersQuoteConfig,
   OrdersSectionContent,
   OrdersStepLabels,
 } from "@/types/orders";
@@ -57,16 +58,16 @@ const DEFAULT_WEBSITE_TYPES: OrdersOption[] = [
 ];
 
 const DEFAULT_FEATURE_ADDONS: OrdersFeatureAddon[] = [
-  { id: "feat-responsive", value: "responsive", labelBn: "রেসপনসিভ ডিজাইন", labelEn: "Responsive Design", visible: true },
-  { id: "feat-seo", value: "seo", labelBn: "SEO অপটিমাইজেশন", labelEn: "SEO Optimization", visible: true },
-  { id: "feat-blog", value: "blog", labelBn: "ব্লগ সেকশন", labelEn: "Blog Section", visible: true },
-  { id: "feat-contact", value: "contact_form", labelBn: "কন্টাক্ট ফর্ম", labelEn: "Contact Form", visible: true },
-  { id: "feat-map", value: "map", labelBn: "Google Maps", labelEn: "Google Maps", visible: true },
-  { id: "feat-payment", value: "payment", labelBn: "পেমেন্ট ইন্টিগ্রেশন", labelEn: "Payment Integration", visible: true },
-  { id: "feat-auth", value: "auth", labelBn: "লগইন/সাইনআপ", labelEn: "Login/Signup", visible: true },
-  { id: "feat-admin", value: "admin", labelBn: "অ্যাডমিন প্যানেল", labelEn: "Admin Panel", visible: true },
-  { id: "feat-multilang", value: "multilang", labelBn: "মাল্টি-ল্যাংগুয়েজ", labelEn: "Multi-Language", visible: true },
-  { id: "feat-analytics", value: "analytics", labelBn: "অ্যানালিটিক্স", labelEn: "Analytics", visible: true },
+  { id: "feat-responsive", value: "responsive", labelBn: "রেসপনসিভ ডিজাইন", labelEn: "Responsive Design", visible: true, priceBdt: 0, priceUsd: 0 },
+  { id: "feat-seo", value: "seo", labelBn: "SEO অপটিমাইজেশন", labelEn: "SEO Optimization", visible: true, priceBdt: 1500, priceUsd: 18 },
+  { id: "feat-blog", value: "blog", labelBn: "ব্লগ সেকশন", labelEn: "Blog Section", visible: true, priceBdt: 2500, priceUsd: 30 },
+  { id: "feat-contact", value: "contact_form", labelBn: "কন্টাক্ট ফর্ম", labelEn: "Contact Form", visible: true, priceBdt: 1000, priceUsd: 12 },
+  { id: "feat-map", value: "map", labelBn: "Google Maps", labelEn: "Google Maps", visible: true, priceBdt: 500, priceUsd: 6 },
+  { id: "feat-payment", value: "payment", labelBn: "পেমেন্ট ইন্টিগ্রেশন", labelEn: "Payment Integration", visible: true, priceBdt: 5000, priceUsd: 60 },
+  { id: "feat-auth", value: "auth", labelBn: "লগইন/সাইনআপ", labelEn: "Login/Signup", visible: true, priceBdt: 4000, priceUsd: 48 },
+  { id: "feat-admin", value: "admin", labelBn: "অ্যাডমিন প্যানেল", labelEn: "Admin Panel", visible: true, priceBdt: 7000, priceUsd: 84 },
+  { id: "feat-multilang", value: "multilang", labelBn: "মাল্টি-ল্যাংগুয়েজ", labelEn: "Multi-Language", visible: true, priceBdt: 2500, priceUsd: 30 },
+  { id: "feat-analytics", value: "analytics", labelBn: "অ্যানালিটিক্স", labelEn: "Analytics", visible: true, priceBdt: 1500, priceUsd: 18 },
 ];
 
 const DEFAULT_DESIGN_STYLES: OrdersDesignStyle[] = [
@@ -110,6 +111,17 @@ const DEFAULT_DESIGN_STYLES: OrdersDesignStyle[] = [
 
 const DEFAULT_PAGE_INCREMENTS = [1, 3, 5, 10, 20, 50];
 
+const DEFAULT_QUOTE: OrdersQuoteConfig = {
+  enabled: true,
+  pagePriceBdt: 1000,
+  pagePriceUsd: 12,
+  rangePercent: 15,
+  titleBn: "লাইভ আনুমানিক কোট",
+  titleEn: "Live estimated quote",
+  disclaimerBn: "এটি একটি প্রাথমিক আনুমানিক রেঞ্জ। চূড়ান্ত মূল্য প্রয়োজন যাচাই ও আলোচনার পর নিশ্চিত হবে।",
+  disclaimerEn: "This is an initial estimate. The final price is confirmed after requirements review and consultation.",
+};
+
 const DEFAULT_BUDGET_RANGES: OrdersBudgetRange[] = [
   { id: "budget-1", value: "5k-10k", label: "৳5,000 - ৳10,000", visible: true },
   { id: "budget-2", value: "10k-20k", label: "৳10,000 - ৳20,000", visible: true },
@@ -149,6 +161,7 @@ export const DEFAULT_ORDERS_CONFIG: OrdersConfig = {
   featureAddons: DEFAULT_FEATURE_ADDONS,
   designStyles: DEFAULT_DESIGN_STYLES,
   pageIncrements: DEFAULT_PAGE_INCREMENTS,
+  quote: DEFAULT_QUOTE,
   budgetRanges: DEFAULT_BUDGET_RANGES,
   timelineOptions: DEFAULT_TIMELINE_OPTIONS,
   cta: DEFAULT_CTA,
@@ -173,6 +186,10 @@ function isId(value: unknown): boolean {
 
 function isValue(value: unknown): boolean {
   return isText(value, 80);
+}
+
+function isPrice(value: unknown, max: number): boolean {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= max;
 }
 
 function validateSection(value: unknown): boolean {
@@ -244,9 +261,28 @@ function validateFeatureAddons(value: unknown, max: number): boolean {
       isValue(item.value) &&
       isText(item.labelBn, MAX_SHORT) &&
       isText(item.labelEn, MAX_SHORT) &&
-      typeof item.visible === "boolean"
+      typeof item.visible === "boolean" &&
+      (item.priceBdt === undefined || isPrice(item.priceBdt, 100_000_000)) &&
+      (item.priceUsd === undefined || isPrice(item.priceUsd, 1_000_000))
     );
   });
+}
+
+function validateQuote(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    typeof value.enabled === "boolean" &&
+    isPrice(value.pagePriceBdt, 100_000_000) &&
+    isPrice(value.pagePriceUsd, 1_000_000) &&
+    typeof value.rangePercent === "number" &&
+    Number.isFinite(value.rangePercent) &&
+    value.rangePercent >= 0 &&
+    value.rangePercent <= 100 &&
+    isText(value.titleBn, MAX_SHORT) &&
+    isText(value.titleEn, MAX_SHORT) &&
+    isText(value.disclaimerBn, MAX_TEXT) &&
+    isText(value.disclaimerEn, MAX_TEXT)
+  );
 }
 
 function validateDesignStyles(value: unknown, max: number): boolean {
@@ -286,19 +322,44 @@ function validatePageIncrements(value: unknown): boolean {
   });
 }
 
+function hasUniqueIdsAndValues(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+  const items = value as Record<string, unknown>[];
+  return (
+    new Set(items.map((item) => item.id)).size === items.length &&
+    new Set(items.map((item) => item.value)).size === items.length
+  );
+}
+
 export function validateOrdersConfig(input: unknown): OrdersConfig | null {
   if (!isRecord(input)) return null;
   if (typeof input.visible !== "boolean") return null;
   if (!validateSection(input.section)) return null;
   if (!validateSteps(input.steps)) return null;
-  if (!validateOptions(input.packages, 12)) return null;
-  if (!validateOptions(input.websiteTypes, 20)) return null;
-  if (!validateFeatureAddons(input.featureAddons, 30)) return null;
-  if (!validateDesignStyles(input.designStyles, 12)) return null;
+  if (!validateOptions(input.packages, 12) || !hasUniqueIdsAndValues(input.packages)) return null;
+  if (!validateOptions(input.websiteTypes, 20) || !hasUniqueIdsAndValues(input.websiteTypes)) return null;
+  if (!validateFeatureAddons(input.featureAddons, 30) || !hasUniqueIdsAndValues(input.featureAddons)) return null;
+  if (!validateDesignStyles(input.designStyles, 12) || !hasUniqueIdsAndValues(input.designStyles)) return null;
   if (!validatePageIncrements(input.pageIncrements)) return null;
-  if (!validateBudgetRanges(input.budgetRanges, 12)) return null;
-  if (!validateOptions(input.timelineOptions, 12)) return null;
+  if (input.quote !== undefined && !validateQuote(input.quote)) return null;
+  if (!validateBudgetRanges(input.budgetRanges, 12) || !hasUniqueIdsAndValues(input.budgetRanges)) return null;
+  if (!validateOptions(input.timelineOptions, 12) || !hasUniqueIdsAndValues(input.timelineOptions)) return null;
   if (!validateCta(input.cta)) return null;
 
-  return input as unknown as OrdersConfig;
+  // Backward-compatible hydration keeps existing admin-managed JSON usable
+  // before migration 026 adds quote and add-on price fields in production.
+  const featureAddons = (input.featureAddons as Record<string, unknown>[]).map((item) => {
+    const defaults = DEFAULT_FEATURE_ADDONS.find((addon) => addon.value === item.value);
+    return {
+      ...item,
+      priceBdt: typeof item.priceBdt === "number" ? item.priceBdt : defaults?.priceBdt ?? 0,
+      priceUsd: typeof item.priceUsd === "number" ? item.priceUsd : defaults?.priceUsd ?? 0,
+    };
+  }) as unknown as OrdersFeatureAddon[];
+
+  return {
+    ...(input as unknown as OrdersConfig),
+    featureAddons,
+    quote: input.quote === undefined ? DEFAULT_QUOTE : (input.quote as unknown as OrdersQuoteConfig),
+  };
 }

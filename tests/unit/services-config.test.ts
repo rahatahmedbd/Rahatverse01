@@ -68,4 +68,34 @@ describe("services config validation", () => {
     bad.cta.primaryLabelEn = "   ";
     expect(validateServicesConfig(bad)).toBeNull();
   });
+
+  it("hydrates Phase 32 pricing fields on legacy stored config", () => {
+    const legacy = clone(DEFAULT_SERVICES_CONFIG);
+    for (const pkg of legacy.packages) {
+      delete (pkg as unknown as Record<string, unknown>).orderValue;
+      delete (pkg as unknown as Record<string, unknown>).includedPages;
+      delete (pkg as unknown as Record<string, unknown>).includedFeatureValues;
+    }
+    for (const featured of legacy.featuredPackages) {
+      delete (featured as unknown as Record<string, unknown>).pricingPackageId;
+    }
+
+    const validated = validateServicesConfig(legacy);
+    expect(validated?.packages[0]).toMatchObject({
+      orderValue: "basic",
+      includedPages: 3,
+      includedFeatureValues: ["responsive", "seo", "contact_form"],
+    });
+    expect(validated?.featuredPackages[0].pricingPackageId).toBe("basic");
+  });
+
+  it("rejects duplicate order mappings and invalid included-page values", () => {
+    const duplicate = clone(DEFAULT_SERVICES_CONFIG);
+    duplicate.packages[1].orderValue = duplicate.packages[0].orderValue;
+    expect(validateServicesConfig(duplicate)).toBeNull();
+
+    const invalidPages = clone(DEFAULT_SERVICES_CONFIG);
+    invalidPages.packages[0].includedPages = -1;
+    expect(validateServicesConfig(invalidPages)).toBeNull();
+  });
 });

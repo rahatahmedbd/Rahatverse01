@@ -37,6 +37,10 @@ Pure logic and utilities that require no external services:
 - `lib/analytics/device.ts` — device classification from user agents.
 - `lib/analytics/referrer.ts` — referrer → source classification.
 - `lib/newsletter/tokens.ts` — token generation and expiry.
+- `lib/orders/quote.ts` — package/page/add-on totals, estimate ranges, custom
+  quotes, hidden add-ons, and currency formatting.
+- Order/services config validators — Phase 32 pricing validation plus safe
+  hydration of legacy JSON documents.
 
 ### Integration tests (`tests/integration`)
 Route handlers exercised end-to-end with Supabase and email services **mocked**:
@@ -44,6 +48,8 @@ Route handlers exercised end-to-end with Supabase and email services **mocked**:
 - `POST /api/analytics` — payload validation, ingestion, size limits.
 - `POST /api/messages` — contact form validation and admin notification.
 - `POST /api/blood-requests` — field validation and defaults.
+- `POST /api/orders` — configured default/custom option acceptance and rejection
+  of hidden or unknown package/website values.
 
 Integration tests mock `@/lib/supabase/server`, `@/lib/supabase/guards`, and
 `@/lib/email/service` via Vitest's `vi.mock`, so they run with no network access.
@@ -52,8 +58,11 @@ Integration tests mock `@/lib/supabase/server`, `@/lib/supabase/guards`, and
 Playwright smoke tests that boot the production server and assert core pages
 render without errors across desktop and mobile viewports:
 
-- Every key public route returns < 400 and shows no Next.js error boundary.
+- Every key public route, including `/en/order`, returns < 400 and shows no
+  Next.js error boundary.
 - Home page loads the expected locale/title and the theme toggle is interactive.
+- The order wizard exposes inline validation and recalculates its live estimate.
+- Package comparison columns and differences-only filtering are interactive.
 
 ## Adding a Test
 

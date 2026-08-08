@@ -114,8 +114,11 @@ Admin-only update to respond to / close an incoming blood donation request
 ### `GET /api/orders-config`
 Public, validated order-intake wizard configuration endpoint (Phase 5).
 - Returns `{ data }` where `data` is the `orders_config` document stored in
-  `site_settings` (package options, website types, feature add-ons, design
-  styles, page-count increments, budget ranges, timelines, step & CTA labels).
+  `site_settings` (package options, website types, priced feature add-ons,
+  design styles, page-count increments, live-quote page/range settings, budget
+  ranges, timelines, and step/CTA labels).
+- Phase 32 fields are hydrated onto legacy valid documents until migration 026
+  is applied, so existing admin customizations are not discarded.
 - Falls back to built-in defaults when the database is unavailable or the stored
   value fails validation.
 
@@ -136,12 +139,16 @@ Admin-only partial update of an order (Phase 5 Kanban + payment tracking).
 ### `POST /api/orders`
 Submit a website order (public). Also accepts an optional `design_style` field
 (Phase 5) captured from the configurable design-style selector in the wizard.
+Package and website-type values are checked against the currently visible
+admin-managed `orders_config` options; valid custom options are accepted while
+hidden, stale, or forged values are rejected.
 
 ### `GET /api/services-config`
 Public, validated Services / pricing / process configuration endpoint (Phase 4).
 - Returns `{ data }` where `data` is the `services_config` document stored in
   `site_settings` (service offerings, website types, features, featured packages,
-  pricing packages with BDT/USD amounts, comparison matrix, process timeline, CTA).
+  pricing packages with BDT/USD amounts, order-value mapping and included-page
+  allowance, comparison matrix, process timeline, CTA).
 - Falls back to built-in defaults when the database is unavailable or the stored
   value fails validation — the public site never breaks.
 

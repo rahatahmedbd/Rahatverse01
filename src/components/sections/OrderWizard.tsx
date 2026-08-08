@@ -13,6 +13,7 @@ import {
   ChipGroup,
 } from "@/components/ui/form";
 import { SectionTitle } from "@/components/sections/SectionTitle";
+import { LiveQuoteEstimate } from "@/components/sections/LiveQuoteEstimate";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import {
   Package,
@@ -26,7 +27,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import { DEFAULT_ORDERS_CONFIG, validateOrdersConfig } from "@/lib/orders/config";
+import { calculateLiveQuote, formatQuoteAmount } from "@/lib/orders/quote";
+import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
 import type { OrdersConfig } from "@/types/orders";
+import type { ServicesConfig } from "@/types/services";
 
 // ── Order Wizard (DB-driven) ───────────────────────────
 // Multi-step form: Package → Design → Details → Contact → Review.
@@ -62,25 +66,13 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const isBn = locale === "bn";
   const searchParams = useSearchParams();
   const preselectedPackage = searchParams.get("package") || "";
+  const initialPackage =
+    DEFAULT_ORDERS_CONFIG.packages.find(
+      (pkg) => pkg.visible && pkg.value === preselectedPackage
+    )?.value ?? DEFAULT_ORDERS_CONFIG.packages.find((pkg) => pkg.visible)?.value ?? "";
 
   const [config, setConfig] = useState<OrdersConfig>(DEFAULT_ORDERS_CONFIG);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/orders-config", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((json) => {
-        if (cancelled) return;
-        const validated = validateOrdersConfig((json as { data?: unknown } | null)?.data);
-        if (validated) setConfig(validated);
-      })
-      .catch(() => {
-        /* fall back to defaults */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const [servicesConfig, setServicesConfig] = useState<ServicesConfig>(DEFAULT_SERVICES_CONFIG);
 
   const visiblePackages = config.packages.filter((p) => p.visible);
   const visibleWebsiteTypes = config.websiteTypes.filter((t) => t.visible);
@@ -96,7 +88,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const [errors, setErrors] = useState<Partial<Record<keyof OrderData, string>>>({});
 
   const [data, setData] = useState<OrderData>({
-    packageType: preselectedPackage || "basic",
+    packageType: initialPackage,
     websiteType: "",
     designStyle: "",
     numPages: 1,
@@ -112,6 +104,58 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     budgetRange: "",
     timeline: "",
   });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 8_000);
+
+    async function loadPricingConfig() {
+      try {
+        const [ordersResponse, servicesResponse] = await Promise.all([
+          fetch("/api/orders-config", { cache: "no-store", signal: controller.signal }),
+          fetch("/api/services-config", { cache: "no-store", signal: controller.signal }),
+        ]);
+        const [ordersJson, servicesJson] = await Promise.all([
+          ordersResponse.ok ? ordersResponse.json() : null,
+          servicesResponse.ok ? servicesResponse.json() : null,
+        ]);
+        if (controller.signal.aborted) return;
+
+        const orders = validateOrdersConfig(
+          (ordersJson as { data?: unknown } | null)?.data
+        ) ?? DEFAULT_ORDERS_CONFIG;
+        const services = validateServicesConfig(
+          (servicesJson as { data?: unknown } | null)?.data
+        ) ?? DEFAULT_SERVICES_CONFIG;
+        setConfig(orders);
+        setServicesConfig(services);
+
+        // Never keep a stale, hidden, or forged package query value selected.
+        const allowedPackages = orders.packages.filter((pkg) => pkg.visible);
+        const requestedPackage = allowedPackages.find(
+          (pkg) => pkg.value === preselectedPackage
+        )?.value;
+        setData((previous) => {
+          if (requestedPackage && requestedPackage !== previous.packageType) {
+            return { ...previous, packageType: requestedPackage };
+          }
+          return allowedPackages.some((pkg) => pkg.value === previous.packageType)
+            ? previous
+            : { ...previous, packageType: allowedPackages[0]?.value ?? "" };
+        });
+      } catch {
+        // Defaults are already rendered; aborts and network failures are safe.
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    }
+
+    void loadPricingConfig();
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [preselectedPackage]);
 
   const updateData = <K extends keyof OrderData>(field: K, value: OrderData[K]) => {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -130,6 +174,30 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
         ? prev.features.filter((f) => f !== feature)
         : [...prev.features, feature],
     }));
+  };
+
+  const quoteEstimate = calculateLiveQuote(
+    {
+      packageValue: data.packageType,
+      pages: data.numPages,
+      featureValues: data.features,
+    },
+    servicesConfig.packages,
+    visibleAddons,
+    config.quote
+  );
+
+  const selectedPricingPackage = servicesConfig.packages.find(
+    (pkg) => pkg.visible && pkg.orderValue === data.packageType
+  );
+
+  const packagePriceLabel = (packageValue: string) => {
+    const pricing = servicesConfig.packages.find(
+      (pkg) => pkg.visible && pkg.orderValue === packageValue
+    );
+    if (!pricing) return "";
+    if (pricing.priceBdt <= 0) return isBn ? "কাস্টম কোট" : "Custom quote";
+    return formatQuoteAmount(pricing.priceBdt, "BDT", locale);
   };
 
   const steps = [
@@ -166,11 +234,6 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       }
     }
     return errs;
-  };
-
-  const canAdvance = (): boolean => {
-    const errs = validateStep(step);
-    return Object.keys(errs).length === 0;
   };
 
   const handleNext = () => {
@@ -314,10 +377,13 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   error={errors.packageType}
                 >
                   <ChipGroup
-                    options={visiblePackages.map((pkg) => ({
-                      value: pkg.value,
-                      label: isBn ? pkg.labelBn : pkg.labelEn,
-                    }))}
+                    options={visiblePackages.map((pkg) => {
+                      const price = packagePriceLabel(pkg.value);
+                      return {
+                        value: pkg.value,
+                        label: `${isBn ? pkg.labelBn : pkg.labelEn}${price ? ` · ${price}` : ""}`,
+                      };
+                    })}
                     value={data.packageType}
                     onChange={(v) => updateData("packageType", v)}
                     columns={4}
@@ -420,7 +486,15 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   <ChipGroup
                     options={visibleAddons.map((f) => ({
                       value: f.value,
-                      label: isBn ? f.labelBn : f.labelEn,
+                      label: `${isBn ? f.labelBn : f.labelEn}${
+                        selectedPricingPackage?.includedFeatureValues.includes(f.value)
+                          ? isBn
+                            ? " · অন্তর্ভুক্ত"
+                            : " · Included"
+                          : f.priceBdt > 0
+                            ? ` · +${formatQuoteAmount(f.priceBdt, "BDT", locale)}`
+                            : ""
+                      }`,
                     }))}
                     value={data.features}
                     onChange={toggleFeature}
@@ -626,7 +700,9 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "বাজেট" : "Budget"}</span>
-                  <span className="font-medium">{data.budgetRange || "—"}</span>
+                  <span className="font-medium">
+                    {visibleBudgetRanges.find((range) => range.value === data.budgetRange)?.label || "—"}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "ফিচার" : "Features"}</span>
@@ -670,6 +746,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             </div>
           )}
 
+          <LiveQuoteEstimate estimate={quoteEstimate} config={config.quote} locale={locale} />
+
           {submitError && (
             <p className="mt-6 text-center text-sm text-destructive" role="alert">
               {submitError}
@@ -691,7 +769,6 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
               <Button
                 variant="default"
                 onClick={handleNext}
-                disabled={!canAdvance() && Object.keys(errors).length === 0}
               >
                 {isBn ? config.cta.nextBn : config.cta.nextEn}
                 <ArrowRight className="h-4 w-4" />

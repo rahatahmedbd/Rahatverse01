@@ -84,7 +84,7 @@ export interface ServicesFeature {
   descriptionEn: string;
 }
 
-/** A featured package shown as a 3D flip card on the home services preview. */
+/** A featured package shown on the services page and linked to a priced tier. */
 export interface ServicesFeaturedPackage {
   id: string;
   visible: boolean;
@@ -98,16 +98,24 @@ export interface ServicesFeaturedPackage {
   badgeVariant: ServiceBadgeVariant;
   featuresBn: string[];
   featuresEn: string[];
+  /** Pricing-tier id used for the displayed price and Order Now deep link. */
+  pricingPackageId: string;
 }
 
 /** A pricing tier with both BDT and USD amounts. */
 export interface ServicesPackage {
   id: string;
   visible: boolean;
+  /** Value submitted by the order wizard for this tier. */
+  orderValue: string;
   nameBn: string;
   nameEn: string;
   priceBdt: number;
   priceUsd: number;
+  /** Pages included in the base price; null disables per-page surcharges. */
+  includedPages: number | null;
+  /** Order feature values already covered by the package base price. */
+  includedFeatureValues: string[];
   descriptionBn: string;
   descriptionEn: string;
   featuresBn: string[];

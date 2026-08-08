@@ -124,8 +124,8 @@ const defaultServices: ServicesService[] = [
       "Supabase backend",
       "Cloudinary image management",
     ],
-    priceBn: "শুরু ৳X থেকে (Starting from ৳X)",
-    priceEn: "Starting from ৳X",
+    priceBn: "শুরু ৳৫,০০০ থেকে",
+    priceEn: "Starting from ৳5,000",
     deliveryBn: "১-৩ সপ্তাহ ডেলিভারি",
     deliveryEn: "1-3 week delivery",
   },
@@ -151,8 +151,8 @@ const defaultServices: ServicesService[] = [
       "Contact form",
       "Social media integration",
     ],
-    priceBn: "শুরু ৳X থেকে (Starting from ৳X)",
-    priceEn: "Starting from ৳X",
+    priceBn: "শুরু ৳৫,০০০ থেকে",
+    priceEn: "Starting from ৳5,000",
     deliveryBn: "১-২ সপ্তাহ ডেলিভারি",
     deliveryEn: "1-2 week delivery",
   },
@@ -178,8 +178,8 @@ const defaultServices: ServicesService[] = [
       "Order management",
       "Inventory tracking",
     ],
-    priceBn: "শুরু ৳X থেকে (Starting from ৳X)",
-    priceEn: "Starting from ৳X",
+    priceBn: "শুরু ৳৩০,০০০ থেকে",
+    priceEn: "Starting from ৳30,000",
     deliveryBn: "২-৪ সপ্তাহ ডেলিভারি",
     deliveryEn: "2-4 week delivery",
   },
@@ -356,6 +356,7 @@ const defaultFeaturedPackages: ServicesFeaturedPackage[] = [
       "Dynamic Markdown/MDX blog",
       "Fast Next.js 16 static rendering",
     ],
+    pricingPackageId: "basic",
   },
   {
     id: "featured-ecommerce",
@@ -380,6 +381,7 @@ const defaultFeaturedPackages: ServicesFeaturedPackage[] = [
       "Supabase real-time database",
       "Automated email notifications",
     ],
+    pricingPackageId: "premium",
   },
   {
     id: "featured-custom",
@@ -404,6 +406,7 @@ const defaultFeaturedPackages: ServicesFeaturedPackage[] = [
       "Cloudinary media integration",
       "Full admin command center",
     ],
+    pricingPackageId: "enterprise",
   },
 ];
 
@@ -411,10 +414,13 @@ const defaultPackages: ServicesPackage[] = [
   {
     id: "basic",
     visible: true,
+    orderValue: "basic",
     nameBn: "বেসিক",
     nameEn: "Basic",
     priceBdt: 5000,
     priceUsd: 60,
+    includedPages: 3,
+    includedFeatureValues: ["responsive", "seo", "contact_form"],
     descriptionBn: "ব্যক্তিগত পোর্টফোলিও সাইটের জন্য",
     descriptionEn: "Perfect for personal portfolio sites",
     featuresBn: ["১-৩ পেজ", "রেসপনসিভ ডিজাইন", "কন্টাক্ট ফর্ম", "বেসিক SEO", "১ সপ্তাহ ডেলিভারি"],
@@ -426,10 +432,13 @@ const defaultPackages: ServicesPackage[] = [
   {
     id: "standard",
     visible: true,
+    orderValue: "standard",
     nameBn: "স্ট্যান্ডার্ড",
     nameEn: "Standard",
     priceBdt: 15000,
     priceUsd: 180,
+    includedPages: 10,
+    includedFeatureValues: ["responsive", "seo", "blog", "contact_form", "map"],
     descriptionBn: "ছোট ব্যবসার জন্য আদর্শ",
     descriptionEn: "Great for small businesses",
     featuresBn: ["৫-১০ পেজ", "রেসপনসিভ ডিজাইন", "ব্লগ সেকশন", "অ্যাডভান্সড SEO", "কন্টাক্ট + ম্যাপ", "২ সপ্তাহ ডেলিভারি"],
@@ -441,10 +450,13 @@ const defaultPackages: ServicesPackage[] = [
   {
     id: "premium",
     visible: true,
+    orderValue: "premium",
     nameBn: "প্রিমিয়াম",
     nameEn: "Premium",
     priceBdt: 30000,
     priceUsd: 360,
+    includedPages: null,
+    includedFeatureValues: ["responsive", "seo", "blog", "contact_form", "map", "payment", "admin"],
     descriptionBn: "সম্পূর্ণ ই-কমার্স সলিউশন",
     descriptionEn: "Full e-commerce solution",
     featuresBn: ["আনলিমিটেড পেজ", "ই-কমার্স", "পেমেন্ট গেটওয়ে", "অ্যাডমিন ড্যাশবোর্ড", "ফুল SEO", "৩ সপ্তাহ ডেলিভারি"],
@@ -456,10 +468,13 @@ const defaultPackages: ServicesPackage[] = [
   {
     id: "enterprise",
     visible: true,
+    orderValue: "enterprise",
     nameBn: "এন্টারপ্রাইজ",
     nameEn: "Enterprise",
     priceBdt: 0,
     priceUsd: 0,
+    includedPages: null,
+    includedFeatureValues: ["responsive", "seo", "blog", "contact_form", "map", "payment", "auth", "admin", "multilang", "analytics"],
     descriptionBn: "আপনার প্রয়োজনে কাস্টম সলিউশন",
     descriptionEn: "Custom solution for your needs",
     featuresBn: ["প্রিমিয়ামের সবকিছু", "কাস্টম ফিচার", "প্রায়োরিটি সাপোর্ট", "মাসিক মেইনটেন্যান্স", "ট্রেনিং সেশন"],
@@ -716,7 +731,8 @@ function validateFeaturedPackages(value: unknown): boolean {
       isText(item.badgeEn, MAX_SHORT, true) &&
       isBadgeVariant(item.badgeVariant) &&
       isStringArray(item.featuresBn, 16, MAX_ITEM_TEXT) &&
-      isStringArray(item.featuresEn, 16, MAX_ITEM_TEXT)
+      isStringArray(item.featuresEn, 16, MAX_ITEM_TEXT) &&
+      (item.pricingPackageId === undefined || isText(item.pricingPackageId, 80, true))
     );
   });
 }
@@ -727,9 +743,11 @@ function validatePackages(value: unknown): boolean {
     if (!isRecord(item)) return false;
     const bdt = Number(item.priceBdt);
     const usd = Number(item.priceUsd);
+    const includedPages = item.includedPages;
     return (
       isText(item.id, 80) &&
       typeof item.visible === "boolean" &&
+      (item.orderValue === undefined || isText(item.orderValue, 80)) &&
       isText(item.nameBn, MAX_SHORT) &&
       isText(item.nameEn, MAX_SHORT) &&
       Number.isFinite(bdt) &&
@@ -738,6 +756,14 @@ function validatePackages(value: unknown): boolean {
       Number.isFinite(usd) &&
       usd >= 0 &&
       usd <= 1_000_000 &&
+      (includedPages === undefined ||
+        includedPages === null ||
+        (typeof includedPages === "number" &&
+          Number.isInteger(includedPages) &&
+          includedPages >= 0 &&
+          includedPages <= 10_000)) &&
+      (item.includedFeatureValues === undefined ||
+        isStringArray(item.includedFeatureValues, 30, 80)) &&
       isText(item.descriptionBn, MAX_SHORT) &&
       isText(item.descriptionEn, MAX_SHORT) &&
       isStringArray(item.featuresBn, 20, MAX_ITEM_TEXT) &&
@@ -779,6 +805,31 @@ function validateProcessSteps(value: unknown): boolean {
   });
 }
 
+function legacyIncludedPages(packageId: string): number | null {
+  if (packageId === "basic") return 3;
+  if (packageId === "standard") return 10;
+  return null;
+}
+
+function legacyIncludedFeatureValues(packageId: string): string[] {
+  const included: Record<string, string[]> = {
+    basic: ["responsive", "seo", "contact_form"],
+    standard: ["responsive", "seo", "blog", "contact_form", "map"],
+    premium: ["responsive", "seo", "blog", "contact_form", "map", "payment", "admin"],
+    enterprise: ["responsive", "seo", "blog", "contact_form", "map", "payment", "auth", "admin", "multilang", "analytics"],
+  };
+  return included[packageId] ?? [];
+}
+
+function legacyFeaturedPricingId(featuredId: string, index: number, packages: ServicesPackage[]): string {
+  const knownLinks: Record<string, string> = {
+    "featured-portfolio": "basic",
+    "featured-ecommerce": "premium",
+    "featured-custom": "enterprise",
+  };
+  return knownLinks[featuredId] ?? packages[index]?.id ?? "";
+}
+
 export function validateServicesConfig(input: unknown): ServicesConfig | null {
   if (!isRecord(input)) return null;
   if (typeof input.visible !== "boolean") return null;
@@ -791,14 +842,41 @@ export function validateServicesConfig(input: unknown): ServicesConfig | null {
   if (!validatePackages(input.packages)) return null;
   if (!validateSection(input.comparisonSection)) return null;
 
-  const packageIds = new Set(
-    (input.packages as ServicesPackage[]).filter((p) => p && p.id).map((p) => p.id)
-  );
+  // Hydrate Phase 32 fields so existing production JSON remains valid until the
+  // additive migration is applied. Explicit stored values always win.
+  const packages = (input.packages as Record<string, unknown>[]).map((item) => ({
+    ...item,
+    orderValue: typeof item.orderValue === "string" ? item.orderValue : String(item.id),
+    includedPages:
+      item.includedPages === undefined ? legacyIncludedPages(String(item.id)) : item.includedPages,
+    includedFeatureValues:
+      item.includedFeatureValues === undefined
+        ? legacyIncludedFeatureValues(String(item.id))
+        : item.includedFeatureValues,
+  })) as unknown as ServicesPackage[];
+
+  const packageIds = new Set(packages.map((pkg) => pkg.id));
+  const orderValues = new Set(packages.map((pkg) => pkg.orderValue));
+  if (packageIds.size !== packages.length || orderValues.size !== packages.length) return null;
   if (!validateComparisonRows(input.comparisonRows, packageIds)) return null;
 
   if (!validateSection(input.processSection)) return null;
   if (!validateProcessSteps(input.processSteps)) return null;
   if (!validateCta(input.cta)) return null;
 
-  return input as unknown as ServicesConfig;
+  const featuredPackages = (input.featuredPackages as Record<string, unknown>[]).map(
+    (item, index) => ({
+      ...item,
+      pricingPackageId:
+        typeof item.pricingPackageId === "string"
+          ? item.pricingPackageId
+          : legacyFeaturedPricingId(String(item.id), index, packages),
+    })
+  ) as unknown as ServicesFeaturedPackage[];
+
+  return {
+    ...(input as unknown as ServicesConfig),
+    packages,
+    featuredPackages,
+  };
 }

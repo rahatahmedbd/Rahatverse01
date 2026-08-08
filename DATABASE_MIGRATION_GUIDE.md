@@ -85,3 +85,24 @@ It creates the admin-only `email_deliveries` audit table used by the Resend
 webhook. Configure `RESEND_API_KEY`, `EMAIL_FROM`, `RESEND_WEBHOOK_SECRET`,
 `SUPABASE_SERVICE_ROLE_KEY`, and `CRON_SECRET` in Vercel before enabling real
 email delivery and scheduled campaigns.
+
+## Phase 32 — Live quote pricing
+
+Apply `supabase/migrations/026_live_quote_pricing.sql` after migration 025. It is
+additive and idempotent: it enriches the existing `orders_config` and
+`services_config` JSON documents without deleting rows or replacing explicit
+admin values.
+
+It adds:
+
+- BDT/USD prices for feature add-ons;
+- per-page BDT/USD pricing, quote range margin, and bilingual quote copy;
+- package-to-order value mapping plus included-page/feature allowances;
+- featured-card-to-pricing-package mapping;
+- a targeted repair for untouched legacy `৳X` seed placeholders.
+
+After applying it, verify `/en/order` and `/bn/order`, then confirm the quote
+settings are editable in `/en/dashboard/orders-settings` and package mappings in
+`/en/dashboard/services`. The runtime validators also hydrate valid legacy JSON,
+so deploying the application before this migration does not blank customized
+content.

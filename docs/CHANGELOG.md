@@ -4,6 +4,32 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [0.19.0] — Phase 32 — Live Price Estimator & Package Compare
+
+### Added
+- Pure, tested live-quote calculator combining an admin-managed package base
+  price, included-page allowance, per-page surcharge, and selected add-on prices.
+- Bilingual real-time estimate card in the order wizard with BDT/USD ranges,
+  itemized adjustments, custom-quote handling, and a commercial disclaimer.
+- Interactive package comparison controls with selectable columns, a
+  differences-only mode, responsive sticky labels, and per-package order links.
+- Admin controls for quote availability, page prices, range margin, bilingual
+  labels/disclaimers, feature prices, package/order mappings, included pages, and
+  package-included feature values (preventing duplicate add-on charges).
+- Additive, idempotent migration `026_live_quote_pricing.sql` with legacy JSON
+  hydration so existing production settings remain usable during rollout.
+- Unit/integration/browser-flow coverage for calculation, legacy config,
+  configured custom order options, wizard validation, and comparison controls.
+
+### Fixed
+- The order wizard's Next button no longer blocks the inline validation message.
+- Valid admin-created package and website options are no longer rejected by
+  hard-coded API enums; hidden and forged values remain rejected.
+- Hidden/invalid package query values are safely normalized.
+- Literal `৳X` service price placeholders now use real configured prices.
+- Pricing renders safe defaults immediately and aborts a slow config request.
+- Vitest's ESM loader warning and asynchronous theme-test warning were removed.
+
 ## [0.18.0] — Phase 15 — Global Site Settings, Security & Maintenance CMS
 
 ### Added

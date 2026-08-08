@@ -1,117 +1,134 @@
-# RahatVerse — Current Project Analysis & Roadmap Audit
+# RahatVerse — Project Analysis & Roadmap Audit
 
-**Date:** 2026-08-07 UTC
-**Branch:** `arena/019fdc3f-rahatverse01` (Arena session-tracked branch)
-**Stack:** Next.js 16 + TypeScript + Tailwind CSS 4 + Supabase + Cloudinary + Vercel
+**Audit date:** 2026-08-08 UTC
 
-## 1. Baseline health before Phase 3
+**Session branch:** `arena/019fe120-rahatverse01`
 
-The repository was inspected before code changes. The working tree was clean and
-already on the Arena session branch. The existing implementation was stable:
+**Baseline:** `3ba7fc3` (`origin/main` when the phase began)
 
-| Area | Result | Notes |
-|---|---|---|
-| Dependencies | ✅ | `npm install` completed; 585 packages, 0 vulnerabilities |
-| Lint | ✅ | ESLint completed without errors |
-| Type-check | ✅ | `tsc --noEmit` completed without errors |
-| Tests | ✅ | 107 tests passed across 19 files before Phase 3 |
-| Build | ✅ | Next.js production build completed |
-| Auth boundary | ✅ | Dashboard layout redirects unauthenticated visitors |
-| Database | ✅ | Supabase RLS and admin settings policies already present |
-| Media | ✅ | Authenticated Cloudinary upload API and image catalog already present |
+**Stack:** Next.js 16.3, React 19, TypeScript 5, Tailwind CSS 4, Supabase,
+Cloudinary, Vercel, Vitest, and Playwright
 
-## 2. Bug-prevention scan
+## 1. Git and roadmap finding
 
-### Findings
+The worktree was clean and the session was not on `main`. Arena pins this
+session to `arena/019fe120-rahatverse01`, so a separate phase-named branch cannot
+be created without breaking session tracking.
 
-- **Broken code:** No baseline build, lint, type, or test failures.
-- **Duplicate code:** About, education, and achievement arrays were duplicated as
-  hardcoded values across public components. This was the main Phase 3
-  maintainability problem.
-- **Dead/unused code:** No critical unused runtime path was found. Existing phase
-  completion documents are historical records, not runtime files.
-- **Dependency conflicts:** None found in the approved Next.js/TypeScript/
-  Tailwind/Supabase/Cloudinary stack.
-- **Build risk:** Supabase environment variables are absent in the sandbox, so
-  builds log the expected mock-client warning. The application already handled
-  this safely; Phase 3 preserves that fallback.
-- **Performance risk:** Fetching About data in each server-rendered page is a
-  single bounded Supabase query and avoids multiple client-side requests for the
-  About and Education sections. The client hero still fetches its independent
-  Phase 2 configuration.
-- **Security risk:** Public CMS data is validated before render; admin writes
-  continue through the authenticated `getCurrentUserContext()` guard and RLS.
-  URLs reject JavaScript/data schemes.
+All 15 phases in the supplied **100% Admin Control** roadmap were already merged
+before this audit. Evidence includes:
 
-## 3. Roadmap completion analysis
+- merged PRs #46–#49;
+- migrations `011_hero_admin_control.sql` through
+  `024_global_admin_control.sql`;
+- corresponding public config APIs, authenticated dashboard editors, runtime
+  consumers, tests, changelog entries, and `PHASE_01`–`PHASE_15` reports.
 
-The user’s expanded roadmap is separate from the older 01–31 feature history.
-The repository already contained Phase 1 and Phase 2 completion records, so the
-next unfinished phrase was Phase 3. No later roadmap phase was combined with it.
+The repository's continuation plan in `docs/ENHANCEMENT_PHASES.md` records Phase
+31 as complete and identifies **Phase 32 — “লাইভ কোট” Live Price Estimator &
+Package Compare** as the first uncompleted phase. No Phase 33+ work is included.
 
-| Phase | Scope | Status after this turn |
-|---:|---|---|
-| 1 | Core database schema and master admin access | ✅ Previously complete; the existing three-role/RLS implementation remains the foundation |
-| 2 | Hero section and visual identity control | ✅ Previously complete; `hero_config` and Hero Control Panel remain intact |
-| 3 | About, education, achievements CMS | ✅ Implemented in this turn |
-| 4 | Services, website types, pricing packages | ✅ Implemented (Phase 4) |
-| 5 | Orders, Kanban, payment tracking | ✅ Implemented (Phase 5) |
-| 6 | Experience, blood society, memorial | ✅ Implemented (Phase 6) |
-| 7 | Media library, albums, video showcase | ✅ Implemented (Phase 7) |
-| 8 | Bilingual blog and comment moderation | ✅ Implemented (Phase 8) |
-| 9 | Inquiries, booking calendar, testimonials | ✅ Implemented (Phase 9) |
-| 10 | Link hub, tools, CV manager | ✅ Implemented (Phase 10) |
-| 11 | Newsletter and email delivery | ✅ Implemented (Phase 11) |
-| 12 | Themes, XP, audio controls | ✅ Implemented (Phase 12) |
-| 13 | Search, FAQ, legal policies | ✅ Implemented (Phase 13) |
-| 14 | Analytics and performance telemetry | ✅ Implemented (Phase 14) |
-| 15 | Global settings, auditing, backups | ✅ Implemented (Phase 15) |
-| 8 | Bilingual blog and comment moderation | ⏳ Existing feature is largely complete; expanded 100% control audit remains |
-| 9 | Inquiries, booking calendar, testimonials | ⏳ Partially available; full calendar/testimonial CMS not started |
-| 10 | Link hub, tools, CV manager | ⏳ Not started |
-| 11 | Newsletter and email delivery | ⏳ Existing feature is largely complete |
-| 12 | Themes, XP, audio controls | ⏳ Partially available; admin customizer not started |
-| 13 | Search, FAQ, legal policies | ⏳ Partially available; admin editors not started |
-| 14 | Analytics and performance telemetry | ⏳ Existing dashboard is largely complete; conversion/vitals expansion remains |
-| 15 | Global settings, auditing, backups | ⏳ Partially available; maintenance/restore expansion remains |
+## 2. Baseline health before modification
 
-## 4. Phase 3 implementation audit
+| Gate | Result |
+|---|---|
+| `npm install` | Passed — 585 packages, 0 vulnerabilities |
+| `npm run lint` | Passed |
+| `npm run type-check` | Passed |
+| `npm test` | Passed — 227 tests in 33 files |
+| `npm run build` | Passed |
+| Dependency/package conflicts | None found |
+| TODO/FIXME/HACK scan | No runtime markers found |
+| Skipped/exclusive tests | None found |
 
-### Persistence and API
+The local environment has no Supabase credentials, and the project correctly
+uses its documented mock/fallback path during build and local rendering.
 
-- New validated JSON contract: `src/types/about.ts`.
-- Defaults, validation, and server-safe fallback: `src/lib/about/config.ts` and
-  `src/lib/about/server.ts`.
-- Public endpoint: `src/app/api/about-config/route.ts`.
-- Migration: `supabase/migrations/012_about_admin_control.sql`.
-- Existing generic settings API size cap was increased from 20 KB to 100 KB so a
-  fully edited bilingual CMS payload remains saveable while still bounded.
+## 3. Relevant defects found
 
-### Public rendering
+1. **Inline validation was unreachable.** The wizard's Next button was disabled
+   while required fields were empty, so clicking it could not reveal the error
+   messages delivered in Phase 31.
+2. **Admin options could not be submitted.** `POST /api/orders` used hard-coded
+   package and website-type enums even though the admin dashboard can add those
+   options dynamically.
+3. **Package query values were not normalized.** A hidden, stale, or forged
+   `?package=` value could remain in client state.
+4. **Pricing was disconnected.** Package prices existed in `services_config`,
+   but the order wizard had no page/add-on pricing contract or estimator.
+5. **Literal placeholders were public.** Featured/default service cards still
+   displayed `৳X` instead of configured values.
+6. **The comparison matrix was static.** Users could not select packages or
+   isolate differences.
+7. **Pricing could remain blocked.** The pricing component hid all defaults
+   behind a network request with no abort timeout.
+8. **Test output contained warnings.** Vitest's config extension caused an ESM
+   loader warning, and a theme test allowed an asynchronous hook update to leak
+   outside the test lifecycle.
+9. **Documentation claimed premature order tracking.** The user guide referred
+   to a public tracking page that belongs to future Phase 34 and does not exist.
 
-- Home About preview, About page, education timeline, and achievements page now
-  receive one server-loaded config per page.
-- `ScrollStoryline` supports location and GPA badges without breaking existing
-  consumers.
-- `ProfileImage` supports Cloudinary/URL sources and allow-listed frame presets.
-- Achievement cards expose completion dates, criteria, optional sound feedback,
-  sparkle state, and certificate links.
+## 4. Phase 32 implementation
 
-### Admin rendering
+### Quote engine and user experience
 
-- `/[locale]/dashboard/about` is guarded by the existing dashboard layout.
-- The panel supports bilingual text editing, CRUD, reorder controls, safe media
-  uploads, certificate previews, and audited save operations.
+- Added a pure `calculateLiveQuote` module with package, included-page, extra-page,
+  and selected-add-on breakdowns in BDT and USD.
+- Added a bilingual, accessible live estimate card with range margin, custom
+  quote handling, and a clear non-binding disclaimer.
+- Package and feature chips now expose their applicable prices.
+- The estimate remains visible through the wizard and review step.
+- Invalid query package values fall back to a visible configured option.
 
-## 5. Production readiness gate
+### Interactive package comparison
 
-Phase 7 is stable in the repository and has passed the mandatory local checks
-(lint, type-check, 155 tests, production build). Production still requires the
-normal operational steps: apply migration 016 (the owner will supply/confirm the
-final SQL), configure the existing Supabase/Cloudinary environment variables,
-merge the PR, wait for Vercel, and verify the live public and authenticated
-admin routes.
+- Added package-column selectors with an enforced two-column minimum.
+- Added a differences-only mode, responsive horizontal scrolling, sticky feature
+  labels, and direct order actions for each compared tier.
+- Pricing now renders safe defaults immediately and aborts a slow config fetch
+  after eight seconds.
 
-The next unfinished phrase is **Phase 8: Bilingual Blog CMS & Community Comment
-Moderation**. It must not be started until Phase 7’s production gate is
-confirmed.
+### Admin control and compatibility
+
+- Order settings now control quote enablement, BDT/USD page prices, range margin,
+  bilingual quote copy, and BDT/USD add-on prices.
+- Service settings now control the order value, included-page allowance,
+  package-included feature values (so included items are not charged twice), and
+  the pricing tier linked to a featured package.
+- Existing valid Phase 4/5 JSON is hydrated at runtime when the new fields are
+  absent; explicit stored values win.
+- Migration `026_live_quote_pricing.sql` applies the same additions
+  idempotently and preserves existing admin values.
+
+### Security and API consistency
+
+- Order submissions validate package and website type against currently visible
+  `orders_config` options rather than trusting input or using hard-coded enums.
+- Valid administrator-created options are accepted; unknown and hidden values
+  are rejected.
+- The displayed estimate remains advisory and cannot set payment state or a
+  trusted server-side invoice amount.
+
+## 5. Validation status
+
+After implementation:
+
+- lint and strict type-check pass;
+- 241 unit/integration tests pass across 35 files with no warnings;
+- English/Bangla order and services pages and both config APIs return HTTP 200 in
+  the local runtime;
+- Phase 32 Playwright flows compile and are listed for desktop and mobile.
+
+The sandbox did not contain Playwright's Chromium binary. An installation was
+attempted, but the external CDN reset the TLS connection on every mirror. This
+is an environment/download limitation, not an application assertion failure;
+the browser suite should run in CI or a connected environment with
+`npx playwright install chromium`.
+
+## 6. Release boundary
+
+The implementation will be committed, pushed, and proposed to `main` in a Pull
+Request. Per the owner's instruction, it must **not be merged** until explicit
+permission is given. Consequently, Vercel production deployment and live-site
+verification remain intentionally pending. Phase 33 must not begin before that
+production gate is approved and verified.

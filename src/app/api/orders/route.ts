@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserContext } from "@/lib/supabase/guards";
 import {
-  enumValue,
   optionalText,
   positiveInteger,
   requiredText,
@@ -12,20 +11,7 @@ import {
 import { NextResponse } from "next/server";
 import { orderConfirmationEmail } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/service";
-
-const packageTypes = ["basic", "standard", "premium", "enterprise"] as const;
-const websiteTypes = [
-  "portfolio",
-  "business",
-  "ecommerce",
-  "education",
-  "blood_org",
-  "ngo",
-  "news_portal",
-  "landing_page",
-  "event",
-  "custom",
-] as const;
+import { getOrdersConfig } from "@/lib/orders/server";
 
 // POST — Create a new website order.
 export async function POST(request: Request) {
@@ -41,8 +27,8 @@ export async function POST(request: Request) {
     const client_phone = validPhone(input.client_phone);
     const client_whatsapp = optionalText(input.client_whatsapp, 25);
     const client_company = optionalText(input.client_company, 150);
-    const package_type = enumValue(input.package_type, packageTypes);
-    const website_type = enumValue(input.website_type, websiteTypes);
+    const package_type = requiredText(input.package_type, 80);
+    const website_type = requiredText(input.website_type, 80);
     const design_style = optionalText(input.design_style, 100);
     const description = optionalText(input.description, 5_000);
     const num_pages = positiveInteger(input.num_pages, 1, 100);
@@ -64,6 +50,19 @@ export async function POST(request: Request) {
       (input.client_whatsapp && !validPhone(input.client_whatsapp))
     ) {
       return NextResponse.json({ error: "Invalid or missing fields" }, { status: 400 });
+    }
+
+    // Validate against the same admin-managed options shown by the wizard.
+    // Hard-coded enums previously caused legitimate custom options to fail.
+    const orderConfig = await getOrdersConfig();
+    const packageAllowed = orderConfig.packages.some(
+      (option) => option.visible && option.value === package_type
+    );
+    const websiteTypeAllowed = orderConfig.websiteTypes.some(
+      (option) => option.visible && option.value === website_type
+    );
+    if (!packageAllowed || !websiteTypeAllowed) {
+      return NextResponse.json({ error: "Unsupported order options" }, { status: 400 });
     }
 
     const supabase = await createClient();

@@ -73,7 +73,7 @@ export function GallerySection({ locale = "bn" }: GallerySectionProps) {
                     {album.featuredPublicId ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "demo"}/image/upload/q_auto/${album.featuredPublicId}`}
+                        src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "kbc3dfnj"}/image/upload/q_auto/${album.featuredPublicId}`}
                         alt={isBn ? album.nameBn : album.nameEn}
                         className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                       />

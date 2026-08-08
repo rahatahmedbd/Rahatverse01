@@ -6,7 +6,7 @@ export const SITE_URL = (configuredSiteUrl || "https://rahatverse01.vercel.app")
 export const SITE_NAME = "RahatVerse";
 export const DEFAULT_LOCALE = "bn";
 export const SITE_IMAGE =
-  "https://res.cloudinary.com/kbc3dfnj/image/upload/c_fill,g_face,h_630,w_1200/f_auto/q_auto/rahatverse/profile";
+  "https://res.cloudinary.com/kbc3dfnj/image/upload/c_fill,g_face,h_630,w_1200/f_auto/q_auto/v1786125213/rahatverse/profile/1786125213546.jpg";
 
 function normalisePath(path = "") {
   if (!path || path === "/") return "";

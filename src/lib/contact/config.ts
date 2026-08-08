@@ -20,13 +20,13 @@ const DEFAULT_SECTION: ContactSectionContent = {
 const DEFAULT_QUICK_LINKS: ContactQuickLinks = {
   whatsappBn: "হোয়াটসঅ্যাপ",
   whatsappEn: "WhatsApp",
-  whatsappUrl: "https://wa.me/8801XXXXXXXXX",
+  whatsappUrl: "https://wa.me/8801626224878",
   emailBn: "ইমেইল",
   emailEn: "Email",
-  emailAddress: "hello@rahatverse.dev",
+  emailAddress: "rahatbd20505@gmail.com",
   phoneBn: "ফোন",
   phoneEn: "Phone",
-  phoneNumber: "+880 1XXX-XXXXXX",
+  phoneNumber: "+880 1626-224878",
   responseTimeBn: "সাধারণত ২৪ ঘণ্টার মধ্যে উত্তর দিই",
   responseTimeEn: "I usually reply within 24 hours",
 };

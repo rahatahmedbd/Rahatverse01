@@ -75,14 +75,16 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/images/rahat-2d-favicon-from-profile.png", type: "image/png", sizes: "512x512" },
       { url: "/icons/icon-192.svg", type: "image/svg+xml", sizes: "192x192" },
       { url: "/icons/icon-512.svg", type: "image/svg+xml", sizes: "512x512" },
     ],
     apple: [
+      { url: "/images/rahat-2d-favicon-from-profile.png", type: "image/png", sizes: "512x512" },
       { url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
       { url: "/icons/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
     ],
-    shortcut: "/icons/icon-192.svg",
+    shortcut: "/images/rahat-2d-favicon-from-profile.png",
   },
   verification: googleVerification ? { google: googleVerification } : undefined,
   category: "technology",

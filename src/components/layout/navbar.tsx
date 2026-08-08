@@ -4,18 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "./theme-toggle";
-import { LanguageToggle } from "./language-toggle";
-import { SearchDialog } from "@/components/interactive/SearchDialog";
-import { AccentCustomizer } from "@/components/interactive/AccentCustomizer";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { NavUtilityMenu } from "./nav-utility-menu";
 import { NAVIGATION_ITEMS } from "@/lib/constants";
 
 // ── Glass Navigation Bar — premium, responsive 320→1536+ ─
 export function Navbar() {
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = useTranslations("nav");
 
   const locale = pathname.startsWith("/en") ? "en" : "bn";
@@ -86,52 +80,11 @@ export function Navbar() {
             })}
           </div>
 
-          {/* Right Actions — always accessible */}
+          {/* Right Actions — a single consolidated utility menu */}
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <SearchDialog locale={locale} />
-            <LanguageToggle />
-            <AccentCustomizer locale={locale} />
-            <ThemeToggle />
-
-            {/* Mobile Menu Button — 44px touch target */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-card/80 backdrop-blur transition-colors hover:bg-accent lg:hidden"
-              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={mobileMenuOpen}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+            <NavUtilityMenu locale={locale} />
           </div>
         </nav>
-
-        {/* Mobile Menu — glass, no giant empty, fits 320 */}
-        {mobileMenuOpen && (
-          <div className="pointer-events-auto glass mx-0 mt-2 rounded-xl p-3 shadow-xl lg:hidden animate-fade-in-down sm:mx-0 sm:p-4">
-            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
-              {NAVIGATION_ITEMS.map((item) => {
-                const normalizedPathname = pathname.replace(/\/+$/, "");
-                const href = `${basePath}${item.path}`.replace(/\/+$/, "");
-                const isActive = normalizedPathname === href;
-                return (
-                  <Link
-                    key={item.key}
-                    href={href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium transition-all text-center sm:text-left truncate",
-                      isActive
-                        ? "bg-primary/15 text-primary border border-primary/25 font-semibold"
-                        : "text-muted-foreground hover:bg-white/[0.06] hover:text-foreground"
-                    )}
-                  >
-                    {navLabels[item.key] || item.key}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </header>
   );

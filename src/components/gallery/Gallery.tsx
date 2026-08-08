@@ -31,6 +31,53 @@ interface GalleryProps {
   locale?: string;
 }
 
+function normalizeImageUrl(url?: string | null): string {
+  if (!url) return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-2025";
+  if (url.includes("rahatahmedbd.github.io/assets/images/profile.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/v1786125213/rahatverse/profile/1786125213546.jpg";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/logo.png")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/shantichakra-logo";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/baba-farid-ahmed.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/father-photo";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/ssc-gpa5-2025.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-2025";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/ssc-songbordhona-2025.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-songbordhona";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/ssc-crest-shantichakra.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-crest-shantichakra";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/shantichakra-blood-society.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/shantichakra-blood-society";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/46-science-fair-2025.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/46-science-fair-2025";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/45-science-fair-2023.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/45-science-fair-2023";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/44-science-fair-2024.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/44-science-fair-2024";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/42-science-fair-2020.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/42-science-fair-2020";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/srijonshil-medha-2024.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/srijonshil-medha-2024";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/fs-coaching-center.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/fs-coaching-center";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/helping-hand-org.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/helping-hand-org";
+  }
+  return url;
+}
+
 export default function Gallery({ locale = "bn" }: GalleryProps) {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -215,7 +262,7 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
               onClick={() => setSelectedImage(image)}
             >
               <Image
-                src={image.url}
+                src={normalizeImageUrl(image.url)}
                 alt={isBn ? image.title_bn || image.title || "" : image.title || image.title_bn || ""}
                 fill
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"

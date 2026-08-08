@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useAiChatStore } from "@/components/ai/ai-chat-store";
 import { Home, ShoppingCart, MessageCircle, FolderOpen, Sparkles } from "lucide-react";
 
 // ── Bottom Navigation Items ────────────────────────────
@@ -12,7 +13,7 @@ import { Home, ShoppingCart, MessageCircle, FolderOpen, Sparkles } from "lucide-
 const bottomNavItems = [
   { key: "home", path: "/", icon: Home, labelKey: "home" as const },
   { key: "portfolio", path: "/portfolio", icon: FolderOpen, labelKey: "portfolio" as const },
-  // AI button — non-functional placeholder (you will implement in another session)
+  // AI button — opens the Rahat AI chat assistant (see components/ai/AIChatWidget)
   // Slightly elevated professional look with distinct subtle gold accent
   { key: "ai", path: "#", icon: Sparkles, labelKey: "ai" as const },
   { key: "order", path: "/order", icon: ShoppingCart, labelKey: "order" as const },
@@ -28,6 +29,7 @@ export function BottomNavBar() {
   const isBn = pathname.startsWith("/bn");
   const locale = isBn ? "bn" : "en";
   const basePath = `/${locale}`;
+  const openAiChat = useAiChatStore((state) => state.open);
 
   return (
     <nav
@@ -73,26 +75,20 @@ export function BottomNavBar() {
               }
             }
 
-            return (
-              <Link
-                key={item.key}
-                href={isAI ? "#" : href}
-                aria-current={isActive ? "page" : undefined}
-                aria-label={label}
-                aria-disabled={isAI}
-                className={cn(
-                  "group relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-2 text-center",
-                  "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-                  "active:scale-[0.98]",
-                  isAI
-                    ? "cursor-default text-amber-300/90 hover:text-amber-300 opacity-85 hover:opacity-100"
-                    : isActive
-                    ? "text-emerald-400"
-                    : "text-white/55 hover:text-white/85"
-                )}
-                onClick={isAI ? (e) => e.preventDefault() : undefined}
-              >
+            const itemClasses = cn(
+              "group relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-2 text-center",
+              "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+              "active:scale-[0.98]",
+              isAI
+                ? "cursor-pointer text-amber-300/90 hover:text-amber-300 opacity-90 hover:opacity-100"
+                : isActive
+                ? "text-emerald-400"
+                : "text-white/55 hover:text-white/85"
+            );
+
+            const itemContent = (
+              <>
                 {/* Active pill — glass + soft emerald/cyan glow */}
                 {isActive && (
                   <motion.span
@@ -107,7 +103,7 @@ export function BottomNavBar() {
                 <span
                   className={cn(
                     "relative flex h-7 w-10 items-center justify-center rounded-full transition-colors duration-300",
-                    isActive ? "text-emerald-400" : "text-white/60 group-hover:text-white/90"
+                    isActive ? "text-emerald-400" : isAI ? "text-amber-300/90 group-hover:text-amber-200" : "text-white/60 group-hover:text-white/90"
                   )}
                 >
                   {/* Active dot — Samsung One UI inspired */}
@@ -119,10 +115,20 @@ export function BottomNavBar() {
                       aria-hidden="true"
                     />
                   )}
+                  {/* AI pulse ring — subtle hint that the button is interactive */}
+                  {isAI && (
+                    <motion.span
+                      className="absolute inset-0 rounded-full border border-amber-300/40"
+                      animate={{ scale: [1, 1.35], opacity: [0.6, 0] }}
+                      transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+                      aria-hidden="true"
+                    />
+                  )}
                   <Icon
                     className={cn(
                       "h-[22px] w-[22px] shrink-0 stroke-[1.85] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                      isActive && "-translate-y-px scale-110"
+                      isActive && "-translate-y-px scale-110",
+                      isAI && "group-hover:scale-110"
                     )}
                     aria-hidden="true"
                   />
@@ -132,11 +138,38 @@ export function BottomNavBar() {
                 <span
                   className={cn(
                     "relative line-clamp-1 max-w-full text-[10px] font-medium leading-none tracking-[-0.01em] transition-colors duration-300",
-                    isActive ? "font-semibold text-emerald-300" : "font-medium text-white/55 group-hover:text-white/80"
+                    isActive ? "font-semibold text-emerald-300" : isAI ? "font-medium text-amber-300/80 group-hover:text-amber-200" : "font-medium text-white/55 group-hover:text-white/80"
                   )}
                 >
                   {label}
                 </span>
+              </>
+            );
+
+            // AI opens the chat assistant instead of navigating.
+            if (isAI) {
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  aria-label={label}
+                  className={itemClasses}
+                  onClick={openAiChat}
+                >
+                  {itemContent}
+                </button>
+              );
+            }
+
+            return (
+              <Link
+                key={item.key}
+                href={href}
+                aria-current={isActive ? "page" : undefined}
+                aria-label={label}
+                className={itemClasses}
+              >
+                {itemContent}
               </Link>
             );
           })}

@@ -45,6 +45,8 @@ Add micro-interactions (hover glow, active press) and `prefers-reduced-motion` a
 feedback.
 
 ### Phase 32 — "লাইভ কোট" Live Price Estimator & Package Compare
+**Status: ✅ Implementation complete — PR/production merge awaits owner approval.**
+
 Add a live price estimate to the order wizard (package base price + feature/page
 add-ons) and an interactive package comparison view on the pricing section.
 Show an estimated range before submission.

@@ -26,10 +26,13 @@ of Rahat Ahmed.
 
 ## Ordering a website
 
-1. Go to **Order**.
-2. Follow the multi-step wizard (choose a package/plan, add details).
-3. Submit; you can track your order status on the **Order tracking** page.
-4. You may be contacted via WhatsApp or email for confirmation.
+1. Go to **Order** and compare the available packages. Use the package filters
+   and **Differences only** control to focus the comparison table.
+2. Follow the multi-step wizard. The **Live estimated quote** updates as you
+   change the package, page count, and feature add-ons.
+3. Treat the displayed BDT/USD range as an initial estimate; the final commercial
+   quote is confirmed after the requirements review.
+4. Submit the order. You may be contacted via WhatsApp or email for confirmation.
 
 ## Newsletter
 

@@ -5,6 +5,11 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { AccentCustomizer } from "@/components/interactive/AccentCustomizer";
 import { useAppStore, applyAccentToDOM, ACCENT_THEMES } from "@/store";
 
+vi.mock("@/hooks/useThemeConfig", () => ({
+  useThemeConfig: () => ({ presets: [] }),
+  applyPresetToDOM: vi.fn(),
+}));
+
 describe("Phase H — Theme Polish & Customization System", () => {
   beforeEach(() => {
     // Reset document element classes and store state

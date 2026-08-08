@@ -82,7 +82,11 @@ export default function ServicesPage() {
                 {isBn ? "ওয়েবসাইট প্যাকেজ" : "Website Packages"}
               </h2>
               <StaggerContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {featuredPackages.slice(0, 3).map((pkg) => (
+                {featuredPackages.slice(0, 3).map((pkg) => {
+                  const pricingPackage = config.packages.find(
+                    (candidate) => candidate.id === pkg.pricingPackageId && candidate.visible
+                  );
+                  return (
                   <StaggerItem key={pkg.id}>
                     <Card className="h-full hover:shadow-lg transition-shadow">
                       <CardHeader>
@@ -111,10 +115,14 @@ export default function ServicesPage() {
                           </ul>
                           <div className="pt-4 border-t flex items-center justify-between gap-3">
                             <div className="text-2xl font-bold text-primary">
-                              {isBn ? "শুরু ৳X থেকে" : "Starting from ৳X"}
+                              {pricingPackage?.priceBdt
+                                ? `${isBn ? "শুরু" : "From"} ৳${pricingPackage.priceBdt.toLocaleString(locale === "bn" ? "bn-BD" : "en-US")}`
+                                : isBn
+                                  ? "কাস্টম কোট"
+                                  : "Custom quote"}
                             </div>
                             <Button asChild>
-                              <Link href={`/${locale}/order#order-checkout`}>
+                              <Link href={`/${locale}/order${pricingPackage ? `?package=${encodeURIComponent(pricingPackage.orderValue)}` : ""}#order-checkout`}>
                                 {isBn ? "অর্ডার করুন" : "Order Now"}
                                 <ArrowRight className="ml-2 h-4 w-4" />
                               </Link>
@@ -124,7 +132,8 @@ export default function ServicesPage() {
                       </CardContent>
                     </Card>
                   </StaggerItem>
-                ))}
+                  );
+                })}
               </StaggerContainer>
             </div>
           </FadeInUp>

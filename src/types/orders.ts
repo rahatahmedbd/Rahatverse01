@@ -28,6 +28,20 @@ export interface OrdersFeatureAddon {
   labelBn: string;
   labelEn: string;
   visible: boolean;
+  priceBdt: number;
+  priceUsd: number;
+}
+
+export interface OrdersQuoteConfig {
+  enabled: boolean;
+  pagePriceBdt: number;
+  pagePriceUsd: number;
+  /** Added above the calculated minimum to communicate an estimated range. */
+  rangePercent: number;
+  titleBn: string;
+  titleEn: string;
+  disclaimerBn: string;
+  disclaimerEn: string;
 }
 
 export interface OrdersDesignStyle {
@@ -84,6 +98,7 @@ export interface OrdersConfig {
   featureAddons: OrdersFeatureAddon[];
   designStyles: OrdersDesignStyle[];
   pageIncrements: number[];
+  quote: OrdersQuoteConfig;
   budgetRanges: OrdersBudgetRange[];
   timelineOptions: OrdersOption[];
   cta: OrdersCta;

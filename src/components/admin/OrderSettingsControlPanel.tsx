@@ -178,6 +178,8 @@ export function OrderSettingsControlPanel({ locale = "bn" }: OrderSettingsContro
         labelBn: "নতুন ফিচার",
         labelEn: "New feature",
         visible: true,
+        priceBdt: 0,
+        priceUsd: 0,
       };
       return { ...previous, featureAddons: [...previous.featureAddons, entry] };
     });
@@ -398,10 +400,16 @@ export function OrderSettingsControlPanel({ locale = "bn" }: OrderSettingsContro
                     <Trash2 className="h-4 w-4 text-red-400" />
                   </Button>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid gap-2 sm:grid-cols-3">
                   <Input value={addon.value} onChange={(e) => patchList("featureAddons", index, { value: e.target.value })} placeholder="value" className="text-xs" />
                   <Input value={addon.labelBn} onChange={(e) => patchList("featureAddons", index, { labelBn: e.target.value })} placeholder="বাংলা" className="text-xs" />
                   <Input value={addon.labelEn} onChange={(e) => patchList("featureAddons", index, { labelEn: e.target.value })} placeholder="English" className="text-xs" />
+                  <Field label={isBn ? "অ্যাড-অন মূল্য (৳)" : "Add-on price (BDT)"}>
+                    <Input type="number" min={0} value={addon.priceBdt} onChange={(e) => patchList("featureAddons", index, { priceBdt: Math.max(0, Number(e.target.value) || 0) })} className="text-xs" />
+                  </Field>
+                  <Field label={isBn ? "অ্যাড-অন মূল্য ($)" : "Add-on price (USD)"}>
+                    <Input type="number" min={0} value={addon.priceUsd} onChange={(e) => patchList("featureAddons", index, { priceUsd: Math.max(0, Number(e.target.value) || 0) })} className="text-xs" />
+                  </Field>
                 </div>
               </div>
             </div>
@@ -469,6 +477,69 @@ export function OrderSettingsControlPanel({ locale = "bn" }: OrderSettingsContro
               </Button>
             </div>
           ))}
+        </div>
+      </GlassCard>
+
+      {/* Live quote pricing */}
+      <GlassCard className="space-y-5 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-semibold">{isBn ? "লাইভ কোট সেটিংস" : "Live quote settings"}</h3>
+            <p className="mt-1 text-xs text-muted-foreground bn">
+              {isBn
+                ? "প্যাকেজের বেস মূল্যের সাথে অতিরিক্ত পেজ ও ফিচারের মূল্য যোগ হবে"
+                : "Extra pages and feature prices are added to the package base price"}
+            </p>
+          </div>
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={config.quote.enabled}
+              onChange={(e) => updateConfig((previous) => ({ ...previous, quote: { ...previous.quote, enabled: e.target.checked } }))}
+            />
+            {isBn ? "লাইভ কোট চালু" : "Enable live quote"}
+          </label>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Field label={isBn ? "প্রতি অতিরিক্ত পেজ (৳)" : "Per extra page (BDT)"}>
+            <Input
+              type="number"
+              min={0}
+              value={config.quote.pagePriceBdt}
+              onChange={(e) => updateConfig((previous) => ({ ...previous, quote: { ...previous.quote, pagePriceBdt: Math.max(0, Number(e.target.value) || 0) } }))}
+            />
+          </Field>
+          <Field label={isBn ? "প্রতি অতিরিক্ত পেজ ($)" : "Per extra page (USD)"}>
+            <Input
+              type="number"
+              min={0}
+              value={config.quote.pagePriceUsd}
+              onChange={(e) => updateConfig((previous) => ({ ...previous, quote: { ...previous.quote, pagePriceUsd: Math.max(0, Number(e.target.value) || 0) } }))}
+            />
+          </Field>
+          <Field label={isBn ? "রেঞ্জ মার্জিন (%)" : "Range margin (%)"}>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              value={config.quote.rangePercent}
+              onChange={(e) => updateConfig((previous) => ({ ...previous, quote: { ...previous.quote, rangePercent: Math.min(100, Math.max(0, Number(e.target.value) || 0)) } }))}
+            />
+          </Field>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label={isBn ? "কোট শিরোনাম (বাংলা)" : "Quote title (Bangla)"}>
+            <Input value={config.quote.titleBn} onChange={(e) => updateConfig((previous) => ({ ...previous, quote: { ...previous.quote, titleBn: e.target.value } }))} />
+          </Field>
+          <Field label={isBn ? "কোট শিরোনাম (ইংরেজি)" : "Quote title (English)"}>
+            <Input value={config.quote.titleEn} onChange={(e) => updateConfig((previous) => ({ ...previous, quote: { ...previous.quote, titleEn: e.target.value } }))} />
+          </Field>
+          <Field label={isBn ? "দাবিত্যাগ (বাংলা)" : "Disclaimer (Bangla)"}>
+            <Textarea rows={2} value={config.quote.disclaimerBn} onChange={(e) => updateConfig((previous) => ({ ...previous, quote: { ...previous.quote, disclaimerBn: e.target.value } }))} />
+          </Field>
+          <Field label={isBn ? "দাবিত্যাগ (ইংরেজি)" : "Disclaimer (English)"}>
+            <Textarea rows={2} value={config.quote.disclaimerEn} onChange={(e) => updateConfig((previous) => ({ ...previous, quote: { ...previous.quote, disclaimerEn: e.target.value } }))} />
+          </Field>
         </div>
       </GlassCard>
 

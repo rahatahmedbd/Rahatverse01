@@ -237,17 +237,22 @@ function createFeaturedPackage(): ServicesFeaturedPackage {
     badgeVariant: "glow",
     featuresBn: ["ফিচার ১"],
     featuresEn: ["Feature 1"],
+    pricingPackageId: "",
   };
 }
 
 function createPackage(): ServicesPackage {
+  const id = newId("pkg");
   return {
-    id: newId("pkg"),
+    id,
     visible: true,
+    orderValue: id,
     nameBn: "নতুন প্যাকেজ",
     nameEn: "New package",
     priceBdt: 5000,
     priceUsd: 60,
+    includedPages: 3,
+    includedFeatureValues: [],
     descriptionBn: "বিবরণ",
     descriptionEn: "Description",
     featuresBn: ["ফিচার ১"],
@@ -599,6 +604,20 @@ export function ServicesControlPanel({ locale = "bn" }: ServicesControlPanelProp
               <div className="grid gap-3 sm:grid-cols-2">
                 <SelectField label="Icon" value={pkg.icon} options={SERVICES_ICON_OPTIONS} onChange={(value) => patchFeatured(index, { icon: value as ServicesIconName })} />
                 <SelectField label={isBn ? "ব্যাজ স্টাইল" : "Badge variant"} value={pkg.badgeVariant} options={badgeVariantOptions} onChange={(value) => patchFeatured(index, { badgeVariant: value as ServiceBadgeVariant })} />
+                <Field label={isBn ? "সংযুক্ত প্রাইসিং প্যাকেজ" : "Linked pricing package"} className="sm:col-span-2">
+                  <select
+                    value={pkg.pricingPackageId}
+                    onChange={(event) => patchFeatured(index, { pricingPackageId: event.target.value })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="">{isBn ? "কোনো প্যাকেজ নয়" : "No linked package"}</option>
+                    {config.packages.map((pricingPackage) => (
+                      <option key={pricingPackage.id} value={pricingPackage.id}>
+                        {isBn ? pricingPackage.nameBn : pricingPackage.nameEn} ({pricingPackage.id})
+                      </option>
+                    ))}
+                  </select>
+                </Field>
                 <Field label={isBn ? "শিরোনাম (বাংলা)" : "Title (Bangla)"}>
                   <Input value={pkg.titleBn} onChange={(event) => patchFeatured(index, { titleBn: event.target.value })} />
                 </Field>
@@ -663,6 +682,42 @@ export function ServicesControlPanel({ locale = "bn" }: ServicesControlPanelProp
                 </Field>
                 <Field label={isBn ? "নাম (ইংরেজি)" : "Name (English)"}>
                   <Input value={pkg.nameEn} onChange={(event) => patchPackage(index, { nameEn: event.target.value })} />
+                </Field>
+                <Field label={isBn ? "অর্ডার ভ্যালু (উইজার্ডের সাথে মিলতে হবে)" : "Order value (must match the wizard option)"}>
+                  <Input value={pkg.orderValue} onChange={(event) => patchPackage(index, { orderValue: event.target.value })} />
+                </Field>
+                <Field label={isBn ? "বেস মূল্যে অন্তর্ভুক্ত পেজ" : "Pages included in base price"}>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <input
+                        type="checkbox"
+                        checked={pkg.includedPages === null}
+                        onChange={(event) => patchPackage(index, { includedPages: event.target.checked ? null : 1 })}
+                      />
+                      {isBn ? "পেজ সারচার্জ নেই" : "No per-page surcharge"}
+                    </label>
+                    {pkg.includedPages !== null && (
+                      <Input
+                        type="number"
+                        min={0}
+                        max={10000}
+                        value={pkg.includedPages}
+                        onChange={(event) => patchPackage(index, { includedPages: Math.max(0, Number(event.target.value) || 0) })}
+                      />
+                    )}
+                  </div>
+                </Field>
+                <Field label={isBn ? "অন্তর্ভুক্ত ফিচার ভ্যালু (কমা দিয়ে)" : "Included feature values (comma-separated)"} className="sm:col-span-2">
+                  <Input
+                    value={pkg.includedFeatureValues.join(", ")}
+                    onChange={(event) => patchPackage(index, {
+                      includedFeatureValues: event.target.value
+                        .split(",")
+                        .map((value) => value.trim())
+                        .filter(Boolean),
+                    })}
+                    placeholder="responsive, seo, contact_form"
+                  />
                 </Field>
                 <Field label={isBn ? "দাম (BDT ৳) — 0 মানে যোগাযোগ" : "Price (BDT ৳) — 0 means contact"}>
                   <Input type="number" min={0} value={pkg.priceBdt} onChange={(event) => patchPackage(index, { priceBdt: Number(event.target.value) || 0 })} />

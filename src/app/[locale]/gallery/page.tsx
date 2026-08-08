@@ -1,8 +1,17 @@
 import Gallery from "@/components/gallery/Gallery";
 import { FadeInUp } from "@/components/animations/FadeIn";
+import type { Metadata } from "next";
+import { localeAlternates } from "@/lib/seo";
 
 interface GalleryPageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: GalleryPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    alternates: localeAlternates(locale, "/gallery"),
+  };
 }
 
 export default async function GalleryPage({ params }: GalleryPageProps) {

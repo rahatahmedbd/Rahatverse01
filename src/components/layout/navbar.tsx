@@ -24,8 +24,10 @@ export function Navbar() {
   const navLabels: Record<string, string> = {
     home: t("home"),
     about: t("about"),
-    achievements: t("achievements"),
+    portfolio: locale === "bn" ? "পোর্টফোলিও" : "Portfolio",
     services: t("services"),
+    experience: locale === "bn" ? "অভিজ্ঞতা" : "Experience",
+    achievements: t("achievements"),
     gallery: t("gallery"),
     order: t("order"),
     blog: t("blog"),
@@ -69,7 +71,7 @@ export function Navbar() {
                   key={item.key}
                   href={href}
                   className={cn(
-                    "relative rounded-lg px-2.5 py-2 text-[13px] font-medium tracking-[-0.01em] transition-all duration-200 xl:px-3 xl:text-sm",
+                    "relative rounded-lg px-2 py-1.5 text-xs font-medium tracking-[-0.01em] transition-all duration-200 xl:px-2.5 xl:py-2 xl:text-[13px] 2xl:px-3 2xl:text-sm",
                     isActive
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground hover:bg-white/[0.06]"
@@ -106,7 +108,7 @@ export function Navbar() {
         {/* Mobile Menu — glass, no giant empty, fits 320 */}
         {mobileMenuOpen && (
           <div className="pointer-events-auto glass mx-0 mt-2 rounded-xl p-3 shadow-xl lg:hidden animate-fade-in-down sm:mx-0 sm:p-4">
-            <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
               {NAVIGATION_ITEMS.map((item) => {
                 const normalizedPathname = pathname.replace(/\/+$/, "");
                 const href = `${basePath}${item.path}`.replace(/\/+$/, "");
@@ -117,9 +119,9 @@ export function Navbar() {
                     href={href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      "rounded-lg px-4 py-3 text-sm font-medium transition-all",
+                      "rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium transition-all text-center sm:text-left truncate",
                       isActive
-                        ? "bg-primary/10 text-primary border border-primary/15"
+                        ? "bg-primary/15 text-primary border border-primary/25 font-semibold"
                         : "text-muted-foreground hover:bg-white/[0.06] hover:text-foreground"
                     )}
                   >

@@ -11,6 +11,7 @@ import { useLocale } from "next-intl";
 import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
 import { ServicesIcon } from "@/lib/services/icons";
 import type { ServicesConfig } from "@/types/services";
+import TestimonialsSection from "@/components/sections/TestimonialsSection";
 
 export default function ServicesPage() {
   const locale = useLocale();
@@ -190,6 +191,13 @@ export default function ServicesPage() {
                 ))}
               </div>
             </div>
+          </div>
+        </FadeInUp>
+
+        {/* Testimonials Trust Signal */}
+        <FadeInUp>
+          <div className="mb-16">
+            <TestimonialsSection locale={locale} />
           </div>
         </FadeInUp>
 

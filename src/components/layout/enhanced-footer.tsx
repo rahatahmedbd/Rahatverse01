@@ -27,14 +27,20 @@ export function EnhancedFooter() {
 
   const quickLinks = [
     { href: `/${locale}/about`, label: t("about") },
+    { href: `/${locale}/portfolio`, label: isBn ? "পোর্টফোলিও" : "Portfolio" },
+    { href: `/${locale}/services`, label: t("services") },
+    { href: `/${locale}/experience`, label: isBn ? "অভিজ্ঞতা" : "Experience" },
     { href: `/${locale}/achievements`, label: t("achievements") },
-    { href: `/${locale}/experience`, label: t("services") },
     { href: `/${locale}/gallery`, label: t("gallery") },
+    { href: `/${locale}/blog`, label: isBn ? "ব্লগ" : "Blog" },
     { href: `/${locale}/contact`, label: t("contact") },
   ];
 
   const serviceLinks = [
     { href: `/${locale}/order`, label: t("orderWebsite") },
+    { href: `/${locale}/services`, label: t("services") },
+    { href: `/${locale}/privacy-policy`, label: isBn ? "প্রাইভেসি পলিসি" : "Privacy Policy" },
+    { href: `/${locale}/terms-of-service`, label: isBn ? "সেবা শর্তাবলি" : "Terms of Service" },
     { href: `/${locale}/contact`, label: t("contact") },
   ];
 

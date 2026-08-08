@@ -29,6 +29,7 @@ export function localeAlternates(locale: string, path = ""): Metadata["alternate
     languages: {
       bn: localePath("bn", normalisedPath),
       en: localePath("en", normalisedPath),
+      "x-default": localePath("bn", normalisedPath),
     },
   };
 }

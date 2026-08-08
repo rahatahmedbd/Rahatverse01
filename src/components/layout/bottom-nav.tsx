@@ -5,13 +5,14 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Home, Briefcase, ShoppingCart, MessageCircle } from "lucide-react";
+import { Home, Briefcase, ShoppingCart, MessageCircle, FolderOpen } from "lucide-react";
 
 // ── Bottom Navigation Items ────────────────────────────
 // Mobile polish: Work label keeps /achievements route intact.
 const bottomNavItems = [
   { key: "home", path: "/", icon: Home, labelKey: "home" as const },
-  { key: "work", path: "/achievements", icon: Briefcase, labelKey: "achievements" as const },
+  { key: "portfolio", path: "/portfolio", icon: FolderOpen, labelKey: "portfolio" as const },
+  { key: "work", path: "/experience", icon: Briefcase, labelKey: "experience" as const },
   { key: "order", path: "/order", icon: ShoppingCart, labelKey: "order" as const },
   { key: "contact", path: "/contact", icon: MessageCircle, labelKey: "contact" as const },
 ];
@@ -55,7 +56,9 @@ export function BottomNavBar() {
             // Label: Work keeps achievements route but shows premium label.
             let label: string;
             if (item.key === "work") {
-              label = isBn ? "কাজ" : "Work";
+              label = isBn ? "অভিজ্ঞতা" : "Experience";
+            } else if (item.key === "portfolio") {
+              label = isBn ? "পোর্টফোলিও" : "Portfolio";
             } else {
               // t() expects nav keys; achievements/order etc. exist
               try {

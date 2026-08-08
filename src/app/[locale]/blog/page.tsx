@@ -1,9 +1,18 @@
 import BlogListSection from "@/components/blog/BlogListSection";
 import { FadeInUp } from "@/components/animations/FadeIn";
+import type { Metadata } from "next";
+import { localeAlternates } from "@/lib/seo";
 
 // ── Blog Page ──────────────────────────────────────────
 interface BlogPageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: BlogPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    alternates: localeAlternates(locale, "/blog"),
+  };
 }
 
 export default async function BlogPage({ params }: BlogPageProps) {

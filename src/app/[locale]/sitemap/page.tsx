@@ -21,8 +21,10 @@ const sitemapData: SitemapSection[] = [
     links: [
       { label: "Home", labelBn: "হোম", url: "/" },
       { label: "About", labelBn: "আমার সম্পর্কে", url: "/about" },
-      { label: "Achievements", labelBn: "অর্জনসমূহ", url: "/achievements" },
+      { label: "Portfolio & Case Studies", labelBn: "পোর্টফোলিও ও কেস স্টাডি", url: "/portfolio" },
+      { label: "Services", labelBn: "সেবাসমূহ", url: "/services" },
       { label: "Experience", labelBn: "অভিজ্ঞতা", url: "/experience" },
+      { label: "Achievements", labelBn: "অর্জনসমূহ", url: "/achievements" },
       { label: "Gallery", labelBn: "গ্যালারি", url: "/gallery" },
     ],
   },
@@ -55,8 +57,8 @@ const sitemapData: SitemapSection[] = [
     title: "Legal",
     titleBn: "আইনি",
     links: [
-      { label: "Privacy Policy", labelBn: "গোপনীয়তা নীতি", url: "/privacy" },
-      { label: "Terms of Service", labelBn: "সেবার শর্তাবলী", url: "/terms" },
+      { label: "Privacy Policy", labelBn: "প্রাইভেসি পলিসি", url: "/privacy-policy" },
+      { label: "Terms of Service", labelBn: "সেবা শর্তাবলি", url: "/terms-of-service" },
     ],
   },
 ];

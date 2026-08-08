@@ -65,15 +65,15 @@ export function Navbar() {
                   key={item.key}
                   href={href}
                   className={cn(
-                    "relative rounded-lg px-2 py-1.5 text-xs font-medium tracking-[-0.01em] transition-all duration-200 xl:px-2.5 xl:py-2 xl:text-[13px] 2xl:px-3 2xl:text-sm",
+                    "relative rounded-lg px-2 py-1.5 text-xs font-medium tracking-[-0.01em] transition-all duration-200 xl:px-2.5 xl:py-2 xl:text-[13px] 2xl:px-3 2xl:text-sm hover:scale-[1.03]",
                     isActive
-                      ? "text-primary"
+                      ? "text-primary font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-white/[0.06]"
                   )}
                 >
                   {navLabels[item.key] || item.key}
                   {isActive && (
-                    <span className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-primary xl:w-6" />
+                    <span className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] xl:w-6" />
                   )}
                 </Link>
               );

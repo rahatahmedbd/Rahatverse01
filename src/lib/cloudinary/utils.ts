@@ -29,27 +29,29 @@ export function getCloudinaryUrl(publicId: string, options?: {
  * Direct fallback mapping from Cloudinary Public IDs to real photos on rahatahmedbd.github.io
  */
 export const PUBLIC_ID_TO_GITHUB_URL_MAP: Record<string, string> = {
-  'rahatverse/profile': 'https://rahatahmedbd.github.io/assets/images/profile.jpg',
-  'rahatverse/shantichakra-logo': 'https://rahatahmedbd.github.io/assets/images/logo.png',
-  'rahatverse/father-photo': 'https://rahatahmedbd.github.io/assets/images/baba-farid-ahmed.jpg',
-  'rahatverse/ssc-2025': 'https://rahatahmedbd.github.io/assets/images/ssc-gpa5-2025.jpg',
-  'rahatverse/ssc-songbordhona': 'https://rahatahmedbd.github.io/assets/images/ssc-songbordhona-2025.jpg',
-  'rahatverse/ssc-crest-shantichakra': 'https://rahatahmedbd.github.io/assets/images/ssc-crest-shantichakra.jpg',
-  'rahatverse/shantichakra-blood-society': 'https://rahatahmedbd.github.io/assets/images/shantichakra-blood-society.jpg',
-  'rahatverse/46-science-fair-2025': 'https://rahatahmedbd.github.io/assets/images/46-science-fair-2025.jpg',
-  'rahatverse/45-science-fair-2023': 'https://rahatahmedbd.github.io/assets/images/45-science-fair-2023.jpg',
-  'rahatverse/44-science-fair-2024': 'https://rahatahmedbd.github.io/assets/images/44-science-fair-2024.jpg',
-  'rahatverse/42-science-fair-2020': 'https://rahatahmedbd.github.io/assets/images/42-science-fair-2020.jpg',
-  'rahatverse/srijonshil-medha-2024': 'https://rahatahmedbd.github.io/assets/images/srijonshil-medha-2024.jpg',
-  'rahatverse/fs-coaching-center': 'https://rahatahmedbd.github.io/assets/images/fs-coaching-center.jpg',
-  'rahatverse/helping-hand-org': 'https://rahatahmedbd.github.io/assets/images/helping-hand-org.jpg',
+  'profile': 'https://res.cloudinary.com/kbc3dfnj/image/upload/v1786125213/rahatverse/profile/1786125213546.jpg',
+  'rahatverse/profile/1786125213546': 'https://res.cloudinary.com/kbc3dfnj/image/upload/v1786125213/rahatverse/profile/1786125213546.jpg',
+  'rahatverse/profile': 'https://res.cloudinary.com/kbc3dfnj/image/upload/v1786125213/rahatverse/profile/1786125213546.jpg',
+  'rahatverse/shantichakra-logo': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/shantichakra-logo',
+  'rahatverse/father-photo': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/father-photo',
+  'rahatverse/ssc-2025': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-2025',
+  'rahatverse/ssc-songbordhona': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-songbordhona',
+  'rahatverse/ssc-crest-shantichakra': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-crest-shantichakra',
+  'rahatverse/shantichakra-blood-society': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/shantichakra-blood-society',
+  'rahatverse/46-science-fair-2025': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/46-science-fair-2025',
+  'rahatverse/45-science-fair-2023': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/45-science-fair-2023',
+  'rahatverse/44-science-fair-2024': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/44-science-fair-2024',
+  'rahatverse/42-science-fair-2020': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/42-science-fair-2020',
+  'rahatverse/srijonshil-medha-2024': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/srijonshil-medha-2024',
+  'rahatverse/fs-coaching-center': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/fs-coaching-center',
+  'rahatverse/helping-hand-org': 'https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/helping-hand-org',
 };
 
 /**
  * Pre-configured image IDs
  */
 export const IMAGE_IDS = {
-  PROFILE: 'rahatverse/profile',
+  PROFILE: 'rahatverse/profile/1786125213546',
   SHANTICHAKRA_LOGO: 'rahatverse/shantichakra-logo',
   FATHER_PHOTO: 'rahatverse/father-photo',
   SSC_2025: 'rahatverse/ssc-2025',

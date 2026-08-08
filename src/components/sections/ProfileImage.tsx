@@ -102,7 +102,7 @@ export function ProfileImage({
 
   const styles = frameStyles[frame];
   const resolvedPublicId = publicId || IMAGE_IDS.PROFILE;
-  const useCloudinary = !src || imgError;
+  const useCloudinary = !src || src.includes("rahatahmedbd.github.io") || imgError;
   const radius = radiusMap[size];
 
   return (

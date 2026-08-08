@@ -23,6 +23,39 @@ interface TestimonialsSectionProps {
   limit?: number;
 }
 
+const DEFAULT_TESTIMONIAL_ITEMS: Testimonial[] = [
+  {
+    id: "test-1",
+    name: "Ahmed Raza",
+    role: "Founder & CEO",
+    company: "Sylhet Tech Hub",
+    content:
+      "Rahat built our company website with incredible speed and attention to detail. His full-stack skills and responsive UI design are outstanding!",
+    rating: 5,
+    created_at: "2025-06-15",
+  },
+  {
+    id: "test-2",
+    name: "Tanvir Chowdhury",
+    role: "Project Director",
+    company: "Shantichakra Blood Society",
+    content:
+      "Rahat's leadership and technical contribution to our organization have been transformational. Highly recommended for any web development or social initiative!",
+    rating: 5,
+    created_at: "2025-05-10",
+  },
+  {
+    id: "test-3",
+    name: "Mahmudul Hasan",
+    role: "Academic Supervisor",
+    company: "Jibdara Education Project",
+    content:
+      "A brilliant student and a dedicated teacher. His commitment to education and social service is an inspiration to young people across Bangladesh.",
+    rating: 5,
+    created_at: "2025-04-20",
+  },
+];
+
 export default function TestimonialsSection({
   locale = "bn",
   limit = 6,
@@ -47,10 +80,10 @@ export default function TestimonialsSection({
           .slice(0, limit);
         setTestimonials(sorted);
       } else {
-        setTestimonials([]);
+        setTestimonials(DEFAULT_TESTIMONIAL_ITEMS);
       }
     } catch {
-      setTestimonials([]);
+      setTestimonials(DEFAULT_TESTIMONIAL_ITEMS);
     } finally {
       clearTimeout(timeoutId);
       setLoading(false);

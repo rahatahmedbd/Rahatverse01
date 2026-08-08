@@ -33,7 +33,7 @@ interface FeaturedGalleryProps {
 const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   {
     id: "gallery-ssc-2025",
-    url: "/images/gallery-science.svg",
+    url: "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-2025",
     category: "achievements",
     title: "SSC 2025 — GPA 5.00 (A+)",
     title_bn: "SSC ২০২৫ — জিপিএ ৫.০০ (A+)",
@@ -45,7 +45,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-ssc-songbordhona",
-    url: "/images/gallery-science.svg",
+    url: "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-songbordhona",
     category: "achievements",
     title: "Meritorious Student Honor Ceremony 2025",
     title_bn: "কৃতী শিক্ষার্থী সংবর্ধনা ২০২৫",
@@ -57,7 +57,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-ssc-crest",
-    url: "/images/gallery-blood.svg",
+    url: "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-crest-shantichakra",
     category: "achievements",
     title: "Shantichakra Recognition Crest 2025",
     title_bn: "শান্তিচক্র সম্মাননা ক্রেস্ট ২০২৫",
@@ -69,7 +69,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-shantichakra-activities",
-    url: "/images/gallery-blood.svg",
+    url: "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/shantichakra-blood-society",
     category: "blood-donation",
     title: "Shantichakra Blood Society - Activities & Leadership",
     title_bn: "শান্তিচক্র ব্লাড সোসাইটি — রক্তদান ও সমাজসেবা",
@@ -81,7 +81,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-science-fair-46",
-    url: "/images/gallery-science.svg",
+    url: "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/46-science-fair-2025",
     category: "achievements",
     title: "46th National Science & Technology Week 2025",
     title_bn: "৪৬তম জাতীয় বিজ্ঞান মেলা ২০২৫ — ১ম স্থান (কুইজ)",
@@ -93,7 +93,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-srijonshil-medha",
-    url: "/images/gallery-bncc.svg",
+    url: "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/srijonshil-medha-2024",
     category: "achievements",
     title: "Creative Talent Search Competition 2024",
     title_bn: "সৃজনশীল মেধা অন্বেষণ ২০২৪ — বিজ্ঞানে ১ম স্থান",
@@ -105,7 +105,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-science-fair-44",
-    url: "/images/gallery-science.svg",
+    url: "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/44-science-fair-2024",
     category: "achievements",
     title: "44th National Science Exhibition 2024",
     title_bn: "৪৪তম বিজ্ঞান প্রদর্শনী ২০২৪ — ১ম স্থান",
@@ -117,7 +117,7 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
   },
   {
     id: "gallery-science-fair-45",
-    url: "/images/gallery-science.svg",
+    url: "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/45-science-fair-2023",
     category: "achievements",
     title: "45th National Science Fair 2023",
     title_bn: "৪৫তম বিজ্ঞান মেলা ২০২৩ — ১ম স্থান",
@@ -128,6 +128,53 @@ const DEFAULT_FEATURED_IMAGES: GalleryImage[] = [
     created_at: new Date("2023-08-31").toISOString(),
   },
 ];
+
+function normalizeImageUrl(url?: string | null): string {
+  if (!url) return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-2025";
+  if (url.includes("rahatahmedbd.github.io/assets/images/profile.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/v1786125213/rahatverse/profile/1786125213546.jpg";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/logo.png")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/shantichakra-logo";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/baba-farid-ahmed.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/father-photo";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/ssc-gpa5-2025.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-2025";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/ssc-songbordhona-2025.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-songbordhona";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/ssc-crest-shantichakra.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-crest-shantichakra";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/shantichakra-blood-society.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/shantichakra-blood-society";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/46-science-fair-2025.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/46-science-fair-2025";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/45-science-fair-2023.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/45-science-fair-2023";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/44-science-fair-2024.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/44-science-fair-2024";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/42-science-fair-2020.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/42-science-fair-2020";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/srijonshil-medha-2024.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/srijonshil-medha-2024";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/fs-coaching-center.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/fs-coaching-center";
+  }
+  if (url.includes("rahatahmedbd.github.io/assets/images/helping-hand-org.jpg")) {
+    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/helping-hand-org";
+  }
+  return url;
+}
 
 function GalleryImageWithFallback({ image, locale, onClick }: { image: GalleryImage; locale: string; onClick: () => void }) {
   const [hasError, setHasError] = useState(false);
@@ -153,6 +200,8 @@ function GalleryImageWithFallback({ image, locale, onClick }: { image: GalleryIm
     );
   }
 
+  const resolvedUrl = normalizeImageUrl(image.url);
+
   return (
     <div
       className="group relative cursor-pointer overflow-hidden rounded-xl border border-border/50 bg-card transition-all hover:shadow-xl"
@@ -163,7 +212,7 @@ function GalleryImageWithFallback({ image, locale, onClick }: { image: GalleryIm
       onKeyDown={(e) => e.key === "Enter" && onClick()}
     >
       <Image
-        src={image.url}
+        src={resolvedUrl}
         alt={alt}
         fill
         className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"

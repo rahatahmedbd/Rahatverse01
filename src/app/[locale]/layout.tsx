@@ -96,8 +96,9 @@ export default async function LocaleLayout({
         />
         {/* PWA Meta Tags */}
         <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/images/rahat-2d-favicon-from-profile.png" type="image/png" />
         <link rel="icon" href="/icons/icon-192.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+        <link rel="apple-touch-icon" href="/images/rahat-2d-favicon-from-profile.png" />
         <meta name="theme-color" content="#f59e0b" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

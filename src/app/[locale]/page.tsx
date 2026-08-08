@@ -3,7 +3,6 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { AboutPreview } from "@/components/sections/AboutPreview";
 import { ServicesPreview } from "@/components/sections/ServicesPreview";
 import { OrderCtaBand } from "@/components/sections/OrderCtaBand";
-import FeaturedGallery from "@/components/gallery/FeaturedGallery";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
@@ -49,11 +48,6 @@ export default async function HomePage({ params }: HomePageProps) {
       <AuroraDivider spacing="md" />
 
       <OrderCtaBand locale={locale} />
-
-      {/* Featured Gallery — balanced grid, pb accounts for bottom nav */}
-      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8 lg:pb-12">
-        <FeaturedGallery locale={locale} limit={8} />
-      </section>
 
       <AuroraDivider spacing="md" />
 

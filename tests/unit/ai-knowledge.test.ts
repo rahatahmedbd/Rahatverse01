@@ -41,6 +41,22 @@ describe("Nuva knowledge base", () => {
     expect(answer.reply).toContain("নুভা");
   });
 
+  it("says Salam on the first exchange of a conversation", () => {
+    const answer = answerFromKnowledgeBase("How much does a website cost?", "en", true);
+    expect(answer.reply.startsWith("Assalamu Alaikum")).toBe(true);
+  });
+
+  it("does NOT repeat Salam on follow-up messages", () => {
+    const answer = answerFromKnowledgeBase("How much does a website cost?", "en", false);
+    expect(answer.reply.startsWith("Assalamu Alaikum")).toBe(false);
+  });
+
+  it("does NOT repeat Salam when the visitor greets again mid-conversation", () => {
+    const answer = answerFromKnowledgeBase("hi", "en", false);
+    expect(answer.reply.toLowerCase()).not.toContain("assalamu");
+    expect(answer.reply).toContain("I'm here");
+  });
+
   it("falls back gracefully for unknown questions", () => {
     const answer = answerFromKnowledgeBase("xyzzy nonsense input", "en");
     expect(answer.reply.length).toBeGreaterThan(0);

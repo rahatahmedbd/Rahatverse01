@@ -4,6 +4,30 @@ All notable changes to **RahatVerse 2.0** are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); versioning follows
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] — Nuva AI polish (greeting rule, Grok AI provider, page-stability)
+
+### Changed
+- Nuva now says Salam ("Assalamu Alaikum") only on the very first message of a
+  conversation; follow-up replies answer directly without repeating the greeting
+  (enforced in the knowledge base, the LLM system prompt, and the chat API).
+- Nuva's system prompt and knowledge base now contain the full site context
+  (about Rahat, services, packages, ordering & payments, portfolio, blog,
+  gallery, achievements, blood society, legal pages, dashboard) so it can answer
+  site questions accurately; all answers are instructed to stay mature,
+  realistic and honest.
+- Chat provider resolution order is now Grok AI (via the owner's Vercel
+  deployment, `GROK_API_URL` / `GROK_API_KEY` / `GROK_MODEL`) → Groq → built-in
+  knowledge base.
+- Removed the continuously bobbing float and expanding pulse rings on the Nuva
+  buttons, the hero profile bob/scale, and other scale animations — the page no
+  longer looks like it is gently shaking; remaining glows breathe via opacity
+  only.
+
+### Added
+- New built-in FAQ answers: site overview, achievements, gallery, blog, blood
+  donation, experience, education, payments, link hub, newsletter, legal pages,
+  admin dashboard; plus more shareable page links.
+
 ## [0.19.0] — Phase 32 — Live Price Estimator & Package Compare
 
 ### Added

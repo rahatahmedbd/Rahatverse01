@@ -159,8 +159,8 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
               <GlassCard className="text-center border-red-500/20">
                 <motion.div
                   className="mx-auto mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-red-500/30 bg-card p-1 shadow-lg"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  animate={{ opacity: [1, 0.85, 1] }}
+                  transition={{ duration: 3, repeat: Infinity }}
                 >
                   <CloudinaryImage
                     publicId={IMAGE_IDS.SHANTICHAKRA_LOGO}

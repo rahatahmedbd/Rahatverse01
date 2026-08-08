@@ -909,19 +909,12 @@ html[lang="bn"] .heading-kicker,
 }
 
 /* ── Phase 14 — Nuva AI Assistant Premium Animations ── */
-@keyframes nuva-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
+/* NOTE: intentionally no translate/scale motion here — the floating buttons
+   used to bob up/down and their glows used to scale, which made the page look
+   like it was gently shaking. Glow now only breathes via opacity. */
 @keyframes nuva-glow-pulse {
-  0%, 100% { opacity: 0.65; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
-}
-
-@keyframes nuva-ring-pulse {
-  0% { transform: scale(1); opacity: 0.55; }
-  100% { transform: scale(1.8); opacity: 0; }
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.95; }
 }
 
 @keyframes nuva-tooltip-in {
@@ -964,8 +957,7 @@ html[lang="bn"] .heading-kicker,
 .animate-slide-in-down { animation: slideInDown 0.5s ease-out forwards; }
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 .animate-float { animation: float 3s ease-in-out infinite; }
-.animate-nuva-float { animation: nuva-float 3.4s ease-in-out infinite; will-change: transform; }
-.animate-nuva-glow { animation: nuva-glow-pulse 3.2s ease-in-out infinite; will-change: transform, opacity; }
+.animate-nuva-glow { animation: nuva-glow-pulse 4s ease-in-out infinite; will-change: opacity; }
 .animate-nuva-panel { animation: nuva-panel-emerge 0.55s cubic-bezier(0.16, 1, 0.3, 1); }
 
 /* ── Nuva-specific utilities ── */

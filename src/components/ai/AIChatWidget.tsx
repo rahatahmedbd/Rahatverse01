@@ -183,24 +183,6 @@ function DesktopNuvaButton({
           )}
           aria-hidden="true"
         />
-        {/* Pulse rings */}
-        {!shouldReduceMotion && (
-          <>
-            <motion.span
-              className="pointer-events-none absolute inset-0 rounded-full border border-emerald-300/25"
-              animate={{ scale: [1, 1.6], opacity: [0.55, 0] }}
-              transition={{ duration: 2.3, repeat: Infinity, ease: "easeOut" }}
-              aria-hidden="true"
-            />
-            <motion.span
-              className="pointer-events-none absolute inset-0 rounded-full border border-cyan-300/15"
-              animate={{ scale: [1, 1.85], opacity: [0.4, 0] }}
-              transition={{ duration: 2.8, repeat: Infinity, ease: "easeOut", delay: 0.6 }}
-              aria-hidden="true"
-            />
-          </>
-        )}
-
         <motion.button
           type="button"
           onClick={onOpen}
@@ -213,7 +195,6 @@ function DesktopNuvaButton({
             "border border-white/20 bg-gradient-to-br from-amber-300 via-emerald-400 to-cyan-500",
             "shadow-[0_12px_32px_rgba(16,185,129,0.4),0_6px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.65),inset_0_-1px_0_rgba(0,0,0,0.1)]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-            !shouldReduceMotion && "animate-nuva-float",
             "will-change-transform"
           )}
         >

@@ -908,6 +908,37 @@ html[lang="bn"] .heading-kicker,
   50% { transform: translateY(-10px); }
 }
 
+/* ── Phase 14 — Nuva AI Assistant Premium Animations ── */
+@keyframes nuva-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes nuva-glow-pulse {
+  0%, 100% { opacity: 0.65; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes nuva-ring-pulse {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+@keyframes nuva-tooltip-in {
+  from { opacity: 0; transform: translate(-50%, 8px) scale(0.94); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@keyframes nuva-panel-emerge {
+  from { opacity: 0; transform: translateY(28px) scale(0.94); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes nuva-shimmer-sweep {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  100% { transform: translateX(220%) skewX(-18deg); }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -933,6 +964,21 @@ html[lang="bn"] .heading-kicker,
 .animate-slide-in-down { animation: slideInDown 0.5s ease-out forwards; }
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 .animate-float { animation: float 3s ease-in-out infinite; }
+.animate-nuva-float { animation: nuva-float 3.4s ease-in-out infinite; will-change: transform; }
+.animate-nuva-glow { animation: nuva-glow-pulse 3.2s ease-in-out infinite; will-change: transform, opacity; }
+.animate-nuva-panel { animation: nuva-panel-emerge 0.55s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* ── Nuva-specific utilities ── */
+.will-change-transform { will-change: transform; }
+.nuva-glass {
+  background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02) 50%, rgba(16,185,129,0.12));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.nuva-premium-focus:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(16,185,129,0.5), 0 0 0 4px rgba(10,22,40,0.75);
+}
 .animate-shimmer {
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
   background-size: 200% 100%;

@@ -1,10 +1,9 @@
 // ── Nuva — LLM Providers (server only) ─────────────
 // Resolution order:
-//   1. Grok AI — the user's own Vercel deployment (OpenAI-compatible endpoint).
-//      Point GROK_API_URL at the Vercel app that proxies Grok, or set a
-//      GROK_API_KEY to call https://api.x.ai directly.
-//   2. Groq (free tier) — called over plain HTTPS (no SDK needed):
-//      free key at https://console.groq.com/keys
+//   1. Grok AI (xAI) — only when a GROK_API_KEY / GROK_API_URL is configured
+//      (endpoint https://api.x.ai, or your own Vercel proxy via GROK_API_URL).
+//   2. Groq (free tier, recommended — most people use this) — free key at
+//      https://console.groq.com/keys, called over plain HTTPS (no SDK needed).
 // If no provider key/URL is set (or all calls fail), the API route falls back
 // to the local knowledge base so the chat never breaks.
 //
@@ -104,7 +103,12 @@ export async function chatWithGrok(
   return callChatCompletions(endpoint, apiKey, model, messages, locale);
 }
 
-/** Groq (free tier) via its OpenAI-compatible endpoint. */
+/**
+ * Groq (free tier) via its OpenAI-compatible endpoint.
+ * This is the recommended free provider — no credit card, ~14,400 requests/day.
+ * The default model is llama-3.3-70b-versatile (much more mature answers than
+ * the older 8B model); override with GROQ_MODEL if you prefer.
+ */
 export async function chatWithGroq(
   messages: ChatMessage[],
   locale: AiLocale,
@@ -112,7 +116,7 @@ export async function chatWithGroq(
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return null;
 
-  const model = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
+  const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
   return callChatCompletions(
     "https://api.groq.com/openai/v1/chat/completions",
     apiKey,

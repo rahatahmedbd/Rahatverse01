@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
+import { AIChatWidget } from "@/components/ai/AIChatWidget";
 import { AnimationProviders } from "@/components/animations/Providers";
 import { MotionProvider } from "@/components/animations/MotionProvider";
 import { PageTransition } from "@/components/animations/PageTransition";
@@ -132,6 +133,9 @@ export default async function LocaleLayout({
 
               {/* Mobile Bottom Navigation */}
               <BottomNavBar />
+
+              {/* Nuva — AI chat assistant (bottom nav on mobile, floating bubble on desktop) */}
+              <AIChatWidget />
             </div>
           </MotionProvider>
         </NextIntlClientProvider>

@@ -5,11 +5,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProfileImage } from "./ProfileImage";
-import {
-  ParallaxOrb,
-  OrbitingRings,
-  Parallax3DContainer,
-} from "@/components/interactive";
+import { Parallax3DContainer } from "@/components/interactive";
 import { FadeInUp, FadeInDown } from "@/components/animations/FadeIn";
 import { ParticleBackground } from "@/components/animations/ParticleBackground";
 import { ScrollIndicator } from "@/components/animations/ScrollProgress";
@@ -50,6 +46,14 @@ function getDisplayLabel(cta: HeroCTA, isBn: boolean): string {
     const isDefaultBn = cta.labelBn.trim() === "ওয়েবসাইট অর্ডার করুন";
     if (isBn && isDefaultBn) return "প্রজেক্ট শুরু করুন";
     if (!isBn && isDefaultEn) return "Start a Project";
+  }
+  // Short label for the portfolio link so the button never truncates
+  // ("View Projects" -> "Projects").
+  if (cta.id === "cta-portfolio") {
+    const isDefaultEn = cta.labelEn.trim().toLowerCase() === "view projects";
+    const isDefaultBn = cta.labelBn.trim() === "প্রজেক্ট দেখুন";
+    if (isBn && isDefaultBn) return "প্রজেক্ট";
+    if (!isBn && isDefaultEn) return "Projects";
   }
   return isBn ? cta.labelBn : cta.labelEn;
 }
@@ -109,13 +113,10 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
         />
       </div>
 
-      {/* Ambient Glow */}
+      {/* Ambient Glow — one soft, low-opacity amber radial blur (no concentric rings) */}
       <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
-        <ParallaxOrb size="xl" color="primary" />
-        <OrbitingRings size="lg" className="opacity-60 lg:opacity-70" />
-        <div className="absolute top-1/3 left-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/[0.04] blur-3xl lg:h-[500px] lg:w-[500px]" />
-        <div className="absolute bottom-1/4 left-1/4 h-48 w-48 rounded-full bg-blue-500/[0.04] blur-3xl lg:h-64 lg:w-64" />
-        <div className="absolute bottom-1/3 right-1/4 h-48 w-48 rounded-full bg-purple-500/[0.04] blur-3xl lg:h-64 lg:w-64" />
+        <div className="absolute top-1/2 left-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/[0.07] blur-3xl lg:h-[540px] lg:w-[540px]" />
+        <div className="absolute bottom-1/4 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-amber-500/[0.05] blur-3xl lg:h-72 lg:w-72" />
       </div>
 
       {/* Content container — 320..1536+ */}
@@ -135,7 +136,7 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
             {/* Name */}
             <FadeInUp delay={0.5}>
               <h1 className="bn text-display-xl font-bold tracking-[-0.02em]">
-                <span className="text-gradient">রাহাত আহমেদ</span>
+                <span className="text-gradient-name">রাহাত আহমেদ</span>
               </h1>
               <p className="mt-1 text-[15px] font-medium tracking-[-0.01em] text-muted-foreground sm:text-lg lg:text-xl">
                 Rahat Ahmed
@@ -257,13 +258,13 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
           </motion.div>
         </div>
 
-        {/* Stats — full width below, 2 cols mobile / 4 cols tablet+ */}
+        {/* Stats — horizontal scrollable row on mobile / 4-col grid tablet+ */}
         <FadeInUp delay={1.15}>
-          <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 sm:grid-cols-4 lg:mt-14">
+          <div className="mt-10 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch] sm:mt-12 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:pb-0 sm:snap-none lg:mt-14">
             {config.counters.map((stat) => (
               <div
                 key={stat.id}
-                className="glass group relative overflow-hidden rounded-2xl border border-white/[0.06] px-3 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_4px_20px_rgba(0,0,0,0.14)] transition-colors duration-300 hover:border-white/[0.09] sm:px-4 sm:py-5"
+                className="glass group relative min-w-[9.5rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] px-3 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_4px_20px_rgba(0,0,0,0.14)] transition-colors duration-300 hover:border-white/[0.09] sm:min-w-0 sm:shrink sm:snap-none sm:px-4 sm:py-5"
               >
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-60" aria-hidden="true" />
                 <Counter

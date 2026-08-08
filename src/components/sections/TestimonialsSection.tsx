@@ -35,8 +35,10 @@ export default function TestimonialsSection({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchTestimonials = useCallback(async () => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
-      const res = await fetch("/api/testimonials");
+      const res = await fetch("/api/testimonials", { signal: controller.signal });
       const data = await res.json();
 
       if (data.data && data.data.length > 0) {
@@ -50,6 +52,7 @@ export default function TestimonialsSection({
     } catch {
       setTestimonials([]);
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   }, [limit]);

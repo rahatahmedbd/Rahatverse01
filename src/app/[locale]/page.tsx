@@ -3,7 +3,6 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { AboutPreview } from "@/components/sections/AboutPreview";
 import { ServicesPreview } from "@/components/sections/ServicesPreview";
 import { OrderCtaBand } from "@/components/sections/OrderCtaBand";
-import { QuickActions } from "@/components/interactive/QuickActions";
 import FeaturedGallery from "@/components/gallery/FeaturedGallery";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
@@ -30,7 +29,6 @@ export default async function HomePage({ params }: HomePageProps) {
   return (
     <>
       <CinematicIntro />
-      <QuickActions />
       <HeroSection locale={locale} aboutConfig={aboutConfig} />
 
       <AuroraDivider spacing="md" />

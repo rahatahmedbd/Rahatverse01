@@ -25,11 +25,11 @@ export function localeAlternates(locale: string, path = ""): Metadata["alternate
   const normalisedPath = normalisePath(path);
 
   return {
-    canonical: localePath(locale, normalisedPath),
+    canonical: absoluteUrl(localePath(locale, normalisedPath)),
     languages: {
-      bn: localePath("bn", normalisedPath),
-      en: localePath("en", normalisedPath),
-      "x-default": localePath("bn", normalisedPath),
+      bn: absoluteUrl(localePath("bn", normalisedPath)),
+      en: absoluteUrl(localePath("en", normalisedPath)),
+      "x-default": absoluteUrl(localePath("bn", normalisedPath)),
     },
   };
 }

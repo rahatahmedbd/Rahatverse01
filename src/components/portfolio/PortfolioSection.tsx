@@ -106,7 +106,11 @@ export function PortfolioSection() {
       .then((json) => {
         if (cancelled) return;
         const validated = validatePortfolioConfig((json as { data?: unknown } | null)?.data);
-        if (validated) setConfig(validated);
+        // Only adopt a fetched config if it actually contains projects; a blank
+        // stored config (empty DB row) must not wipe out the seeded placeholders.
+        if (validated && validated.projects.filter((p) => p.visible).length > 0) {
+          setConfig(validated);
+        }
       })
       .catch(() => {
         /* fallback to DEFAULT_PORTFOLIO_CONFIG */

@@ -3,9 +3,14 @@ import { POST } from "@/app/api/chat/route";
 
 // The route must keep working (KB fallback) when no provider key is set —
 // chatWithProviders is mocked here so tests never hit the real network.
-vi.mock("@/lib/ai/server", () => ({
-  chatWithProviders: vi.fn(),
-}));
+// isFirstExchange stays real because the route relies on it for the greeting rule.
+vi.mock("@/lib/ai/server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/ai/server")>();
+  return {
+    ...actual,
+    chatWithProviders: vi.fn(),
+  };
+});
 
 import { chatWithProviders } from "@/lib/ai/server";
 
@@ -64,6 +69,54 @@ describe("POST /api/chat", () => {
     const data = await response.json();
     expect(response.status).toBe(200);
     expect(data.reply).toContain("বেসিক");
+  });
+
+  it("greets with Salam only on the first message of a conversation", async () => {
+    // First exchange — a single user message → reply starts with Salam.
+    const first = await POST(jsonRequest(chatBody("how much?"), "10.0.0.7"));
+    const firstData = await first.json();
+    expect(firstData.reply.startsWith("Assalamu Alaikum")).toBe(true);
+
+    // Follow-up — history already contains an assistant message → no Salam.
+    const followUp = await POST(
+      jsonRequest(
+        {
+          locale: "en",
+          messages: [
+            { role: "assistant", content: "Assalamu Alaikum! Here are the packages." },
+            { role: "user", content: "what about delivery time?" },
+          ],
+        },
+        "10.0.0.7",
+      ),
+    );
+    const followUpData = await followUp.json();
+    expect(followUpData.reply.startsWith("Assalamu Alaikum")).toBe(false);
+  });
+
+  it("strips a repeated Salam from follow-up provider replies", async () => {
+    vi.mocked(chatWithProviders).mockResolvedValue({
+      reply: "Assalamu Alaikum! Delivery takes 1-3 weeks.",
+      provider: "grok",
+    });
+
+    const response = await POST(
+      jsonRequest(
+        {
+          locale: "en",
+          messages: [
+            { role: "assistant", content: "Assalamu Alaikum! Hello!" },
+            { role: "user", content: "delivery time?" },
+          ],
+        },
+        "10.0.0.8",
+      ),
+    );
+    const data = await response.json();
+    expect(response.status).toBe(200);
+    expect(data.source).toBe("grok");
+    expect(data.reply.startsWith("Assalamu Alaikum")).toBe(false);
+    expect(data.reply).toContain("1-3 weeks");
   });
 
   it("rejects invalid payloads", async () => {

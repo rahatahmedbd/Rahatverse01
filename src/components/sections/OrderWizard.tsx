@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { GlassCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,10 @@ import {
   ArrowRight,
   Loader2,
   Sparkles,
+  HelpCircle,
+  Phone,
+  User,
+  Layers,
 } from "lucide-react";
 import { DEFAULT_ORDERS_CONFIG, validateOrdersConfig } from "@/lib/orders/config";
 import { calculateLiveQuote, formatQuoteAmount } from "@/lib/orders/quote";
@@ -30,10 +34,9 @@ import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/
 import type { OrdersConfig } from "@/types/orders";
 import type { ServicesConfig } from "@/types/services";
 
-// ── Order Wizard (DB-driven) ───────────────────────────
-// Focused 3-step order flow: choose → share essentials → confirm.
-// Optional creative preferences stay available, without getting in the way of
-// someone who simply wants to send an order quickly.
+// ── Order Wizard — Question based ─────────────────────
+// Each step is a question; user just selects options to order.
+// Fixes: Next now validates + scrolls to the unfilled question at the top.
 
 interface OrderWizardProps {
   locale?: string;
@@ -85,6 +88,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const [submitError, setSubmitError] = useState("");
   const [errors, setErrors] = useState<Partial<Record<keyof OrderData, string>>>({});
 
+  const wizardRef = useRef<HTMLDivElement>(null);
+
   const [data, setData] = useState<OrderData>({
     packageType: initialPackage,
     websiteType: "",
@@ -128,7 +133,6 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
         setConfig(orders);
         setServicesConfig(services);
 
-        // Never keep a stale, hidden, or forged package query value selected.
         const allowedPackages = orders.packages.filter((pkg) => pkg.visible);
         const requestedPackage = allowedPackages.find(
           (pkg) => pkg.value === preselectedPackage
@@ -142,7 +146,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             : { ...previous, packageType: allowedPackages[0]?.value ?? "" };
         });
       } catch {
-        // Defaults are already rendered; aborts and network failures are safe.
+        // defaults remain
       } finally {
         window.clearTimeout(timeoutId);
       }
@@ -154,6 +158,13 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       window.clearTimeout(timeoutId);
     };
   }, [preselectedPackage]);
+
+  // Scroll wizard top into view when step changes
+  useEffect(() => {
+    if (wizardRef.current) {
+      wizardRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [step]);
 
   const updateData = <K extends keyof OrderData>(field: K, value: OrderData[K]) => {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -198,24 +209,29 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     return formatQuoteAmount(pricing.priceBdt, "BDT", locale);
   };
 
+  // ── 5 question steps ──
   const steps = [
-    { icon: Package, title: isBn ? "বেছে নিন" : "Choose" },
-    { icon: FileText, title: isBn ? "তথ্য দিন" : "Details" },
-    { icon: CheckCircle2, title: isBn ? "নিশ্চিত করুন" : "Confirm" },
+    { icon: Package, title: isBn ? "প্যাকেজ" : "Package", q: isBn ? "প্রশ্ন ১" : "Q1" },
+    { icon: Layers, title: isBn ? "ধরন" : "Type", q: isBn ? "প্রশ্ন ২" : "Q2" },
+    { icon: FileText, title: isBn ? "প্রজেক্ট" : "Project", q: isBn ? "প্রশ্ন ৩" : "Q3" },
+    { icon: User, title: isBn ? "যোগাযোগ" : "Contact", q: isBn ? "প্রশ্ন ৪" : "Q4" },
+    { icon: CheckCircle2, title: isBn ? "রিভিউ" : "Review", q: isBn ? "প্রশ্ন ৫" : "Q5" },
   ];
 
-  // ── Per-step validation (returns error map for visible fields) ──
+  // ── Validation per step ──
   const validateStep = (current: number): Partial<Record<keyof OrderData, string>> => {
     const errs: Partial<Record<keyof OrderData, string>> = {};
     if (current === 0) {
-      if (!data.packageType) errs.packageType = isBn ? "প্যাকেজ বাছাই করুন" : "Please choose a package";
+      if (!data.packageType) errs.packageType = isBn ? "একটি প্যাকেজ বাছাই করুন" : "Please choose a package";
+    }
+    if (current === 1) {
       if (!data.websiteType) errs.websiteType = isBn ? "ওয়েবসাইটের ধরন বাছাই করুন" : "Please choose a website type";
     }
-    if (current === 1) {
+    if (current === 2) {
       if (!data.description.trim())
-        errs.description = isBn ? "প্রজেক্টের বিবরণ লিখুন" : "Please describe your project";
+        errs.description = isBn ? "প্রজেক্ট সম্পর্কে একটু লিখুন" : "Please describe your project";
     }
-    if (current === 1) {
+    if (current === 3) {
       if (!data.clientName.trim())
         errs.clientName = isBn ? "আপনার নাম লিখুন" : "Please enter your name";
       if (!data.clientEmail.trim()) {
@@ -232,16 +248,60 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     return errs;
   };
 
+  const scrollToFirstError = (errs: Partial<Record<keyof OrderData, string>>) => {
+    const firstKey = Object.keys(errs)[0] as keyof OrderData | undefined;
+    if (!firstKey) return;
+    // Try by field id, then by question wrapper
+    const el =
+      document.getElementById(firstKey) ||
+      document.getElementById(`q-${firstKey}`) ||
+      document.querySelector(`[data-field="${firstKey}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      // focus inner input if exists
+      const focusable = el.querySelector<HTMLElement>("input, textarea, select, button");
+      if (focusable) {
+        setTimeout(() => focusable.focus(), 350);
+      } else if (el instanceof HTMLElement) {
+        // if chip group, focus first chip
+        const chip = el.querySelector<HTMLElement>('button[role="radio"], button[role="checkbox"]');
+        chip?.focus();
+      }
+    }
+  };
+
   const handleNext = () => {
     const errs = validateStep(step);
-    setErrors(errs);
-    if (Object.keys(errs).length === 0) setStep((s) => s + 1);
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      // ensure error rendered then scroll
+      requestAnimationFrame(() => setTimeout(() => scrollToFirstError(errs), 60));
+      return;
+    }
+    setErrors({});
+    setStep((s) => Math.min(s + 1, steps.length - 1));
+  };
+
+  const handleBack = () => {
+    setErrors({});
+    setStep((s) => Math.max(s - 1, 0));
   };
 
   const handleSubmit = async () => {
-    const errs = validateStep(1);
-    setErrors(errs);
-    if (Object.keys(errs).length > 0) return;
+    // validate all required steps together
+    const allErrs: Partial<Record<keyof OrderData, string>> = {
+      ...validateStep(0),
+      ...validateStep(1),
+      ...validateStep(2),
+      ...validateStep(3),
+    };
+    if (Object.keys(allErrs).length > 0) {
+      setErrors(allErrs);
+      const stepWithError = [0, 1, 2, 3].find((s) => Object.keys(validateStep(s)).some((k) => k in allErrs));
+      if (stepWithError !== undefined) setStep(stepWithError);
+      setTimeout(() => scrollToFirstError(allErrs), 120);
+      return;
+    }
 
     setSubmitError("");
     setIsSubmitting(true);
@@ -320,7 +380,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   }
 
   return (
-    <section className="py-20">
+    <section ref={wizardRef} className="py-20 scroll-mt-24" id="order-wizard">
       <div className="mx-auto max-w-3xl px-4">
         <SectionTitle
           badge={isBn ? config.section.badgeBn : config.section.badgeEn}
@@ -330,8 +390,22 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           locale={locale}
         />
 
-        {/* Step Indicator */}
-        <div className="mb-8 flex items-center justify-center gap-2">
+        {/* Progress + percentage */}
+        <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+          <span className="bn">
+            {isBn ? `ধাপ ${step + 1} / ${steps.length}` : `Step ${step + 1} / ${steps.length}`}
+          </span>
+          <span className="bn">{isBn ? "শুধু অপশন সিলেক্ট করুন" : "Just select an option"}</span>
+        </div>
+        <div className="mb-6 h-2 overflow-hidden rounded-full bg-border/50">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-500"
+            style={{ width: `${((step + 1) / steps.length) * 100}%` }}
+          />
+        </div>
+
+        {/* Step Indicator — question style */}
+        <div className="mb-8 flex items-center justify-center gap-1.5 sm:gap-2">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center">
               <button
@@ -339,39 +413,64 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 onClick={() => i < step && setStep(i)}
                 disabled={i > step}
                 aria-current={i === step ? "step" : undefined}
+                aria-label={`${s.q} - ${s.title}`}
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
-                  i <= step
-                    ? "border-primary bg-primary/20 text-primary"
-                    : "border-border text-muted-foreground"
-                } ${i < step ? "cursor-pointer hover:bg-primary/30" : "cursor-default"}`}
+                  i === step
+                    ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105"
+                    : i < step
+                      ? "border-primary bg-primary/15 text-primary hover:bg-primary/25 cursor-pointer"
+                      : "border-border text-muted-foreground cursor-default"
+                }`}
               >
                 <s.icon className="h-4 w-4" />
               </button>
               {i < steps.length - 1 && (
-                <div
-                  className={`h-0.5 w-8 transition-all ${i < step ? "bg-primary" : "bg-border"}`}
-                />
+                <div className={`h-0.5 w-6 sm:w-10 transition-all ${i < step ? "bg-primary" : "bg-border"}`} />
               )}
+            </div>
+          ))}
+        </div>
+        {/* labels under dots */}
+        <div className="mb-8 hidden sm:flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
+          {steps.map((s, i) => (
+            <div key={i} className="flex items-center">
+              <span
+                className={`w-10 text-center leading-tight ${i === step ? "text-primary font-semibold" : i < step ? "text-primary/70" : ""} ${i < steps.length - 1 ? "mr-2" : ""}`}
+              >
+                {s.title}
+              </span>
+              {i < steps.length - 1 && <span className="w-10" />}
             </div>
           ))}
         </div>
 
         {/* Step Content */}
         <GlassCard>
-          {/* Step 1: Package Selection */}
+          {/* Q1: Package Selection */}
           {step === 0 && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-bold bn">
-                {isBn ? "প্যাকেজ ও ওয়েবসাইট টাইপ বেছে নিন" : "Choose Package & Website Type"}
-              </h3>
+            <div className="space-y-4">
+              <div
+                id="q-packageType"
+                data-field="packageType"
+                className={`rounded-2xl border p-4 sm:p-5 ${errors.packageType ? "border-destructive/60 bg-destructive/5" : "border-border/60 bg-card/30"}`}
+              >
+                <div className="mb-3 flex items-start gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    1
+                  </span>
+                  <div className="flex-1">
+                    <h3 className="text-[15px] font-bold bn flex items-center gap-1.5">
+                      {isBn ? "আপনি কোন প্যাকেজটি নিতে চান?" : "Which package would you like?"}
+                      <span className="text-destructive">*</span>
+                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground bn">
+                      {isBn ? "শুধু একটি অপশন ট্যাপ করুন — দাম সহ দেখানো আছে" : "Just tap one option — price shown"}
+                    </p>
+                  </div>
+                </div>
 
-              {visiblePackages.length > 0 && (
-                <FormField
-                  id="packageType"
-                  label={isBn ? "প্যাকেজ" : "Package"}
-                  required
-                  error={errors.packageType}
-                >
+                <div id="packageType">
                   <ChipGroup
                     options={visiblePackages.map((pkg) => {
                       const price = packagePriceLabel(pkg.value);
@@ -382,18 +481,54 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                     })}
                     value={data.packageType}
                     onChange={(v) => updateData("packageType", v)}
-                    columns={4}
+                    columns={2}
+                    invalid={!!errors.packageType}
                   />
-                </FormField>
-              )}
+                </div>
+                {errors.packageType && (
+                  <p role="alert" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-destructive">
+                    <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
+                    {errors.packageType}
+                  </p>
+                )}
+                {selectedPricingPackage && (
+                  <p className="mt-3 rounded-lg bg-primary/5 px-3 py-2 text-xs text-muted-foreground bn border border-primary/10">
+                    <Sparkles className="mr-1 inline h-3 w-3 text-primary" />
+                    {isBn ? "নির্বাচিত:" : "Selected:"} {isBn ? selectedPricingPackage.nameBn : selectedPricingPackage.nameEn} — {isBn ? selectedPricingPackage.descriptionBn : selectedPricingPackage.descriptionEn}
+                  </p>
+                )}
+              </div>
 
-              {visibleWebsiteTypes.length > 0 && (
-                <FormField
-                  id="websiteType"
-                  label={isBn ? "ওয়েবসাইট টাইপ" : "Website Type"}
-                  required
-                  error={errors.websiteType}
-                >
+              <p className="text-center text-xs text-muted-foreground bn">
+                {isBn ? "পরবর্তী ধাপে ওয়েবসাইটের ধরন বাছাই করবেন" : "Next, choose the website type"}
+              </p>
+            </div>
+          )}
+
+          {/* Q2: Website Type */}
+          {step === 1 && (
+            <div className="space-y-4">
+              <div
+                id="q-websiteType"
+                data-field="websiteType"
+                className={`rounded-2xl border p-4 sm:p-5 ${errors.websiteType ? "border-destructive/60 bg-destructive/5" : "border-border/60 bg-card/30"}`}
+              >
+                <div className="mb-3 flex items-start gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    2
+                  </span>
+                  <div className="flex-1">
+                    <h3 className="text-[15px] font-bold bn flex items-center gap-1.5">
+                      {isBn ? "কোন ধরনের ওয়েবসাইট বানাতে চান?" : "What type of website do you need?"}
+                      <span className="text-destructive">*</span>
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground bn">
+                      {isBn ? "একটি অপশন সিলেক্ট করুন — বাকি সব আমরা সামলে নেব" : "Select one option — we'll handle the rest"}
+                    </p>
+                  </div>
+                </div>
+
+                <div id="websiteType">
                   <ChipGroup
                     options={visibleWebsiteTypes.map((t) => ({
                       value: t.value,
@@ -401,126 +536,38 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                     }))}
                     value={data.websiteType}
                     onChange={(v) => updateData("websiteType", v)}
-                    columns={4}
-                  />
-                </FormField>
-              )}
-            </div>
-          )}
-
-          {/* Step 2: Design Preferences */}
-          {step === 1 && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-bold bn">{isBn ? "আপনার প্রয়োজন ও যোগাযোগ" : "Your project & contact"}</h3>
-              <p className="-mt-3 text-sm text-muted-foreground bn">{isBn ? "শুধু নিচের তথ্যগুলো দিলেই অর্ডার করা যাবে।" : "Just the essentials — you can order in a minute."}</p>
-
-              <details className="rounded-xl border border-border/70 bg-background/30 px-4 py-3">
-                <summary className="cursor-pointer text-sm font-medium text-muted-foreground bn">
-                  {isBn ? "ডিজাইন ও ফিচার পছন্দ যোগ করুন (ঐচ্ছিক)" : "Add design and feature preferences (optional)"}
-                </summary>
-                <div className="mt-5 space-y-6">
-              {visibleDesignStyles.length > 0 && (
-                <FormField
-                  id="designStyle"
-                  label={isBn ? "ডিজাইন স্টাইল" : "Design Style"}
-                >
-                  <ChipGroup
-                    options={visibleDesignStyles.map((d) => ({
-                      value: d.value,
-                      label: isBn ? d.labelBn : d.labelEn,
-                    }))}
-                    value={data.designStyle}
-                    onChange={(v) => updateData("designStyle", v)}
                     columns={2}
+                    invalid={!!errors.websiteType}
                   />
-                  {data.designStyle && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {
-                        visibleDesignStyles.find((d) => d.value === data.designStyle)?.[
-                          isBn ? "descriptionBn" : "descriptionEn"
-                        ]
-                      }
-                    </p>
-                  )}
-                </FormField>
-              )}
-
-              <FormField
-                id="colorPreference"
-                label={isBn ? "পছন্দের রং" : "Color Preference"}
-                hint={isBn ? "যেমন: নীল, সবুজ, কালো..." : "e.g., Blue, Green, Dark..."}
-              >
-                <TextField
-                  id="colorPreference"
-                  value={data.colorPreference}
-                  onChange={(e) => updateData("colorPreference", e.target.value)}
-                  placeholder={isBn ? "যেমন: নীল, সবুজ, কালো..." : "e.g., Blue, Green, Dark..."}
-                />
-              </FormField>
-
-              <FormField
-                id="referenceSites"
-                label={isBn ? "রেফারেন্স সাইট" : "Reference Sites"}
-                hint={isBn ? "কমা দিয়ে আলাদা করুন" : "Separate multiple sites with commas"}
-              >
-                <TextField
-                  id="referenceSites"
-                  value={data.referenceSites}
-                  onChange={(e) => updateData("referenceSites", e.target.value)}
-                  placeholder={isBn ? "যেমন: example.com, site.com" : "e.g., example.com, site.com"}
-                />
-              </FormField>
-
-              {visibleAddons.length > 0 && (
-                <FormField
-                  id="features"
-                  label={isBn ? "ফিচার সমূহ" : "Features Needed"}
-                  hint={
-                    data.features.length > 0
-                      ? isBn
-                        ? `${data.features.length}টি ফিচার বাছাই করা হয়েছে`
-                        : `${data.features.length} features selected`
-                      : isBn
-                        ? "প্রয়োজনীয় ফিচারগুলো বেছে নিন"
-                        : "Select the features you need"
-                  }
-                >
-                  <ChipGroup
-                    options={visibleAddons.map((f) => ({
-                      value: f.value,
-                      label: `${isBn ? f.labelBn : f.labelEn}${
-                        selectedPricingPackage?.includedFeatureValues.includes(f.value)
-                          ? isBn
-                            ? " · অন্তর্ভুক্ত"
-                            : " · Included"
-                          : f.priceBdt > 0
-                            ? ` · +${formatQuoteAmount(f.priceBdt, "BDT", locale)}`
-                            : ""
-                      }`,
-                    }))}
-                    value={data.features}
-                    onChange={toggleFeature}
-                    multi
-                    columns={2}
-                  />
-                </FormField>
-              )}
                 </div>
-              </details>
+                {errors.websiteType && (
+                  <p role="alert" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-destructive">
+                    <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
+                    {errors.websiteType}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Project essentials — part of the quick second step */}
-          {step === 1 && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-bold bn">{isBn ? "প্রজেক্টের বিস্তারিত" : "Project Details"}</h3>
-
-              {config.pageIncrements.length > 0 && (
-                <FormField
-                  id="numPages"
-                  label={isBn ? "পেজ সংখ্যা" : "Number of Pages"}
-                  hint={isBn ? "প্রয়োজন অনুযায়ী পেজ বাড়ান" : "Increase pages as needed"}
-                >
+          {/* Q3: Project Details — question cards */}
+          {step === 2 && (
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-border/60 bg-card/30 p-4 sm:p-5">
+                <div className="mb-3 flex items-start gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    3
+                  </span>
+                  <div>
+                    <h3 className="text-[15px] font-bold bn">
+                      {isBn ? "কতগুলো পেজ লাগবে?" : "How many pages do you need?"}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground bn">
+                      {isBn ? "একটি অপশন বেছে নিন" : "Pick one option"}
+                    </p>
+                  </div>
+                </div>
+                {config.pageIncrements.length > 0 && (
                   <ChipGroup
                     options={config.pageIncrements.map((p) => ({
                       value: String(p),
@@ -530,51 +577,81 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                     onChange={(v) => updateData("numPages", Number(v) || 1)}
                     columns={4}
                   />
-                </FormField>
-              )}
+                )}
+              </div>
 
-              <FormField
-                id="description"
-                label={isBn ? "প্রজেক্টের বিবরণ" : "Project Description"}
-                required
-                error={errors.description}
+              <div
+                id="q-description"
+                data-field="description"
+                className={`rounded-2xl border p-4 sm:p-5 ${errors.description ? "border-destructive/60 bg-destructive/5" : "border-border/60 bg-card/30"}`}
               >
-                <TextAreaField
-                  id="description"
-                  value={data.description}
-                  onChange={(e) => updateData("description", e.target.value)}
-                  placeholder={
-                    isBn
-                      ? "আপনার প্রজেক্ট সম্পর্কে বিস্তারিত লিখুন..."
-                      : "Describe your project in detail..."
-                  }
-                  rows={4}
-                />
-              </FormField>
+                <div className="mb-3 flex items-start gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    4
+                  </span>
+                  <div className="flex-1">
+                    <h3 className="text-[15px] font-bold bn flex items-center gap-1.5">
+                      {isBn ? "আপনার প্রজেক্ট সম্পর্কে সংক্ষেপে বলুন" : "Briefly describe your project"}
+                      <span className="text-destructive">*</span>
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground bn">
+                      {isBn ? "যেমন: কী ধরনের ব্যবসা, কী কী লাগবে" : "e.g. business type, goals, examples"}
+                    </p>
+                  </div>
+                </div>
+                <div id="description">
+                  <TextAreaField
+                    id="description"
+                    value={data.description}
+                    onChange={(e) => updateData("description", e.target.value)}
+                    placeholder={
+                      isBn
+                        ? "যেমন: আমার একটি রেস্টুরেন্টের জন্য মেনু, অর্ডার ও লোকেশন সহ ওয়েবসাইট লাগবে..."
+                        : "e.g. I need a restaurant website with menu, ordering and location..."
+                    }
+                    rows={4}
+                    invalid={!!errors.description}
+                  />
+                </div>
+                {errors.description && (
+                  <p role="alert" className="mt-2 flex items-center gap-1.5 text-xs font-medium text-destructive">
+                    <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
+                    {errors.description}
+                  </p>
+                )}
+              </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {visibleBudgetRanges.length > 0 && (
-                  <FormField id="budgetRange" label={isBn ? "বাজেট" : "Budget"}>
+                  <div className="rounded-2xl border border-border/60 bg-card/30 p-4">
+                    <h4 className="mb-2 text-sm font-semibold bn">
+                      {isBn ? "আপনার বাজেট কত?" : "What's your budget?"}
+                    </h4>
                     <SelectField
                       id="budgetRange"
                       value={data.budgetRange}
                       onChange={(e) => updateData("budgetRange", e.target.value)}
-                      placeholder={isBn ? "বেছে নিন" : "Select"}
+                      placeholder={isBn ? "একটি বেছে নিন" : "Select one"}
                     >
                       {visibleBudgetRanges.map((b) => (
-                        <option key={b.value} value={b.value}>{b.label}</option>
+                        <option key={b.value} value={b.value}>
+                          {b.label}
+                        </option>
                       ))}
                     </SelectField>
-                  </FormField>
+                  </div>
                 )}
 
                 {visibleTimelines.length > 0 && (
-                  <FormField id="timeline" label={isBn ? "টাইমলাইন" : "Timeline"}>
+                  <div className="rounded-2xl border border-border/60 bg-card/30 p-4">
+                    <h4 className="mb-2 text-sm font-semibold bn">
+                      {isBn ? "কত দিনের মধ্যে লাগবে?" : "When do you need it?"}
+                    </h4>
                     <SelectField
                       id="timeline"
                       value={data.timeline}
                       onChange={(e) => updateData("timeline", e.target.value)}
-                      placeholder={isBn ? "বেছে নিন" : "Select"}
+                      placeholder={isBn ? "একটি বেছে নিন" : "Select one"}
                     >
                       {visibleTimelines.map((t) => (
                         <option key={t.value} value={t.value}>
@@ -582,114 +659,238 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                         </option>
                       ))}
                     </SelectField>
+                  </div>
+                )}
+              </div>
+
+              <details className="rounded-2xl border border-border/60 bg-background/30 px-4 py-3">
+                <summary className="cursor-pointer text-sm font-medium text-muted-foreground bn">
+                  {isBn ? "ডিজাইন ও ফিচার পছন্দ যোগ করুন (ঐচ্ছিক) — শুধু ট্যাপ করুন" : "Add design & features (optional) — just tap to select"}
+                </summary>
+                <div className="mt-5 space-y-5">
+                  {visibleDesignStyles.length > 0 && (
+                    <div>
+                      <p className="mb-2 text-sm font-medium bn">
+                        {isBn ? "কোন ডিজাইন স্টাইল পছন্দ?" : "Which design style do you prefer?"}
+                      </p>
+                      <ChipGroup
+                        options={visibleDesignStyles.map((d) => ({
+                          value: d.value,
+                          label: isBn ? d.labelBn : d.labelEn,
+                        }))}
+                        value={data.designStyle}
+                        onChange={(v) => updateData("designStyle", v)}
+                        columns={2}
+                      />
+                      {data.designStyle && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {
+                            visibleDesignStyles.find((d) => d.value === data.designStyle)?.[
+                              isBn ? "descriptionBn" : "descriptionEn"
+                            ]
+                          }
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <FormField
+                    id="colorPreference"
+                    label={isBn ? "পছন্দের রং কী?" : "Preferred colors?"}
+                    hint={isBn ? "যেমন: নীল, সবুজ, কালো..." : "e.g., Blue, Green, Dark..."}
+                  >
+                    <TextField
+                      id="colorPreference"
+                      value={data.colorPreference}
+                      onChange={(e) => updateData("colorPreference", e.target.value)}
+                      placeholder={isBn ? "যেমন: নীল, সাদা, মিনিমাল..." : "e.g., Blue, white, minimal..."}
+                    />
                   </FormField>
+
+                  <FormField
+                    id="referenceSites"
+                    label={isBn ? "পছন্দের কোনো রেফারেন্স সাইট আছে?" : "Any reference sites you like?"}
+                    hint={isBn ? "কমা দিয়ে আলাদা করুন" : "Separate with commas"}
+                  >
+                    <TextField
+                      id="referenceSites"
+                      value={data.referenceSites}
+                      onChange={(e) => updateData("referenceSites", e.target.value)}
+                      placeholder={isBn ? "যেমন: example.com, site.com" : "e.g., example.com, site.com"}
+                    />
+                  </FormField>
+
+                  {visibleAddons.length > 0 && (
+                    <FormField
+                      id="features"
+                      label={isBn ? "কোন ফিচারগুলো লাগবে? (ট্যাপ করে বাছাই করুন)" : "Which features do you need? (tap to select)"}
+                      hint={
+                        data.features.length > 0
+                          ? isBn
+                            ? `${data.features.length}টি ফিচার বাছাই করা হয়েছে`
+                            : `${data.features.length} features selected`
+                          : isBn
+                            ? "প্রয়োজনীয় ফিচারগুলো বেছে নিন"
+                            : "Select the features you need"
+                      }
+                    >
+                      <ChipGroup
+                        options={visibleAddons.map((f) => ({
+                          value: f.value,
+                          label: `${isBn ? f.labelBn : f.labelEn}${
+                            selectedPricingPackage?.includedFeatureValues.includes(f.value)
+                              ? isBn
+                                ? " · অন্তর্ভুক্ত"
+                                : " · Included"
+                              : f.priceBdt > 0
+                                ? ` · +${formatQuoteAmount(f.priceBdt, "BDT", locale)}`
+                                : ""
+                          }`,
+                        }))}
+                        value={data.features}
+                        onChange={toggleFeature}
+                        multi
+                        columns={2}
+                      />
+                    </FormField>
+                  )}
+                </div>
+              </details>
+            </div>
+          )}
+
+          {/* Q4: Contact */}
+          {step === 3 && (
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-3">
+                <Phone className="h-5 w-5 text-primary shrink-0" />
+                <p className="text-sm bn">
+                  {isBn
+                    ? "শেষ প্রশ্ন — কীভাবে যোগাযোগ করব? শুধু নিচের ৩টি ঘর পূরণ করুন।"
+                    : "Last question — how to reach you? Just fill the 3 required fields."}
+                </p>
+              </div>
+
+              <div
+                id="q-clientName"
+                data-field="clientName"
+                className={`rounded-2xl border p-4 sm:p-5 ${errors.clientName ? "border-destructive/60 bg-destructive/5" : "border-border/60 bg-card/30"}`}
+              >
+                <h3 className="mb-3 flex items-center gap-2 text-[15px] font-bold bn">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    5
+                  </span>
+                  {isBn ? "যোগাযোগের তথ্য" : "Contact Information"}
+                </h3>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField id="clientName" label={isBn ? "আপনার নাম" : "Your name"} required error={errors.clientName}>
+                    <div id="clientName">
+                      <TextField
+                        id="clientName-input"
+                        value={data.clientName}
+                        onChange={(e) => updateData("clientName", e.target.value)}
+                        placeholder={isBn ? "আপনার নাম" : "Your name"}
+                        invalid={!!errors.clientName}
+                      />
+                    </div>
+                  </FormField>
+                  <FormField id="clientCompany" label={isBn ? "কোম্পানি (ঐচ্ছিক)" : "Company (optional)"}>
+                    <TextField
+                      id="clientCompany"
+                      value={data.clientCompany}
+                      onChange={(e) => updateData("clientCompany", e.target.value)}
+                      placeholder={isBn ? "কোম্পানির নাম" : "Company name"}
+                    />
+                  </FormField>
+                  <FormField id="clientEmail" label={isBn ? "ইমেইল" : "Email"} required error={errors.clientEmail}>
+                    <div id="clientEmail">
+                      <TextField
+                        id="clientEmail-input"
+                        type="email"
+                        value={data.clientEmail}
+                        onChange={(e) => updateData("clientEmail", e.target.value)}
+                        placeholder="email@example.com"
+                        invalid={!!errors.clientEmail}
+                      />
+                    </div>
+                  </FormField>
+                  <FormField id="clientPhone" label={isBn ? "ফোন" : "Phone"} required error={errors.clientPhone}>
+                    <div id="clientPhone">
+                      <TextField
+                        id="clientPhone-input"
+                        type="tel"
+                        value={data.clientPhone}
+                        onChange={(e) => updateData("clientPhone", e.target.value)}
+                        placeholder="+880 1XXX-XXXXXX"
+                        invalid={!!errors.clientPhone}
+                      />
+                    </div>
+                  </FormField>
+                  <FormField
+                    id="clientWhatsapp"
+                    label={isBn ? "হোয়াটসঅ্যাপ (ঐচ্ছিক)" : "WhatsApp (optional)"}
+                    hint={isBn ? "ঐচ্ছিক" : "Optional"}
+                    className="sm:col-span-2"
+                  >
+                    <TextField
+                      id="clientWhatsapp"
+                      type="tel"
+                      value={data.clientWhatsapp}
+                      onChange={(e) => updateData("clientWhatsapp", e.target.value)}
+                      placeholder="+880 1XXX-XXXXXX"
+                    />
+                  </FormField>
+                </div>
+                {(errors.clientName || errors.clientEmail || errors.clientPhone) && (
+                  <p className="mt-3 text-xs text-destructive bn">
+                    {isBn ? "লাল চিহ্নিত ঘরগুলো পূরণ করুন, তারপর পরবর্তীতে যান" : "Please fill the highlighted fields, then continue"}
+                  </p>
                 )}
               </div>
             </div>
           )}
 
-          {/* Contact essentials — part of the quick second step */}
-          {step === 1 && (
+          {/* Q5: Review */}
+          {step === 4 && (
             <div className="space-y-6">
-              <h3 className="text-lg font-bold bn">{isBn ? "যোগাযোগের তথ্য" : "Contact Information"}</h3>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  id="clientName"
-                  label={isBn ? "নাম" : "Name"}
-                  required
-                  error={errors.clientName}
-                >
-                  <TextField
-                    id="clientName"
-                    value={data.clientName}
-                    onChange={(e) => updateData("clientName", e.target.value)}
-                    placeholder={isBn ? "আপনার নাম" : "Your name"}
-                    invalid={!!errors.clientName}
-                  />
-                </FormField>
-                <FormField id="clientCompany" label={isBn ? "কোম্পানি" : "Company"}>
-                  <TextField
-                    id="clientCompany"
-                    value={data.clientCompany}
-                    onChange={(e) => updateData("clientCompany", e.target.value)}
-                    placeholder={isBn ? "কোম্পানির নাম" : "Company name"}
-                  />
-                </FormField>
-                <FormField
-                  id="clientEmail"
-                  label={isBn ? "ইমেইল" : "Email"}
-                  required
-                  error={errors.clientEmail}
-                >
-                  <TextField
-                    id="clientEmail"
-                    type="email"
-                    value={data.clientEmail}
-                    onChange={(e) => updateData("clientEmail", e.target.value)}
-                    placeholder="email@example.com"
-                    invalid={!!errors.clientEmail}
-                  />
-                </FormField>
-                <FormField
-                  id="clientPhone"
-                  label={isBn ? "ফোন" : "Phone"}
-                  required
-                  error={errors.clientPhone}
-                >
-                  <TextField
-                    id="clientPhone"
-                    type="tel"
-                    value={data.clientPhone}
-                    onChange={(e) => updateData("clientPhone", e.target.value)}
-                    placeholder="+880 1XXX-XXXXXX"
-                    invalid={!!errors.clientPhone}
-                  />
-                </FormField>
-                <FormField
-                  id="clientWhatsapp"
-                  label={isBn ? "হোয়াটসঅ্যাপ" : "WhatsApp"}
-                  hint={isBn ? "ঐচ্ছিক" : "Optional"}
-                  className="sm:col-span-2"
-                >
-                  <TextField
-                    id="clientWhatsapp"
-                    type="tel"
-                    value={data.clientWhatsapp}
-                    onChange={(e) => updateData("clientWhatsapp", e.target.value)}
-                    placeholder="+880 1XXX-XXXXXX"
-                  />
-                </FormField>
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-primary" />
+                <h3 className="text-[15px] font-bold bn">
+                  {isBn ? "৫. সব তথ্য একবার দেখে নিন" : "Q5. Please review your answers"}
+                </h3>
               </div>
-            </div>
-          )}
-
-          {/* Step 3: Review */}
-          {step === 2 && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-bold bn">{isBn ? "অর্ডার রিভিউ" : "Review Your Order"}</h3>
 
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "প্যাকেজ" : "Package"}</span>
                   <span className="font-medium">
-                    {visiblePackages.find((p) => p.value === data.packageType)?.[isBn ? "labelBn" : "labelEn"] || data.packageType.charAt(0).toUpperCase() + data.packageType.slice(1)}
+                    {visiblePackages.find((p) => p.value === data.packageType)?.[isBn ? "labelBn" : "labelEn"] ||
+                      data.packageType.charAt(0).toUpperCase() + data.packageType.slice(1)}
                   </span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "ওয়েবসাইট টাইপ" : "Website Type"}</span>
                   <span className="font-medium bn">
-                    {visibleWebsiteTypes.find((t) => t.value === data.websiteType)?.[isBn ? "labelBn" : "labelEn"] || data.websiteType}
+                    {visibleWebsiteTypes.find((t) => t.value === data.websiteType)?.[isBn ? "labelBn" : "labelEn"] ||
+                      data.websiteType}
                   </span>
                 </div>
                 {data.designStyle && (
                   <div className="flex justify-between border-b border-border/50 pb-2">
                     <span className="text-muted-foreground bn">{isBn ? "ডিজাইন স্টাইল" : "Design Style"}</span>
                     <span className="font-medium bn">
-                      {visibleDesignStyles.find((d) => d.value === data.designStyle)?.[isBn ? "labelBn" : "labelEn"] || data.designStyle}
+                      {visibleDesignStyles.find((d) => d.value === data.designStyle)?.[isBn ? "labelBn" : "labelEn"] ||
+                        data.designStyle}
                     </span>
                   </div>
                 )}
+                <div className="flex justify-between border-b border-border/50 pb-2">
+                  <span className="text-muted-foreground bn">{isBn ? "পেজ" : "Pages"}</span>
+                  <span className="font-medium">
+                    {data.numPages} {isBn ? "পেজ" : "pages"}
+                  </span>
+                </div>
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "নাম" : "Name"}</span>
                   <span className="font-medium">{data.clientName}</span>
@@ -709,13 +910,15 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   </span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-2">
+                  <span className="text-muted-foreground bn">{isBn ? "টাইমলাইন" : "Timeline"}</span>
+                  <span className="font-medium">
+                    {visibleTimelines.find((t) => t.value === data.timeline)?.[isBn ? "labelBn" : "labelEn"] || "—"}
+                  </span>
+                </div>
+                <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground bn">{isBn ? "ফিচার" : "Features"}</span>
                   <span className="font-medium">
-                    {data.features.length > 0
-                      ? isBn
-                        ? `${data.features.length}টি`
-                        : `${data.features.length}`
-                      : "—"}
+                    {data.features.length > 0 ? (isBn ? `${data.features.length}টি` : `${data.features.length}`) : "—"}
                   </span>
                 </div>
               </div>
@@ -735,7 +938,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
               {data.description && (
                 <div>
                   <p className="mb-1 text-sm font-medium text-muted-foreground bn">{isBn ? "বিবরণ" : "Description"}</p>
-                  <p className="rounded-lg bg-background p-3 text-sm bn">{data.description}</p>
+                  <p className="rounded-lg bg-background p-3 text-sm bn border border-border/50">{data.description}</p>
                 </div>
               )}
 
@@ -746,6 +949,21 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                     ? "অর্ডার জমা দিলে আমরা ইমেইলে কনফার্মেশন পাঠাব এবং শীঘ্রই যোগাযোগ করব।"
                     : "After submitting, you'll receive an email confirmation and we'll contact you shortly."}
                 </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={() => setStep(0)}>
+                  {isBn ? "প্যাকেজ ঠিক করুন" : "Edit package"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setStep(1)}>
+                  {isBn ? "ধরন ঠিক করুন" : "Edit type"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setStep(2)}>
+                  {isBn ? "প্রজেক্ট ঠিক করুন" : "Edit project"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setStep(3)}>
+                  {isBn ? "যোগাযোগ ঠিক করুন" : "Edit contact"}
+                </Button>
               </div>
             </div>
           )}
@@ -758,31 +976,20 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             </p>
           )}
 
-          {/* Navigation Buttons */}
-          <div className="mt-8 flex items-center justify-between">
-            <Button
-              variant="ghost"
-              onClick={() => setStep((s) => s - 1)}
-              disabled={step === 0}
-            >
+          {/* Navigation Buttons — fixed validation + auto scroll */}
+          <div className="mt-8 flex items-center justify-between gap-3">
+            <Button variant="ghost" onClick={handleBack} disabled={step === 0}>
               <ArrowLeft className="h-4 w-4" />
               {isBn ? config.cta.backBn : config.cta.backEn}
             </Button>
 
-            {step < 2 ? (
-              <Button
-                variant="default"
-                onClick={handleNext}
-              >
+            {step < steps.length - 1 ? (
+              <Button variant="default" onClick={handleNext} className="min-w-32">
                 {isBn ? config.cta.nextBn : config.cta.nextEn}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
-              <Button
-                variant="gradient"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
+              <Button variant="gradient" onClick={handleSubmit} disabled={isSubmitting} className="min-w-32">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />

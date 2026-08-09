@@ -1,15 +1,32 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useLocale } from "next-intl";
 import { useMotionPreference } from "@/components/animations/motion-preferences";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
 
-// ── Check if intro already played ──────────────────────
-function shouldPlayIntro(): boolean {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem("rahatverse-intro-played") === null;
+// ── "Intro already played" flag (persisted in localStorage) ──
+// Read through useSyncExternalStore: SSR and the hydration pass both use the
+// server snapshot (true = do not play), then React re-checks the real client
+// value immediately after hydration. Reading localStorage inside useState()
+// broke the hydration contract — React error #418 on every first visit.
+const INTRO_STORAGE_KEY = "rahatverse-intro-played";
+
+function subscribeIntroPlayed() {
+  // Nothing to listen to — the flag is only written when this very intro
+  // completes, which is handled via local component state below.
+  return () => {};
+}
+function getIntroPlayedSnapshot(): boolean {
+  try {
+    return localStorage.getItem(INTRO_STORAGE_KEY) === "true";
+  } catch {
+    return true; // storage unavailable (private mode) — never trap visitors
+  }
+}
+function getIntroPlayedServerSnapshot(): boolean {
+  return true;
 }
 
 // ── Cinematic Intro Sequence ───────────────────────────
@@ -19,7 +36,12 @@ function shouldPlayIntro(): boolean {
 export function CinematicIntro() {
   const locale = useLocale();
   const isBn = locale === "bn";
-  const [isPlaying, setIsPlaying] = useState(shouldPlayIntro);
+  const introPlayed = useSyncExternalStore(
+    subscribeIntroPlayed,
+    getIntroPlayedSnapshot,
+    getIntroPlayedServerSnapshot
+  );
+  const [introDone, setIntroDone] = useState(false); // completed/skipped this session
   const prefersReducedMotion = useMotionPreference();
   const [greeting, setGreeting] = useState(DEFAULT_HERO_CONFIG.intro.greetingBn);
   const [durationMs, setDurationMs] = useState(DEFAULT_HERO_CONFIG.intro.durationMs);
@@ -38,15 +60,21 @@ export function CinematicIntro() {
   }, []);
 
   const handleComplete = () => {
-    setIsPlaying(false);
-    localStorage.setItem("rahatverse-intro-played", "true");
+    setIntroDone(true);
+    try {
+      localStorage.setItem(INTRO_STORAGE_KEY, "true");
+    } catch {
+      // Storage unavailable — intro simply plays again next visit.
+    }
   };
+
+  const showIntro = !introPlayed && !introDone && !prefersReducedMotion;
 
   // Never block content behind a cinematic sequence for visitors who request
   // reduced motion. The normal interactive completion persists the skip.
   return (
     <AnimatePresence>
-      {isPlaying && !prefersReducedMotion && (
+      {showIntro && (
         <motion.div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-void"
           initial={{ opacity: 1 }}

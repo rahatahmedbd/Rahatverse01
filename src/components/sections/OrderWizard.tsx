@@ -17,9 +17,7 @@ import { LiveQuoteEstimate } from "@/components/sections/LiveQuoteEstimate";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import {
   Package,
-  Palette,
   FileText,
-  User,
   CheckCircle2,
   ArrowLeft,
   ArrowRight,
@@ -33,9 +31,9 @@ import type { OrdersConfig } from "@/types/orders";
 import type { ServicesConfig } from "@/types/services";
 
 // ── Order Wizard (DB-driven) ───────────────────────────
-// Multi-step form: Package → Design → Details → Contact → Review.
-// Phase 4: config-driven options via `orders_config`; Phase 5 adds admin-editable
-// design styles and page-count increments to the intake.
+// Focused 3-step order flow: choose → share essentials → confirm.
+// Optional creative preferences stay available, without getting in the way of
+// someone who simply wants to send an order quickly.
 
 interface OrderWizardProps {
   locale?: string;
@@ -201,11 +199,9 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   };
 
   const steps = [
-    { icon: Package, title: isBn ? config.steps.packageBn : config.steps.packageEn },
-    { icon: Palette, title: isBn ? config.steps.designBn : config.steps.designEn },
-    { icon: FileText, title: isBn ? config.steps.detailsBn : config.steps.detailsEn },
-    { icon: User, title: isBn ? config.steps.contactBn : config.steps.contactEn },
-    { icon: CheckCircle2, title: isBn ? config.steps.reviewBn : config.steps.reviewEn },
+    { icon: Package, title: isBn ? "বেছে নিন" : "Choose" },
+    { icon: FileText, title: isBn ? "তথ্য দিন" : "Details" },
+    { icon: CheckCircle2, title: isBn ? "নিশ্চিত করুন" : "Confirm" },
   ];
 
   // ── Per-step validation (returns error map for visible fields) ──
@@ -215,11 +211,11 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       if (!data.packageType) errs.packageType = isBn ? "প্যাকেজ বাছাই করুন" : "Please choose a package";
       if (!data.websiteType) errs.websiteType = isBn ? "ওয়েবসাইটের ধরন বাছাই করুন" : "Please choose a website type";
     }
-    if (current === 2) {
+    if (current === 1) {
       if (!data.description.trim())
         errs.description = isBn ? "প্রজেক্টের বিবরণ লিখুন" : "Please describe your project";
     }
-    if (current === 3) {
+    if (current === 1) {
       if (!data.clientName.trim())
         errs.clientName = isBn ? "আপনার নাম লিখুন" : "Please enter your name";
       if (!data.clientEmail.trim()) {
@@ -243,7 +239,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   };
 
   const handleSubmit = async () => {
-    const errs = validateStep(3);
+    const errs = validateStep(1);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
@@ -415,8 +411,14 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           {/* Step 2: Design Preferences */}
           {step === 1 && (
             <div className="space-y-6">
-              <h3 className="text-lg font-bold bn">{isBn ? "ডিজাইন পছন্দ" : "Design Preferences"}</h3>
+              <h3 className="text-lg font-bold bn">{isBn ? "আপনার প্রয়োজন ও যোগাযোগ" : "Your project & contact"}</h3>
+              <p className="-mt-3 text-sm text-muted-foreground bn">{isBn ? "শুধু নিচের তথ্যগুলো দিলেই অর্ডার করা যাবে।" : "Just the essentials — you can order in a minute."}</p>
 
+              <details className="rounded-xl border border-border/70 bg-background/30 px-4 py-3">
+                <summary className="cursor-pointer text-sm font-medium text-muted-foreground bn">
+                  {isBn ? "ডিজাইন ও ফিচার পছন্দ যোগ করুন (ঐচ্ছিক)" : "Add design and feature preferences (optional)"}
+                </summary>
+                <div className="mt-5 space-y-6">
               {visibleDesignStyles.length > 0 && (
                 <FormField
                   id="designStyle"
@@ -503,11 +505,13 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   />
                 </FormField>
               )}
+                </div>
+              </details>
             </div>
           )}
 
-          {/* Step 3: Project Details */}
-          {step === 2 && (
+          {/* Project essentials — part of the quick second step */}
+          {step === 1 && (
             <div className="space-y-6">
               <h3 className="text-lg font-bold bn">{isBn ? "প্রজেক্টের বিস্তারিত" : "Project Details"}</h3>
 
@@ -584,8 +588,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             </div>
           )}
 
-          {/* Step 4: Contact Information */}
-          {step === 3 && (
+          {/* Contact essentials — part of the quick second step */}
+          {step === 1 && (
             <div className="space-y-6">
               <h3 className="text-lg font-bold bn">{isBn ? "যোগাযোগের তথ্য" : "Contact Information"}</h3>
 
@@ -660,8 +664,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             </div>
           )}
 
-          {/* Step 5: Review */}
-          {step === 4 && (
+          {/* Step 3: Review */}
+          {step === 2 && (
             <div className="space-y-6">
               <h3 className="text-lg font-bold bn">{isBn ? "অর্ডার রিভিউ" : "Review Your Order"}</h3>
 
@@ -765,7 +769,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
               {isBn ? config.cta.backBn : config.cta.backEn}
             </Button>
 
-            {step < 4 ? (
+            {step < 2 ? (
               <Button
                 variant="default"
                 onClick={handleNext}

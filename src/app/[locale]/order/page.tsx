@@ -27,8 +27,9 @@ export default async function OrderPage({ params }: OrderPageProps) {
 
       <AuroraDivider />
 
-      {/* Order Wizard (Checkout) — anchored so "Order Now" links scroll here */}
-      <div id="order-checkout">
+      {/* Order Wizard (Checkout) — anchored so "Order Now" links scroll here;
+          scroll-mt keeps it clear of the fixed navbar */}
+      <div id="order-checkout" className="scroll-mt-24">
         <Suspense>
           <OrderWizard locale={locale} />
         </Suspense>

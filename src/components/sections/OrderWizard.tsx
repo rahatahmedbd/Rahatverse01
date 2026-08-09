@@ -23,10 +23,9 @@ import {
   ArrowRight,
   Loader2,
   Sparkles,
-  HelpCircle,
   Phone,
   User,
-  Layers,
+  Pencil,
 } from "lucide-react";
 import { DEFAULT_ORDERS_CONFIG, validateOrdersConfig } from "@/lib/orders/config";
 import { calculateLiveQuote, formatQuoteAmount } from "@/lib/orders/quote";
@@ -34,9 +33,12 @@ import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/
 import type { OrdersConfig } from "@/types/orders";
 import type { ServicesConfig } from "@/types/services";
 
-// ── Order Wizard — Question based ─────────────────────
-// Each step is a question; user just selects options to order.
-// Fixes: Next now validates + scrolls to the unfilled question at the top.
+// ── Order Wizard — Simple 3-step ──────────────────────
+// ১) প্যাকেজ → ২) প্রজেক্ট → ৩) যোগাযোগ।
+// A package clicked anywhere arrives as ?package=<value>: the wizard selects it
+// instantly (no network wait) and starts on the NEXT step, exactly as promised.
+// Fixed bugs: no scroll-jump on page load, no duplicate element ids, labels are
+// tied to their inputs, and tapping a package chip auto-advances.
 
 interface OrderWizardProps {
   locale?: string;
@@ -62,15 +64,12 @@ interface OrderData {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()-]{5,24}$/;
+const AUTO_ADVANCE_MS = 300;
 
 export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const isBn = locale === "bn";
   const searchParams = useSearchParams();
-  const preselectedPackage = searchParams.get("package") || "";
-  const initialPackage =
-    DEFAULT_ORDERS_CONFIG.packages.find(
-      (pkg) => pkg.visible && pkg.value === preselectedPackage
-    )?.value ?? DEFAULT_ORDERS_CONFIG.packages.find((pkg) => pkg.visible)?.value ?? "";
+  const preselectedPackage = (searchParams.get("package") || "").trim();
 
   const [config, setConfig] = useState<OrdersConfig>(DEFAULT_ORDERS_CONFIG);
   const [servicesConfig, setServicesConfig] = useState<ServicesConfig>(DEFAULT_SERVICES_CONFIG);
@@ -82,16 +81,25 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const visibleBudgetRanges = config.budgetRanges.filter((b) => b.visible);
   const visibleTimelines = config.timelineOptions.filter((t) => t.visible);
 
-  const [step, setStep] = useState(0);
+  // ── Initial state: preselected package starts on the NEXT step ──
+  const validPreselect =
+    preselectedPackage &&
+    DEFAULT_ORDERS_CONFIG.packages.some((p) => p.visible && p.value === preselectedPackage)
+      ? preselectedPackage
+      : "";
+
+  const [step, setStep] = useState(validPreselect ? 1 : 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [errors, setErrors] = useState<Partial<Record<keyof OrderData, string>>>({});
 
   const wizardRef = useRef<HTMLDivElement>(null);
+  const prevParamRef = useRef(preselectedPackage);
+  const autoAdvanceTimer = useRef<number | null>(null);
 
   const [data, setData] = useState<OrderData>({
-    packageType: initialPackage,
+    packageType: validPreselect || DEFAULT_ORDERS_CONFIG.packages.find((p) => p.visible)?.value || "",
     websiteType: "",
     designStyle: "",
     numPages: 1,
@@ -108,6 +116,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     timeline: "",
   });
 
+  // ── Load configs once — never blocks or scrolls the page ──
   useEffect(() => {
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 8_000);
@@ -124,27 +133,22 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
         ]);
         if (controller.signal.aborted) return;
 
-        const orders = validateOrdersConfig(
-          (ordersJson as { data?: unknown } | null)?.data
-        ) ?? DEFAULT_ORDERS_CONFIG;
-        const services = validateServicesConfig(
-          (servicesJson as { data?: unknown } | null)?.data
-        ) ?? DEFAULT_SERVICES_CONFIG;
+        const orders =
+          validateOrdersConfig((ordersJson as { data?: unknown } | null)?.data) ??
+          DEFAULT_ORDERS_CONFIG;
+        const services =
+          validateServicesConfig((servicesJson as { data?: unknown } | null)?.data) ??
+          DEFAULT_SERVICES_CONFIG;
         setConfig(orders);
         setServicesConfig(services);
 
+        // Keep the current selection only if it still exists in the loaded config.
         const allowedPackages = orders.packages.filter((pkg) => pkg.visible);
-        const requestedPackage = allowedPackages.find(
-          (pkg) => pkg.value === preselectedPackage
-        )?.value;
-        setData((previous) => {
-          if (requestedPackage && requestedPackage !== previous.packageType) {
-            return { ...previous, packageType: requestedPackage };
-          }
-          return allowedPackages.some((pkg) => pkg.value === previous.packageType)
+        setData((previous) =>
+          allowedPackages.some((pkg) => pkg.value === previous.packageType)
             ? previous
-            : { ...previous, packageType: allowedPackages[0]?.value ?? "" };
-        });
+            : { ...previous, packageType: allowedPackages[0]?.value ?? "" }
+        );
       } catch {
         // defaults remain
       } finally {
@@ -157,14 +161,53 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       controller.abort();
       window.clearTimeout(timeoutId);
     };
+  }, []);
+
+  // ── Package click from anywhere (pricing cards, home, services page) ──
+  // The click arrives as ?package=<value>. Apply it DURING RENDER (the React
+  // docs pattern for prop/param-driven state): select the package instantly —
+  // no network wait — and open the NEXT step. First mount is untouched because
+  // the useState initializers above already handled it.
+  const [appliedParam, setAppliedParam] = useState(preselectedPackage);
+  if (preselectedPackage !== appliedParam) {
+    setAppliedParam(preselectedPackage);
+    if (preselectedPackage) {
+      const allowed =
+        config.packages.some((p) => p.visible && p.value === preselectedPackage) ||
+        DEFAULT_ORDERS_CONFIG.packages.some((p) => p.visible && p.value === preselectedPackage);
+      if (allowed) {
+        setErrors({});
+        setData((previous) => ({ ...previous, packageType: preselectedPackage }));
+        setStep(1);
+      }
+    }
+  }
+
+  // ── Carry the visitor to the wizard when a new package param arrives ──
+  // Pure DOM scroll in an effect (no setState). Never runs on page load, so
+  // landing on /order stays at the top as expected.
+  useEffect(() => {
+    if (prevParamRef.current === preselectedPackage) return;
+    prevParamRef.current = preselectedPackage;
+    if (preselectedPackage) {
+      wizardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [preselectedPackage]);
 
-  // Scroll wizard top into view when step changes
+  // ── Scroll to the wizard top on step change — but never on page load ──
+  const prevStepRef = useRef(step);
   useEffect(() => {
-    if (wizardRef.current) {
-      wizardRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (prevStepRef.current === step) return;
+    prevStepRef.current = step;
+    wizardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
+
+  useEffect(
+    () => () => {
+      if (autoAdvanceTimer.current) window.clearTimeout(autoAdvanceTimer.current);
+    },
+    []
+  );
 
   const updateData = <K extends keyof OrderData>(field: K, value: OrderData[K]) => {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -209,29 +252,30 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     return formatQuoteAmount(pricing.priceBdt, "BDT", locale);
   };
 
-  // ── 5 question steps ──
+  const selectedPackageLabel =
+    visiblePackages.find((p) => p.value === data.packageType)?.[isBn ? "labelBn" : "labelEn"] || "";
+
+  // ── 3 simple steps ──
   const steps = [
-    { icon: Package, title: isBn ? "প্যাকেজ" : "Package", q: isBn ? "প্রশ্ন ১" : "Q1" },
-    { icon: Layers, title: isBn ? "ধরন" : "Type", q: isBn ? "প্রশ্ন ২" : "Q2" },
-    { icon: FileText, title: isBn ? "প্রজেক্ট" : "Project", q: isBn ? "প্রশ্ন ৩" : "Q3" },
-    { icon: User, title: isBn ? "যোগাযোগ" : "Contact", q: isBn ? "প্রশ্ন ৪" : "Q4" },
-    { icon: CheckCircle2, title: isBn ? "রিভিউ" : "Review", q: isBn ? "প্রশ্ন ৫" : "Q5" },
+    { icon: Package, title: isBn ? "প্যাকেজ" : "Package" },
+    { icon: FileText, title: isBn ? "প্রজেক্ট" : "Project" },
+    { icon: User, title: isBn ? "যোগাযোগ" : "Contact" },
   ];
 
   // ── Validation per step ──
   const validateStep = (current: number): Partial<Record<keyof OrderData, string>> => {
     const errs: Partial<Record<keyof OrderData, string>> = {};
     if (current === 0) {
-      if (!data.packageType) errs.packageType = isBn ? "একটি প্যাকেজ বাছাই করুন" : "Please choose a package";
+      if (!data.packageType)
+        errs.packageType = isBn ? "একটি প্যাকেজ বাছাই করুন" : "Please choose a package";
     }
     if (current === 1) {
-      if (!data.websiteType) errs.websiteType = isBn ? "ওয়েবসাইটের ধরন বাছাই করুন" : "Please choose a website type";
-    }
-    if (current === 2) {
+      if (!data.websiteType)
+        errs.websiteType = isBn ? "ওয়েবসাইটের ধরন বাছাই করুন" : "Please choose a website type";
       if (!data.description.trim())
         errs.description = isBn ? "প্রজেক্ট সম্পর্কে একটু লিখুন" : "Please describe your project";
     }
-    if (current === 3) {
+    if (current === 2) {
       if (!data.clientName.trim())
         errs.clientName = isBn ? "আপনার নাম লিখুন" : "Please enter your name";
       if (!data.clientEmail.trim()) {
@@ -251,55 +295,62 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const scrollToFirstError = (errs: Partial<Record<keyof OrderData, string>>) => {
     const firstKey = Object.keys(errs)[0] as keyof OrderData | undefined;
     if (!firstKey) return;
-    // Try by field id, then by question wrapper
-    const el =
-      document.getElementById(firstKey) ||
-      document.getElementById(`q-${firstKey}`) ||
-      document.querySelector(`[data-field="${firstKey}"]`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      // focus inner input if exists
-      const focusable = el.querySelector<HTMLElement>("input, textarea, select, button");
-      if (focusable) {
-        setTimeout(() => focusable.focus(), 350);
-      } else if (el instanceof HTMLElement) {
-        // if chip group, focus first chip
-        const chip = el.querySelector<HTMLElement>('button[role="radio"], button[role="checkbox"]');
-        chip?.focus();
-      }
-    }
+    const el = document.querySelector<HTMLElement>(`[data-field="${firstKey}"]`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const focusable = el.querySelector<HTMLElement>(
+      "input, textarea, select, button"
+    );
+    if (focusable) window.setTimeout(() => focusable.focus(), 350);
+  };
+
+  const goToStep = (target: number) => {
+    setErrors({});
+    setStep(Math.max(0, Math.min(target, steps.length - 1)));
   };
 
   const handleNext = () => {
     const errs = validateStep(step);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
-      // ensure error rendered then scroll
-      requestAnimationFrame(() => setTimeout(() => scrollToFirstError(errs), 60));
+      requestAnimationFrame(() => window.setTimeout(() => scrollToFirstError(errs), 60));
       return;
     }
     setErrors({});
-    setStep((s) => Math.min(s + 1, steps.length - 1));
+    goToStep(step + 1);
   };
 
   const handleBack = () => {
     setErrors({});
-    setStep((s) => Math.max(s - 1, 0));
+    goToStep(step - 1);
+  };
+
+  // Selecting a package is one tap — carry on to the next question.
+  const choosePackage = (value: string) => {
+    updateData("packageType", value);
+    if (step === 0) {
+      if (autoAdvanceTimer.current) window.clearTimeout(autoAdvanceTimer.current);
+      autoAdvanceTimer.current = window.setTimeout(() => {
+        setErrors({});
+        goToStep(1);
+      }, AUTO_ADVANCE_MS);
+    }
   };
 
   const handleSubmit = async () => {
-    // validate all required steps together
+    // Validate every step together; jump to the first thing missing.
     const allErrs: Partial<Record<keyof OrderData, string>> = {
       ...validateStep(0),
       ...validateStep(1),
       ...validateStep(2),
-      ...validateStep(3),
     };
     if (Object.keys(allErrs).length > 0) {
       setErrors(allErrs);
-      const stepWithError = [0, 1, 2, 3].find((s) => Object.keys(validateStep(s)).some((k) => k in allErrs));
-      if (stepWithError !== undefined) setStep(stepWithError);
-      setTimeout(() => scrollToFirstError(allErrs), 120);
+      const stepWithError = [0, 1, 2].find(
+        (s) => Object.keys(validateStep(s)).length > 0
+      );
+      if (stepWithError !== undefined) goToStep(stepWithError);
+      window.setTimeout(() => scrollToFirstError(allErrs), 150);
       return;
     }
 
@@ -380,7 +431,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   }
 
   return (
-    <section ref={wizardRef} className="py-20 scroll-mt-24" id="order-wizard">
+    <section ref={wizardRef} className="scroll-mt-24 py-20" id="order-wizard">
       <div className="mx-auto max-w-3xl px-4">
         <SectionTitle
           badge={isBn ? config.section.badgeBn : config.section.badgeEn}
@@ -390,12 +441,37 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           locale={locale}
         />
 
+        {/* Selected package summary — visible past step 1 with an easy switch */}
+        {step > 0 && selectedPackageLabel && (
+          <div className="mb-5 flex items-center justify-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-3.5 py-1.5 text-xs font-medium">
+              <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+              <span className="bn">
+                {isBn ? "নির্বাচিত প্যাকেজ:" : "Selected package:"}{" "}
+                <span className="font-bold">{selectedPackageLabel}</span>
+                {packagePriceLabel(data.packageType) ? ` · ${packagePriceLabel(data.packageType)}` : ""}
+              </span>
+              <button
+                type="button"
+                onClick={() => goToStep(0)}
+                className="ml-1 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-primary transition-colors hover:bg-primary/10"
+                aria-label={isBn ? "প্যাকেজ পরিবর্তন করুন" : "Change package"}
+              >
+                <Pencil className="h-3 w-3" />
+                <span className="bn">{isBn ? "পরিবর্তন" : "Change"}</span>
+              </button>
+            </span>
+          </div>
+        )}
+
         {/* Progress + percentage */}
         <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
           <span className="bn">
             {isBn ? `ধাপ ${step + 1} / ${steps.length}` : `Step ${step + 1} / ${steps.length}`}
           </span>
-          <span className="bn">{isBn ? "শুধু অপশন সিলেক্ট করুন" : "Just select an option"}</span>
+          <span className="bn">
+            {isBn ? "শুধু অপশন সিলেক্ট করুন" : "Just tap an option"}
+          </span>
         </div>
         <div className="mb-6 h-2 overflow-hidden rounded-full bg-border/50">
           <div
@@ -404,169 +480,148 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           />
         </div>
 
-        {/* Step Indicator — question style */}
-        <div className="mb-8 flex items-center justify-center gap-1.5 sm:gap-2">
+        {/* Step Indicator */}
+        <div className="mb-10 flex items-center justify-center gap-2 sm:gap-3">
           {steps.map((s, i) => (
-            <div key={i} className="flex items-center">
+            <div key={s.title} className="flex items-center gap-2 sm:gap-3">
               <button
                 type="button"
-                onClick={() => i < step && setStep(i)}
+                onClick={() => i < step && goToStep(i)}
                 disabled={i > step}
                 aria-current={i === step ? "step" : undefined}
-                aria-label={`${s.q} - ${s.title}`}
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
+                aria-label={s.title}
+                className={`flex items-center gap-2 rounded-full border-2 px-3 py-2 transition-all ${
                   i === step
-                    ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105"
+                    ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20"
                     : i < step
-                      ? "border-primary bg-primary/15 text-primary hover:bg-primary/25 cursor-pointer"
-                      : "border-border text-muted-foreground cursor-default"
+                      ? "cursor-pointer border-primary bg-primary/15 text-primary hover:bg-primary/25"
+                      : "cursor-default border-border text-muted-foreground"
                 }`}
               >
                 <s.icon className="h-4 w-4" />
+                <span className="hidden text-xs font-semibold sm:inline bn">{s.title}</span>
               </button>
               {i < steps.length - 1 && (
-                <div className={`h-0.5 w-6 sm:w-10 transition-all ${i < step ? "bg-primary" : "bg-border"}`} />
+                <div
+                  className={`h-0.5 w-6 transition-all sm:w-12 ${i < step ? "bg-primary" : "bg-border"}`}
+                />
               )}
-            </div>
-          ))}
-        </div>
-        {/* labels under dots */}
-        <div className="mb-8 hidden sm:flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
-          {steps.map((s, i) => (
-            <div key={i} className="flex items-center">
-              <span
-                className={`w-10 text-center leading-tight ${i === step ? "text-primary font-semibold" : i < step ? "text-primary/70" : ""} ${i < steps.length - 1 ? "mr-2" : ""}`}
-              >
-                {s.title}
-              </span>
-              {i < steps.length - 1 && <span className="w-10" />}
             </div>
           ))}
         </div>
 
         {/* Step Content */}
         <GlassCard>
-          {/* Q1: Package Selection */}
+          {/* ── ধাপ ১: প্যাকেজ ── */}
           {step === 0 && (
             <div className="space-y-4">
               <div
-                id="q-packageType"
                 data-field="packageType"
-                className={`rounded-2xl border p-4 sm:p-5 ${errors.packageType ? "border-destructive/60 bg-destructive/5" : "border-border/60 bg-card/30"}`}
+                className={`rounded-2xl border p-4 sm:p-5 ${
+                  errors.packageType
+                    ? "border-destructive/60 bg-destructive/5"
+                    : "border-border/60 bg-card/30"
+                }`}
               >
-                <div className="mb-3 flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    1
-                  </span>
-                  <div className="flex-1">
-                    <h3 className="text-[15px] font-bold bn flex items-center gap-1.5">
-                      {isBn ? "আপনি কোন প্যাকেজটি নিতে চান?" : "Which package would you like?"}
-                      <span className="text-destructive">*</span>
-                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                    </h3>
-                    <p className="mt-1 text-xs text-muted-foreground bn">
-                      {isBn ? "শুধু একটি অপশন ট্যাপ করুন — দাম সহ দেখানো আছে" : "Just tap one option — price shown"}
-                    </p>
-                  </div>
+                <div className="mb-3 text-center sm:text-left">
+                  <h3 className="text-[15px] font-bold bn">
+                    {isBn ? "কোন প্যাকেজটি নিতে চান?" : "Which package would you like?"}{" "}
+                    <span className="text-destructive">*</span>
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground bn">
+                    {isBn
+                      ? "একটিতে ট্যাপ করুন — সঙ্গে সঙ্গে পরের ধাপে যাবে"
+                      : "Tap one — you'll go straight to the next step"}
+                  </p>
                 </div>
 
-                <div id="packageType">
-                  <ChipGroup
-                    options={visiblePackages.map((pkg) => {
-                      const price = packagePriceLabel(pkg.value);
-                      return {
-                        value: pkg.value,
-                        label: `${isBn ? pkg.labelBn : pkg.labelEn}${price ? ` · ${price}` : ""}`,
-                      };
-                    })}
-                    value={data.packageType}
-                    onChange={(v) => updateData("packageType", v)}
-                    columns={2}
-                    invalid={!!errors.packageType}
-                  />
-                </div>
+                <ChipGroup
+                  options={visiblePackages.map((pkg) => {
+                    const price = packagePriceLabel(pkg.value);
+                    return {
+                      value: pkg.value,
+                      label: `${isBn ? pkg.labelBn : pkg.labelEn}${price ? ` · ${price}` : ""}`,
+                    };
+                  })}
+                  value={data.packageType}
+                  onChange={choosePackage}
+                  columns={2}
+                  invalid={!!errors.packageType}
+                />
                 {errors.packageType && (
-                  <p role="alert" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-destructive">
+                  <p
+                    role="alert"
+                    className="mt-3 flex items-center gap-1.5 text-xs font-medium text-destructive"
+                  >
                     <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
                     {errors.packageType}
                   </p>
                 )}
                 {selectedPricingPackage && (
-                  <p className="mt-3 rounded-lg bg-primary/5 px-3 py-2 text-xs text-muted-foreground bn border border-primary/10">
+                  <p className="mt-3 rounded-lg border border-primary/10 bg-primary/5 px-3 py-2 text-xs text-muted-foreground bn">
                     <Sparkles className="mr-1 inline h-3 w-3 text-primary" />
-                    {isBn ? "নির্বাচিত:" : "Selected:"} {isBn ? selectedPricingPackage.nameBn : selectedPricingPackage.nameEn} — {isBn ? selectedPricingPackage.descriptionBn : selectedPricingPackage.descriptionEn}
+                    {isBn ? "নির্বাচিত:" : "Selected:"}{" "}
+                    {isBn ? selectedPricingPackage.nameBn : selectedPricingPackage.nameEn} —{" "}
+                    {isBn
+                      ? selectedPricingPackage.descriptionBn
+                      : selectedPricingPackage.descriptionEn}
                   </p>
                 )}
               </div>
-
-              <p className="text-center text-xs text-muted-foreground bn">
-                {isBn ? "পরবর্তী ধাপে ওয়েবসাইটের ধরন বাছাই করবেন" : "Next, choose the website type"}
-              </p>
             </div>
           )}
 
-          {/* Q2: Website Type */}
+          {/* ── ধাপ ২: প্রজেক্ট ── */}
           {step === 1 && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div
-                id="q-websiteType"
                 data-field="websiteType"
-                className={`rounded-2xl border p-4 sm:p-5 ${errors.websiteType ? "border-destructive/60 bg-destructive/5" : "border-border/60 bg-card/30"}`}
+                className={`rounded-2xl border p-4 sm:p-5 ${
+                  errors.websiteType
+                    ? "border-destructive/60 bg-destructive/5"
+                    : "border-border/60 bg-card/30"
+                }`}
               >
-                <div className="mb-3 flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    2
-                  </span>
-                  <div className="flex-1">
-                    <h3 className="text-[15px] font-bold bn flex items-center gap-1.5">
-                      {isBn ? "কোন ধরনের ওয়েবসাইট বানাতে চান?" : "What type of website do you need?"}
-                      <span className="text-destructive">*</span>
-                    </h3>
-                    <p className="mt-1 text-xs text-muted-foreground bn">
-                      {isBn ? "একটি অপশন সিলেক্ট করুন — বাকি সব আমরা সামলে নেব" : "Select one option — we'll handle the rest"}
-                    </p>
-                  </div>
+                <div className="mb-3">
+                  <h3 className="text-[15px] font-bold bn">
+                    {isBn ? "কোন ধরনের ওয়েবসাইট বানাতে চান?" : "What type of website do you need?"}{" "}
+                    <span className="text-destructive">*</span>
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground bn">
+                    {isBn
+                      ? "একটি অপশন সিলেক্ট করুন — বাকি সব আমরা সামলে নেব"
+                      : "Select one option — we'll handle the rest"}
+                  </p>
                 </div>
 
-                <div id="websiteType">
-                  <ChipGroup
-                    options={visibleWebsiteTypes.map((t) => ({
-                      value: t.value,
-                      label: isBn ? t.labelBn : t.labelEn,
-                    }))}
-                    value={data.websiteType}
-                    onChange={(v) => updateData("websiteType", v)}
-                    columns={2}
-                    invalid={!!errors.websiteType}
-                  />
-                </div>
+                <ChipGroup
+                  options={visibleWebsiteTypes.map((t) => ({
+                    value: t.value,
+                    label: isBn ? t.labelBn : t.labelEn,
+                  }))}
+                  value={data.websiteType}
+                  onChange={(v) => updateData("websiteType", v)}
+                  columns={2}
+                  invalid={!!errors.websiteType}
+                />
                 {errors.websiteType && (
-                  <p role="alert" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-destructive">
+                  <p
+                    role="alert"
+                    className="mt-3 flex items-center gap-1.5 text-xs font-medium text-destructive"
+                  >
                     <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
                     {errors.websiteType}
                   </p>
                 )}
               </div>
-            </div>
-          )}
 
-          {/* Q3: Project Details — question cards */}
-          {step === 2 && (
-            <div className="space-y-5">
               <div className="rounded-2xl border border-border/60 bg-card/30 p-4 sm:p-5">
-                <div className="mb-3 flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    3
-                  </span>
-                  <div>
-                    <h3 className="text-[15px] font-bold bn">
-                      {isBn ? "কতগুলো পেজ লাগবে?" : "How many pages do you need?"}
-                    </h3>
-                    <p className="mt-1 text-xs text-muted-foreground bn">
-                      {isBn ? "একটি অপশন বেছে নিন" : "Pick one option"}
-                    </p>
-                  </div>
-                </div>
+                <h3 className="mb-1 text-[15px] font-bold bn">
+                  {isBn ? "কতগুলো পেজ লাগবে?" : "How many pages do you need?"}
+                </h3>
+                <p className="mb-3 text-xs text-muted-foreground bn">
+                  {isBn ? "একটি অপশন বেছে নিন" : "Pick one option"}
+                </p>
                 {config.pageIncrements.length > 0 && (
                   <ChipGroup
                     options={config.pageIncrements.map((p) => ({
@@ -581,40 +636,43 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
               </div>
 
               <div
-                id="q-description"
                 data-field="description"
-                className={`rounded-2xl border p-4 sm:p-5 ${errors.description ? "border-destructive/60 bg-destructive/5" : "border-border/60 bg-card/30"}`}
+                className={`rounded-2xl border p-4 sm:p-5 ${
+                  errors.description
+                    ? "border-destructive/60 bg-destructive/5"
+                    : "border-border/60 bg-card/30"
+                }`}
               >
-                <div className="mb-3 flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    4
-                  </span>
-                  <div className="flex-1">
-                    <h3 className="text-[15px] font-bold bn flex items-center gap-1.5">
-                      {isBn ? "আপনার প্রজেক্ট সম্পর্কে সংক্ষেপে বলুন" : "Briefly describe your project"}
-                      <span className="text-destructive">*</span>
-                    </h3>
-                    <p className="mt-1 text-xs text-muted-foreground bn">
-                      {isBn ? "যেমন: কী ধরনের ব্যবসা, কী কী লাগবে" : "e.g. business type, goals, examples"}
-                    </p>
-                  </div>
+                <div className="mb-3">
+                  <h3 className="text-[15px] font-bold bn">
+                    {isBn
+                      ? "আপনার প্রজেক্ট সম্পর্কে সংক্ষেপে বলুন"
+                      : "Briefly describe your project"}{" "}
+                    <span className="text-destructive">*</span>
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground bn">
+                    {isBn
+                      ? "যেমন: কী ধরনের ব্যবসা, কী কী লাগবে"
+                      : "e.g. business type, goals, examples"}
+                  </p>
                 </div>
-                <div id="description">
-                  <TextAreaField
-                    id="description"
-                    value={data.description}
-                    onChange={(e) => updateData("description", e.target.value)}
-                    placeholder={
-                      isBn
-                        ? "যেমন: আমার একটি রেস্টুরেন্টের জন্য মেনু, অর্ডার ও লোকেশন সহ ওয়েবসাইট লাগবে..."
-                        : "e.g. I need a restaurant website with menu, ordering and location..."
-                    }
-                    rows={4}
-                    invalid={!!errors.description}
-                  />
-                </div>
+                <TextAreaField
+                  id="description"
+                  value={data.description}
+                  onChange={(e) => updateData("description", e.target.value)}
+                  placeholder={
+                    isBn
+                      ? "যেমন: আমার একটি রেস্টুরেন্টের জন্য মেনু, অর্ডার ও লোকেশন সহ ওয়েবসাইট লাগবে..."
+                      : "e.g. I need a restaurant website with menu, ordering and location..."
+                  }
+                  rows={4}
+                  invalid={!!errors.description}
+                />
                 {errors.description && (
-                  <p role="alert" className="mt-2 flex items-center gap-1.5 text-xs font-medium text-destructive">
+                  <p
+                    role="alert"
+                    className="mt-2 flex items-center gap-1.5 text-xs font-medium text-destructive"
+                  >
                     <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
                     {errors.description}
                   </p>
@@ -625,7 +683,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 {visibleBudgetRanges.length > 0 && (
                   <div className="rounded-2xl border border-border/60 bg-card/30 p-4">
                     <h4 className="mb-2 text-sm font-semibold bn">
-                      {isBn ? "আপনার বাজেট কত?" : "What's your budget?"}
+                      {isBn ? "আপনার বাজেট কত? (ঐচ্ছিক)" : "What's your budget? (optional)"}
                     </h4>
                     <SelectField
                       id="budgetRange"
@@ -645,7 +703,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 {visibleTimelines.length > 0 && (
                   <div className="rounded-2xl border border-border/60 bg-card/30 p-4">
                     <h4 className="mb-2 text-sm font-semibold bn">
-                      {isBn ? "কত দিনের মধ্যে লাগবে?" : "When do you need it?"}
+                      {isBn ? "কত দিনের মধ্যে লাগবে? (ঐচ্ছিক)" : "When do you need it? (optional)"}
                     </h4>
                     <SelectField
                       id="timeline"
@@ -663,138 +721,148 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 )}
               </div>
 
-              <details className="rounded-2xl border border-border/60 bg-background/30 px-4 py-3">
-                <summary className="cursor-pointer text-sm font-medium text-muted-foreground bn">
-                  {isBn ? "ডিজাইন ও ফিচার পছন্দ যোগ করুন (ঐচ্ছিক) — শুধু ট্যাপ করুন" : "Add design & features (optional) — just tap to select"}
-                </summary>
-                <div className="mt-5 space-y-5">
-                  {visibleDesignStyles.length > 0 && (
-                    <div>
-                      <p className="mb-2 text-sm font-medium bn">
-                        {isBn ? "কোন ডিজাইন স্টাইল পছন্দ?" : "Which design style do you prefer?"}
-                      </p>
-                      <ChipGroup
-                        options={visibleDesignStyles.map((d) => ({
-                          value: d.value,
-                          label: isBn ? d.labelBn : d.labelEn,
-                        }))}
-                        value={data.designStyle}
-                        onChange={(v) => updateData("designStyle", v)}
-                        columns={2}
-                      />
-                      {data.designStyle && (
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {
-                            visibleDesignStyles.find((d) => d.value === data.designStyle)?.[
-                              isBn ? "descriptionBn" : "descriptionEn"
-                            ]
-                          }
+              {(visibleDesignStyles.length > 0 || visibleAddons.length > 0) && (
+                <details className="rounded-2xl border border-border/60 bg-background/30 px-4 py-3">
+                  <summary className="cursor-pointer text-sm font-medium text-muted-foreground bn">
+                    {isBn
+                      ? "ডিজাইন ও ফিচার পছন্দ যোগ করুন (সম্পূর্ণ ঐচ্ছিক)"
+                      : "Add design & feature preferences (fully optional)"}
+                  </summary>
+                  <div className="mt-5 space-y-5">
+                    {visibleDesignStyles.length > 0 && (
+                      <div>
+                        <p className="mb-2 text-sm font-medium bn">
+                          {isBn ? "কোন ডিজাইন স্টাইল পছন্দ?" : "Which design style do you prefer?"}
                         </p>
-                      )}
-                    </div>
-                  )}
+                        <ChipGroup
+                          options={visibleDesignStyles.map((d) => ({
+                            value: d.value,
+                            label: isBn ? d.labelBn : d.labelEn,
+                          }))}
+                          value={data.designStyle}
+                          onChange={(v) => updateData("designStyle", v)}
+                          columns={2}
+                        />
+                        {data.designStyle && (
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            {
+                              visibleDesignStyles.find((d) => d.value === data.designStyle)?.[
+                                isBn ? "descriptionBn" : "descriptionEn"
+                              ]
+                            }
+                          </p>
+                        )}
+                      </div>
+                    )}
 
-                  <FormField
-                    id="colorPreference"
-                    label={isBn ? "পছন্দের রং কী?" : "Preferred colors?"}
-                    hint={isBn ? "যেমন: নীল, সবুজ, কালো..." : "e.g., Blue, Green, Dark..."}
-                  >
-                    <TextField
-                      id="colorPreference"
-                      value={data.colorPreference}
-                      onChange={(e) => updateData("colorPreference", e.target.value)}
-                      placeholder={isBn ? "যেমন: নীল, সাদা, মিনিমাল..." : "e.g., Blue, white, minimal..."}
-                    />
-                  </FormField>
-
-                  <FormField
-                    id="referenceSites"
-                    label={isBn ? "পছন্দের কোনো রেফারেন্স সাইট আছে?" : "Any reference sites you like?"}
-                    hint={isBn ? "কমা দিয়ে আলাদা করুন" : "Separate with commas"}
-                  >
-                    <TextField
-                      id="referenceSites"
-                      value={data.referenceSites}
-                      onChange={(e) => updateData("referenceSites", e.target.value)}
-                      placeholder={isBn ? "যেমন: example.com, site.com" : "e.g., example.com, site.com"}
-                    />
-                  </FormField>
-
-                  {visibleAddons.length > 0 && (
                     <FormField
-                      id="features"
-                      label={isBn ? "কোন ফিচারগুলো লাগবে? (ট্যাপ করে বাছাই করুন)" : "Which features do you need? (tap to select)"}
-                      hint={
-                        data.features.length > 0
-                          ? isBn
-                            ? `${data.features.length}টি ফিচার বাছাই করা হয়েছে`
-                            : `${data.features.length} features selected`
-                          : isBn
-                            ? "প্রয়োজনীয় ফিচারগুলো বেছে নিন"
-                            : "Select the features you need"
-                      }
+                      id="colorPreference"
+                      label={isBn ? "পছন্দের রং কী?" : "Preferred colors?"}
+                      hint={isBn ? "যেমন: নীল, সবুজ, কালো..." : "e.g., Blue, Green, Dark..."}
                     >
-                      <ChipGroup
-                        options={visibleAddons.map((f) => ({
-                          value: f.value,
-                          label: `${isBn ? f.labelBn : f.labelEn}${
-                            selectedPricingPackage?.includedFeatureValues.includes(f.value)
-                              ? isBn
-                                ? " · অন্তর্ভুক্ত"
-                                : " · Included"
-                              : f.priceBdt > 0
-                                ? ` · +${formatQuoteAmount(f.priceBdt, "BDT", locale)}`
-                                : ""
-                          }`,
-                        }))}
-                        value={data.features}
-                        onChange={toggleFeature}
-                        multi
-                        columns={2}
+                      <TextField
+                        id="colorPreference"
+                        value={data.colorPreference}
+                        onChange={(e) => updateData("colorPreference", e.target.value)}
+                        placeholder={
+                          isBn ? "যেমন: নীল, সাদা, মিনিমাল..." : "e.g., Blue, white, minimal..."
+                        }
                       />
                     </FormField>
-                  )}
-                </div>
-              </details>
+
+                    <FormField
+                      id="referenceSites"
+                      label={isBn ? "পছন্দের কোনো রেফারেন্স সাইট আছে?" : "Any reference sites you like?"}
+                      hint={isBn ? "কমা দিয়ে আলাদা করুন" : "Separate with commas"}
+                    >
+                      <TextField
+                        id="referenceSites"
+                        value={data.referenceSites}
+                        onChange={(e) => updateData("referenceSites", e.target.value)}
+                        placeholder={isBn ? "যেমন: example.com, site.com" : "e.g., example.com, site.com"}
+                      />
+                    </FormField>
+
+                    {visibleAddons.length > 0 && (
+                      <FormField
+                        id="features"
+                        label={
+                          isBn
+                            ? "কোন ফিচারগুলো লাগবে? (ট্যাপ করে বাছাই করুন)"
+                            : "Which features do you need? (tap to select)"
+                        }
+                        hint={
+                          data.features.length > 0
+                            ? isBn
+                              ? `${data.features.length}টি ফিচার বাছাই করা হয়েছে`
+                              : `${data.features.length} features selected`
+                            : isBn
+                              ? "প্রয়োজনীয় ফিচারগুলো বেছে নিন"
+                              : "Select the features you need"
+                        }
+                      >
+                        <ChipGroup
+                          options={visibleAddons.map((f) => ({
+                            value: f.value,
+                            label: `${isBn ? f.labelBn : f.labelEn}${
+                              selectedPricingPackage?.includedFeatureValues.includes(f.value)
+                                ? isBn
+                                  ? " · অন্তর্ভুক্ত"
+                                  : " · Included"
+                                : f.priceBdt > 0
+                                  ? ` · +${formatQuoteAmount(f.priceBdt, "BDT", locale)}`
+                                  : ""
+                            }`,
+                          }))}
+                          value={data.features}
+                          onChange={toggleFeature}
+                          multi
+                          columns={2}
+                        />
+                      </FormField>
+                    )}
+                  </div>
+                </details>
+              )}
+
+              <LiveQuoteEstimate estimate={quoteEstimate} config={config.quote} locale={locale} />
             </div>
           )}
 
-          {/* Q4: Contact */}
-          {step === 3 && (
+          {/* ── ধাপ ৩: যোগাযোগ + রিভিউ + জমা ── */}
+          {step === 2 && (
             <div className="space-y-5">
-              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-3">
-                <Phone className="h-5 w-5 text-primary shrink-0" />
+              <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                <Phone className="h-5 w-5 shrink-0 text-primary" />
                 <p className="text-sm bn">
                   {isBn
-                    ? "শেষ প্রশ্ন — কীভাবে যোগাযোগ করব? শুধু নিচের ৩টি ঘর পূরণ করুন।"
-                    : "Last question — how to reach you? Just fill the 3 required fields."}
+                    ? "শেষ ধাপ — শুধু ৩টি ঘর পূরণ করে \"অর্ডার জমা দিন\" চাপুন।"
+                    : "Final step — fill the 3 required fields and press “Submit order”."}
                 </p>
               </div>
 
-              <div
-                id="q-clientName"
-                data-field="clientName"
-                className={`rounded-2xl border p-4 sm:p-5 ${errors.clientName ? "border-destructive/60 bg-destructive/5" : "border-border/60 bg-card/30"}`}
-              >
-                <h3 className="mb-3 flex items-center gap-2 text-[15px] font-bold bn">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    5
-                  </span>
-                  {isBn ? "যোগাযোগের তথ্য" : "Contact Information"}
+              <div className="rounded-2xl border border-border/60 bg-card/30 p-4 sm:p-5">
+                <h3 className="mb-3 text-[15px] font-bold bn">
+                  {isBn ? "যোগাযোগের তথ্য" : "Contact information"}
                 </h3>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField id="clientName" label={isBn ? "আপনার নাম" : "Your name"} required error={errors.clientName}>
-                    <div id="clientName">
+                  <div data-field="clientName">
+                    <FormField
+                      id="clientName"
+                      label={isBn ? "আপনার নাম" : "Your name"}
+                      required
+                      error={errors.clientName}
+                    >
                       <TextField
-                        id="clientName-input"
+                        id="clientName"
                         value={data.clientName}
                         onChange={(e) => updateData("clientName", e.target.value)}
                         placeholder={isBn ? "আপনার নাম" : "Your name"}
                         invalid={!!errors.clientName}
                       />
-                    </div>
-                  </FormField>
+                    </FormField>
+                  </div>
                   <FormField id="clientCompany" label={isBn ? "কোম্পানি (ঐচ্ছিক)" : "Company (optional)"}>
                     <TextField
                       id="clientCompany"
@@ -803,30 +871,30 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                       placeholder={isBn ? "কোম্পানির নাম" : "Company name"}
                     />
                   </FormField>
-                  <FormField id="clientEmail" label={isBn ? "ইমেইল" : "Email"} required error={errors.clientEmail}>
-                    <div id="clientEmail">
+                  <div data-field="clientEmail">
+                    <FormField id="clientEmail" label={isBn ? "ইমেইল" : "Email"} required error={errors.clientEmail}>
                       <TextField
-                        id="clientEmail-input"
+                        id="clientEmail"
                         type="email"
                         value={data.clientEmail}
                         onChange={(e) => updateData("clientEmail", e.target.value)}
                         placeholder="email@example.com"
                         invalid={!!errors.clientEmail}
                       />
-                    </div>
-                  </FormField>
-                  <FormField id="clientPhone" label={isBn ? "ফোন" : "Phone"} required error={errors.clientPhone}>
-                    <div id="clientPhone">
+                    </FormField>
+                  </div>
+                  <div data-field="clientPhone">
+                    <FormField id="clientPhone" label={isBn ? "ফোন" : "Phone"} required error={errors.clientPhone}>
                       <TextField
-                        id="clientPhone-input"
+                        id="clientPhone"
                         type="tel"
                         value={data.clientPhone}
                         onChange={(e) => updateData("clientPhone", e.target.value)}
                         placeholder="+880 1XXX-XXXXXX"
                         invalid={!!errors.clientPhone}
                       />
-                    </div>
-                  </FormField>
+                    </FormField>
+                  </div>
                   <FormField
                     id="clientWhatsapp"
                     label={isBn ? "হোয়াটসঅ্যাপ (ঐচ্ছিক)" : "WhatsApp (optional)"}
@@ -842,105 +910,67 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                     />
                   </FormField>
                 </div>
-                {(errors.clientName || errors.clientEmail || errors.clientPhone) && (
-                  <p className="mt-3 text-xs text-destructive bn">
-                    {isBn ? "লাল চিহ্নিত ঘরগুলো পূরণ করুন, তারপর পরবর্তীতে যান" : "Please fill the highlighted fields, then continue"}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Q5: Review */}
-          {step === 4 && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                <h3 className="text-[15px] font-bold bn">
-                  {isBn ? "৫. সব তথ্য একবার দেখে নিন" : "Q5. Please review your answers"}
-                </h3>
               </div>
 
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "প্যাকেজ" : "Package"}</span>
-                  <span className="font-medium">
-                    {visiblePackages.find((p) => p.value === data.packageType)?.[isBn ? "labelBn" : "labelEn"] ||
-                      data.packageType.charAt(0).toUpperCase() + data.packageType.slice(1)}
-                  </span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "ওয়েবসাইট টাইপ" : "Website Type"}</span>
-                  <span className="font-medium bn">
-                    {visibleWebsiteTypes.find((t) => t.value === data.websiteType)?.[isBn ? "labelBn" : "labelEn"] ||
-                      data.websiteType}
-                  </span>
-                </div>
-                {data.designStyle && (
-                  <div className="flex justify-between border-b border-border/50 pb-2">
-                    <span className="text-muted-foreground bn">{isBn ? "ডিজাইন স্টাইল" : "Design Style"}</span>
-                    <span className="font-medium bn">
-                      {visibleDesignStyles.find((d) => d.value === data.designStyle)?.[isBn ? "labelBn" : "labelEn"] ||
-                        data.designStyle}
-                    </span>
+              {/* Inline mini review — no extra step needed */}
+              <div className="rounded-2xl border border-border/60 bg-background/40 p-4 sm:p-5">
+                <h4 className="mb-3 flex items-center gap-2 text-sm font-bold bn">
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  {isBn ? "আপনার অর্ডার এক নজরে" : "Your order at a glance"}
+                </h4>
+                <dl className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-2">
+                    <dt className="text-muted-foreground bn">{isBn ? "প্যাকেজ" : "Package"}</dt>
+                    <dd className="font-medium">
+                      {selectedPackageLabel || data.packageType}
+                      <button
+                        type="button"
+                        onClick={() => goToStep(0)}
+                        className="ml-2 text-xs font-normal text-primary hover:underline bn"
+                      >
+                        {isBn ? "পরিবর্তন" : "Edit"}
+                      </button>
+                    </dd>
                   </div>
-                )}
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "পেজ" : "Pages"}</span>
-                  <span className="font-medium">
-                    {data.numPages} {isBn ? "পেজ" : "pages"}
-                  </span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "নাম" : "Name"}</span>
-                  <span className="font-medium">{data.clientName}</span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "ইমেইল" : "Email"}</span>
-                  <span className="font-medium">{data.clientEmail}</span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "ফোন" : "Phone"}</span>
-                  <span className="font-medium">{data.clientPhone}</span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "বাজেট" : "Budget"}</span>
-                  <span className="font-medium">
-                    {visibleBudgetRanges.find((range) => range.value === data.budgetRange)?.label || "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "টাইমলাইন" : "Timeline"}</span>
-                  <span className="font-medium">
-                    {visibleTimelines.find((t) => t.value === data.timeline)?.[isBn ? "labelBn" : "labelEn"] || "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "ফিচার" : "Features"}</span>
-                  <span className="font-medium">
-                    {data.features.length > 0 ? (isBn ? `${data.features.length}টি` : `${data.features.length}`) : "—"}
-                  </span>
-                </div>
+                  <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-2">
+                    <dt className="text-muted-foreground bn">{isBn ? "ওয়েবসাইট টাইপ" : "Website type"}</dt>
+                    <dd className="font-medium bn">
+                      {visibleWebsiteTypes.find((t) => t.value === data.websiteType)?.[
+                        isBn ? "labelBn" : "labelEn"
+                      ] || data.websiteType}
+                      <button
+                        type="button"
+                        onClick={() => goToStep(1)}
+                        className="ml-2 text-xs font-normal text-primary hover:underline bn"
+                      >
+                        {isBn ? "পরিবর্তন" : "Edit"}
+                      </button>
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-2">
+                    <dt className="text-muted-foreground bn">{isBn ? "পেজ" : "Pages"}</dt>
+                    <dd className="font-medium">
+                      {data.numPages} {isBn ? "পেজ" : "pages"}
+                    </dd>
+                  </div>
+                  {data.features.length > 0 && (
+                    <div className="flex items-start justify-between gap-3">
+                      <dt className="text-muted-foreground bn">{isBn ? "ফিচার" : "Features"}</dt>
+                      <dd className="flex max-w-[60%] flex-wrap justify-end gap-1.5">
+                        {visibleAddons
+                          .filter((f) => data.features.includes(f.value))
+                          .map((f) => (
+                            <Badge key={f.value} variant="outline">
+                              {isBn ? f.labelBn : f.labelEn}
+                            </Badge>
+                          ))}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
               </div>
 
-              {data.features.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {visibleAddons
-                    .filter((f) => data.features.includes(f.value))
-                    .map((f) => (
-                      <Badge key={f.value} variant="outline">
-                        {isBn ? f.labelBn : f.labelEn}
-                      </Badge>
-                    ))}
-                </div>
-              )}
-
-              {data.description && (
-                <div>
-                  <p className="mb-1 text-sm font-medium text-muted-foreground bn">{isBn ? "বিবরণ" : "Description"}</p>
-                  <p className="rounded-lg bg-background p-3 text-sm bn border border-border/50">{data.description}</p>
-                </div>
-              )}
+              <LiveQuoteEstimate estimate={quoteEstimate} config={config.quote} locale={locale} />
 
               <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
                 <Sparkles className="h-4 w-4 shrink-0 text-primary" />
@@ -950,25 +980,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                     : "After submitting, you'll receive an email confirmation and we'll contact you shortly."}
                 </span>
               </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" onClick={() => setStep(0)}>
-                  {isBn ? "প্যাকেজ ঠিক করুন" : "Edit package"}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setStep(1)}>
-                  {isBn ? "ধরন ঠিক করুন" : "Edit type"}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setStep(2)}>
-                  {isBn ? "প্রজেক্ট ঠিক করুন" : "Edit project"}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setStep(3)}>
-                  {isBn ? "যোগাযোগ ঠিক করুন" : "Edit contact"}
-                </Button>
-              </div>
             </div>
           )}
-
-          <LiveQuoteEstimate estimate={quoteEstimate} config={config.quote} locale={locale} />
 
           {submitError && (
             <p className="mt-6 text-center text-sm text-destructive" role="alert">
@@ -976,7 +989,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             </p>
           )}
 
-          {/* Navigation Buttons — fixed validation + auto scroll */}
+          {/* Navigation */}
           <div className="mt-8 flex items-center justify-between gap-3">
             <Button variant="ghost" onClick={handleBack} disabled={step === 0}>
               <ArrowLeft className="h-4 w-4" />
@@ -989,7 +1002,12 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
-              <Button variant="gradient" onClick={handleSubmit} disabled={isSubmitting} className="min-w-32">
+              <Button
+                variant="gradient"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="min-w-32"
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />

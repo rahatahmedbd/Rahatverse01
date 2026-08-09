@@ -99,7 +99,17 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
                 backActionLabel={
                   isBn ? "অর্ডার করতে ক্লিক করুন" : "Order This Package"
                 }
-                onBackAction={() => router.push(`/${locale}/order#order-checkout`)}
+                onBackAction={() => {
+                  // Carry the clicked package into the order form so the wizard
+                  // selects it and opens on the NEXT step automatically.
+                  const pricingPackage = config.packages.find(
+                    (candidate) => candidate.id === pkg.pricingPackageId && candidate.visible
+                  );
+                  const query = pricingPackage
+                    ? `?package=${encodeURIComponent(pricingPackage.orderValue)}`
+                    : "";
+                  router.push(`/${locale}/order${query}#order-checkout`);
+                }}
                 className="hover:glow-amber transition-shadow"
               />
             </div>

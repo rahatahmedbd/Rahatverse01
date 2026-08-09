@@ -29,6 +29,7 @@ interface GalleryImage {
 
 interface GalleryProps {
   locale?: string;
+  initialImages?: GalleryImage[];
 }
 
 function normalizeImageUrl(url?: string | null): string {
@@ -78,9 +79,26 @@ function normalizeImageUrl(url?: string | null): string {
   return url;
 }
 
-export default function Gallery({ locale = "bn" }: GalleryProps) {
-  const [images, setImages] = useState<GalleryImage[]>([]);
-  const [loading, setLoading] = useState(true);
+function getGalleryAlt(
+  image: GalleryImage | null,
+  locale: string
+): string {
+  if (!image) return locale === "bn" ? "রাহাত আহমেদ — গ্যালারি ছবি" : "Rahat Ahmed — gallery image";
+  const title = locale === "bn" ? image.title_bn || image.title : image.title || image.title_bn;
+  if (title && title.trim().length > 0) return title;
+  // Fallback meaningful alt instead of empty string for SEO + a11y
+  if (image.category && image.category !== "all") {
+    return locale === "bn"
+      ? `রাহাত আহমেদ — ${image.category} গ্যালারি ছবি`
+      : `Rahat Ahmed — ${image.category} gallery image`;
+  }
+  return locale === "bn" ? "রাহাত আহমেদ — গ্যালারি ছবি" : "Rahat Ahmed — gallery image";
+}
+
+export default function Gallery({ locale = "bn", initialImages }: GalleryProps) {
+  const hasInitial = Array.isArray(initialImages) && initialImages.length > 0;
+  const [images, setImages] = useState<GalleryImage[]>(() => (hasInitial ? (initialImages as GalleryImage[]) : []));
+  const [loading, setLoading] = useState(() => !hasInitial);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [layoutMode, setLayoutMode] = useState<GalleryLayoutMode>("mosaic");
   const [config, setConfig] = useState<GalleryConfig>(DEFAULT_GALLERY_CONFIG);
@@ -122,6 +140,11 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
   ];
 
   const fetchImages = useCallback(async () => {
+    // If SSR already provided "all" images, reuse without network for initial all
+    if (hasInitial && selectedCategory === "all" && images.length > 0 && images === initialImages) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const url = selectedCategory === "all" 
@@ -133,18 +156,27 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
       
       if (data.images) {
         setImages(data.images);
+      } else if (hasInitial && selectedCategory === "all") {
+        setImages(initialImages as GalleryImage[]);
       }
     } catch (error) {
       console.error("Failed to fetch images:", error);
+      if (hasInitial && selectedCategory === "all") {
+        setImages(initialImages as GalleryImage[]);
+      }
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, hasInitial, initialImages, images]);
 
   useEffect(() => {
+    // Skip initial fetch when SSR already hydrated the "all" category
+    if (hasInitial && selectedCategory === "all") {
+      return;
+    }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchImages();
-  }, [fetchImages]);
+  }, [fetchImages, hasInitial, selectedCategory]);
 
   const filteredImages = images.filter((img) => {
     if (selectedCategory === "all") return true;
@@ -263,7 +295,7 @@ export default function Gallery({ locale = "bn" }: GalleryProps) {
             >
               <Image
                 src={normalizeImageUrl(image.url)}
-                alt={isBn ? image.title_bn || image.title || "" : image.title || image.title_bn || ""}
+                alt={getGalleryAlt(image, locale)}
                 fill
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

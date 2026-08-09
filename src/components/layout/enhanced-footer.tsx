@@ -34,6 +34,7 @@ export function EnhancedFooter() {
     { href: `/${locale}/gallery`, label: t("gallery") },
     { href: `/${locale}/blog`, label: isBn ? "ব্লগ" : "Blog" },
     { href: `/${locale}/contact`, label: t("contact") },
+    { href: `/${locale}/links`, label: isBn ? "সংযুক্ত হোন" : "Links" },
   ];
 
   const serviceLinks = [

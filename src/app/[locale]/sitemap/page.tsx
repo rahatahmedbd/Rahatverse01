@@ -1,11 +1,47 @@
 import { GlassCard } from "@/components/ui/card";
 import { SectionTitle } from "@/components/sections/SectionTitle";
 import { FadeInUp } from "@/components/animations/FadeIn";
+import { JsonLd, getCollectionPageSchema } from "@/components/seo/JsonLd";
+import type { Metadata } from "next";
+import { absoluteUrl, localeAlternates, localePath, SITE_IMAGE, SITE_NAME } from "@/lib/seo";
 import Link from "next/link";
 
 // ── Sitemap Page ───────────────────────────────────────
 interface SitemapPageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: SitemapPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const isBn = locale === "bn";
+  const canonicalUrl = absoluteUrl(localePath(locale, "/sitemap"));
+  const title = isBn ? "সাইটম্যাপ — RahatVerse নেভিগেশন" : "Sitemap — RahatVerse Navigation";
+  const description = isBn
+    ? "RahatVerse ওয়েবসাইটের সম্পূর্ণ পাবলিক নেভিগেশন — মূল পেজ, সার্ভিস, ব্লগ ও আইনি পাতার তালিকা।"
+    : "Complete public navigation for RahatVerse — main pages, services, blog and legal pages.";
+  return {
+    title,
+    description,
+    // Utility navigation page — not intended for organic search indexing
+    robots: { index: false, follow: true },
+    alternates: localeAlternates(locale, "/sitemap"),
+    openGraph: {
+      type: "website",
+      locale: isBn ? "bn_BD" : "en_US",
+      alternateLocale: isBn ? "en_US" : "bn_BD",
+      siteName: SITE_NAME,
+      title,
+      description,
+      url: canonicalUrl,
+      images: [{ url: SITE_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [SITE_IMAGE],
+    },
+  };
 }
 
 interface SitemapSection {
@@ -45,15 +81,6 @@ const sitemapData: SitemapSection[] = [
     ],
   },
   {
-    title: "Admin",
-    titleBn: "অ্যাডমিন",
-    links: [
-      { label: "Dashboard", labelBn: "ড্যাশবোর্ড", url: "/dashboard" },
-      { label: "Manage Orders", labelBn: "অর্ডার ম্যানেজ", url: "/dashboard/orders" },
-      { label: "Message Inbox", labelBn: "বার্তা ইনবক্স", url: "/dashboard/messages" },
-    ],
-  },
-  {
     title: "Legal",
     titleBn: "আইনি",
     links: [
@@ -67,14 +94,25 @@ export default async function SitemapPage({ params }: SitemapPageProps) {
   const { locale } = await params;
   const isBn = locale === "bn";
 
+  const collectionSchema = getCollectionPageSchema({
+    locale,
+    path: "/sitemap",
+    name: isBn ? "সাইটম্যাপ — RahatVerse নেভিগেশন" : "Sitemap — RahatVerse Navigation",
+    description: isBn
+      ? "RahatVerse ওয়েবসাইটের সম্পূর্ণ পাবলিক নেভিগেশন — মূল পেজ, সার্ভিস, ব্লগ ও আইনি পাতার তালিকা।"
+      : "Complete public navigation for RahatVerse — main pages, services, blog and legal pages.",
+  });
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
+      <JsonLd type="CollectionPage" data={collectionSchema} />
       <SectionTitle
         badge={isBn ? "🗺️ সাইটম্যাপ" : "🗺️ Sitemap"}
         title="Sitemap"
         titleBn="সাইটম্যাপ"
         subtitle={isBn ? "সম্পূর্ণ ওয়েবসাইটের মানচিত্র" : "Complete website navigation map"}
         locale={locale}
+        as="h1"
       />
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

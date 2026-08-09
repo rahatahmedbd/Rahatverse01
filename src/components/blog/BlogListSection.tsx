@@ -47,6 +47,7 @@ interface BlogListSectionProps {
   initialCategory?: string;
   limit?: number;
   showSearch?: boolean;
+  initialPosts?: BlogPost[];
 }
 
 function BlogComingSoonState({ locale }: { locale: string }) {
@@ -165,9 +166,17 @@ export default function BlogListSection({
   initialCategory = "all",
   limit,
   showSearch = true,
+  initialPosts,
 }: BlogListSectionProps) {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const hasInitial = Array.isArray(initialPosts);
+  const [posts, setPosts] = useState<BlogPost[]>(() => {
+    if (hasInitial) {
+      if (limit) return (initialPosts as BlogPost[]).slice(0, limit);
+      return initialPosts as BlogPost[];
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(() => !hasInitial);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const isBn = locale === "bn";
@@ -182,6 +191,12 @@ export default function BlogListSection({
   ];
 
   const fetchPosts = useCallback(async () => {
+    // If we have SSR initial posts and no active filter, reuse them without network
+    if (hasInitial && selectedCategory === "all" && !searchQuery && !limit) {
+      setPosts(initialPosts as BlogPost[]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -195,25 +210,42 @@ export default function BlogListSection({
         params.append("limit", limit.toString());
       }
 
-      const res = await fetch(`/api/blog?${params.toString()}`);
+      const query = params.toString();
+      const res = await fetch(`/api/blog${query ? `?${query}` : ""}`);
       const data = await res.json();
-      if (data.posts) {
-        setPosts(data.posts);
+      // Support both shapes: {posts:[]} (filtered) and {data:[]} (legacy) and {results:[]}
+      const nextPosts = data.posts ?? data.data ?? data.results ?? null;
+      if (Array.isArray(nextPosts)) {
+        // If API returned empty for filtered view but we have initial, keep initial for unfiltered?
+        if (nextPosts.length === 0 && hasInitial && selectedCategory === "all" && !searchQuery) {
+          setPosts(initialPosts as BlogPost[]);
+        } else {
+          setPosts(nextPosts);
+        }
+      } else if (hasInitial && selectedCategory === "all" && !searchQuery) {
+        setPosts(initialPosts as BlogPost[]);
       }
     } catch (error) {
       console.error("Failed to fetch posts:", error);
+      if (hasInitial && selectedCategory === "all" && !searchQuery) {
+        setPosts(initialPosts as BlogPost[]);
+      }
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory, searchQuery, limit]);
+  }, [selectedCategory, searchQuery, limit, hasInitial, initialPosts]);
 
   useEffect(() => {
+    // When SSR initial posts exist and no filter/search, avoid immediate refetch
+    if (hasInitial && selectedCategory === "all" && !searchQuery && !limit) {
+      return;
+    }
     const timer = setTimeout(() => {
       fetchPosts();
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [fetchPosts]);
+  }, [fetchPosts, hasInitial, selectedCategory, searchQuery, limit]);
 
   return (
     <div className="space-y-8">

@@ -1,19 +1,13 @@
-import { LegalContent } from "@/components/sections/LegalContent";
-import type { Metadata } from "next";
-import { localeAlternates } from "@/lib/seo";
+import { permanentRedirect } from "next/navigation";
 
-interface TermsPageProps {
+// ── Legacy alias: /terms → canonical /terms-of-service ──
+// Kept as a 308 redirect so old links/query-strings keep working without
+// serving duplicate content under two URLs (audit L3).
+interface TermsAliasProps {
   params: Promise<{ locale: string }>;
 }
 
-export async function generateMetadata({ params }: TermsPageProps): Promise<Metadata> {
+export default async function TermsAliasPage({ params }: TermsAliasProps) {
   const { locale } = await params;
-  return {
-    alternates: localeAlternates(locale, "/terms"),
-  };
-}
-
-export default async function TermsPage({ params }: TermsPageProps) {
-  const { locale } = await params;
-  return <LegalContent locale={locale} pageKey="terms" />;
+  permanentRedirect(`/${locale}/terms-of-service`);
 }

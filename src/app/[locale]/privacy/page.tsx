@@ -1,19 +1,13 @@
-import { LegalContent } from "@/components/sections/LegalContent";
-import type { Metadata } from "next";
-import { localeAlternates } from "@/lib/seo";
+import { permanentRedirect } from "next/navigation";
 
-interface PrivacyPageProps {
+// ── Legacy alias: /privacy → canonical /privacy-policy ──
+// Kept as a 308 redirect so old links/query-strings keep working without
+// serving duplicate content under two URLs (audit L3).
+interface PrivacyAliasProps {
   params: Promise<{ locale: string }>;
 }
 
-export async function generateMetadata({ params }: PrivacyPageProps): Promise<Metadata> {
+export default async function PrivacyAliasPage({ params }: PrivacyAliasProps) {
   const { locale } = await params;
-  return {
-    alternates: localeAlternates(locale, "/privacy"),
-  };
-}
-
-export default async function PrivacyPage({ params }: PrivacyPageProps) {
-  const { locale } = await params;
-  return <LegalContent locale={locale} pageKey="privacy" />;
+  permanentRedirect(`/${locale}/privacy-policy`);
 }

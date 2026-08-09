@@ -3,6 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { absoluteUrl, localePath } from "@/lib/seo";
 
 const locales = ["bn", "en"];
+// Canonical paths only: /privacy + /terms are aliases that permanent-redirect
+// to the long forms, so listing them here would waste crawl budget on 301s.
+// /cookie and /refund were missing from the sitemap entirely (audit M3).
 const staticPages = [
   "",
   "/about",
@@ -15,10 +18,10 @@ const staticPages = [
   "/contact",
   "/blog",
   "/links",
-  "/privacy",
   "/privacy-policy",
-  "/terms",
   "/terms-of-service",
+  "/cookie",
+  "/refund",
   "/sitemap",
   "/summary",
 ];

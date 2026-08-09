@@ -14,6 +14,7 @@ interface LiveQuoteEstimateProps {
 export function LiveQuoteEstimate({ estimate, config, locale = "bn" }: LiveQuoteEstimateProps) {
   if (!estimate) return null;
   const isBn = locale === "bn";
+  const num = (n: number) => n.toLocaleString(isBn ? "bn-BD" : "en-US");
   const packageName = isBn ? estimate.package.nameBn : estimate.package.nameEn;
 
   return (
@@ -62,8 +63,8 @@ export function LiveQuoteEstimate({ estimate, config, locale = "bn" }: LiveQuote
               <div className="flex items-center justify-between gap-4">
                 <span className="text-muted-foreground bn">
                   {isBn
-                    ? `অতিরিক্ত ${estimate.extraPages} পেজ`
-                    : `${estimate.extraPages} extra page${estimate.extraPages === 1 ? "" : "s"}`}
+                    ? `অতিরিক্ত ${num(estimate.extraPages)} পেজ`
+                    : `${num(estimate.extraPages)} extra page${estimate.extraPages === 1 ? "" : "s"}`}
                 </span>
                 <span className="font-medium tabular-nums">
                   +{formatQuoteAmount(estimate.bdt.pages, "BDT", locale)}
@@ -74,8 +75,8 @@ export function LiveQuoteEstimate({ estimate, config, locale = "bn" }: LiveQuote
               <div className="flex items-center justify-between gap-4">
                 <span className="text-muted-foreground bn">
                   {isBn
-                    ? `${estimate.selectedAddons.length}টি ফিচার অ্যাড-অন`
-                    : `${estimate.selectedAddons.length} feature add-on${estimate.selectedAddons.length === 1 ? "" : "s"}`}
+                    ? `${num(estimate.selectedAddons.length)}টি ফিচার অ্যাড-অন`
+                    : `${num(estimate.selectedAddons.length)} feature add-on${estimate.selectedAddons.length === 1 ? "" : "s"}`}
                 </span>
                 <span className="font-medium tabular-nums">
                   +{formatQuoteAmount(estimate.bdt.addons, "BDT", locale)}

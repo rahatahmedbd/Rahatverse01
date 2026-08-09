@@ -68,6 +68,8 @@ const AUTO_ADVANCE_MS = 300;
 
 export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const isBn = locale === "bn";
+  // Locale-aware numerals: বাংলা UI-তে বাংলা ডিজিট, EN UI-তে Latin।
+  const num = (n: number) => n.toLocaleString(isBn ? "bn-BD" : "en-US");
   const searchParams = useSearchParams();
   const preselectedPackage = (searchParams.get("package") || "").trim();
 
@@ -472,7 +474,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
         {/* Progress + percentage */}
         <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
           <span className="bn">
-            {isBn ? `ধাপ ${step + 1} / ${steps.length}` : `Step ${step + 1} / ${steps.length}`}
+            {isBn ? `ধাপ ${num(step + 1)} / ${num(steps.length)}` : `Step ${num(step + 1)} / ${num(steps.length)}`}
           </span>
           <span className="bn">
             {isBn ? "শুধু অপশন সিলেক্ট করুন" : "Just tap an option"}
@@ -631,7 +633,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   <ChipGroup
                     options={config.pageIncrements.map((p) => ({
                       value: String(p),
-                      label: `${p} ${isBn ? "পেজ" : "pages"}`,
+                      label: `${num(p)} ${isBn ? "পেজ" : "pages"}`,
                     }))}
                     value={String(data.numPages)}
                     onChange={(v) => updateData("numPages", Number(v) || 1)}
@@ -799,8 +801,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                         hint={
                           data.features.length > 0
                             ? isBn
-                              ? `${data.features.length}টি ফিচার বাছাই করা হয়েছে`
-                              : `${data.features.length} features selected`
+                              ? `${num(data.features.length)}টি ফিচার বাছাই করা হয়েছে`
+                              : `${num(data.features.length)} features selected`
                             : isBn
                               ? "প্রয়োজনীয় ফিচারগুলো বেছে নিন"
                               : "Select the features you need"
@@ -955,7 +957,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-2">
                     <dt className="text-muted-foreground bn">{isBn ? "পেজ" : "Pages"}</dt>
                     <dd className="font-medium">
-                      {data.numPages} {isBn ? "পেজ" : "pages"}
+                      {num(data.numPages)} {isBn ? "পেজ" : "pages"}
                     </dd>
                   </div>
                   {data.features.length > 0 && (

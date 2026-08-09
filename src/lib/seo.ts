@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
-export const SITE_URL = (configuredSiteUrl || "https://rahatverse01.vercel.app").replace(/\/$/, "");
+export const SITE_URL = (configuredSiteUrl || "https://rahatahmed.site").replace(/\/$/, "");
 export const SITE_NAME = "RahatVerse";
 export const DEFAULT_LOCALE = "bn";
 export const SITE_IMAGE =

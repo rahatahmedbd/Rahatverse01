@@ -13,8 +13,8 @@ describe("classifyReferrer", () => {
   });
 
   it("detects same-site navigation as internal", () => {
-    expect(classifyReferrer("https://rahatverse01.vercel.app/blog", "rahatverse01.vercel.app")).toBe("internal");
-    expect(classifyReferrer("https://www.rahatverse01.vercel.app/", "rahatverse01.vercel.app")).toBe("internal");
+    expect(classifyReferrer("https://rahatahmed.site/blog", "rahatahmed.site")).toBe("internal");
+    expect(classifyReferrer("https://www.rahatahmed.site/", "rahatahmed.site")).toBe("internal");
   });
 
   it("classifies known sources", () => {

@@ -33,7 +33,7 @@ Cloudinary, and Resend.
 
 ## 3. Email (Resend)
 
-1. Verify a sending domain in Resend (e.g. `rahatverse01.vercel.app`).
+1. Verify a sending domain in Resend (e.g. `rahatahmed.site`).
 2. Create an API key (`RESEND_API_KEY`).
 3. Set a default from address (`EMAIL_FROM`) and admin recipient (`ADMIN_EMAIL`).
 4. (Recommended) Configure the delivery webhook:
@@ -55,7 +55,7 @@ Cloudinary, and Resend.
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `NEXT_PUBLIC_SITE_URL` | Yes | Canonical site URL |
+| `NEXT_PUBLIC_SITE_URL` | Yes | Canonical site URL (`https://rahatahmed.site`) |
 | `NEXT_PUBLIC_APP_NAME` | No | App display name |
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anon (public) key |
@@ -80,7 +80,7 @@ Cloudinary, and Resend.
 - [ ] Resend domain verified and `EMAIL_FROM` set
 - [ ] `CRON_SECRET` generated and configured in Vercel
 - [ ] Webhook configured in Resend (if using delivery tracking)
-- [ ] `NEXT_PUBLIC_SITE_URL` matches the production domain
+- [ ] `NEXT_PUBLIC_SITE_URL` set to `https://rahatahmed.site` (matches production domain)
 - [ ] `npm run lint`, `npm run type-check`, `npm test`, `npm run build` all pass
 - [ ] Vercel production deployment succeeded
 - [ ] Live site verified (public pages, admin login, newsletter, contact form)

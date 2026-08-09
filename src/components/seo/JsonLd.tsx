@@ -121,7 +121,7 @@ export function getPortfolioSchema(locale = "bn") {
           "@type": "ListItem",
           position: 1,
           name: "RahatVerse — Personal Ecosystem & CMS",
-          url: "https://rahatverse01.vercel.app",
+          url: SITE_URL,
         },
         {
           "@type": "ListItem",

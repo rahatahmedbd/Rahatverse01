@@ -34,7 +34,7 @@ function layout(content: string, preheader?: string): string {
       <div class="header"><h1>RahatVerse — রাহাতভার্স</h1></div>
       <div class="body">${content}</div>
       <div class="footer">
-        <p style="margin:0">Rahat Ahmed • Sunamganj, Bangladesh • <a href="https://rahatverse01.vercel.app">rahatverse01.vercel.app</a></p>
+        <p style="margin:0">Rahat Ahmed • Sunamganj, Bangladesh • <a href="https://rahatahmed.site">rahatahmed.site</a></p>
         <p class="muted" style="margin:8px 0 0">You receive this because you interacted with RahatVerse.</p>
       </div>
     </div>

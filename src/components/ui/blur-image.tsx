@@ -41,24 +41,19 @@ export function BlurImage({
 }: BlurImageProps) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    }
-    return false;
-  });
-
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
+  // useSyncExternalStore keeps SSR and hydration in agreement (server assumes
+  // motion is allowed) and only then checks the OS preference — a useState
+  // initializer reading matchMedia caused a hydration mismatch (#418-class)
+  // for reduced-motion visitors. It also keeps the live change listener.
+  const prefersReducedMotion = React.useSyncExternalStore(
+    (onStoreChange) => {
       const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-      const handleChange = (event: MediaQueryListEvent) => {
-        setPrefersReducedMotion(event.matches);
-      };
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
-    }
-  }, []);
+      mediaQuery.addEventListener("change", onStoreChange);
+      return () => mediaQuery.removeEventListener("change", onStoreChange);
+    },
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false
+  );
 
   const handleLoad = () => {
     setIsLoading(false);

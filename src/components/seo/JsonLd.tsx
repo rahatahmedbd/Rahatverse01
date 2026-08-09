@@ -2,7 +2,19 @@ import { absoluteUrl, localePath, SITE_IMAGE, SITE_NAME, SITE_URL } from "@/lib/
 
 // ── JSON-LD Structured Data ────────────────────────────
 // Schema.org type names are intentionally case-sensitive.
-type SchemaType = "Person" | "Organization" | "WebSite" | "WebPage" | "LocalBusiness" | "BlogPosting" | "CollectionPage" | "ProfilePage" | "ContactPage";
+type SchemaType =
+  | "Person"
+  | "Organization"
+  | "WebSite"
+  | "WebPage"
+  | "LocalBusiness"
+  | "BlogPosting"
+  | "CollectionPage"
+  | "ProfilePage"
+  | "ContactPage"
+  | "BreadcrumbList"
+  | "ItemList"
+  | "ImageGallery";
 
 interface JsonLdProps {
   type: SchemaType;
@@ -34,8 +46,10 @@ export function getPersonSchema() {
     alternateName: "Rahat Ahmed",
     url: SITE_URL,
     image: SITE_IMAGE,
+    description:
+      "রাহাত আহমেদ — শিক্ষার্থী, শিক্ষক, রক্তদাতা, BNCC ক্যাডেট ও Next.js ওয়েব ডেভেলপার। শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।",
     jobTitle: "Web Developer",
-    mainEntityOfPage: absoluteUrl("/bn/portfolio"),
+    mainEntityOfPage: absoluteUrl("/bn/about"),
     hasOccupation: {
       "@type": "Occupation",
       name: "Full-Stack Web Developer",
@@ -89,7 +103,7 @@ export function getWebsiteSchema() {
     publisher: {
       "@type": "Person",
       name: "রাহাত আহমেদ",
-      url: absoluteUrl("/bn"),
+      url: SITE_URL,
     },
     hasPart: [
       { "@type": "CollectionPage", name: "Portfolio & Case Studies", url: absoluteUrl("/bn/portfolio") },
@@ -123,16 +137,20 @@ export function getWebPageSchema(locale = "bn") {
 export function getPortfolioSchema(locale = "bn") {
   const isBn = locale === "bn";
   return {
-    name: isBn ? "রাহাতভার্স — পোর্টফোলিও ও কেস স্টাডি" : "RahatVerse — Portfolio & Case Studies",
+    "@id": `${absoluteUrl(`/${locale}/portfolio`)}#collection`,
     url: absoluteUrl(`/${locale}/portfolio`),
+    name: isBn ? "রাহাতভার্স — পোর্টফোলিও ও কেস স্টাডি" : "RahatVerse — Portfolio & Case Studies",
     description: isBn
       ? "রাহাত আহমেদ কর্তৃক নির্মিত বাস্তব ওয়েব প্রজেক্ট ও সমাধান।"
       : "Featured web projects, case studies, and real-world solutions engineered by Rahat Ahmed.",
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    about: { "@id": absoluteUrl("/#person") },
     author: {
       "@type": "Person",
       name: "Rahat Ahmed",
       url: absoluteUrl(`/${locale}`),
     },
+    inLanguage: isBn ? "bn-BD" : "en",
     mainEntity: {
       "@type": "ItemList",
       itemListElement: [
@@ -188,6 +206,119 @@ export function getContactPageSchema(locale = "bn") {
     author: { "@id": absoluteUrl("/#person") },
     mainEntity: { "@id": absoluteUrl("/#person") },
     inLanguage: isBn ? ["bn-BD", "en"] : ["en", "bn-BD"],
+  };
+}
+
+// ── CollectionPage helpers ────────────────────────────
+export function getCollectionPageSchema({
+  locale,
+  path,
+  name,
+  nameBn,
+  description,
+  descriptionBn,
+}: {
+  locale: string;
+  path: string;
+  name: string;
+  nameBn?: string;
+  description: string;
+  descriptionBn?: string;
+}) {
+  const isBn = locale === "bn";
+  const canonical = absoluteUrl(localePath(locale, path));
+  return {
+    "@id": `${canonical}#collection`,
+    url: canonical,
+    name: isBn && nameBn ? nameBn : name,
+    description: isBn && descriptionBn ? descriptionBn : description,
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    about: { "@id": absoluteUrl("/#person") },
+    author: { "@id": absoluteUrl("/#person") },
+    inLanguage: isBn ? "bn-BD" : "en",
+  };
+}
+
+export function getBlogCollectionSchema({
+  locale,
+  posts,
+}: {
+  locale: string;
+  posts: Array<{ slug: string; title: string; titleBn?: string | null }>;
+}) {
+  const isBn = locale === "bn";
+  const canonical = absoluteUrl(localePath(locale, "/blog"));
+  return {
+    "@id": `${canonical}#collection`,
+    url: canonical,
+    name: isBn ? "ব্লগ — রাহাত আহমেদের লেখা" : "Blog — Articles by Rahat Ahmed",
+    description: isBn
+      ? "ওয়েব ডেভেলপমেন্ট, প্রযুক্তি, শিক্ষা, রক্তদান ও সমাজসেবা নিয়ে রাহাত আহমেদের লেখা ও অভিজ্ঞতা।"
+      : "Articles and insights by Rahat Ahmed on web development, technology, education, blood donation and social service.",
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    about: { "@id": absoluteUrl("/#person") },
+    author: { "@id": absoluteUrl("/#person") },
+    inLanguage: isBn ? "bn-BD" : "en",
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: posts.length,
+      itemListElement: posts.slice(0, 20).map((post, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: isBn && post.titleBn ? post.titleBn : post.title,
+        url: absoluteUrl(localePath(locale, `/blog/${post.slug}`)),
+      })),
+    },
+  };
+}
+
+export function getGalleryCollectionSchema({
+  locale,
+  images,
+}: {
+  locale: string;
+  images: Array<{ title?: string | null; title_bn?: string | null; url: string; category: string }>;
+}) {
+  const isBn = locale === "bn";
+  const canonical = absoluteUrl(localePath(locale, "/gallery"));
+  return {
+    "@id": `${canonical}#collection`,
+    url: canonical,
+    name: isBn ? "গ্যালারি — রাহাত আহমেদ" : "Gallery — Rahat Ahmed",
+    description: isBn
+      ? "রাহাত আহমেদের যাত্রার মুহূর্তগুলো — শিক্ষা, বিজ্ঞান মেলা, বিএনসিসি, রক্তদান ড্রাইভ ও ওয়েব ডেভেলপমেন্ট।"
+      : "Photos and moments from Rahat Ahmed's journey — education, science fairs, BNCC, blood donation drives and web development.",
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    about: { "@id": absoluteUrl("/#person") },
+    author: { "@id": absoluteUrl("/#person") },
+    inLanguage: isBn ? "bn-BD" : "en",
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: images.length,
+      itemListElement: images.slice(0, 20).map((img, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name:
+          (isBn ? img.title_bn || img.title : img.title || img.title_bn) ||
+          (isBn ? "গ্যালারি ছবি" : "Gallery image"),
+        image: img.url,
+        url: canonical,
+      })),
+    },
+  };
+}
+
+// ── BreadcrumbList ────────────────────────────────────
+export function getBreadcrumbListSchema(
+  items: Array<{ name: string; url: string }>
+) {
+  return {
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
   };
 }
 

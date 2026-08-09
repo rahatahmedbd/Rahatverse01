@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PortfolioSection } from "@/components/portfolio/PortfolioSection";
 import { ExperienceSection } from "@/components/sections/ExperienceSection";
 import { BloodSocietySection } from "@/components/sections/BloodSocietySection";
@@ -5,6 +6,7 @@ import { MemorialSection } from "@/components/sections/MemorialSection";
 import { AboutFull } from "@/components/sections/AboutFull";
 import { SectionTitle } from "@/components/sections/SectionTitle";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
+import { JsonLd, getPortfolioSchema } from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -66,7 +68,16 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
   const isBn = locale === "bn";
 
   return (
-    <div className="min-h-screen py-8 sm:py-12">
+    <>
+      <JsonLd type="CollectionPage" data={getPortfolioSchema(locale)} />
+      <JsonLd
+        type="ItemList"
+        data={{
+          itemListElement: (getPortfolioSchema(locale).mainEntity as any).itemListElement,
+          numberOfItems: 3,
+        }}
+      />
+      <div className="min-h-screen py-8 sm:py-12">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionTitle
           as="h1"
@@ -99,5 +110,6 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
         <MemorialSection locale={locale} />
       </div>
     </div>
+    </>
   );
 }

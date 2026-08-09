@@ -14,14 +14,20 @@ import type { LinksConfig } from "@/types/links";
 // ── Link Hub Section (DB-driven) ───────────────────────
 interface LinkHubSectionProps {
   locale?: string;
+  initialConfig?: LinksConfig | null;
 }
 
-export function LinkHubSection({ locale = "bn" }: LinkHubSectionProps) {
+export function LinkHubSection({ locale = "bn", initialConfig }: LinkHubSectionProps) {
   const isBn = locale === "bn";
-  const [config, setConfig] = useState<LinksConfig>(DEFAULT_LINKS_CONFIG);
-  const [loading, setLoading] = useState(true);
+  const hasInitial = Boolean(initialConfig);
+  const [config, setConfig] = useState<LinksConfig>(initialConfig ?? DEFAULT_LINKS_CONFIG);
+  const [loading, setLoading] = useState(() => !hasInitial);
 
   useEffect(() => {
+    // If SSR already provided config, no need to refetch unless missing
+    if (hasInitial) {
+      return;
+    }
     let cancelled = false;
     fetch("/api/links-config", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
@@ -39,7 +45,7 @@ export function LinkHubSection({ locale = "bn" }: LinkHubSectionProps) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hasInitial]);
 
   const trackClick = (id: string) => {
     fetch("/api/links/click", {
@@ -81,6 +87,7 @@ export function LinkHubSection({ locale = "bn" }: LinkHubSectionProps) {
           titleBn={isBn ? section.titleBn : section.titleEn}
           subtitle={isBn ? section.subtitleBn : section.subtitleEn}
           locale={locale}
+          as="h1"
         />
 
         {/* Profile */}

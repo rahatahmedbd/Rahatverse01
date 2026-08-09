@@ -345,11 +345,16 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       ...validateStep(2),
     };
     if (Object.keys(allErrs).length > 0) {
-      setErrors(allErrs);
+      // Jump straight to the failing step WITHOUT clearing the errors we are
+      // about to show: goToStep() wipes `errors`, which previously made the
+      // submit button look dead — the step changed but no message survived.
       const stepWithError = [0, 1, 2].find(
         (s) => Object.keys(validateStep(s)).length > 0
       );
-      if (stepWithError !== undefined) goToStep(stepWithError);
+      if (stepWithError !== undefined) {
+        setStep(stepWithError);
+      }
+      setErrors(allErrs);
       window.setTimeout(() => scrollToFirstError(allErrs), 150);
       return;
     }

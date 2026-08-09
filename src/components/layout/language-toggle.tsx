@@ -15,9 +15,15 @@ export function LanguageToggle() {
   const nextLocale: Locale = currentLocale === "bn" ? "en" : "bn";
 
   const handleToggle = () => {
-    // Replace current locale in pathname
+    // Replace current locale in pathname and KEEP the query string + hash —
+    // usePathname() strips them, which used to drop selections like
+    // ?package=standard#order-checkout when switching language mid-order.
     const newPathname = pathname.replace(`/${currentLocale}`, `/${nextLocale}`);
-    router.push(newPathname || `/${nextLocale}`);
+    const suffix =
+      typeof window !== "undefined"
+        ? `${window.location.search}${window.location.hash}`
+        : "";
+    router.push((newPathname || `/${nextLocale}`) + suffix);
   };
 
   return (

@@ -1253,3 +1253,25 @@ img, svg, video, canvas {
     transform: none !important;
   }
 }
+
+/* Quiet orbital typography: equations glide on independent paths, giving the
+   canvas a lived-in space feel without competing with page content. */
+@keyframes science-glide-left {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg); }
+  50% { transform: translate3d(-24px, 14px, 0) rotate(1deg); }
+}
+
+@keyframes science-glide-right {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(1deg); }
+  50% { transform: translate3d(26px, -12px, 0) rotate(-1deg); }
+}
+
+.science-animate-glide-left {
+  animation: science-glide-left 48s ease-in-out infinite;
+  will-change: transform;
+}
+
+.science-animate-glide-right {
+  animation: science-glide-right 56s ease-in-out infinite;
+  will-change: transform;
+}

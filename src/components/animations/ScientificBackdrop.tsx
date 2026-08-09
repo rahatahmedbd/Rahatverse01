@@ -112,7 +112,8 @@ interface BackdropItem {
   width: string;
   color: string;
   opacity: string;
-  motion?: "spin" | "drift" | "float";
+  motion?: "spin" | "drift" | "float" | "glideLeft" | "glideRight";
+  delay?: string;
   hiddenMobile?: boolean;
   hiddenTablet?: boolean;
 }
@@ -200,6 +201,8 @@ const ITEMS: BackdropItem[] = [
     width: "auto",
     color: "text-amber-300",
     opacity: "opacity-[0.13]",
+    motion: "glideRight",
+    delay: "-9s",
   },
   {
     key: "formula-sum",
@@ -209,6 +212,8 @@ const ITEMS: BackdropItem[] = [
     width: "auto",
     color: "text-cyan-400",
     opacity: "opacity-[0.12]",
+    motion: "glideLeft",
+    delay: "-17s",
     hiddenMobile: true,
   },
   {
@@ -219,6 +224,8 @@ const ITEMS: BackdropItem[] = [
     width: "auto",
     color: "text-emerald-300",
     opacity: "opacity-[0.11]",
+    motion: "glideRight",
+    delay: "-28s",
     hiddenMobile: true,
   },
   {
@@ -229,6 +236,8 @@ const ITEMS: BackdropItem[] = [
     width: "auto",
     color: "text-violet-300",
     opacity: "opacity-[0.11]",
+    motion: "glideLeft",
+    delay: "-36s",
     hiddenMobile: true,
   },
   {
@@ -239,6 +248,8 @@ const ITEMS: BackdropItem[] = [
     width: "auto",
     color: "text-sky-300",
     opacity: "opacity-[0.10]",
+    motion: "glideRight",
+    delay: "-43s",
     hiddenMobile: true,
     hiddenTablet: true,
   },
@@ -288,6 +299,8 @@ const MOTION_CLASSES: Record<string, string> = {
   spin: "science-animate-spin",
   drift: "science-animate-drift",
   float: "science-animate-float",
+  glideLeft: "science-animate-glide-left",
+  glideRight: "science-animate-glide-right",
 };
 
 export function ScientificBackdrop() {
@@ -314,6 +327,7 @@ export function ScientificBackdrop() {
               item.motion && MOTION_CLASSES[item.motion],
               item.width === "auto" && "whitespace-nowrap text-[clamp(0.9rem,1.6vw,1.35rem)]",
             )}
+            style={{ animationDelay: item.delay }}
           >
             {item.glyph}
           </div>

@@ -1,8 +1,8 @@
-import { absoluteUrl, SITE_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { absoluteUrl, localePath, SITE_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 // ── JSON-LD Structured Data ────────────────────────────
 // Schema.org type names are intentionally case-sensitive.
-type SchemaType = "Person" | "Organization" | "WebSite" | "LocalBusiness" | "BlogPosting" | "CollectionPage";
+type SchemaType = "Person" | "Organization" | "WebSite" | "WebPage" | "LocalBusiness" | "BlogPosting" | "CollectionPage";
 
 interface JsonLdProps {
   type: SchemaType;
@@ -29,6 +29,7 @@ export function JsonLd({ type, data }: JsonLdProps) {
 
 export function getPersonSchema() {
   return {
+    "@id": absoluteUrl("/#person"),
     name: "রাহাত আহমেদ",
     alternateName: "Rahat Ahmed",
     url: SITE_URL,
@@ -78,6 +79,7 @@ export function getPersonSchema() {
 
 export function getWebsiteSchema() {
   return {
+    "@id": absoluteUrl("/#website"),
     name: "RahatVerse — রাহাত আহমেদ",
     alternateName: SITE_NAME,
     url: SITE_URL,
@@ -98,6 +100,23 @@ export function getWebsiteSchema() {
       { "@type": "WebPage", name: "Privacy Policy", url: absoluteUrl("/bn/privacy-policy") },
       { "@type": "WebPage", name: "Terms of Service", url: absoluteUrl("/bn/terms-of-service") },
     ],
+  };
+}
+
+// Homepage WebPage schema — ties the page to the Person entity (Rahat Ahmed)
+// via a stable @id, and to the WebSite via isPartOf.
+export function getWebPageSchema(locale = "bn") {
+  const isBn = locale === "bn";
+  const canonical = absoluteUrl(localePath(locale));
+  return {
+    "@id": `${canonical}#webpage`,
+    url: canonical,
+    name: isBn ? "রাহাত আহমেদ — হোমপেজ" : "Rahat Ahmed — Home",
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    about: { "@id": absoluteUrl("/#person") },
+    author: { "@id": absoluteUrl("/#person") },
+    mainEntity: { "@id": absoluteUrl("/#person") },
+    inLanguage: isBn ? ["bn-BD", "en"] : ["en", "bn-BD"],
   };
 }
 

@@ -35,11 +35,21 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const isBn = locale === "bn";
   return {
+    title: {
+      default: isBn
+        ? "রাহাত আহমেদ — ওয়েব ডেভেলপার, শিক্ষার্থী ও শিক্ষক"
+        : "Rahat Ahmed — Web Developer, Student & Teacher",
+      template: "%s | RahatVerse",
+    },
+    description: isBn
+      ? "রাহাত আহমেদ — শিক্ষার্থী, শিক্ষক, রক্তদাতা, BNCC ক্যাডেট ও ওয়েব ডেভেলপার। শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোর লক্ষ্যে আধুনিক ডিজিটাল অভিজ্ঞতা তৈরি করি।"
+      : "Rahat Ahmed is a student, teacher and web developer building modern digital experiences with AI and technology.",
     alternates: localeAlternates(locale, ""),
     openGraph: {
-      locale: locale === "bn" ? "bn_BD" : "en_US",
-      alternateLocale: locale === "bn" ? "en_US" : "bn_BD",
+      locale: isBn ? "bn_BD" : "en_US",
+      alternateLocale: isBn ? "en_US" : "bn_BD",
     },
   };
 }

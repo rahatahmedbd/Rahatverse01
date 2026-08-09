@@ -7,8 +7,15 @@ import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getAboutConfig } from "@/lib/about/server";
+import { JsonLd, getWebPageSchema } from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
-import { localeAlternates } from "@/lib/seo";
+import {
+  absoluteUrl,
+  localeAlternates,
+  localePath,
+  SITE_IMAGE,
+  SITE_NAME,
+} from "@/lib/seo";
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
@@ -16,8 +23,37 @@ interface HomePageProps {
 
 export async function generateMetadata({ params }: HomePageProps): Promise<Metadata> {
   const { locale } = await params;
+  const isBn = locale === "bn";
+  const canonicalUrl = absoluteUrl(localePath(locale));
+  const title = isBn
+    ? "রাহাত আহমেদ — ওয়েব ডেভেলপার, শিক্ষার্থী ও শিক্ষক"
+    : "Rahat Ahmed — Web Developer, Student & Teacher";
+  const description = isBn
+    ? "রাহাত আহমেদ — শিক্ষার্থী, শিক্ষক, রক্তদাতা, BNCC ক্যাডেট ও ওয়েব ডেভেলপার। শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোর লক্ষ্যে আধুনিক ডিজিটাল অভিজ্ঞতা তৈরি করি।"
+    : "Rahat Ahmed is a student, teacher and web developer building modern digital experiences with AI and technology.";
+  const ogImageAlt = isBn ? "রাহাত আহমেদ — রাহাতভার্স" : "Rahat Ahmed — RahatVerse";
+
   return {
+    title,
+    description,
     alternates: localeAlternates(locale, ""),
+    openGraph: {
+      type: "website",
+      locale: isBn ? "bn_BD" : "en_US",
+      alternateLocale: isBn ? "en_US" : "bn_BD",
+      siteName: SITE_NAME,
+      title,
+      description,
+      url: canonicalUrl,
+      images: [
+        {
+          url: SITE_IMAGE,
+          width: 1200,
+          height: 630,
+          alt: ogImageAlt,
+        },
+      ],
+    },
   };
 }
 
@@ -27,6 +63,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <>
+      <JsonLd type="WebPage" data={getWebPageSchema(locale)} />
       <CinematicIntro />
       <HeroSection locale={locale} aboutConfig={aboutConfig} />
 

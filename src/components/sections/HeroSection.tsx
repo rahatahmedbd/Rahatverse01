@@ -139,10 +139,12 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
             {/* Name */}
             <FadeInUp delay={0.5}>
               <h1 className="bn text-display-xl font-bold tracking-[-0.02em]">
-                <span className="text-gradient-name">রাহাত আহমেদ</span>
+                <span className="text-gradient-name">
+                  {isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}
+                </span>
               </h1>
               <p className="mt-1 text-[15px] font-medium tracking-[-0.01em] text-muted-foreground sm:text-lg lg:text-xl">
-                Rahat Ahmed
+                {isBn ? "Rahat Ahmed" : "রাহাত আহমেদ"}
               </p>
             </FadeInUp>
 

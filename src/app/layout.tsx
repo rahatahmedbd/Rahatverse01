@@ -4,7 +4,6 @@ import {
   JsonLd,
   getPersonSchema,
   getWebsiteSchema,
-  getLocalBusinessSchema,
 } from "@/components/seo/JsonLd";
 import { SITE_IMAGE, SITE_URL } from "@/lib/seo";
 
@@ -100,7 +99,6 @@ export default function RootLayout({
       {children}
       <JsonLd type="Person" data={getPersonSchema()} />
       <JsonLd type="WebSite" data={getWebsiteSchema()} />
-      <JsonLd type="LocalBusiness" data={getLocalBusinessSchema()} />
     </>
   );
 }

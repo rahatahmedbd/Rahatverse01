@@ -113,10 +113,10 @@ export function CinematicIntro() {
               }}
               onAnimationComplete={handleComplete}
             >
-              <h1 className="text-heading-lg font-bold">
+              <div role="text" className="text-heading-lg font-bold">
                 <span className="text-gradient">Rahat</span>
                 <span className="text-foreground">Verse</span>
-              </h1>
+              </div>
               <p className="mt-1 text-sm text-muted-foreground bn">
                 রাহাত আহমেদ
               </p>

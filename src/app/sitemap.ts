@@ -15,12 +15,10 @@ const staticPages = [
   "/contact",
   "/blog",
   "/links",
-  "/privacy",
+  // Canonical legal routes only — the short duplicates (/privacy, /terms) are
+  // noindexed and intentionally excluded so they cannot compete in search.
   "/privacy-policy",
-  "/terms",
   "/terms-of-service",
-  "/sitemap",
-  "/summary",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

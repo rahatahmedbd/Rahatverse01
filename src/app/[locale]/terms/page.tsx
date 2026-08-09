@@ -9,6 +9,8 @@ interface TermsPageProps {
 export async function generateMetadata({ params }: TermsPageProps): Promise<Metadata> {
   const { locale } = await params;
   return {
+    // Short duplicate route — consolidate search signal on /terms-of-service.
+    robots: { index: false, follow: false },
     alternates: localeAlternates(locale, "/terms"),
   };
 }

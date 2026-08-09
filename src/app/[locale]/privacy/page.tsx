@@ -9,6 +9,8 @@ interface PrivacyPageProps {
 export async function generateMetadata({ params }: PrivacyPageProps): Promise<Metadata> {
   const { locale } = await params;
   return {
+    // Short duplicate route — consolidate search signal on /privacy-policy.
+    robots: { index: false, follow: false },
     alternates: localeAlternates(locale, "/privacy"),
   };
 }

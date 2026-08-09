@@ -32,7 +32,9 @@ export default function BlogPostContent({
   const renderContent = (content: string) => {
     return content.split('\n').map((paragraph, index) => {
       if (paragraph.startsWith('# ')) {
-        return <h1 key={index} className="text-heading-lg font-bold mb-4 mt-8">{paragraph.slice(2)}</h1>;
+        // Body-level "# " headings are demoted to <h2> so the post title (an
+        // <h1>) remains the only H1 on the page.
+        return <h2 key={index} className="text-heading-lg font-bold mb-4 mt-8">{paragraph.slice(2)}</h2>;
       }
       if (paragraph.startsWith('## ')) {
         return <h2 key={index} className="text-heading-md font-bold mb-3 mt-6">{paragraph.slice(3)}</h2>;

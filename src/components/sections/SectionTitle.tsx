@@ -13,6 +13,8 @@ interface SectionTitleProps {
   className?: string;
   align?: "left" | "center" | "right";
   locale?: string;
+  /** HTML heading level. Defaults to "h2". Use "h1" only for the page's single primary heading. */
+  as?: "h1" | "h2";
 }
 
 export function SectionTitle({
@@ -24,7 +26,9 @@ export function SectionTitle({
   className,
   align = "center",
   locale = "bn",
+  as = "h2",
 }: SectionTitleProps) {
+  const HeadingTag = motion[as];
   const displayTitle = locale === "bn" && titleBn ? titleBn : title;
   const displaySubtitle = locale === "bn" && subtitleBn ? subtitleBn : subtitle;
 
@@ -60,7 +64,7 @@ export function SectionTitle({
         </motion.span>
       )}
 
-      <motion.h2
+      <HeadingTag
         className={cn(
           "text-gradient text-heading-lg font-bold",
           locale === "bn" && "bn"
@@ -71,7 +75,7 @@ export function SectionTitle({
         transition={{ delay: 0.2, duration: 0.5 }}
       >
         {displayTitle}
-      </motion.h2>
+      </HeadingTag>
 
       {/* Animated gradient accent underline */}
       <motion.span

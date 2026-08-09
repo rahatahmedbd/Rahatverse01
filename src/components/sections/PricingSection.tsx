@@ -74,6 +74,7 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
+          as="h1"
           badge={isBn ? config.pricingSection.badgeBn : config.pricingSection.badgeEn}
           title={isBn ? config.pricingSection.titleBn : config.pricingSection.titleEn}
           titleBn={isBn ? config.pricingSection.titleBn : config.pricingSection.titleEn}

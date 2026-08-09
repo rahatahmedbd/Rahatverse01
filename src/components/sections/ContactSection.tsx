@@ -201,7 +201,9 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                     </Button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                    {/* noValidate: always surface our locale-aware inline errors
+                        instead of the browser's native (English-only) bubble. */}
                     <h3 className="text-lg font-bold bn">{isBn ? "বার্তা পাঠান" : "Send a Message"}</h3>
 
                     <div className="grid gap-4 sm:grid-cols-2">

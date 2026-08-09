@@ -39,19 +39,35 @@ test("home page loads locale content and theme is interactive", async ({ page })
 });
 
 test("order wizard validates inline and updates the live quote", async ({ page }) => {
+  // ?package=basic preselects the package and opens the NEXT step (project).
   await page.goto("/en/order?package=basic#order-checkout");
   await expect(page.getByText("Live estimated quote", { exact: true })).toBeVisible();
 
+  // Next with nothing filled → both inline errors, step blocked.
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.getByText("Please choose a website type")).toBeVisible();
+  await expect(page.getByText("Please describe your project")).toBeVisible();
 
+  // Fill the required answers.
   await page.getByRole("radio", { name: "Portfolio", exact: true }).click();
-  await page.getByRole("button", { name: "Next", exact: true }).click();
-  await page.getByRole("checkbox", { name: /SEO Optimization/ }).click();
-  await page.getByRole("button", { name: "Next", exact: true }).click();
   await page.getByRole("radio", { name: "5 pages", exact: true }).click();
+  await page.locator("#description").fill("A portfolio website for my work");
 
-  await expect(page.getByText(/7,000/).first()).toBeVisible();
+  // Live quote reflects pages: Basic ৳5,000 + 2 extra pages × ৳1,000 = ৳7,000.
+  // Scoped to the quote panel so add-on chip prices can't shadow the match.
+  const quote = page.getByRole("complementary", { name: "Live estimated quote" });
+  await expect(quote.getByText(/7,000/).first()).toBeVisible();
+
+  // Fixed answers clear the errors and advance to the contact step.
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByText("Contact information")).toBeVisible();
+
+  // Regression (audit C1): submitting empty contact fields must show inline
+  // errors — never a dead button.
+  await page.getByRole("button", { name: "Submit Order", exact: true }).click();
+  await expect(page.getByText("Please enter your name")).toBeVisible();
+  await expect(page.getByText("Please enter your email")).toBeVisible();
+  await expect(page.getByText("Please enter your phone number")).toBeVisible();
 });
 
 test("package comparison can filter columns and differences", async ({ page }) => {

@@ -5,7 +5,7 @@ import BlogPostContent from "@/components/blog/BlogPostContent";
 import { BlogComments } from "@/components/blog/BlogComments";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { getBlogPostingSchema, localeAlternates, SITE_IMAGE } from "@/lib/seo";
+import { absoluteUrl, getBlogPostingSchema, localeAlternates, localePath, SITE_IMAGE } from "@/lib/seo";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       type: "article",
       title,
       description,
-      url: `/${locale}/blog/${slug}`,
+      url: absoluteUrl(localePath(locale, `/blog/${slug}`)),
       publishedTime: post.published_at || undefined,
       modifiedTime: post.updated_at || post.published_at || undefined,
       authors: [post.author || "Rahat Ahmed"],

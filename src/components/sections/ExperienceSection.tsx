@@ -19,6 +19,9 @@ const EXPERIENCE_ID_TO_PUBLIC_ID: Record<string, string> = {
 // ── Experience Section (DB-driven) ─────────────────────
 interface ExperienceSectionProps {
   locale?: string;
+  /** Heading level for this section's primary title. Defaults to h1 (standalone
+   *  Experience page). Pass "h2" when embedded (e.g. inside the Portfolio page). */
+  titleAs?: "h1" | "h2";
 }
 
 const STATUS_LABELS: Record<ExperienceStatus, { bn: string; en: string; variant: "success" | "warning" | "default" }> = {
@@ -27,7 +30,7 @@ const STATUS_LABELS: Record<ExperienceStatus, { bn: string; en: string; variant:
   completed: { bn: "সম্পন্ন", en: "Completed", variant: "default" },
 };
 
-export function ExperienceSection({ locale = "bn" }: ExperienceSectionProps) {
+export function ExperienceSection({ locale = "bn", titleAs = "h1" }: ExperienceSectionProps) {
   const isBn = locale === "bn";
   const [config, setConfig] = useState<ExperienceConfig>(DEFAULT_EXPERIENCE_CONFIG);
   const [loading, setLoading] = useState(true);
@@ -52,22 +55,16 @@ export function ExperienceSection({ locale = "bn" }: ExperienceSectionProps) {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center gap-2 p-10 text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        {isBn ? "অভিজ্ঞতা লোড হচ্ছে..." : "Loading experience..."}
-      </div>
-    );
-  }
-
   const { section, items } = config.experience;
   const experiences = items;
 
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
+        {/* Page H1 always renders (even while content loads) so it is present
+            in the server-rendered HTML for SEO. */}
         <SectionTitle
+          as={titleAs}
           badge={isBn ? section.badgeBn : section.badgeEn}
           title={isBn ? section.titleBn : section.titleEn}
           titleBn={isBn ? section.titleBn : section.titleEn}
@@ -75,6 +72,12 @@ export function ExperienceSection({ locale = "bn" }: ExperienceSectionProps) {
           locale={locale}
         />
 
+        {loading ? (
+          <div className="flex items-center justify-center gap-2 p-10 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            {isBn ? "অভিজ্ঞতা লোড হচ্ছে..." : "Loading experience..."}
+          </div>
+        ) : (
         <div className="grid gap-6 lg:grid-cols-2">
           {experiences.map((exp, index) => (
             <FadeInUp key={exp.id} delay={index * 0.1}>
@@ -150,6 +153,7 @@ export function ExperienceSection({ locale = "bn" }: ExperienceSectionProps) {
             </FadeInUp>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

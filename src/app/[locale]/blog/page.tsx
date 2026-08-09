@@ -1,7 +1,13 @@
 import BlogListSection from "@/components/blog/BlogListSection";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import type { Metadata } from "next";
-import { localeAlternates } from "@/lib/seo";
+import {
+  absoluteUrl,
+  localeAlternates,
+  localePath,
+  SITE_IMAGE,
+  SITE_NAME,
+} from "@/lib/seo";
 
 // ── Blog Page ──────────────────────────────────────────
 interface BlogPageProps {
@@ -10,8 +16,41 @@ interface BlogPageProps {
 
 export async function generateMetadata({ params }: BlogPageProps): Promise<Metadata> {
   const { locale } = await params;
+  const isBn = locale === "bn";
+  const canonicalUrl = absoluteUrl(localePath(locale, "/blog"));
+  const title = isBn ? "ব্লগ — রাহাত আহমেদের লেখা" : "Blog — Articles by Rahat Ahmed";
+  const description = isBn
+    ? "ওয়েব ডেভেলপমেন্ট, প্রযুক্তি, শিক্ষা, রক্তদান ও সমাজসেবা নিয়ে রাহাত আহমেদের লেখা ও অভিজ্ঞতা।"
+    : "Articles and insights by Rahat Ahmed on web development, technology, education, blood donation and social service.";
+  const ogImageAlt = isBn ? "রাহাত আহমেদ — রাহাতভার্স" : "Rahat Ahmed — RahatVerse";
+
   return {
+    title,
+    description,
     alternates: localeAlternates(locale, "/blog"),
+    openGraph: {
+      type: "website",
+      locale: isBn ? "bn_BD" : "en_US",
+      alternateLocale: isBn ? "en_US" : "bn_BD",
+      siteName: SITE_NAME,
+      title,
+      description,
+      url: canonicalUrl,
+      images: [
+        {
+          url: SITE_IMAGE,
+          width: 1200,
+          height: 630,
+          alt: ogImageAlt,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [SITE_IMAGE],
+    },
   };
 }
 

@@ -14,9 +14,12 @@ import type { AboutConfig } from "@/types/about";
 interface AboutFullProps {
   locale?: string;
   config?: AboutConfig;
+  /** Heading level for this section's primary title. Defaults to h1 (standalone
+   *  About page). Pass "h2" when embedded (e.g. inside the Portfolio page). */
+  titleAs?: "h1" | "h2";
 }
 
-export function AboutFull({ locale = "bn", config }: AboutFullProps) {
+export function AboutFull({ locale = "bn", config, titleAs = "h1" }: AboutFullProps) {
   const isBn = locale === "bn";
   const about = config ?? DEFAULT_ABOUT_CONFIG;
 
@@ -26,6 +29,7 @@ export function AboutFull({ locale = "bn", config }: AboutFullProps) {
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
+          as={titleAs}
           badge={isBn ? about.section.badgeBn : about.section.badgeEn}
           title={about.section.titleEn}
           titleBn={about.section.titleBn}

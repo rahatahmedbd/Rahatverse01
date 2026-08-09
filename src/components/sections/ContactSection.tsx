@@ -117,6 +117,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
 
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
+          as="h1"
           badge={isBn ? "📞 যোগাযোগ" : "📞 Contact"}
           title="Get In Touch"
           titleBn="যোগাযোগ করুন"

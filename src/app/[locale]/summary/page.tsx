@@ -3,10 +3,20 @@ import { SectionTitle } from "@/components/sections/SectionTitle";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
 import { CheckCircle2, Sparkles, Trophy, Rocket } from "lucide-react";
+import type { Metadata } from "next";
 
 // ── Project Summary Page ───────────────────────────────
 interface SummaryPageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: SummaryPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: locale === "bn" ? "প্রজেক্ট সামারি" : "Project Summary",
+    // Internal/dev-facing page — not intended for search.
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function SummaryPage({ params }: SummaryPageProps) {

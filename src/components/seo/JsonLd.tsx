@@ -2,7 +2,7 @@ import { absoluteUrl, localePath, SITE_IMAGE, SITE_NAME, SITE_URL } from "@/lib/
 
 // ── JSON-LD Structured Data ────────────────────────────
 // Schema.org type names are intentionally case-sensitive.
-type SchemaType = "Person" | "Organization" | "WebSite" | "WebPage" | "LocalBusiness" | "BlogPosting" | "CollectionPage";
+type SchemaType = "Person" | "Organization" | "WebSite" | "WebPage" | "LocalBusiness" | "BlogPosting" | "CollectionPage" | "ProfilePage" | "ContactPage";
 
 interface JsonLdProps {
   type: SchemaType;
@@ -156,6 +156,38 @@ export function getPortfolioSchema(locale = "bn") {
         },
       ],
     },
+  };
+}
+
+// ProfilePage (About) — ties the page to the global Person entity (Rahat Ahmed).
+export function getProfilePageSchema(locale = "bn") {
+  const isBn = locale === "bn";
+  const canonical = absoluteUrl(localePath(locale, "/about"));
+  return {
+    "@id": `${canonical}#webpage`,
+    url: canonical,
+    name: isBn ? "রাহাত আহমেদ সম্পর্কে" : "About Rahat Ahmed",
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    about: { "@id": absoluteUrl("/#person") },
+    author: { "@id": absoluteUrl("/#person") },
+    mainEntity: { "@id": absoluteUrl("/#person") },
+    inLanguage: isBn ? ["bn-BD", "en"] : ["en", "bn-BD"],
+  };
+}
+
+// ContactPage — ties the page to the global Person entity and the site.
+export function getContactPageSchema(locale = "bn") {
+  const isBn = locale === "bn";
+  const canonical = absoluteUrl(localePath(locale, "/contact"));
+  return {
+    "@id": `${canonical}#webpage`,
+    url: canonical,
+    name: isBn ? "যোগাযোগ — রাহাত আহমেদ" : "Contact Rahat Ahmed",
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    about: { "@id": absoluteUrl("/#person") },
+    author: { "@id": absoluteUrl("/#person") },
+    mainEntity: { "@id": absoluteUrl("/#person") },
+    inLanguage: isBn ? ["bn-BD", "en"] : ["en", "bn-BD"],
   };
 }
 

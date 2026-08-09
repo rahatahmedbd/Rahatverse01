@@ -195,6 +195,7 @@ export function AchievementsSection({ locale = "bn", config }: AchievementsSecti
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
+          as="h1"
           badge={isBn ? about.achievementsSection.badgeBn : about.achievementsSection.badgeEn}
           title={about.achievementsSection.titleEn}
           titleBn={about.achievementsSection.titleBn}

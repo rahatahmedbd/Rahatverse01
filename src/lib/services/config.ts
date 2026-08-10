@@ -538,6 +538,13 @@ const defaultComparisonRows: ServicesComparisonRow[] = [
     values: { basic: "১ সপ্তাহ", standard: "২ সপ্তাহ", premium: "৩ সপ্তাহ", enterprise: "কাস্টম" },
     valuesEn: { basic: "1 week", standard: "2 weeks", premium: "3 weeks", enterprise: "Custom" },
   },
+  {
+    id: "cmp-revisions",
+    featureBn: "বিনামূল্যে রিভিশন",
+    featureEn: "Free Revisions",
+    values: { basic: "৩ বার", standard: "৩ বার", premium: "৩ বার", enterprise: "৩ বার" },
+    valuesEn: { basic: "3 rounds", standard: "3 rounds", premium: "3 rounds", enterprise: "3 rounds" },
+  },
 ];
 
 const defaultProcessSteps: ServicesProcessStep[] = [

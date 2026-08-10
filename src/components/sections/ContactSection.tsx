@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { trackEvent } from "@/lib/analytics/tracker";
 import { GlassCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/sections/SectionTitle";
@@ -38,6 +39,8 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const formRef = useRef<HTMLFormElement>(null);
+  const contactSectionRef = useRef<HTMLElement>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -73,11 +76,83 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
     return errs;
   };
 
+  const scrollToFirstContactError = (errs: Record<string, string>) => {
+    const order = ["name", "email", "phone", "subject", "message"];
+    const firstKey = order.find((k) => k in errs);
+    if (!firstKey) return;
+    const el =
+      document.getElementById(`contact-${firstKey}`) ||
+      document.querySelector(`[data-field="contact-${firstKey}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      window.setTimeout(() => {
+        const rect = el.getBoundingClientRect();
+        const headerOffset = 80;
+        const bottomNavOffset = 96;
+        if (rect.top < headerOffset) {
+          window.scrollBy({ top: rect.top - headerOffset - 12, behavior: "smooth" });
+        } else if (rect.bottom > window.innerHeight - bottomNavOffset) {
+          window.scrollBy({ top: rect.bottom - (window.innerHeight - bottomNavOffset) + 12, behavior: "smooth" });
+        }
+      }, 360);
+      const focusable = el.querySelector<HTMLElement>("input, textarea, select, button");
+      if (focusable) {
+        setTimeout(() => {
+          try {
+            focusable.focus({ preventScroll: true } as FocusOptions);
+          } catch {
+            focusable.focus();
+          }
+        }, 380);
+      } else if (el instanceof HTMLElement) {
+        (el as HTMLElement).focus();
+      }
+    }
+  };
+
+  // Phase 6 mobile UX: keep focused fields visible above keyboard / bottom nav
+  useEffect(() => {
+    const container = formRef.current ?? contactSectionRef.current;
+    if (!container) return;
+    const onFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (!target.matches("input, textarea, select")) return;
+      window.setTimeout(() => {
+        try {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        } catch {}
+        const rect = target.getBoundingClientRect();
+        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+        const bottomOverlap = 96;
+        if (rect.bottom > viewportHeight - bottomOverlap) {
+          window.scrollBy({ top: rect.bottom - (viewportHeight - bottomOverlap) + 16, behavior: "smooth" });
+        }
+      }, 280);
+    };
+    container.addEventListener("focusin", onFocusIn);
+    const vv = window.visualViewport;
+    const onResize = () => {
+      const active = document.activeElement as HTMLElement | null;
+      if (active && active.matches("input, textarea, select")) {
+        active.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+    vv?.addEventListener("resize", onResize);
+    return () => {
+      container.removeEventListener("focusin", onFocusIn);
+      vv?.removeEventListener("resize", onResize);
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     setErrors(errs);
-    if (Object.keys(errs).length > 0) return;
+    if (Object.keys(errs).length > 0) {
+      requestAnimationFrame(() => setTimeout(() => scrollToFirstContactError(errs), 60));
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
@@ -90,6 +165,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
       });
 
       if (res.ok) {
+        trackEvent("contact_submit", { category: "conversion", metadata: { locale } });
         setIsSubmitted(true);
         setForm({ name: "", email: "", phone: "", subject: "", message: "" });
       } else {
@@ -109,7 +185,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
   ];
 
   return (
-    <section className="relative py-20 overflow-hidden">
+    <section ref={contactSectionRef} className="relative py-20 overflow-hidden scroll-mt-24 scroll-pb-28 pb-28 sm:pb-20">
       {/* Phase I Decorative Orbiting Element */}
       <div className="pointer-events-none absolute left-10 bottom-10 -z-10 flex items-center justify-center opacity-30">
         <OrbitingRings size="lg" />
@@ -143,6 +219,19 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                       href={link.href}
                       target={link.href.startsWith("http") ? "_blank" : undefined}
                       rel="noopener noreferrer"
+                      onClick={() => {
+                        if (link.href.includes("wa.me") || link.href.includes("whatsapp")) {
+                          trackEvent("whatsapp_click", {
+                            category: "conversion",
+                            metadata: { location: "contact_quick_links", locale },
+                          });
+                        } else {
+                          trackEvent("cta_click", {
+                            category: "conversion",
+                            metadata: { cta_id: link.label, location: "contact_quick_links", locale },
+                          });
+                        }
+                      }}
                       className="flex items-center gap-3 rounded-lg border border-border/50 p-3 transition-all hover:border-primary/30 hover:bg-accent/20"
                     >
                       <link.icon className={`h-5 w-5 ${link.color}`} />
@@ -202,7 +291,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                     </Button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
                     <h3 className="text-lg font-bold bn">{isBn ? "বার্তা পাঠান" : "Send a Message"}</h3>
 
                     <div className="grid gap-4 sm:grid-cols-2">

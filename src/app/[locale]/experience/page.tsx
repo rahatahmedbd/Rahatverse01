@@ -1,6 +1,7 @@
 import { ExperienceSection } from "@/components/sections/ExperienceSection";
 import { BloodSocietySection } from "@/components/sections/BloodSocietySection";
 import { MemorialSection } from "@/components/sections/MemorialSection";
+import { OrderCtaBand } from "@/components/sections/OrderCtaBand";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getExperienceConfig } from "@/lib/experience/server";
 import type { Metadata } from "next";
@@ -71,6 +72,9 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
       <BloodSocietySection locale={locale} initialConfig={experienceConfig} />
       <AuroraDivider />
       <MemorialSection locale={locale} initialConfig={experienceConfig} />
+      {/* Phase 6: trust → proof → conversion — natural conclusion after reading proof */}
+      <AuroraDivider />
+      <OrderCtaBand locale={locale} />
     </div>
   );
 }

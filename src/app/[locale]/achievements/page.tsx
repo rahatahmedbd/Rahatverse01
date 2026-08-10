@@ -1,4 +1,6 @@
 import { AchievementsSection } from "@/components/sections/AchievementsSection";
+import { OrderCtaBand } from "@/components/sections/OrderCtaBand";
+import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getAboutConfig } from "@/lib/about/server";
 import type { Metadata } from "next";
 import {
@@ -61,6 +63,9 @@ export default async function AchievementsPage({ params }: AchievementsPageProps
   return (
     <div className="mx-auto max-w-7xl px-4">
       <AchievementsSection locale={locale} config={aboutConfig} />
+      {/* Phase 6: trust → proof → conversion — natural conclusion after reading proof */}
+      <AuroraDivider />
+      <OrderCtaBand locale={locale} />
     </div>
   );
 }

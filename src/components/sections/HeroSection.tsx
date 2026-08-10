@@ -15,6 +15,7 @@ import Link from "next/link";
 import type { HeroConfig, HeroCTA } from "@/types/hero";
 import type { AboutConfig } from "@/types/about";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
+import { trackEvent } from "@/lib/analytics/tracker";
 
 // ── Icon map ───────────────────────────────────────
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -39,22 +40,10 @@ function getIcon(name: string) {
   return ICON_MAP[name] ?? Sparkles;
 }
 
+// Phase 6: hero shows exact localized labels from the CMS — primary
+// "Order a Website" / "ওয়েবসাইট অর্ডার করুন" and secondary
+// "View Work & Proof" / "কাজ ও প্রমাণ দেখুন". No shortening.
 function getDisplayLabel(cta: HeroCTA, isBn: boolean): string {
-  if (cta.id === "cta-contact") return isBn ? "চলুন কথা বলি" : "Let's Talk";
-  if (cta.id === "cta-order") {
-    const isDefaultEn = cta.labelEn.trim().toLowerCase() === "order a website";
-    const isDefaultBn = cta.labelBn.trim() === "ওয়েবসাইট অর্ডার করুন";
-    if (isBn && isDefaultBn) return "প্রজেক্ট শুরু করুন";
-    if (!isBn && isDefaultEn) return "Start a Project";
-  }
-  // Short label for the portfolio link so the button never truncates
-  // ("View Projects" -> "Projects").
-  if (cta.id === "cta-portfolio") {
-    const isDefaultEn = cta.labelEn.trim().toLowerCase() === "view projects";
-    const isDefaultBn = cta.labelBn.trim() === "প্রজেক্ট দেখুন";
-    if (isBn && isDefaultBn) return "প্রজেক্ট";
-    if (!isBn && isDefaultEn) return "Projects";
-  }
   return isBn ? cta.labelBn : cta.labelEn;
 }
 
@@ -93,10 +82,15 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
     };
   }, [heroConfig]);
 
+  // Phase 6: only two hero CTAs — primary (order) + one secondary (proof).
+  // Stored configs that still contain a third (legacy Contact) entry are
+  // gracefully downgraded so the third button never reappears.
   const { primaryCta, secondaryCtas } = useMemo(() => {
     const primary =
       config.ctas.find((c) => c.variant === "gradient") ?? config.ctas[0];
-    const secondaries = config.ctas.filter((c) => c.id !== primary?.id);
+    const secondaries = config.ctas
+      .filter((c) => c.id !== primary?.id)
+      .slice(0, 1);
     return { primaryCta: primary, secondaryCtas: secondaries };
   }, [config.ctas]);
 
@@ -191,7 +185,16 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
                         className="group relative w-full justify-between gap-3 rounded-xl px-5 py-3 text-[15px] font-semibold tracking-[-0.01em] sm:w-auto sm:min-w-[300px] sm:justify-center sm:px-7"
                         aria-label={label}
                       >
-                        <Link href={href}>
+                        <Link
+                          href={href}
+                          onClick={() =>
+                            trackEvent("cta_click", {
+                              category: "conversion",
+                              label: primaryCta.id,
+                              metadata: { cta_id: primaryCta.id, location: "hero", locale },
+                            })
+                          }
+                        >
                           <span className="flex items-center gap-2.5">
                             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/14 ring-1 ring-white/10 backdrop-blur">
                               <Zap className="h-3.5 w-3.5 text-white" aria-hidden="true" />
@@ -227,7 +230,16 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
                           className="group flex-1 justify-center gap-2 rounded-xl px-4 text-[13.5px] font-semibold tracking-[-0.01em] sm:flex-initial sm:min-w-[148px] sm:px-6 sm:text-[14px]"
                           aria-label={label}
                         >
-                          <Link href={href}>
+                          <Link
+                            href={href}
+                            onClick={() =>
+                              trackEvent("cta_click", {
+                                category: "conversion",
+                                label: cta.id,
+                                metadata: { cta_id: cta.id, location: "hero", locale },
+                              })
+                            }
+                          >
                             <UseIcon
                               className="h-4 w-4 shrink-0 opacity-90 transition-transform duration-300 group-hover:scale-110 group-active:scale-95"
                               aria-hidden="true"

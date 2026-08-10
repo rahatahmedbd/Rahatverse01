@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useMotionPreference } from "@/components/animations/motion-preferences";
 import { MessageCircle, ShoppingCart, ArrowUp, Mail, Plus } from "lucide-react";
 import Link from "next/link";
+import { trackEvent } from "@/lib/analytics/tracker";
 
 // ── Quick Actions (Premium Expandable Floating FAB Menu) ───────────────────
 
@@ -116,7 +117,20 @@ export function QuickActions({ className }: QuickActionsProps) {
                         "flex h-11 w-11 items-center justify-center rounded-full cursor-pointer transition-transform hover:scale-110 active:scale-95",
                         item.color
                       )}
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => {
+                        setIsOpen(false);
+                        if (item.id === "whatsapp") {
+                          trackEvent("whatsapp_click", {
+                            category: "conversion",
+                            metadata: { location: "quick_actions", locale },
+                          });
+                        } else {
+                          trackEvent("cta_click", {
+                            category: "conversion",
+                            metadata: { cta_id: item.id, location: "quick_actions", locale },
+                          });
+                        }
+                      }}
                       aria-label={item.label}
                     >
                       {content}
@@ -128,7 +142,13 @@ export function QuickActions({ className }: QuickActionsProps) {
                         "flex h-11 w-11 items-center justify-center rounded-full cursor-pointer transition-transform hover:scale-110 active:scale-95",
                         item.color
                       )}
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => {
+                        setIsOpen(false);
+                        trackEvent("cta_click", {
+                          category: "conversion",
+                          metadata: { cta_id: item.id, location: "quick_actions", locale },
+                        });
+                      }}
                       aria-label={item.label}
                     >
                       {content}

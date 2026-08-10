@@ -27,6 +27,7 @@ import { useLocale } from "next-intl";
 import { DEFAULT_PORTFOLIO_CONFIG, validatePortfolioConfig } from "@/lib/portfolio/config";
 import type { PortfolioConfig, PortfolioProjectStatus } from "@/types/portfolio";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics/tracker";
 
 // Honest lifecycle labels — a concept stays visibly a concept.
 const STATUS_META: Record<
@@ -51,6 +52,31 @@ const STATUS_META: Record<
     className: "border-dashed border-muted-foreground/40 text-muted-foreground",
   },
 };
+
+// Phase 6: conservative project → package bridge (no invented client claims)
+// Maps a portfolio case-study category to a justified order package tier.
+function packageForProjectCategory(category: string): string {
+  switch (category) {
+    case "portfolio":
+      return "basic"; // personal portfolio → Basic
+    case "ecommerce":
+      return "premium"; // e-commerce → Premium
+    case "education":
+      return "standard"; // education portal → Standard
+    case "blood-donation":
+      return "standard"; // blood directory → Standard (organization site)
+    case "business":
+      return "standard";
+    case "blog":
+      return "basic";
+    default:
+      return "standard";
+  }
+}
+
+function buildSimilarLabel(isBn: boolean): string {
+  return isBn ? "এমন ওয়েবসাইট তৈরি করুন →" : "Build a Similar Website →";
+}
 
 function ProjectImage({
   src,
@@ -333,6 +359,29 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
                       ))}
                     </div>
 
+                    {/* Phase 6: Portfolio → Order bridge — contextual commercial CTA */}
+                    {(() => {
+                      const tier = packageForProjectCategory(project.category);
+                      const href = `/${locale}/order?package=${encodeURIComponent(tier)}#order-checkout`;
+                      return (
+                        <Link
+                          href={href}
+                          onClick={() =>
+                            trackEvent("portfolio_project_click", {
+                              category: "conversion",
+                              label: project.id,
+                              metadata: { project_id: project.id, location: "portfolio_card_build_similar", locale },
+                            })
+                          }
+                          className="group/link mt-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-md px-2 py-2 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bn"
+                          aria-label={buildSimilarLabel(isBn)}
+                        >
+                          <span>{buildSimilarLabel(isBn)}</span>
+                          <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover/link:translate-x-0.5" aria-hidden="true" />
+                        </Link>
+                      );
+                    })()}
+
                     {/* Live & GitHub Action Links */}
                     <div className="mt-auto flex gap-2.5 pt-2 border-t border-border/40">
                       <Button
@@ -346,7 +395,17 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
                           target={project.liveUrl !== "#" ? "_blank" : undefined}
                           rel="noopener noreferrer"
                           aria-disabled={project.liveUrl === "#"}
-                          onClick={(e) => project.liveUrl === "#" && e.preventDefault()}
+                          onClick={(e) => {
+                            if (project.liveUrl === "#") {
+                              e.preventDefault();
+                              return;
+                            }
+                            trackEvent("portfolio_project_click", {
+                              category: "conversion",
+                              label: project.id,
+                              metadata: { project_id: project.id, location: "portfolio_card_live_demo", locale },
+                            });
+                          }}
                           className={cn(
                             "flex items-center justify-center gap-1.5",
                             project.liveUrl === "#" && "pointer-events-none opacity-60"
@@ -374,6 +433,17 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
                             project.githubUrl !== "#"
                               ? project.githubUrl
                               : `/${locale}/contact`
+                          }
+                          onClick={() =>
+                            trackEvent("portfolio_project_click", {
+                              category: "conversion",
+                              label: project.id,
+                              metadata: {
+                                project_id: project.id,
+                                location: project.githubUrl !== "#" ? "portfolio_card_github" : "portfolio_card_inquire",
+                                locale,
+                              },
+                            })
                           }
                           target={project.githubUrl !== "#" ? "_blank" : undefined}
                           rel="noopener noreferrer"

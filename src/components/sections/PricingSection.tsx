@@ -10,6 +10,7 @@ import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
 import { Check, ArrowRight, Sparkles, Star, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
+import { trackEvent } from "@/lib/analytics/tracker";
 import type { ServicesComparisonRow, ServicesConfig } from "@/types/services";
 
 interface PricingSectionProps {
@@ -147,7 +148,21 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
                   className="w-full"
                   asChild
                 >
-                  <Link href={`/${locale}/order?package=${encodeURIComponent(pkg.orderValue)}#order-checkout`}>
+                  <Link
+                    href={`/${locale}/order?package=${encodeURIComponent(pkg.orderValue)}#order-checkout`}
+                    onClick={() => {
+                      trackEvent("service_select", {
+                        category: "conversion",
+                        label: pkg.id,
+                        metadata: { package_id: pkg.id, location: "pricing_card", locale },
+                      });
+                      trackEvent("cta_click", {
+                        category: "conversion",
+                        label: pkg.id,
+                        metadata: { cta_id: `pricing-${pkg.id}`, location: "pricing_card", locale },
+                      });
+                    }}
+                  >
                     {isBn ? pkg.ctaBn : pkg.ctaEn}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -257,7 +272,21 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
                         {comparedPackages.map((pkg) => (
                           <td key={pkg.id} className="p-3 text-center">
                             <Button size="sm" variant={pkg.popular ? "default" : "outline"} asChild>
-                              <Link href={`/${locale}/order?package=${encodeURIComponent(pkg.orderValue)}#order-checkout`}>
+                              <Link
+                                href={`/${locale}/order?package=${encodeURIComponent(pkg.orderValue)}#order-checkout`}
+                                onClick={() => {
+                                  trackEvent("service_select", {
+                                    category: "conversion",
+                                    label: pkg.id,
+                                    metadata: { package_id: pkg.id, location: "pricing_comparison", locale },
+                                  });
+                                  trackEvent("cta_click", {
+                                    category: "conversion",
+                                    label: pkg.id,
+                                    metadata: { cta_id: `pricing-comparison-${pkg.id}`, location: "pricing_comparison", locale },
+                                  });
+                                }}
+                              >
                                 {isBn ? "বাছাই" : "Choose"}
                               </Link>
                             </Button>

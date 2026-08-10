@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { useMotionPreference } from "@/components/animations/motion-preferences";
+import { useCoarsePointer, useMotionPreference } from "@/components/animations/motion-preferences";
 
 export interface Parallax3DContainerProps {
   children: React.ReactNode;
@@ -24,7 +24,8 @@ export function Parallax3DContainer({
 }: Parallax3DContainerProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useMotionPreference();
-  const isEnabled = !disabled && !prefersReducedMotion;
+  const isCoarse = useCoarsePointer();
+  const isEnabled = !disabled && !prefersReducedMotion && !isCoarse;
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const element = containerRef.current;

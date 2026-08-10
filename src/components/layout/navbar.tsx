@@ -3,9 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-import { NavUtilityMenu } from "./nav-utility-menu";
 import { NAVIGATION_ITEMS } from "@/lib/constants";
+
+const NavUtilityMenu = dynamic(
+  () => import("./nav-utility-menu").then((mod) => mod.NavUtilityMenu),
+  { ssr: false }
+);
 
 // ── Glass Navigation Bar — premium, responsive 320→1536+ ─
 export function Navbar() {

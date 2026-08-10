@@ -113,7 +113,6 @@ export function MemorialSection({ locale = "bn", initialConfig }: MemorialSectio
                   width={112}
                   height={112}
                   className="h-full w-full object-cover"
-                  priority
                 />
               )}
             </motion.div>

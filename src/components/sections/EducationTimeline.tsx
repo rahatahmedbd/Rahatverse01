@@ -1,5 +1,3 @@
-"use client";
-
 import { SectionTitle } from "./SectionTitle";
 import { ScrollStoryline, StorylineItem } from "@/components/interactive";
 import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";

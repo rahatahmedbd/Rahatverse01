@@ -49,9 +49,9 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   /* Font */
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-bengali: "Hind Siliguri", "Inter", "Noto Sans Bengali", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
+  --font-bengali: var(--font-hind-siliguri), var(--font-inter), "Hind Siliguri", "Noto Sans Bengali", system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", "Fira Code", monospace;
 
   /* ── Phase C — Fluid Type Scale (display / heading / body) ──
      Responsive clamp(): fluid between 375px (min) and 1024px (max) */

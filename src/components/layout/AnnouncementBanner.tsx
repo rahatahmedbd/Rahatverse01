@@ -1,18 +1,21 @@
-"use client";
-
 import Link from "next/link";
 import { Megaphone } from "lucide-react";
-import { useGlobalConfig } from "@/hooks/useGlobalConfig";
+import { DEFAULT_GLOBAL_CONFIG } from "@/lib/global/config";
+import type { GlobalConfig } from "@/types/global";
 
 interface AnnouncementBannerProps {
   locale?: string;
+  announcement?: GlobalConfig["announcement"];
+  header?: GlobalConfig["header"];
 }
 
 /** Renders the admin-controlled announcement banner at the top of the site. */
-export function AnnouncementBanner({ locale = "bn" }: AnnouncementBannerProps) {
+export function AnnouncementBanner({
+  locale = "bn",
+  announcement = DEFAULT_GLOBAL_CONFIG.announcement,
+  header = DEFAULT_GLOBAL_CONFIG.header,
+}: AnnouncementBannerProps) {
   const isBn = locale === "bn";
-  const config = useGlobalConfig();
-  const { announcement, header } = config;
 
   const active = announcement.enabled && (isBn ? announcement.textBn : announcement.textEn);
   const headerActive = header.enabled && (isBn ? header.textBn : header.textEn);

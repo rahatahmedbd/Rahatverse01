@@ -1,10 +1,11 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
+import dynamic from "next/dynamic";
+import { Inter, Hind_Siliguri, JetBrains_Mono } from "next/font/google";
 import { Navbar } from "@/components/layout/navbar";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { EnhancedFooter } from "@/components/layout/enhanced-footer";
 import { BottomNavBar } from "@/components/layout/bottom-nav";
-import { AIChatWidget } from "@/components/ai/AIChatWidget";
 import { AnimationProviders } from "@/components/animations/Providers";
 import { ScientificBackdrop } from "@/components/animations/ScientificBackdrop";
 import { MotionProvider } from "@/components/animations/MotionProvider";
@@ -16,8 +17,10 @@ import { ErrorReporter } from "@/components/analytics/ErrorReporter";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { getGlobalConfig } from "@/lib/global/server";
+import { getAnalyticsConfig } from "@/lib/analytics/configServer";
 import { getCurrentUserContext } from "@/lib/supabase/guards";
 import { MaintenanceScreen } from "@/components/layout/MaintenanceScreen";
+import { AIChatWidgetLoader } from "@/components/ai/AIChatWidgetLoader";
 import type { Metadata } from "next";
 import { localeAlternates } from "@/lib/seo";
 
@@ -69,7 +72,10 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   // Enforce maintenance mode (admin users may bypass when allowAdmins is on).
-  const globalConfig = await getGlobalConfig();
+  const [globalConfig, analyticsConfig] = await Promise.all([
+    getGlobalConfig(),
+    getAnalyticsConfig(),
+  ]);
   let maintenanceBlocked = false;
   if (globalConfig.maintenance.enabled) {
     if (globalConfig.maintenance.allowAdmins) {
@@ -103,9 +109,18 @@ export default async function LocaleLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
           rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap"
+          media="print"
+          // @ts-expect-error onLoad switch for non-blocking CSS
+          onLoad="this.media='all'"
         />
+        <noscript>
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap"
+          />
+        </noscript>
         {/* PWA Meta Tags */}
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/images/rahat-2d-favicon-from-profile.png" type="image/png" />
@@ -120,7 +135,7 @@ export default async function LocaleLayout({
       <body className="antialiased">
         <GoogleAnalytics />
         <WebVitalsReporter />
-        <AnalyticsProvider />
+        <AnalyticsProvider initialTelemetryEnabled={analyticsConfig.settings.telemetryEnabled} />
         <ErrorReporter />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <MotionProvider>
@@ -132,7 +147,11 @@ export default async function LocaleLayout({
               <AnimationProviders />
 
               {/* Admin-controlled announcement banner */}
-              <AnnouncementBanner locale={locale} />
+              <AnnouncementBanner
+                locale={locale}
+                announcement={globalConfig.announcement}
+                header={globalConfig.header}
+              />
 
               {/* Glass Navigation Bar */}
               <Navbar />
@@ -143,13 +162,13 @@ export default async function LocaleLayout({
               </main>
 
               {/* Enhanced Footer */}
-              <EnhancedFooter />
+              <EnhancedFooter locale={locale} />
 
               {/* Mobile Bottom Navigation */}
               <BottomNavBar />
 
               {/* Nuva — AI chat assistant (bottom nav on mobile, floating bubble on desktop) */}
-              <AIChatWidget />
+              <AIChatWidgetLoader />
             </div>
           </MotionProvider>
         </NextIntlClientProvider>

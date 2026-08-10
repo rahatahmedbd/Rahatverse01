@@ -57,8 +57,11 @@ export function ParticleBackground({
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
+    const isMobileDevice = typeof window !== "undefined" && window.innerWidth < 768;
+    const effectiveCount = isMobileDevice ? Math.max(12, Math.floor(particleCount / 2)) : particleCount;
+
     const initialiseParticles = () => {
-      particlesRef.current = Array.from({ length: particleCount }, () => ({
+      particlesRef.current = Array.from({ length: effectiveCount }, () => ({
         x: Math.random() * width(),
         y: Math.random() * height(),
         vx: (Math.random() - 0.5) * speed,
@@ -107,19 +110,21 @@ export function ParticleBackground({
         context.fill();
       }
 
-      // Nearby lines are the costliest part, so keep their range restrained.
-      for (let i = 0; i < particlesRef.current.length; i += 1) {
-        for (let j = i + 1; j < particlesRef.current.length; j += 1) {
-          const first = particlesRef.current[i];
-          const second = particlesRef.current[j];
-          const distance = Math.hypot(first.x - second.x, first.y - second.y);
-          if (distance < 100) {
-            context.beginPath();
-            context.moveTo(first.x, first.y);
-            context.lineTo(second.x, second.y);
-            context.strokeStyle = particleColor.replace("0.5", (((100 - distance) / 100) * 0.12).toString());
-            context.lineWidth = 0.5;
-            context.stroke();
+      // Nearby lines are the costliest part, so keep their range restrained and skip on mobile.
+      if (!isMobileDevice) {
+        for (let i = 0; i < particlesRef.current.length; i += 1) {
+          for (let j = i + 1; j < particlesRef.current.length; j += 1) {
+            const first = particlesRef.current[i];
+            const second = particlesRef.current[j];
+            const distance = Math.hypot(first.x - second.x, first.y - second.y);
+            if (distance < 100) {
+              context.beginPath();
+              context.moveTo(first.x, first.y);
+              context.lineTo(second.x, second.y);
+              context.strokeStyle = particleColor.replace("0.5", (((100 - distance) / 100) * 0.12).toString());
+              context.lineWidth = 0.5;
+              context.stroke();
+            }
           }
         }
       }

@@ -1,5 +1,3 @@
-"use client";
-
 import { GlassCard } from "@/components/ui/card";
 import { SectionTitle } from "@/components/sections/SectionTitle";
 import { FadeInUp } from "@/components/animations/FadeIn";

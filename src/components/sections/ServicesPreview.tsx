@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { GlassCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,10 +7,8 @@ import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 import { FlipCard3D } from "@/components/interactive/FlipCard3D";
 import { ArrowRight, CheckCircle2, Layers3 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
+import { getServicesConfig } from "@/lib/services/server";
 import { ServicesIcon } from "@/lib/services/icons";
-import type { ServicesConfig } from "@/types/services";
 
 interface ServicesPreviewProps {
   locale?: string;
@@ -27,25 +22,9 @@ const BADGE_VARIANT_MAP: Record<string, "default" | "secondary" | "outline" | "g
   default: "default",
 };
 
-export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
+export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
   const isBn = locale === "bn";
-  const router = useRouter();
-  const [config, setConfig] = useState<ServicesConfig>(DEFAULT_SERVICES_CONFIG);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/services-config", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((json) => {
-        if (cancelled) return;
-        const validated = validateServicesConfig((json as { data?: unknown } | null)?.data);
-        if (validated) setConfig(validated);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const config = await getServicesConfig();
 
   const featuredPackages = config.featuredPackages.filter((pkg) => pkg.visible);
   const websiteTypes = config.websiteTypes.filter((type) => type.visible);
@@ -99,7 +78,7 @@ export function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
                 backActionLabel={
                   isBn ? "অর্ডার করতে ক্লিক করুন" : "Order This Package"
                 }
-                onBackAction={() => router.push(`/${locale}/order#order-checkout`)}
+                backActionHref={`/${locale}/order#order-checkout`}
                 className="hover:glow-amber transition-shadow"
               />
             </div>

@@ -45,8 +45,13 @@ export function ParticleField({
     resize();
     window.addEventListener("resize", resize);
 
+    const isMobileDevice = window.innerWidth < 768;
+    const effectiveCount = isMobileDevice
+      ? Math.max(15, Math.floor(particleCount / 2))
+      : particleCount;
+
     // Initialize particles
-    particlesRef.current = Array.from({ length: particleCount }, () => ({
+    particlesRef.current = Array.from({ length: effectiveCount }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       vx: (Math.random() - 0.5) * 0.5,
@@ -97,21 +102,23 @@ export function ParticleField({
         ctx.fillStyle = color.replace("0.5", particle.opacity.toString());
         ctx.fill();
 
-        // Draw connections
-        particlesRef.current.forEach((other) => {
-          const dx = particle.x - other.x;
-          const dy = particle.y - other.y;
-          const distance = Math.sqrt(dx ** 2 + dy ** 2);
+        // Draw connections (skip on mobile for 60fps performance)
+        if (!isMobileDevice) {
+          particlesRef.current.forEach((other) => {
+            const dx = particle.x - other.x;
+            const dy = particle.y - other.y;
+            const distance = Math.sqrt(dx ** 2 + dy ** 2);
 
-          if (distance < 100) {
-            ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(other.x, other.y);
-            ctx.strokeStyle = color.replace("0.5", ((100 - distance) / 100 * 0.2).toString());
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        });
+            if (distance < 100) {
+              ctx.beginPath();
+              ctx.moveTo(particle.x, particle.y);
+              ctx.lineTo(other.x, other.y);
+              ctx.strokeStyle = color.replace("0.5", ((100 - distance) / 100 * 0.2).toString());
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          });
+        }
       });
 
       requestAnimationFrame(animate);

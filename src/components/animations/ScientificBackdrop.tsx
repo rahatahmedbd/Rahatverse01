@@ -1,5 +1,3 @@
-"use client";
-
 // ── Scientific Backdrop — ambient science elements ────
 // Pure decoration that fills the empty page background with faint, drifting
 // scientific motifs (atoms, molecules, DNA, formulas) matching Rahat's

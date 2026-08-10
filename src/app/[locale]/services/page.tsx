@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { FadeInUp, FadeInLeft, FadeInRight } from "@/components/animations/FadeIn";
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
 import { Button } from "@/components/ui/button";
@@ -8,10 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
-import { useLocale } from "next-intl";
-import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
+import { DEFAULT_SERVICES_CONFIG } from "@/lib/services/config";
+import { getServicesConfig } from "@/lib/services/server";
+import { getApprovedTestimonialsServer } from "@/lib/testimonials/server";
 import { ServicesIcon } from "@/lib/services/icons";
-import type { ServicesConfig } from "@/types/services";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 
 // Contextual proof links — connect each service claim to a real, honest
@@ -35,33 +32,18 @@ const PROOF_LINKS: Record<string, { labelBn: string; labelEn: string }> = {
   },
 };
 
-export default function ServicesPage() {
-  const locale = useLocale();
+export default async function ServicesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const isBn = locale === "bn";
-  // Initialize with rich defaults so the page renders immediately even if the
-  // config API is slow or unreachable (never blocks the UI on "Loading...").
-  const [config, setConfig] = useState<ServicesConfig>(DEFAULT_SERVICES_CONFIG);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    // Hard timeout so a slow/hung config endpoint can never leave this page
-    // in a perpetual loading state — content always renders from defaults.
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-    fetch("/api/services-config", { cache: "no-store", signal: controller.signal })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((json) => {
-        const validated = validateServicesConfig((json as { data?: unknown } | null)?.data);
-        if (validated) setConfig(validated);
-      })
-      .catch(() => {
-        /* fall back to defaults */
-      })
-      .finally(() => clearTimeout(timeoutId));
-    return () => {
-      controller.abort();
-      clearTimeout(timeoutId);
-    };
-  }, []);
+  const [config, initialTestimonials] = await Promise.all([
+    getServicesConfig(),
+    getApprovedTestimonialsServer(6),
+  ]);
 
   // If the stored config ends up with no visible packages (e.g. an empty DB
   // row), fall back to the rich defaults so the page is never blank.
@@ -311,7 +293,7 @@ export default function ServicesPage() {
         {/* Testimonials Trust Signal */}
         <FadeInUp>
           <div className="mb-16">
-            <TestimonialsSection locale={locale} />
+            <TestimonialsSection locale={locale} initialTestimonials={initialTestimonials} />
           </div>
         </FadeInUp>
 

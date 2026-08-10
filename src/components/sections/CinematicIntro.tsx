@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useLocale } from "next-intl";
 import { useMotionPreference } from "@/components/animations/motion-preferences";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
+import type { HeroConfig } from "@/types/hero";
 
 // ── Check if intro already played ──────────────────────
 function shouldPlayIntro(): boolean {
@@ -16,15 +17,22 @@ function shouldPlayIntro(): boolean {
 // Plays on first visit, then never again (localStorage)
 // Duration: ~4 seconds total
 
-export function CinematicIntro() {
+interface CinematicIntroProps {
+  config?: HeroConfig;
+}
+
+export function CinematicIntro({ config }: CinematicIntroProps = {}) {
   const locale = useLocale();
   const isBn = locale === "bn";
   const [isPlaying, setIsPlaying] = useState(shouldPlayIntro);
   const prefersReducedMotion = useMotionPreference();
-  const [greeting, setGreeting] = useState(DEFAULT_HERO_CONFIG.intro.greetingBn);
-  const [durationMs, setDurationMs] = useState(DEFAULT_HERO_CONFIG.intro.durationMs);
+  const initialGreeting = config ? config.intro.greetingBn : DEFAULT_HERO_CONFIG.intro.greetingBn;
+  const initialDuration = config ? config.intro.durationMs : DEFAULT_HERO_CONFIG.intro.durationMs;
+  const [greeting, setGreeting] = useState(initialGreeting);
+  const [durationMs, setDurationMs] = useState(initialDuration);
 
   useEffect(() => {
+    if (config) return;
     fetch("/api/hero-config", { cache: "no-store" })
       .then((r) => r.json())
       .then((json) => {
@@ -35,7 +43,7 @@ export function CinematicIntro() {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [config]);
 
   const handleComplete = () => {
     setIsPlaying(false);

@@ -1,5 +1,3 @@
-"use client";
-
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";

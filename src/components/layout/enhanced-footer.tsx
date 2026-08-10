@@ -1,12 +1,11 @@
-"use client";
-
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Heart, Mail, Phone, MapPin } from "lucide-react";
 import { GlowEffect } from "@/components/animations/GlowEffect";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { LighthouseScoreBadge } from "@/components/seo/LighthouseScoreBadge";
-import { useGlobalConfig } from "@/hooks/useGlobalConfig";
+import { getGlobalConfig } from "@/lib/global/server";
+import { getNewsletterConfig } from "@/lib/newsletter/server";
 
 const socialLinks = [
   { href: "https://www.facebook.com/rahat.ahmed.948943", label: "Facebook", symbol: "f" },
@@ -15,34 +14,41 @@ const socialLinks = [
   { href: "https://www.instagram.com/rahatahm6d/", label: "Instagram", symbol: "◎" },
 ];
 
-export function EnhancedFooter() {
-  const locale = useLocale();
-  const t = useTranslations("footer");
+interface EnhancedFooterProps {
+  locale?: string;
+}
+
+export async function EnhancedFooter({ locale }: EnhancedFooterProps) {
+  const currentLocale = locale ?? (await getLocale());
+  const t = await getTranslations({ locale: currentLocale, namespace: "footer" });
   const currentYear = new Date().getFullYear();
-  const isBn = locale === "bn";
-  const globalConfig = useGlobalConfig();
+  const isBn = currentLocale === "bn";
+  const [globalConfig, newsletterConfig] = await Promise.all([
+    getGlobalConfig(),
+    getNewsletterConfig(),
+  ]);
   const footer = globalConfig.footer;
   const copyrightText = (isBn ? footer.copyrightBn : footer.copyrightEn).replace("{year}", String(currentYear));
   const madeWithText = isBn ? footer.madeWithBn : footer.madeWithEn;
 
   const quickLinks = [
-    { href: `/${locale}/about`, label: t("about") },
-    { href: `/${locale}/portfolio`, label: isBn ? "পোর্টফোলিও" : "Portfolio" },
-    { href: `/${locale}/services`, label: t("services") },
-    { href: `/${locale}/experience`, label: isBn ? "অভিজ্ঞতা" : "Experience" },
-    { href: `/${locale}/achievements`, label: t("achievements") },
-    { href: `/${locale}/gallery`, label: t("gallery") },
-    { href: `/${locale}/blog`, label: isBn ? "ব্লগ" : "Blog" },
-    { href: `/${locale}/contact`, label: t("contact") },
-    { href: `/${locale}/links`, label: isBn ? "সংযুক্ত হোন" : "Links" },
+    { href: `/${currentLocale}/about`, label: t("about") },
+    { href: `/${currentLocale}/portfolio`, label: isBn ? "পোর্টফোলিও" : "Portfolio" },
+    { href: `/${currentLocale}/services`, label: t("services") },
+    { href: `/${currentLocale}/experience`, label: isBn ? "অভিজ্ঞতা" : "Experience" },
+    { href: `/${currentLocale}/achievements`, label: t("achievements") },
+    { href: `/${currentLocale}/gallery`, label: t("gallery") },
+    { href: `/${currentLocale}/blog`, label: isBn ? "ব্লগ" : "Blog" },
+    { href: `/${currentLocale}/contact`, label: t("contact") },
+    { href: `/${currentLocale}/links`, label: isBn ? "সংযুক্ত হোন" : "Links" },
   ];
 
   const serviceLinks = [
-    { href: `/${locale}/order#order-checkout`, label: t("orderWebsite") },
-    { href: `/${locale}/services`, label: t("services") },
-    { href: `/${locale}/privacy-policy`, label: isBn ? "প্রাইভেসি পলিসি" : "Privacy Policy" },
-    { href: `/${locale}/terms-of-service`, label: isBn ? "সেবা শর্তাবলি" : "Terms of Service" },
-    { href: `/${locale}/contact`, label: t("contact") },
+    { href: `/${currentLocale}/order#order-checkout`, label: t("orderWebsite") },
+    { href: `/${currentLocale}/services`, label: t("services") },
+    { href: `/${currentLocale}/privacy-policy`, label: isBn ? "প্রাইভেসি পলিসি" : "Privacy Policy" },
+    { href: `/${currentLocale}/terms-of-service`, label: isBn ? "সেবা শর্তাবলি" : "Terms of Service" },
+    { href: `/${currentLocale}/contact`, label: t("contact") },
   ];
 
   return (
@@ -126,7 +132,7 @@ export function EnhancedFooter() {
           </div>
 
           <div className="md:col-span-2 lg:col-span-1">
-            <NewsletterSignup locale={locale} variant="footer" source="footer" />
+            <NewsletterSignup locale={currentLocale} variant="footer" source="footer" initialConfig={newsletterConfig} />
           </div>
         </div>
 

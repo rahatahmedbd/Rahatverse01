@@ -61,11 +61,12 @@ function getDisplayLabel(cta: HeroCTA, isBn: boolean): string {
 interface HeroSectionProps {
   locale?: string;
   aboutConfig?: AboutConfig;
+  heroConfig?: HeroConfig;
 }
 
-export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
+export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSectionProps) {
   const isBn = locale === "bn";
-  const [config, setConfig] = useState<HeroConfig>(DEFAULT_HERO_CONFIG);
+  const [config, setConfig] = useState<HeroConfig>(heroConfig ?? DEFAULT_HERO_CONFIG);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -77,6 +78,7 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
   }, []);
 
   useEffect(() => {
+    if (heroConfig) return;
     let alive = true;
     fetch("/api/hero-config", { cache: "no-store" })
       .then((r) => r.json())
@@ -89,7 +91,7 @@ export function HeroSection({ locale = "bn", aboutConfig }: HeroSectionProps) {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [heroConfig]);
 
   const { primaryCta, secondaryCtas } = useMemo(() => {
     const primary =

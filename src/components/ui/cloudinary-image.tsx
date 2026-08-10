@@ -16,6 +16,7 @@ export interface CloudinaryImageProps {
   className?: string;
   wrapperClassName?: string;
   priority?: boolean;
+  sizes?: string;
   showSkeleton?: boolean;
   fallbackType?: "profile" | "default";
   onLoad?: () => void;
@@ -34,6 +35,7 @@ export function CloudinaryImage({
   className,
   wrapperClassName,
   priority = false,
+  sizes,
   showSkeleton = true,
   fallbackType,
   onLoad,
@@ -176,6 +178,7 @@ export function CloudinaryImage({
           className
         )}
         priority={priority}
+        sizes={sizes || (priority ? "100vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw")}
         loading={priority ? "eager" : "lazy"}
         onLoad={handleLoad}
         onError={handleError}

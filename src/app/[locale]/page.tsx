@@ -7,6 +7,9 @@ import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getAboutConfig } from "@/lib/about/server";
+import { getHeroConfig } from "@/lib/hero/server";
+import { getApprovedTestimonialsServer } from "@/lib/testimonials/server";
+import { getNewsletterConfig } from "@/lib/newsletter/server";
 import { JsonLd, getWebPageSchema } from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 import {
@@ -59,13 +62,18 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
 
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
-  const aboutConfig = await getAboutConfig();
+  const [aboutConfig, heroConfig, testimonials, newsletterConfig] = await Promise.all([
+    getAboutConfig(),
+    getHeroConfig(),
+    getApprovedTestimonialsServer(6),
+    getNewsletterConfig(),
+  ]);
 
   return (
     <>
       <JsonLd type="WebPage" data={getWebPageSchema(locale)} />
-      <CinematicIntro />
-      <HeroSection locale={locale} aboutConfig={aboutConfig} />
+      <CinematicIntro config={heroConfig} />
+      <HeroSection locale={locale} aboutConfig={aboutConfig} heroConfig={heroConfig} />
 
       <AuroraDivider spacing="md" />
 
@@ -79,7 +87,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
       {/* Testimonials — container handled inside component */}
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <TestimonialsSection locale={locale} limit={6} />
+        <TestimonialsSection locale={locale} limit={6} initialTestimonials={testimonials} />
       </div>
 
       <AuroraDivider spacing="md" />
@@ -90,7 +98,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
       {/* Newsletter — compact, not giant */}
       <section id="newsletter" className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:py-12">
-        <NewsletterSignup locale={locale} source="homepage" />
+        <NewsletterSignup locale={locale} source="homepage" initialConfig={newsletterConfig} />
       </section>
     </>
   );

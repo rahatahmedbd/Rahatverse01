@@ -20,6 +20,7 @@ interface Testimonial {
 interface TestimonialsSectionProps {
   locale?: string;
   limit?: number;
+  initialTestimonials?: Testimonial[];
 }
 
 // Phase 4A — fabricated seed testimonials were removed deliberately. The
@@ -30,10 +31,13 @@ interface TestimonialsSectionProps {
 export default function TestimonialsSection({
   locale = "bn",
   limit = 6,
+  initialTestimonials,
 }: TestimonialsSectionProps) {
   const isBn = locale === "bn";
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(
+    () => (initialTestimonials ? initialTestimonials.slice(0, limit) : [])
+  );
+  const [loading, setLoading] = useState(!initialTestimonials);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -63,9 +67,10 @@ export default function TestimonialsSection({
   }, [limit]);
 
   useEffect(() => {
+    if (initialTestimonials) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchTestimonials();
-  }, [fetchTestimonials]);
+  }, [fetchTestimonials, initialTestimonials]);
 
   const count = testimonials.length;
 

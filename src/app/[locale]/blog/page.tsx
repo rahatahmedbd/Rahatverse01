@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import BlogListSection from "@/components/blog/BlogListSection";
 import { FadeInUp } from "@/components/animations/FadeIn";
-import { JsonLd, getBlogCollectionSchema } from "@/components/seo/JsonLd";
+import { JsonLd, getBlogCollectionSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 import {
@@ -104,6 +104,16 @@ export default async function BlogPage({ params }: BlogPageProps) {
           itemListElement: (collectionSchema.mainEntity as any)?.itemListElement || [],
           numberOfItems: posts.length,
         }}
+      />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "ব্লগ" : "Blog",
+            url: absoluteUrl(localePath(locale, "/blog")),
+          },
+        ])}
       />
       <div className="container mx-auto px-4">
         {/* Header */}

@@ -4,6 +4,7 @@ import { MemorialSection } from "@/components/sections/MemorialSection";
 import { OrderCtaBand } from "@/components/sections/OrderCtaBand";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getExperienceConfig } from "@/lib/experience/server";
+import { JsonLd, getEntityWebPageSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -60,12 +61,33 @@ export async function generateMetadata({ params }: ExperiencePageProps): Promise
 
 export default async function ExperiencePage({ params }: ExperiencePageProps) {
   const { locale } = await params;
+  const isBn = locale === "bn";
   // Server-load the validated CMS payload so the initial HTML contains the
   // real, crawlable experience content (Phase 4A) — the client islands reuse
   // this data and skip their redundant client-side fetches.
   const experienceConfig = await getExperienceConfig();
 
   return (
+    <>
+      <JsonLd
+        type="WebPage"
+        data={getEntityWebPageSchema({
+          locale,
+          path: "/experience",
+          name: "Experience & Social Service — Rahat Ahmed",
+          nameBn: "অভিজ্ঞতা ও সমাজসেবা — রাহাত আহমেদ",
+        })}
+      />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "অভিজ্ঞতা ও সমাজসেবা" : "Experience & Social Service",
+            url: absoluteUrl(localePath(locale, "/experience")),
+          },
+        ])}
+      />
     <div className="mx-auto max-w-7xl px-4">
       <ExperienceSection locale={locale} initialConfig={experienceConfig} />
       <AuroraDivider />
@@ -76,5 +98,6 @@ export default async function ExperiencePage({ params }: ExperiencePageProps) {
       <AuroraDivider />
       <OrderCtaBand locale={locale} />
     </div>
+    </>
   );
 }

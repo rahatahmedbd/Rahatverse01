@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { getBlogPostingSchema, absoluteUrl } from "@/lib/seo";
 import {
+  getEntityWebPageSchema,
+  getBreadcrumbListSchema,
   getFAQPageSchema,
   getPersonSchema,
   getWebsiteSchema,
@@ -41,6 +43,65 @@ describe("Phase 4 — SEO entity graph", () => {
       const website = getWebsiteSchema();
       expect(website["@id"]).toBe(absoluteUrl("/#website"));
       expect(website.publisher).toEqual({ "@id": absoluteUrl("/#person") });
+    });
+  });
+
+  // Phase 7: entity-tied WebPage schema — used on pages (experience,
+  // achievements, order) whose subject is Rahat Ahmed but which are neither
+  // collections, profile nor contact pages.
+  describe("getEntityWebPageSchema", () => {
+    const en = getEntityWebPageSchema({
+      locale: "en",
+      path: "/experience",
+      name: "Experience & Social Service — Rahat Ahmed",
+      nameBn: "অভিজ্ঞতা ও সমাজসেবা — রাহাত আহমেদ",
+    });
+    const bn = getEntityWebPageSchema({
+      locale: "bn",
+      path: "/order",
+      name: "Order a Website — Packages & Pricing",
+      nameBn: "ওয়েবসাইট অর্ডার করুন — প্যাকেজ ও মূল্য",
+    });
+
+    it("ties the page to the single Person and WebSite entities", () => {
+      expect(en["@id"]).toBe(absoluteUrl("/en/experience#webpage"));
+      expect(en.isPartOf).toEqual({ "@id": absoluteUrl("/#website") });
+      expect(en.about).toEqual({ "@id": absoluteUrl("/#person") });
+      expect(en.author).toEqual({ "@id": absoluteUrl("/#person") });
+      expect(en.mainEntity).toEqual({ "@id": absoluteUrl("/#person") });
+    });
+
+    it("keeps the locale-specific canonical URL", () => {
+      expect(en.url).toBe(absoluteUrl("/en/experience"));
+      expect(bn.url).toBe(absoluteUrl("/bn/order"));
+    });
+
+    it("localizes name and inLanguage", () => {
+      expect(en.name).toBe("Experience & Social Service — Rahat Ahmed");
+      expect(en.inLanguage).toEqual(["en", "bn-BD"]);
+      expect(bn.name).toBe("ওয়েবসাইট অর্ডার করুন — প্যাকেজ ও মূল্য");
+      expect(bn.inLanguage).toEqual(["bn-BD", "en"]);
+    });
+  });
+
+  // Phase 7: BreadcrumbList — schema only references real, existing pages.
+  describe("getBreadcrumbListSchema", () => {
+    const items = [
+      { name: "Home", url: absoluteUrl("/en") },
+      { name: "Portfolio", url: absoluteUrl("/en/portfolio") },
+    ];
+    const breadcrumb = getBreadcrumbListSchema(items);
+
+    it("numbers positions from 1 and keeps names + urls", () => {
+      expect(breadcrumb.itemListElement).toEqual([
+        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/en") },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Portfolio",
+          item: absoluteUrl("/en/portfolio"),
+        },
+      ]);
     });
   });
 

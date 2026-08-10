@@ -2,7 +2,7 @@ import { ContactSection } from "@/components/sections/ContactSection";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
-import { JsonLd, getContactPageSchema, getFAQPageSchema } from "@/components/seo/JsonLd";
+import { JsonLd, getContactPageSchema, getFAQPageSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import { getContentConfig } from "@/lib/content/server";
 import type { Metadata } from "next";
 import {
@@ -60,6 +60,7 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
 
 export default async function ContactPage({ params }: ContactPageProps) {
   const { locale } = await params;
+  const isBn = locale === "bn";
   // Server-load the FAQ/legal/search config so the accordion ships in the
   // initial HTML and the FAQPage JSON-LD mirrors exactly the visible Q&A.
   const contentConfig = await getContentConfig();
@@ -68,6 +69,16 @@ export default async function ContactPage({ params }: ContactPageProps) {
   return (
     <>
       <JsonLd type="ContactPage" data={getContactPageSchema(locale)} />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "যোগাযোগ" : "Contact",
+            url: absoluteUrl(localePath(locale, "/contact")),
+          },
+        ])}
+      />
       {visibleFaqItems.length > 0 && (
         <JsonLd
           type="FAQPage"

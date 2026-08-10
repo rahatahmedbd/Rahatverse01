@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "postbuild": "node scripts/apply-phase6-hero-config.mjs",
     "start": "next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",

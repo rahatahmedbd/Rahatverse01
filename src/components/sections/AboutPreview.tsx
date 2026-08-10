@@ -5,7 +5,8 @@ import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
 import { ABOUT_ICON_MAP } from "@/lib/about/icons";
 import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";
 import type { AboutConfig } from "@/types/about";
-import { UserRound } from "lucide-react";
+import { UserRound, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface AboutPreviewProps {
   locale?: string;
@@ -62,6 +63,17 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
               {isBn ? about.biography.quoteBy.bn : about.biography.quoteBy.en}
             </Badge>
           </GlassCard>
+        </div>
+
+        {/* Entity-strong internal link — homepage preview → canonical About page */}
+        <div className="mt-6 text-center">
+          <Link
+            href={`/${locale}/about`}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          >
+            {isBn ? "রাহাত আহমেদ সম্পর্কে আরও জানুন" : "Learn more about Rahat Ahmed"}
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </section>

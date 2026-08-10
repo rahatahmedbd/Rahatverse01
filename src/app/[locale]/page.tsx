@@ -57,6 +57,12 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
         },
       ],
     },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [SITE_IMAGE],
+    },
   };
 }
 

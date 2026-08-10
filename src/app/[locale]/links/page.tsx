@@ -1,5 +1,5 @@
 import { LinkHubSection } from "@/components/sections/LinkHubSection";
-import { JsonLd, getCollectionPageSchema } from "@/components/seo/JsonLd";
+import { JsonLd, getCollectionPageSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import { createClient } from "@/lib/supabase/server";
 import { DEFAULT_LINKS_CONFIG, validateLinksConfig } from "@/lib/links/config";
 import type { Metadata } from "next";
@@ -104,6 +104,16 @@ export default async function LinksPage({ params }: LinksPageProps) {
     <div className="mx-auto max-w-7xl px-4">
       <JsonLd type="CollectionPage" data={enriched} />
       <JsonLd type="ItemList" data={itemList} />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "সংযুক্ত হোন" : "Connect",
+            url: absoluteUrl(localePath(locale, "/links")),
+          },
+        ])}
+      />
       <LinkHubSection locale={locale} initialConfig={config} />
     </div>
   );

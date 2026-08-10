@@ -120,13 +120,20 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
         )}
 
         {/* CTA */}
-        <div className="mt-10 text-center sm:mt-12">
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 text-center sm:mt-12 sm:flex-row sm:gap-4">
           <Button variant="gradient" size="lg" asChild className="w-full sm:w-auto">
             <Link href={`/${locale}/order#order-checkout`} className="inline-flex items-center justify-center gap-2">
               {isBn ? "প্রজেক্টের জন্য যোগাযোগ করুন" : "Start Your Project"}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
+          <Link
+            href={`/${locale}/portfolio`}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          >
+            {isBn ? "কাজ ও প্রমাণ দেখুন" : "View work & proof"}
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </section>

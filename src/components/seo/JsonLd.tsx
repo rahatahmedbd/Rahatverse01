@@ -100,6 +100,11 @@ export function getPersonSchema() {
       "Case Studies",
       "Web Applications",
       "E-Commerce Platforms",
+      "Blood Donation",
+      "Education",
+      "Teaching",
+      "Social Service",
+      "BNCC",
     ],
   };
 }
@@ -118,8 +123,11 @@ export function getWebsiteSchema() {
       { "@type": "CollectionPage", name: "Portfolio & Case Studies", url: absoluteUrl("/bn/portfolio") },
       { "@type": "CollectionPage", name: "Services & Packages", url: absoluteUrl("/bn/services") },
       { "@type": "CollectionPage", name: "Experience & Social Service", url: absoluteUrl("/bn/experience") },
+      { "@type": "CollectionPage", name: "Achievements & Milestones", url: absoluteUrl("/bn/achievements") },
       { "@type": "CollectionPage", name: "Gallery", url: absoluteUrl("/bn/gallery") },
       { "@type": "Blog", name: "Blog", url: absoluteUrl("/bn/blog") },
+      { "@type": "CollectionPage", name: "Contact", url: absoluteUrl("/bn/contact") },
+      { "@type": "WebPage", name: "Order a Website", url: absoluteUrl("/bn/order") },
       { "@type": "WebPage", name: "Privacy Policy", url: absoluteUrl("/bn/privacy-policy") },
       { "@type": "WebPage", name: "Terms of Service", url: absoluteUrl("/bn/terms-of-service") },
     ],

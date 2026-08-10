@@ -127,6 +127,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             name: isBn ? "ব্লগ" : "Blog",
             url: absoluteUrl(localePath(locale, "/blog")),
           },
+          {
+            name: title,
+            url: absoluteUrl(localePath(locale, `/blog/${post.slug}`)),
+          },
         ])}
       />
       <div className="container mx-auto px-4">

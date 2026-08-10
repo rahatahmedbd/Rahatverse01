@@ -255,7 +255,6 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
   return (
     <div className="min-h-screen py-12">
       <JsonLd type="CollectionPage" data={enrichedGallery} />
-      <JsonLd type="ImageGallery" data={enrichedGallery} />
       <JsonLd
         type="BreadcrumbList"
         data={getBreadcrumbListSchema([

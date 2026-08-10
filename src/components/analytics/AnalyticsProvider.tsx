@@ -23,17 +23,25 @@ const SCROLL_THRESHOLDS = [25, 50, 75, 100];
 const ENGAGEMENT_INTERVAL_MS = 30_000;
 const CLICKABLE_SELECTOR = "[data-track], a[href], button, [role='button']";
 
-export function AnalyticsProvider() {
+export function AnalyticsProvider({
+  initialTelemetryEnabled,
+}: {
+  initialTelemetryEnabled?: boolean;
+} = {}) {
   const pathname = usePathname();
   const firedScrollThresholds = useRef<Set<number>>(new Set());
 
   // Queue lifecycle: periodic flush + flush on tab hide / page unload.
   useEffect(() => {
     initAnalyticsQueue();
-  }, []);
+    if (typeof initialTelemetryEnabled === "boolean") {
+      setTelemetryEnabled(initialTelemetryEnabled);
+    }
+  }, [initialTelemetryEnabled]);
 
   // Apply admin-controlled telemetry switch from analytics_config.
   useEffect(() => {
+    if (typeof initialTelemetryEnabled === "boolean") return;
     fetch("/api/analytics-config", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
       .then((json) => {
@@ -44,7 +52,7 @@ export function AnalyticsProvider() {
       .catch(() => {
         /* fall back to enabled */
       });
-  }, []);
+  }, [initialTelemetryEnabled]);
 
   // Page view tracking on route change.
   useEffect(() => {

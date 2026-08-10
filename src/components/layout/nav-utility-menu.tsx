@@ -2,11 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MoreHorizontal } from "lucide-react";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-import { SearchDialog } from "@/components/interactive/SearchDialog";
 import { LanguageToggle } from "./language-toggle";
 import { ThemeToggle } from "./theme-toggle";
-import { AccentCustomizer } from "@/components/interactive/AccentCustomizer";
+
+const SearchDialog = dynamic(
+  () => import("@/components/interactive/SearchDialog").then((mod) => mod.SearchDialog),
+  { ssr: false }
+);
+const AccentCustomizer = dynamic(
+  () => import("@/components/interactive/AccentCustomizer").then((mod) => mod.AccentCustomizer),
+  { ssr: false }
+);
 
 interface NavUtilityMenuProps {
   locale: string;

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { RotateCw } from "lucide-react";
@@ -14,6 +15,7 @@ export interface FlipCard3DProps {
   backContent: React.ReactNode;
   backActionLabel?: string;
   onBackAction?: () => void;
+  backActionHref?: string;
   className?: string;
   locale?: string;
 }
@@ -27,6 +29,7 @@ export function FlipCard3D({
   backContent,
   backActionLabel,
   onBackAction,
+  backActionHref,
   className,
   locale = "bn",
 }: FlipCard3DProps) {
@@ -108,17 +111,29 @@ export function FlipCard3D({
 
           {backActionLabel && (
             <div className="pt-2">
-              <Button
-                variant="gradient"
-                size="sm"
-                className="w-full text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onBackAction?.();
-                }}
-              >
-                {backActionLabel}
-              </Button>
+              {backActionHref ? (
+                <Button
+                  variant="gradient"
+                  size="sm"
+                  className="w-full text-xs"
+                  asChild
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Link href={backActionHref}>{backActionLabel}</Link>
+                </Button>
+              ) : (
+                <Button
+                  variant="gradient"
+                  size="sm"
+                  className="w-full text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBackAction?.();
+                  }}
+                >
+                  {backActionLabel}
+                </Button>
+              )}
             </div>
           )}
         </div>

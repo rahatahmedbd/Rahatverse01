@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { optionalText, rating, requiredText } from "@/lib/api/validation";
+import { getApprovedTestimonialsServer } from "@/lib/testimonials/server";
 import { NextResponse } from "next/server";
 
 // POST — Submit a testimonial for moderation.
@@ -41,42 +42,8 @@ export async function POST(request: Request) {
   }
 }
 
-// Phase 4A guard — never serve recognizable placeholder testimonials publicly.
-// Keeps the public surface clean even if a placeholder seed row were approved
-// (or re-approved) before migration 027 has been applied to the database.
-function isPlaceholderTestimonial(row: {
-  name?: unknown;
-  role?: unknown;
-  company?: unknown;
-  content?: unknown;
-}): boolean {
-  const name = typeof row.name === "string" ? row.name.trim() : "";
-  const role = typeof row.role === "string" ? row.role.trim() : "";
-  const company = typeof row.company === "string" ? row.company.trim() : "";
-  const content = typeof row.content === "string" ? row.content.trim() : "";
-  if (/^client name$/i.test(name)) return true;
-  if (/^testimonial content$/i.test(content)) return true;
-  if (/^role$/i.test(role) && /^company$/i.test(company)) return true;
-  return false;
-}
-
 // GET — List public, approved testimonials only.
 export async function GET() {
-  const supabase = await createClient();
-  if (!supabase) {
-    return NextResponse.json({ data: [] });
-  }
-
-  const { data, error } = await supabase
-    .from("testimonials")
-    .select("*")
-    .eq("is_approved", true)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Testimonial retrieval failed", error);
-    return NextResponse.json({ data: [] });
-  }
-
-  return NextResponse.json({ data: (data ?? []).filter((row) => !isPlaceholderTestimonial(row)) });
+  const data = await getApprovedTestimonialsServer(50);
+  return NextResponse.json({ data });
 }

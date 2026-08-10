@@ -1,5 +1,3 @@
-"use client";
-
 import { CustomCursor } from "./CustomCursor";
 import { ScrollProgress } from "./ScrollProgress";
 import { ScrollToTop } from "./ScrollProgress";

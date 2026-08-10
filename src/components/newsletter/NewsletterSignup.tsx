@@ -13,19 +13,26 @@ interface NewsletterSignupProps {
   locale?: string;
   variant?: "card" | "inline" | "footer";
   source?: string;
+  initialConfig?: NewsletterConfig;
 }
 
-export function NewsletterSignup({ locale = "bn", variant = "card", source = "website" }: NewsletterSignupProps) {
+export function NewsletterSignup({
+  locale = "bn",
+  variant = "card",
+  source = "website",
+  initialConfig,
+}: NewsletterSignupProps) {
   const isBn = locale === "bn";
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [showName, setShowName] = useState(false);
-  const [config, setConfig] = useState<NewsletterConfig>(DEFAULT_NEWSLETTER_CONFIG);
+  const [config, setConfig] = useState<NewsletterConfig>(initialConfig ?? DEFAULT_NEWSLETTER_CONFIG);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
   useEffect(() => {
+    if (initialConfig) return;
     let cancelled = false;
     fetch("/api/newsletter-config", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
@@ -40,7 +47,7 @@ export function NewsletterSignup({ locale = "bn", variant = "card", source = "we
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialConfig]);
 
   const toggleTopic = (value: string) => {
     setSelectedTopics((prev) =>

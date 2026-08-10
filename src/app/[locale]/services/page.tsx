@@ -14,6 +14,27 @@ import { ServicesIcon } from "@/lib/services/icons";
 import type { ServicesConfig } from "@/types/services";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 
+// Contextual proof links — connect each service claim to a real, honest
+// example (live site, in-development portal, or clearly-labelled concept).
+const PROOF_LINKS: Record<string, { labelBn: string; labelEn: string }> = {
+  "web-development": {
+    labelBn: "বাস্তব নমুনা: এই ওয়েবসাইট (রাহাতভার্স) — পোর্টফোলিওতে দেখুন",
+    labelEn: "Real example: this website (RahatVerse) — see the portfolio",
+  },
+  "portfolio-website": {
+    labelBn: "লাইভ নমুনা: রাহাতভার্স পার্সোনাল ইকোসিস্টেম",
+    labelEn: "Live example: the RahatVerse personal ecosystem",
+  },
+  "blood-organization": {
+    labelBn: "প্রমাণ: শান্তিচক্র রক্তদাতা ডিরেক্টরি (ডেভেলপমেন্ট চলছে)",
+    labelEn: "Proof: Shantichakra donor directory (in development)",
+  },
+  "education-website": {
+    labelBn: "সম্পর্কিত কনসেপ্ট: এডুকেয়ার টিউটরিং সিস্টেম",
+    labelEn: "Related concept: the EduCare tutoring system",
+  },
+};
+
 export default function ServicesPage() {
   const locale = useLocale();
   const isBn = locale === "bn";
@@ -70,6 +91,17 @@ export default function ServicesPage() {
             </h1>
             <p className="text-xl text-muted-foreground">
               {isBn ? section.subtitleBn : section.subtitleEn}
+            </p>
+            <p className="mt-4 text-sm">
+              <Link
+                href={`/${locale}/portfolio`}
+                className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
+              >
+                {isBn
+                  ? "কথার বদলে কাজ দেখুন — বাস্তব প্রজেক্ট ও কেস স্টাডি"
+                  : "Don't take my word for it — see real projects & case studies"}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </p>
           </div>
         </FadeInUp>
@@ -164,6 +196,19 @@ export default function ServicesPage() {
                         ))}
                       </ul>
                     </div>
+                    {PROOF_LINKS[service.id] && (
+                      <p className="text-xs leading-relaxed text-muted-foreground">
+                        <Link
+                          href={`/${locale}/portfolio`}
+                          className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                        >
+                          {isBn
+                            ? PROOF_LINKS[service.id].labelBn
+                            : PROOF_LINKS[service.id].labelEn}
+                          <ArrowRight className="h-3 w-3" />
+                        </Link>
+                      </p>
+                    )}
                     <div className="pt-4 border-t">
                       <div className="flex items-center justify-between gap-3">
                         <div className="text-left">

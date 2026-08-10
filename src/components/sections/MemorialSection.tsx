@@ -16,14 +16,18 @@ import type { ExperienceConfig } from "@/types/experience";
 // Tribute to Late Md. Farid Ahmed (Father)
 interface MemorialSectionProps {
   locale?: string;
+  /** Server-loaded validated config. When provided, the section renders in the
+   *  initial HTML (crawlable) and the client refetch is skipped. */
+  initialConfig?: ExperienceConfig;
 }
 
-export function MemorialSection({ locale = "bn" }: MemorialSectionProps) {
+export function MemorialSection({ locale = "bn", initialConfig }: MemorialSectionProps) {
   const isBn = locale === "bn";
-  const [config, setConfig] = useState<ExperienceConfig>(DEFAULT_EXPERIENCE_CONFIG);
-  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<ExperienceConfig>(initialConfig ?? DEFAULT_EXPERIENCE_CONFIG);
+  const [loading, setLoading] = useState(!initialConfig);
 
   useEffect(() => {
+    if (initialConfig) return;
     let cancelled = false;
     fetch("/api/experience-config", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
@@ -41,7 +45,7 @@ export function MemorialSection({ locale = "bn" }: MemorialSectionProps) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialConfig]);
 
   if (loading) {
     return (

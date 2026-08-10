@@ -55,7 +55,8 @@ export function getBlogPostingSchema({
   coverImage,
   publishedAt,
   updatedAt,
-  author,
+  // `author` is accepted for API compatibility; the schema always references
+  // the single site-wide Person entity (/#person) to avoid entity duplication.
   tags,
   readingTime,
 }: BlogSchemaInput) {
@@ -69,19 +70,11 @@ export function getBlogPostingSchema({
     image: coverImage || SITE_IMAGE,
     datePublished: publishedAt || undefined,
     dateModified: updatedAt || publishedAt || undefined,
-    author: {
-      "@type": "Person",
-      name: author || "Rahat Ahmed",
-      url: absoluteUrl(localePath(locale)),
-    },
-    publisher: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      logo: {
-        "@type": "ImageObject",
-        url: absoluteUrl("/icons/icon-512.svg"),
-      },
-    },
+    // Entity references keep every BlogPosting tied to the single site-wide
+    // Person (/#person) and WebSite (/#website) entities instead of nesting
+    // duplicate partial entities on every article.
+    author: { "@id": absoluteUrl("/#person") },
+    publisher: { "@id": absoluteUrl("/#website") },
     inLanguage: locale === "bn" ? "bn-BD" : "en",
     keywords: tags?.join(", ") || undefined,
     timeRequired: readingTime ? `PT${readingTime}M` : undefined,

@@ -14,7 +14,8 @@ type SchemaType =
   | "ContactPage"
   | "BreadcrumbList"
   | "ItemList"
-  | "ImageGallery";
+  | "ImageGallery"
+  | "FAQPage";
 
 interface JsonLdProps {
   type: SchemaType;
@@ -44,12 +45,24 @@ export function getPersonSchema() {
     "@id": absoluteUrl("/#person"),
     name: "রাহাত আহমেদ",
     alternateName: "Rahat Ahmed",
+    givenName: "Rahat",
+    familyName: "Ahmed",
+    birthDate: "2006-06-21",
+    nationality: {
+      "@type": "Country",
+      name: "Bangladesh",
+    },
     url: SITE_URL,
     image: SITE_IMAGE,
     description:
       "রাহাত আহমেদ — শিক্ষার্থী, শিক্ষক, রক্তদাতা, BNCC ক্যাডেট ও Next.js ওয়েব ডেভেলপার। শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য।",
     jobTitle: "Web Developer",
     mainEntityOfPage: absoluteUrl("/bn/about"),
+    memberOf: {
+      "@type": "Organization",
+      name: "Shantichakra Blood Society",
+      url: "https://www.facebook.com/share/g/192g4S4brD/",
+    },
     hasOccupation: {
       "@type": "Occupation",
       name: "Full-Stack Web Developer",
@@ -100,11 +113,7 @@ export function getWebsiteSchema() {
     description:
       "শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য। ওয়েব ডেভেলপমেন্ট সার্ভিস।",
     inLanguage: ["bn-BD", "en"],
-    publisher: {
-      "@type": "Person",
-      name: "রাহাত আহমেদ",
-      url: SITE_URL,
-    },
+    publisher: { "@id": absoluteUrl("/#person") },
     hasPart: [
       { "@type": "CollectionPage", name: "Portfolio & Case Studies", url: absoluteUrl("/bn/portfolio") },
       { "@type": "CollectionPage", name: "Services & Packages", url: absoluteUrl("/bn/services") },
@@ -145,11 +154,7 @@ export function getPortfolioSchema(locale = "bn") {
       : "Featured web projects, case studies, and real-world solutions engineered by Rahat Ahmed.",
     isPartOf: { "@id": absoluteUrl("/#website") },
     about: { "@id": absoluteUrl("/#person") },
-    author: {
-      "@type": "Person",
-      name: "Rahat Ahmed",
-      url: absoluteUrl(`/${locale}`),
-    },
+    author: { "@id": absoluteUrl("/#person") },
     inLanguage: isBn ? "bn-BD" : "en",
     mainEntity: {
       "@type": "ItemList",
@@ -305,6 +310,35 @@ export function getGalleryCollectionSchema({
         url: canonical,
       })),
     },
+  };
+}
+
+// ── FAQPage ───────────────────────────────────────────
+// Only emit this for content that is visibly rendered on the page (the FAQ
+// accordion keeps every answer in the DOM). Question/answer text must match
+// the visible text exactly.
+export function getFAQPageSchema({
+  locale,
+  items,
+}: {
+  locale: string;
+  items: Array<{
+    questionBn: string;
+    questionEn: string;
+    answerBn: string;
+    answerEn: string;
+  }>;
+}) {
+  const isBn = locale === "bn";
+  return {
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: isBn ? item.questionBn : item.questionEn,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: isBn ? item.answerBn : item.answerEn,
+      },
+    })),
   };
 }
 

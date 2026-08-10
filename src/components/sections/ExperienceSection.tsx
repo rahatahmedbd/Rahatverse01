@@ -22,6 +22,9 @@ interface ExperienceSectionProps {
   /** Heading level for this section's primary title. Defaults to h1 (standalone
    *  Experience page). Pass "h2" when embedded (e.g. inside the Portfolio page). */
   titleAs?: "h1" | "h2";
+  /** Server-loaded validated config. When provided, the experience grid renders
+   *  in the initial HTML (crawlable) and the client refetch is skipped. */
+  initialConfig?: ExperienceConfig;
 }
 
 const STATUS_LABELS: Record<ExperienceStatus, { bn: string; en: string; variant: "success" | "warning" | "default" }> = {
@@ -30,12 +33,14 @@ const STATUS_LABELS: Record<ExperienceStatus, { bn: string; en: string; variant:
   completed: { bn: "সম্পন্ন", en: "Completed", variant: "default" },
 };
 
-export function ExperienceSection({ locale = "bn", titleAs = "h1" }: ExperienceSectionProps) {
+export function ExperienceSection({ locale = "bn", titleAs = "h1", initialConfig }: ExperienceSectionProps) {
   const isBn = locale === "bn";
-  const [config, setConfig] = useState<ExperienceConfig>(DEFAULT_EXPERIENCE_CONFIG);
-  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<ExperienceConfig>(initialConfig ?? DEFAULT_EXPERIENCE_CONFIG);
+  const [loading, setLoading] = useState(!initialConfig);
 
   useEffect(() => {
+    // Server-loaded data is fresh per request — skip the redundant refetch.
+    if (initialConfig) return;
     let cancelled = false;
     fetch("/api/experience-config", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
@@ -53,7 +58,7 @@ export function ExperienceSection({ locale = "bn", titleAs = "h1" }: ExperienceS
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialConfig]);
 
   const { section, items } = config.experience;
   const experiences = items;

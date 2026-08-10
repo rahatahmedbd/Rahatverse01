@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi, afterEach } from "vitest";
 import React from "react";
 import {
   ParallaxOrb,
@@ -134,12 +134,45 @@ describe("Phase I — Section Signature Effects System", () => {
   });
 
   describe("TestimonialsSection carousel upgrade", () => {
-    it("renders carousel controls and pagination buttons", async () => {
+    const approvedTestimonials = {
+      data: [
+        {
+          id: "real-1",
+          name: "Verified Client",
+          role: "Business Owner",
+          company: "Example Co",
+          content: "Rahat delivered exactly what we needed, on time.",
+          rating: 5,
+          created_at: "2026-08-01",
+        },
+        {
+          id: "real-2",
+          name: "Second Client",
+          role: "Founder",
+          company: "Another Co",
+          content: "Clear communication and a fast, modern website.",
+          rating: 4,
+          created_at: "2026-08-02",
+        },
+      ],
+    };
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("renders carousel controls and pagination buttons for real approved testimonials", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({ ok: true, json: async () => approvedTestimonials })
+      );
+
       render(<TestimonialsSection locale="en" />);
 
-      // Wait for fallback testimonials to render
       const carousel = await screen.findByTestId("testimonials-carousel");
       expect(carousel).toBeInTheDocument();
+      // Real testimonial author is displayed (no fabricated fallback content).
+      expect(screen.getByText("Verified Client")).toBeInTheDocument();
 
       const pauseBtn = screen.getByRole("button", { name: "Pause carousel" });
       expect(pauseBtn).toBeInTheDocument();
@@ -150,6 +183,22 @@ describe("Phase I — Section Signature Effects System", () => {
       });
       expect(nextBtn).toBeInTheDocument();
       expect(prevBtn).toBeInTheDocument();
+    });
+
+    it("hides itself instead of rendering placeholder testimonials when none are approved", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: [] }) })
+      );
+
+      render(<TestimonialsSection locale="en" />);
+
+      // Wait for the fetch to resolve, then assert the section stays empty.
+      await waitFor(() =>
+        expect(screen.queryByTestId("testimonials-carousel")).not.toBeInTheDocument()
+      );
+      expect(screen.queryByText(/your name/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/client testimonials/i)).not.toBeInTheDocument();
     });
   });
 });

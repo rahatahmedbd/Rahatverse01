@@ -11,16 +11,22 @@ import type { ContentConfig } from "@/types/content";
 // ── FAQ Section (DB-driven) ────────────────────────────
 interface FAQSectionProps {
   locale?: string;
+  /** Server-loaded validated config. When provided, the accordion content is
+   *  rendered in the initial HTML (crawlable) and the client refetch is
+   *  skipped. Must be the same config used to emit any FAQPage JSON-LD. */
+  initialConfig?: ContentConfig;
 }
 
-export function FAQSection({ locale = "bn" }: FAQSectionProps) {
+export function FAQSection({ locale = "bn", initialConfig }: FAQSectionProps) {
   const isBn = locale === "bn";
-  const [config, setConfig] = useState<ContentConfig>(DEFAULT_CONTENT_CONFIG);
-  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<ContentConfig>(initialConfig ?? DEFAULT_CONTENT_CONFIG);
+  const [loading, setLoading] = useState(!initialConfig);
   const [openId, setOpenId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
 
   useEffect(() => {
+    // Server-loaded data is fresh per request — skip the redundant refetch.
+    if (initialConfig) return;
     let cancelled = false;
     fetch("/api/content-config", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
@@ -38,7 +44,7 @@ export function FAQSection({ locale = "bn" }: FAQSectionProps) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialConfig]);
 
   if (loading) {
     return (
@@ -111,13 +117,17 @@ export function FAQSection({ locale = "bn" }: FAQSectionProps) {
                   />
                 </button>
 
-                {openId === item.id && (
-                  <div className="mt-3 border-t border-border/50 pt-3">
-                    <p className="text-sm text-muted-foreground bn">
-                      {isBn ? item.answerBn : item.answerEn}
-                    </p>
-                  </div>
-                )}
+                {/* Answers stay in the DOM (accordion toggles visibility only)
+                    so the FAQPage structured data honestly mirrors the HTML. */}
+                <div
+                  className={`mt-3 border-t border-border/50 pt-3 ${
+                    openId === item.id ? "" : "hidden"
+                  }`}
+                >
+                  <p className="text-sm text-muted-foreground bn">
+                    {isBn ? item.answerBn : item.answerEn}
+                  </p>
+                </div>
               </GlassCard>
             </FadeInUp>
           ))}

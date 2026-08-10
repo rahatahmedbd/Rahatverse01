@@ -130,8 +130,12 @@ export interface ServicesComparisonRow {
   id: string;
   featureBn: string;
   featureEn: string;
-  /** Per-package cell text, keyed by package id (e.g. "✓", "৳5,000", "—"). */
+  /** Per-package cell text, keyed by package id (e.g. "✓", "৳5,000", "—").
+   *  Written for the Bengali page. */
   values: Record<string, string>;
+  /** Optional English cell text for the /en pages. When omitted, `values`
+   *  is reused (fine for locale-neutral cells like "✓" and "—"). */
+  valuesEn?: Record<string, string>;
 }
 
 /** A step in the client workflow / process timeline. */

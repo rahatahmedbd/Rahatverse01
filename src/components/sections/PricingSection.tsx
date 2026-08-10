@@ -10,7 +10,7 @@ import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
 import { Check, ArrowRight, Sparkles, Star, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
-import type { ServicesConfig } from "@/types/services";
+import type { ServicesComparisonRow, ServicesConfig } from "@/types/services";
 
 interface PricingSectionProps {
   locale?: string;
@@ -50,11 +50,19 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
 
   if (!config.visible) return null;
 
+  // Comparison table cells are bilingual: `values` carries the Bengali text and
+  // the optional `valuesEn` carries English; locale-neutral cells (✓/—) work in
+  // both. The English page must never show Bengali cells.
+  const cellValue = (row: ServicesComparisonRow, packageId: string) => {
+    const localized = isBn ? row.values : row.valuesEn ?? row.values;
+    return localized?.[packageId] ?? "—";
+  };
+
   const packages = config.packages.filter((pkg) => pkg.visible);
   const comparedPackages = packages.filter((pkg) => !excludedPackageIds.includes(pkg.id));
   const comparisonRows = differencesOnly
     ? config.comparisonRows.filter((row) => {
-        const values = comparedPackages.map((pkg) => row.values?.[pkg.id] ?? "—");
+        const values = comparedPackages.map((pkg) => cellValue(row, pkg.id));
         return new Set(values).size > 1;
       })
     : config.comparisonRows;
@@ -235,7 +243,7 @@ export function PricingSection({ locale = "bn" }: PricingSectionProps) {
                           </td>
                           {comparedPackages.map((pkg) => (
                             <td key={pkg.id} className="p-3 text-center">
-                              {row.values?.[pkg.id] ?? "—"}
+                              {cellValue(row, pkg.id)}
                             </td>
                           ))}
                         </tr>

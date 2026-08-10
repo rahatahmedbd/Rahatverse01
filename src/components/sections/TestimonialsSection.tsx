@@ -2,11 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { SectionTitle } from "@/components/sections/SectionTitle";
-import { Star, Quote, ChevronLeft, ChevronRight, Pause, Play, Sparkles, ArrowRight } from "lucide-react";
+import { Star, Quote, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 
 interface Testimonial {
   id: string;
@@ -23,38 +22,10 @@ interface TestimonialsSectionProps {
   limit?: number;
 }
 
-const DEFAULT_TESTIMONIAL_ITEMS: Testimonial[] = [
-  {
-    id: "test-1",
-    name: "Ahmed Raza",
-    role: "Founder & CEO",
-    company: "Sylhet Tech Hub",
-    content:
-      "Rahat built our company website with incredible speed and attention to detail. His full-stack skills and responsive UI design are outstanding!",
-    rating: 5,
-    created_at: "2025-06-15",
-  },
-  {
-    id: "test-2",
-    name: "Tanvir Chowdhury",
-    role: "Project Director",
-    company: "Shantichakra Blood Society",
-    content:
-      "Rahat's leadership and technical contribution to our organization have been transformational. Highly recommended for any web development or social initiative!",
-    rating: 5,
-    created_at: "2025-05-10",
-  },
-  {
-    id: "test-3",
-    name: "Mahmudul Hasan",
-    role: "Academic Supervisor",
-    company: "Jibdara Education Project",
-    content:
-      "A brilliant student and a dedicated teacher. His commitment to education and social service is an inspiration to young people across Bangladesh.",
-    rating: 5,
-    created_at: "2025-04-20",
-  },
-];
+// Phase 4A — fabricated seed testimonials were removed deliberately. The
+// section renders ONLY real, admin-approved testimonials; when none exist it
+// hides itself rather than displaying placeholder/fake reviews. The submission
+// and moderation system is preserved for future genuine testimonials.
 
 export default function TestimonialsSection({
   locale = "bn",
@@ -80,10 +51,11 @@ export default function TestimonialsSection({
           .slice(0, limit);
         setTestimonials(sorted);
       } else {
-        setTestimonials(DEFAULT_TESTIMONIAL_ITEMS);
+        // No real approved testimonials — stay empty so the section hides.
+        setTestimonials([]);
       }
     } catch {
-      setTestimonials(DEFAULT_TESTIMONIAL_ITEMS);
+      setTestimonials([]);
     } finally {
       clearTimeout(timeoutId);
       setLoading(false);
@@ -124,6 +96,10 @@ export default function TestimonialsSection({
     );
   }
 
+  // Phase 4A: no real approved testimonials — render nothing rather than
+  // placeholder content. Real submissions re-activate the section automatically.
+  if (count === 0) return null;
+
   const currentTestimonial = testimonials[currentIndex];
 
   return (
@@ -138,71 +114,10 @@ export default function TestimonialsSection({
           locale={locale}
         />
 
-        {count === 0 ? (
-          /* Be Our First Client — Pioneer Partner Coming-Soon State */
-          <div className="relative mx-auto mt-10 max-w-3xl">
-            <div className="glass-interactive relative overflow-hidden rounded-3xl border border-primary/30 bg-card/70 p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
-              <Quote className="pointer-events-none absolute -bottom-6 -right-6 h-48 w-48 text-primary/5 rotate-12" />
-
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 border border-primary/25 text-xs font-semibold text-primary uppercase tracking-wider">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>{isBn ? "আমাদের প্রথম ক্লায়েন্ট হন" : "Be Our First Client"}</span>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: 5 }).map((_, idx) => (
-                    <Star
-                      key={idx}
-                      className="h-4 w-4 fill-amber-400 text-amber-400"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Placeholder Testimonial Quote */}
-              <p className="relative z-10 mb-8 text-base sm:text-lg italic text-foreground/95 bn leading-relaxed">
-                &ldquo;
-                {isBn
-                  ? "আপনার প্রজেক্টের অভিজ্ঞতা ও মতামত এখানে প্রদর্শিত হবে! আমাদের প্রথম ক্লায়েন্ট হিসেবে আপনি পাবেন সর্বোচ্চ অগ্রাধিকার, ডেডিকেটেড সাপোর্ট এবং প্রজেক্ট প্যাকেজে বিশেষ ছাড়।"
-                  : "Your testimonial and collaboration story will be featured right here! As our pioneering client, you'll receive top-priority development, dedicated support, and an exclusive partner discount."}
-                &rdquo;
-              </p>
-
-              {/* Client Card Layout: Avatar/initial, Client Name, Role */}
-              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-border/50 pt-5">
-                <div className="flex items-center gap-3.5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-base shadow-md">
-                    ★
-                  </div>
-                  <div>
-                    <p className="text-base font-bold text-foreground bn">
-                      {isBn ? "আপনার নাম বা প্রতিষ্ঠানের নাম" : "Your Name / Company Here"}
-                    </p>
-                    <p className="text-xs sm:text-sm text-primary font-medium bn">
-                      {isBn ? "প্রথম ক্লায়েন্ট • কাস্টম ওয়েব প্রজেক্ট" : "Pioneer Partner • Custom Web Project"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2.5">
-                  <Button size="sm" variant="gradient" asChild className="rounded-xl shadow-sm">
-                    <Link href={`/${locale}/contact`} className="inline-flex items-center gap-1.5">
-                      <span>{isBn ? "প্রথম ক্লায়েন্ট হন" : "Be Our First Client"}</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </Button>
-                  <Button size="sm" variant="outline" asChild className="rounded-xl">
-                    <Link href={`/${locale}/services`}>
-                      {isBn ? "প্যাকেজ দেখুন" : "View Packages"}
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* Glassmorphism Quote Carousel for Real Testimonials */
+        {/* Phase 4A — real, admin-approved testimonials only. The section
+            returns null above when none exist, so the former "Be Our First
+            Client" placeholder panel (fake 5-star strip, "Your Name /
+            Company Here") is permanently retired instead of rendered. */}
           <div
             data-testid="testimonials-carousel"
             className="relative mx-auto mt-10 max-w-3xl"
@@ -327,8 +242,7 @@ export default function TestimonialsSection({
                 </div>
               </div>
             )}
-          </div>
-        )}
+        </div>
       </div>
     </section>
   );

@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PortfolioSection } from "@/components/portfolio/PortfolioSection";
-import { ExperienceSection } from "@/components/sections/ExperienceSection";
-import { BloodSocietySection } from "@/components/sections/BloodSocietySection";
-import { MemorialSection } from "@/components/sections/MemorialSection";
-import { AboutFull } from "@/components/sections/AboutFull";
 import { SectionTitle } from "@/components/sections/SectionTitle";
-import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { JsonLd, getPortfolioSchema } from "@/components/seo/JsonLd";
+import { getPortfolioConfig } from "@/lib/portfolio/server";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -66,6 +62,10 @@ export async function generateMetadata({ params }: PortfolioPageProps): Promise<
 export default async function PortfolioPage({ params }: PortfolioPageProps) {
   const { locale } = await params;
   const isBn = locale === "bn";
+  // Server-load the validated CMS payload so the initial HTML contains the
+  // real, crawlable project content (Phase 4A). The client island reuses this
+  // data and skips its refetch.
+  const portfolioConfig = await getPortfolioConfig();
 
   return (
     <>
@@ -92,22 +92,10 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
           locale={locale}
         />
 
-        {/* Original Portfolio Section */}
-        <PortfolioSection />
-
-        <AuroraDivider />
-
-        {/* About Section — Personal Information (H2 — page already has an H1) */}
-        <AboutFull locale={locale} titleAs="h2" />
-
-        <AuroraDivider />
-
-        {/* Experience Section + Related Sections (H2 — page already has an H1) */}
-        <ExperienceSection locale={locale} titleAs="h2" />
-        <AuroraDivider />
-        <BloodSocietySection locale={locale} />
-        <AuroraDivider />
-        <MemorialSection locale={locale} />
+        {/* The portfolio page focuses exclusively on projects, case studies and
+            proof. About, Experience, Shantichakra and Memorial content remain
+            canonical on their own pages and are cross-linked from the cards. */}
+        <PortfolioSection initialConfig={portfolioConfig} />
       </div>
     </div>
     </>

@@ -1,43 +1,36 @@
-import type {
-  ContentConfig,
-  FaqCategory,
-  FaqItem,
-  LegalPage,
-  SearchScopeItem,
-} from "@/types/content";
+-- Phase 4B: Legal policy completeness + expanded factual FAQ set
+--
+-- Two additive, idempotent changes to site_settings.content_config:
+--   1) Legal pages (privacy / terms / cookie / refund): replace ONLY thin or
+--      legacy default bodies with the Phase 4B complete versions. "Thin" means
+--      under 200 characters or missing a markdown "## " heading — exactly the
+--      check the app already applies at render time (fillThinLegalPages), so
+--      this migration aligns storage with what visitors already saw. Any body
+--      an admin has expanded beyond the old defaults (rich, headed text) is
+--      left untouched — existing admin values win.
+--   2) FAQ items: append the eight Phase 4B factual questions ONLY when no
+--      item with the same id already exists. Existing items (including admin
+--      edits to faq-cost / faq-delivery) are never modified.
+--
+-- Safe to run multiple times. Does nothing when the content_config row is
+-- missing (the app falls back to the built-in Phase 4B defaults, and
+-- migration 022 seeds fresh installs).
 
-const MAX_SHORT = 260;
-const MAX_BODY = 50_000;
+-- ── 1) Legal page bodies ──────────────────────────────
+do $$
+declare
+  cfg jsonb;
+  pages jsonb;
+  entry jsonb;
+  new_pages jsonb := '[]'::jsonb;
+  page_key text;
+  body_bn text;
+  body_en text;
+  new_body_bn text;
+  new_body_en text;
+  changed boolean := false;
 
-const DEFAULT_FAQ_CATEGORIES: FaqCategory[] = [
-  { id: "faq-cat-ordering", value: "ordering", labelBn: "অর্ডারিং", labelEn: "Ordering", visible: true },
-  { id: "faq-cat-payments", value: "payments", labelBn: "পেমেন্ট", labelEn: "Payments", visible: true },
-  { id: "faq-cat-timeline", value: "timeline", labelBn: "টাইমলাইন", labelEn: "Timeline", visible: true },
-  { id: "faq-cat-blood", value: "blood", labelBn: "রক্তদান", labelEn: "Blood Donation", visible: true },
-  { id: "faq-cat-general", value: "general", labelBn: "সাধারণ", labelEn: "General", visible: true },
-];
-
-const DEFAULT_FAQ_ITEMS: FaqItem[] = [
-  { id: "faq-cost", category: "ordering", questionBn: "একটি ওয়েবসাইটের খরচ কত?", questionEn: "How much does a website cost?", answerBn: "ওয়েবসাইট প্যাকেজ ৳৫,০০০ (বেসিক) থেকে ৳৩০,০০০+ (প্রিমিয়াম) পর্যন্ত। এন্টারপ্রাইজ সলিউশনের জন্য কাস্টম প্রাইসিং পাওয়া যায়।", answerEn: "Website packages start from ৳5,000 (Basic) to ৳30,000+ (Premium). Custom pricing available for enterprise solutions.", visible: true },
-  { id: "faq-delivery", category: "timeline", questionBn: "কত সময়ে ওয়েবসাইট ডেলিভারি করা হয়?", questionEn: "How long does delivery take?", answerBn: "প্যাকেজ অনুযায়ী ১–৩ সপ্তাহ। বড় প্রজেক্টে সময় আরও বাড়তে পারে।", answerEn: "Delivery takes 1–3 weeks depending on the package. Larger projects may take longer.", visible: true },
-  { id: "faq-payment", category: "payments", questionBn: "পেমেন্ট কীভাবে করবো?", questionEn: "How do payments work?", answerBn: "প্রজেক্ট শুরুর আগে ৫০% অগ্রিম এবং ডেলিভারির পূর্বে অবশিষ্ট ৫০%। bKash, Nagad বা সরাসরি ব্যাংক ট্রান্সফারে বাংলাদেশি টাকা (৳) অথবা মার্কিন ডলারে ($) পেমেন্ট করা যায়।", answerEn: "50% advance before the project starts and the remaining 50% before final delivery. Payments are accepted in BDT (৳) or USD ($) via bKash, Nagad, or direct bank transfer.", visible: true },
-  { id: "faq-process", category: "ordering", questionBn: "অর্ডার করার পর কাজ কীভাবে এগিয়ে যায়?", questionEn: "What happens after I place an order?", answerBn: "পাঁচটি ধাপে কাজ সম্পন্ন হয়: প্রয়োজন আলোচনা, ডিজাইন, ডেভেলপমেন্ট, টেস্টিং এবং ডেলিভারি। অর্ডার উইজার্ড জমা দেওয়ার পর আমি ইমেইল বা হোয়াটসঅ্যাপে যোগাযোগ করে বিস্তারিত চূড়ান্ত করি।", answerEn: "Work moves through five steps: requirements discussion, design, development, testing and delivery. After you submit the order wizard, I contact you by email or WhatsApp to finalize the details.", visible: true },
-  { id: "faq-tech", category: "general", questionBn: "কোন প্রযুক্তি দিয়ে ওয়েবসাইট তৈরি হয়?", questionEn: "Which technologies do you build with?", answerBn: "Next.js (App Router), React ও TypeScript দিয়ে ফ্রন্টএন্ড, Tailwind CSS দিয়ে ডিজাইন, Supabase দিয়ে ডেটাবেস ও অথেনটিকেশন, Cloudinary দিয়ে ছবি অপটিমাইজেশন এবং Vercel-এ হোস্টিং — এই সাইটটিও একই স্ট্যাকে তৈরি।", answerEn: "Next.js (App Router), React and TypeScript on the front end, Tailwind CSS for design, Supabase for database and authentication, Cloudinary for image optimization, hosted on Vercel — this very site runs on the same stack.", visible: true },
-  { id: "faq-support", category: "general", questionBn: "ডেলিভারির পরে কি সাপোর্ট পাবো?", questionEn: "Do I get support after delivery?", answerBn: "হ্যাঁ। ডেলিভারির পরও সাপোর্ট পাবেন; ডেভেলপমেন্ট চলাকালে ৩ বার বিনামূল্যে রিভিশন এবং চুক্তিভুক্ত ওয়ারেন্টি সময়ের মধ্যে পাওয়া বাগ বিনামূল্যে ঠিক করে দেওয়া হয়।", answerEn: "Yes. Support continues after delivery — up to 3 complimentary revision rounds during development, and bugs found within the agreed warranty period are fixed free of charge.", visible: true },
-  { id: "faq-blood-org", category: "blood", questionBn: "রক্তদান সংগঠনের ওয়েবসাইট বানাতে আপনার অভিজ্ঞতা কী?", questionEn: "What is your experience with blood-donation organization websites?", answerBn: "আমি ২০২৫ সালে সুনামগঞ্জে শান্তিচক্র ব্লাড সোসাইটি সহ-প্রতিষ্ঠা করি এবং সাধারণ সম্পাদক হিসেবে দাতা ব্যবস্থাপনা করি — তাই দাতা ডিরেক্টরি ও জরুরি অনুরোধ ব্যবস্থার প্রয়োজন আমি প্রথম হাতে জানি। সংগঠনটির জন্য ডিজিটাল ডিরেক্টরি বর্তমানে ডেভেলপমেন্টের পর্যায়ে আছে।", answerEn: "I co-founded Shantichakra Blood Society in Sunamganj in 2025 and manage donor coordination as its General Secretary, so I understand donor directories and emergency request workflows first-hand. A digital directory for the organization is currently in development.", visible: true },
-  { id: "faq-rahatverse", category: "general", questionBn: "রাহাতভার্স কী?", questionEn: "What is RahatVerse?", answerBn: "রাহাতভার্স হলো রাহাত আহমেদের নিজের তৈরি দ্বিভাষিক (বাংলা–ইংরেজি) পার্সোনাল ইকোসিস্টেম — পোর্টফোলিও, ব্লগ, গ্যালারি, সার্ভিস অর্ডারিং এবং সম্পূর্ণ অ্যাডমিন CMS একসাথে। ওয়েব ডেভেলপমেন্ট সার্ভিসও এখান থেকেই পরিচালিত হয়।", answerEn: "RahatVerse is the personal ecosystem Rahat Ahmed built himself — a bilingual (Bengali–English) portfolio with a blog, gallery, service ordering and a full admin CMS. All web development services are managed from here.", visible: true },
-  { id: "faq-portfolio", category: "ordering", questionBn: "অর্ডারের আগে আপনার কাজ কোথায় দেখবো?", questionEn: "Where can I see your work before ordering?", answerBn: "পোর্টফোলিও পেজে বাস্তব প্রজেক্ট ও কেস স্টাডি দেখুন — প্রতিটির সাথে বর্তমান অবস্থা (লাইভ, ডেভেলপমেন্ট চলছে, বা কনসেপ্ট) স্পষ্টভাবে উল্লেখ আছে। এই রাহাতভার্স সাইটটিও একটি লাইভ নমুনা।", answerEn: "Browse the portfolio page for real projects and case studies — each one is clearly labelled with its current status (live, in development, or concept). This RahatVerse site itself is a live example.", visible: true },
-  { id: "faq-custom", category: "ordering", questionBn: "প্যাকেজের বাইরে কাস্টম ফিচার দরকার হলে?", questionEn: "What if I need features beyond a package?", answerBn: "এন্টারপ্রাইজ বা সম্পূর্ণ কাস্টম প্রয়োজনের জন্য আলাদা করে কোটেশন দেওয়া হয়। যোগাযোগ ফর্ম বা হোয়াটসঅ্যাপে আপনার ধারণাটি জানান — আলোচনার পর নির্ধারিত পরিধি ও মূল্য লিখিতভাবে জানিয়ে দেওয়া হবে।", answerEn: "Enterprise or fully custom requirements are quoted individually. Share your idea through the contact form or WhatsApp — after a discussion, the agreed scope and price are confirmed in writing.", visible: true },
-];
-
-const DEFAULT_SEARCH_SCOPE: SearchScopeItem[] = [
-  { id: "search-blog", value: "blog", labelBn: "ব্লগ পোস্ট", labelEn: "Blog posts", weight: 10, enabled: true },
-  { id: "search-services", value: "services", labelBn: "সেবা", labelEn: "Services", weight: 8, enabled: true },
-  { id: "search-portfolio", value: "portfolio", labelBn: "পোর্টফোলিও", labelEn: "Portfolio", weight: 6, enabled: true },
-  { id: "search-gallery", value: "gallery", labelBn: "গ্যালারি", labelEn: "Gallery", weight: 4, enabled: true },
-];
-
-const PRIVACY_BODY_BN = `## ১. আমরা কোন তথ্য সংগ্রহ করি (Information We Collect)
+  privacy_bn text := $P4B$## ১. আমরা কোন তথ্য সংগ্রহ করি (Information We Collect)
 এই ওয়েবসাইটের বিভিন্ন ফিচার ব্যবহার করলে আপনি স্বেচ্ছায় যে তথ্য দেন, তা সংগ্রহ করা হয়: যোগাযোগ ফর্ম (নাম, ইমেইল, ফোন/হোয়াটসঅ্যাপ নম্বর, বার্তা), অর্ডার উইজার্ড (আপনার প্রজেক্টের ধরন, ফিচার ও বিবরণ এবং যোগাযোগের তথ্য), নিউজলেটার সাইনআপ (ইমেইল ঠিকানা) এবং ব্লগ কমেন্ট (নাম, ইমেইল ও মন্তব্য)। এছাড়া রক্তদান জরুরি অনুরোধ ফর্মে প্রদত্ত তথ্য শুধুমাত্র রক্তদাতা খোঁজার কাজে ব্যবহৃত হয়।
 
 ## ২. কমেন্ট মডারেশন (Comment Moderation)
@@ -65,9 +58,9 @@ const PRIVACY_BODY_BN = `## ১. আমরা কোন তথ্য সংগ�
 প্রজেক্ট ও যোগাযোগ সংক্রান্ত রেকর্ড চলমান সেবা ও রেফারেন্সের প্রয়োজনে সীমিত সময়ের জন্য সংরক্ষণ করা হয় এবং প্রয়োজন শেষ হলে মুছে ফেলা হয়। সংক্রমণকালীন সব তথ্য এনক্রিপ্ট করা থাকে। তবে মনে রাখবেন — ইন্টারনেটে কোনো পদ্ধতিই ১০০% নিরাপদ নয়; তাই চ্যাট বা ফর্মে অত্যন্ত সংবেদনশীল তথ্য না দেওয়াই নিরাপদ।
 
 ## ১০. আপনার অধিকার ও যোগাযোগ (Your Rights & Contact)
-আপনার সংরক্ষিত যেকোনো তথ্য দেখতে, সংশোধন করতে বা মুছে ফেলার অনুরোধ করতে সরাসরি ইমেইল করুন rahatbd20505@gmail.com অথবা হোয়াটসঅ্যাপে যোগাযোগ করুন +880 1626-224878 নম্বরে। নিউজলেটার থেকে যেকোনো সময় আনসাবস্ক্রাইব করা যায়।`;
+আপনার সংরক্ষিত যেকোনো তথ্য দেখতে, সংশোধন করতে বা মুছে ফেলার অনুরোধ করতে সরাসরি ইমেইল করুন rahatbd20505@gmail.com অথবা হোয়াটসঅ্যাপে যোগাযোগ করুন +880 1626-224878 নম্বরে। নিউজলেটার থেকে যেকোনো সময় আনসাবস্ক্রাইব করা যায়।$P4B$;
 
-const PRIVACY_BODY_EN = `## 1. Information We Collect
+  privacy_en text := $P4B$## 1. Information We Collect
 We collect the information you voluntarily provide when you use features of this website: the contact form (name, email, phone/WhatsApp number, message), the order wizard (your project type, features, description and contact details), the newsletter signup (email address), and blog comments (name, email and comment). Information submitted through the blood-donation request form is used solely to help find a donor.
 
 ## 2. Comment Moderation
@@ -95,9 +88,9 @@ No online card payment is processed on this website. After an order is discussed
 Project and communication records are kept for a limited period to provide ongoing service and reference, and are removed when no longer needed. Data in transit is encrypted. No method of transmission over the internet is 100% secure, however — so please avoid sending highly sensitive information through forms or chat.
 
 ## 10. Your Rights & Contact
-You may inspect, update, or request the permanent deletion of your data at any time by emailing rahatbd20505@gmail.com or contacting WhatsApp +880 1626-224878. You can unsubscribe from the newsletter at any time.`;
+You may inspect, update, or request the permanent deletion of your data at any time by emailing rahatbd20505@gmail.com or contacting WhatsApp +880 1626-224878. You can unsubscribe from the newsletter at any time.$P4B$;
 
-const TERMS_BODY_BN = `## ১. কাজের পরিধি ও চুক্তি (Freelance Engagement & Scope)
+  terms_bn text := $P4B$## ১. কাজের পরিধি ও চুক্তি (Freelance Engagement & Scope)
 রাহাতভার্স (রাহাত আহমেদ) বাংলাদেশ-ভিত্তিক কাস্টম ওয়েব ডেভেলপমেন্ট, পোর্টফোলিও ডিজাইন এবং ই-কমার্স সলিউশন প্রদান করে। প্রতিটি প্রজেক্ট শুরু হওয়ার পূর্বে ইমেইল বা হোয়াটসঅ্যাপের মাধ্যমে কাজের পরিধি, মূল্য এবং সময়সীমা লিখিতভাবে নির্ধারণ করা হয়।
 
 ## ২. পেমেন্ট পদ্ধতি ও শর্তাবলি (Payment Terms & Methods - Bangladesh Context)
@@ -132,9 +125,9 @@ const TERMS_BODY_BN = `## ১. কাজের পরিধি ও চুক্�
 ব্লগ, টিউটোরিয়াল ও অন্যান্য তথ্যগত কনটেন্ট সর্বোত্তম জ্ঞানমতে লেখা হয়, তবে ত্রুটিমুক্ত বা সর্বদা হালনাগাদ — এমন গ্যারান্টি দেওয়া হয় না। সাইটে থাকা বহিরাগত লিংকের নিজস্ব শর্ত ও নীতিমালা রয়েছে, যার জন্য রাহাতভার্স দায়ী নয়। কোনো ভুল তথ্য চোখে পড়লে জানানোর অনুরোধ করা হচ্ছে।
 
 ## ১২. সেবা পরিবর্তন, বাতিল ও যোগাযোগ (Service Changes, Termination & Contact)
-রাহাতভার্স যেকোনো সময় সাইটের কোনো ফিচার বা সেবা পরিবর্তন, স্থগিত বা বন্ধ করার অধিকার সংরক্ষণ করে। অপব্যবহারের ক্ষেত্রে কমেন্ট বা চ্যাটের অ্যাক্সেস বাতিল করা হতে পারে। এই শর্তাবলি যেকোনো সময় হালনাগাদ হতে পারে; পাতার শুরুতেই সর্বশেষ হালনাগাদের তারিখ উল্লেখ করা থাকে। শর্তাবলি সংক্রান্ত যেকোনো প্রশ্নে ইমেইল করুন rahatbd20505@gmail.com অথবা হোয়াটসঅ্যাপ +880 1626-224878।`;
+রাহাতভার্স যেকোনো সময় সাইটের কোনো ফিচার বা সেবা পরিবর্তন, স্থগিত বা বন্ধ করার অধিকার সংরক্ষণ করে। অপব্যবহারের ক্ষেত্রে কমেন্ট বা চ্যাটের অ্যাক্সেস বাতিল করা হতে পারে। এই শর্তাবলি যেকোনো সময় হালনাগাদ হতে পারে; পাতার শুরুতেই সর্বশেষ হালনাগাদের তারিখ উল্লেখ করা থাকে। শর্তাবলি সংক্রান্ত যেকোনো প্রশ্নে ইমেইল করুন rahatbd20505@gmail.com অথবা হোয়াটসঅ্যাপ +880 1626-224878।$P4B$;
 
-const TERMS_BODY_EN = `## 1. Freelance Engagement & Scope
+  terms_en text := $P4B$## 1. Freelance Engagement & Scope
 RahatVerse (Rahat Ahmed) operates as a Bangladesh-based professional web development and software engineering studio. Every project commences upon written confirmation (email or WhatsApp) outlining feature specifications, timeline, and package costs.
 
 ## 2. Payment Terms & Methods (Bangladesh Context)
@@ -170,107 +163,144 @@ The site's AI chat assistant (Nuva) is provided for general information — its 
 Blog posts, tutorials and other informational content are written to the best of our knowledge, but we do not guarantee they are error-free or always current. External links on the site are governed by their own terms and policies, for which RahatVerse is not responsible. If you spot an inaccuracy, please let us know.
 
 ## 12. Service Changes, Termination & Contact
-RahatVerse reserves the right to modify, suspend or discontinue any feature or service of the site at any time. Access to commenting or chat may be revoked for misuse. These terms may be updated at any time; the last-updated date is always shown at the top of this page. For any questions about these terms, email rahatbd20505@gmail.com or contact WhatsApp +880 1626-224878.`;
+RahatVerse reserves the right to modify, suspend or discontinue any feature or service of the site at any time. Access to commenting or chat may be revoked for misuse. These terms may be updated at any time; the last-updated date is always shown at the top of this page. For any questions about these terms, email rahatbd20505@gmail.com or contact WhatsApp +880 1626-224878.$P4B$;
 
-const COOKIE_BODY_BN = `## কুকি ও ব্রাউজার স্টোরেজ (Cookies & Browser Storage)
+  cookie_bn text := $P4B$## কুকি ও ব্রাউজার স্টোরেজ (Cookies & Browser Storage)
 এই ওয়েবসাইট দুটি ধরনের প্রযুক্তি ব্যবহার করে:
 
 - **অপরিহার্য স্টোরেজ:** থিম (ডার্ক/লাইট মোড), ভাষা পছন্দ (বাংলা/ইংরেজি) এবং সেশন সংক্রান্ত মৌলিক তথ্য — যেগুলো ছাড়া সাইট ঠিকভাবে কাজ করবে না।
 - **অ্যানালিটিক্স কুকি:** Google Analytics ও নিজস্ব বেনামী ইভেন্ট ট্র্যাকিং সাইটের ব্যবহার পরিমাপ করে; এতে বিজ্ঞাপন-ভিত্তিক প্রোফাইল তৈরি হয় না।
 
 ## আপনার নিয়ন্ত্রণ (Your Control)
-আপনার ব্রাউজার সেটিংস থেকে যেকোনো সময় কুকি ব্লক, সীমিত বা মুছে দিতে পারেন। কুকি বন্ধ করলেও সাইটের মূল কনটেন্ট ব্যবহারযোগ্য থাকবে; তবে থিম বা ভাষার মতো পছন্দ সংরক্ষণ নাও হতে পারে। এখানে কোনো তৃতীয় পক্ষের বিজ্ঞাপন কুকি ব্যবহার করা হয় না।`;
+আপনার ব্রাউজার সেটিংস থেকে যেকোনো সময় কুকি ব্লক, সীমিত বা মুছে দিতে পারেন। কুকি বন্ধ করলেও সাইটের মূল কনটেন্ট ব্যবহারযোগ্য থাকবে; তবে থিম বা ভাষার মতো পছন্দ সংরক্ষণ নাও হতে পারে। এখানে কোনো তৃতীয় পক্ষের বিজ্ঞাপন কুকি ব্যবহার করা হয় না।$P4B$;
 
-const COOKIE_BODY_EN = `## Cookies & Browser Storage
+  cookie_en text := $P4B$## Cookies & Browser Storage
 This website uses two kinds of technology:
 
 - **Essential storage:** theme preference (dark/light mode), language choice (Bengali/English) and basic session continuity — the site cannot function properly without these.
 - **Analytics cookies:** Google Analytics and our own anonymised event tracking measure site usage; no advertising profile is built from them.
 
 ## Your Control
-You can block, limit, or delete cookies at any time from your browser settings. The core content stays usable without cookies, though preferences such as theme or language may not be remembered. No third-party advertising cookies are used here.`;
+You can block, limit, or delete cookies at any time from your browser settings. The core content stays usable without cookies, though preferences such as theme or language may not be remembered. No third-party advertising cookies are used here.$P4B$;
 
-const REFUND_BODY_BN = `## রিফান্ড ও বাতিল পলিসি (Refund & Cancellation)
+  refund_bn text := $P4B$## রিফান্ড ও বাতিল পলিসি (Refund & Cancellation)
 - **কাজ শুরুর আগে:** প্রজেক্টের ডিজাইন বা ডেভেলপমেন্ট শুরু হওয়ার আগে বাতিল করলে প্রদত্ত ৫০% অগ্রিম সম্পূর্ণ (১০০%) ফেরত দেওয়া হয়।
 - **কাজ চলমান অবস্থায়:** প্রজেক্ট চলাকালে বাতিল করলে ইতিমধ্যে সম্পন্ন কাজের আনুপাতিক অংশ কেটে অবশিষ্ট অর্থ ফেরতযোগ্য।
 - **ডেলিভারির পরে:** ফাইনাল কোড বা ওয়েবসাইট হস্তান্তর সম্পন্ন হওয়ার পর কোনো রিফান্ড প্রযোজ্য নয়।
 
 ## প্রক্রিয়া (Process)
-রিফান্ডের অনুরোধ সরাসরি ইমেইল (rahatbd20505@gmail.com) বা হোয়াটসঅ্যাপ (+880 1626-224878) করে জানাতে হবে। অনুমোদিত রিফান্ড সাধারণত ৭ কর্মদিবসের মধ্যে একই মাধ্যমে (bKash, Nagad বা ব্যাংক ট্রান্সফার) ফেরত পাঠানো হয়। তৃতীয় পক্ষের ফি (ডোমেইন, হোস্টিং) ইতিমধ্যে প্রদান হয়ে গেলে তা রিফান্ড-যোগ্য নয়।`;
+রিফান্ডের অনুরোধ সরাসরি ইমেইল (rahatbd20505@gmail.com) বা হোয়াটসঅ্যাপ (+880 1626-224878) করে জানাতে হবে। অনুমোদিত রিফান্ড সাধারণত ৭ কর্মদিবসের মধ্যে একই মাধ্যমে (bKash, Nagad বা ব্যাংক ট্রান্সফার) ফেরত পাঠানো হয়। তৃতীয় পক্ষের ফি (ডোমেইন, হোস্টিং) ইতিমধ্যে প্রদান হয়ে গেলে তা রিফান্ড-যোগ্য নয়।$P4B$;
 
-const REFUND_BODY_EN = `## Refund & Cancellation Policy
+  refund_en text := $P4B$## Refund & Cancellation Policy
 - **Before work starts:** the 50% advance is fully (100%) refundable if you cancel before design or development begins.
 - **During development:** if you cancel mid-project, the proportional value of completed work is deducted and the remainder is refunded.
 - **After delivery:** no refunds apply once the final code or website has been handed over.
 
 ## Process
-Send refund requests directly by email (rahatbd20505@gmail.com) or WhatsApp (+880 1626-224878). Approved refunds are returned via the same channel (bKash, Nagad or bank transfer), typically within 7 working days. Third-party costs already paid (domain, hosting) are non-refundable.`;
+Send refund requests directly by email (rahatbd20505@gmail.com) or WhatsApp (+880 1626-224878). Approved refunds are returned via the same channel (bKash, Nagad or bank transfer), typically within 7 working days. Third-party costs already paid (domain, hosting) are non-refundable.$P4B$;
 
-const DEFAULT_LEGAL: LegalPage[] = [
-  { key: "privacy", titleBn: "প্রাইভেসি পলিসি", titleEn: "Privacy Policy", bodyBn: PRIVACY_BODY_BN, bodyEn: PRIVACY_BODY_EN, updatedAtBn: "৯ আগস্ট, ২০২৬", updatedAtEn: "August 9, 2026", visible: true },
-  { key: "privacy-policy", titleBn: "প্রাইভেসি পলিসি", titleEn: "Privacy Policy", bodyBn: PRIVACY_BODY_BN, bodyEn: PRIVACY_BODY_EN, updatedAtBn: "৯ আগস্ট, ২০২৬", updatedAtEn: "August 9, 2026", visible: true },
-  { key: "terms", titleBn: "সার্ভিস শর্তাবলি", titleEn: "Terms of Service", bodyBn: TERMS_BODY_BN, bodyEn: TERMS_BODY_EN, updatedAtBn: "৯ আগস্ট, ২০২৬", updatedAtEn: "August 9, 2026", visible: true },
-  { key: "terms-of-service", titleBn: "সার্ভিস শর্তাবলি", titleEn: "Terms of Service", bodyBn: TERMS_BODY_BN, bodyEn: TERMS_BODY_EN, updatedAtBn: "৯ আগস্ট, ২০২৬", updatedAtEn: "August 9, 2026", visible: true },
-  { key: "cookie", titleBn: "কুকি নোটিশ", titleEn: "Cookie Notice", bodyBn: COOKIE_BODY_BN, bodyEn: COOKIE_BODY_EN, updatedAtBn: "৯ আগস্ট, ২০২৬", updatedAtEn: "August 9, 2026", visible: true },
-  { key: "refund", titleBn: "রিফান্ড পলিসি", titleEn: "Refund Policy", bodyBn: REFUND_BODY_BN, bodyEn: REFUND_BODY_EN, updatedAtBn: "৯ আগস্ট, ২০২৬", updatedAtEn: "August 9, 2026", visible: true },
-];
+begin
+  select value into cfg from public.site_settings where key = 'content_config';
+  if cfg is null then
+    return; -- app fallbacks cover this; nothing to upgrade in storage
+  end if;
 
-export const DEFAULT_CONTENT_CONFIG: ContentConfig = {
-  visible: true,
-  faqSectionTitleBn: "প্রশ্নোত্তর",
-  faqSectionTitleEn: "Frequently Asked Questions",
-  faqSectionSubtitleBn: "সাধারণ প্রশ্নের উত্তর খুঁজুন",
-  faqSectionSubtitleEn: "Find answers to common questions",
-  faqCategories: DEFAULT_FAQ_CATEGORIES,
-  faqItems: DEFAULT_FAQ_ITEMS,
-  searchScope: DEFAULT_SEARCH_SCOPE,
-  searchPlaceholderBn: "সাইটে খুঁজুন...",
-  searchPlaceholderEn: "Search the site...",
-  legalPages: DEFAULT_LEGAL,
-};
+  pages := cfg->'legalPages';
+  if pages is null or jsonb_typeof(pages) <> 'array' then
+    return;
+  end if;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-function isText(value: unknown, max = MAX_SHORT, allowEmpty = false): value is string {
-  return typeof value === "string" && value.length <= max && (allowEmpty || value.trim().length > 0);
-}
-function isId(value: unknown): boolean {
-  return isText(value, 80);
-}
-function isSlug(value: unknown): boolean {
-  return typeof value === "string" && value.length <= 50 && /^[a-z0-9_-]+$/.test(value);
-}
-function validateCategories(value: unknown): boolean {
-  if (!Array.isArray(value) || value.length > 20) return false;
-  return value.every((item) => isRecord(item) && isId(item.id) && isSlug(item.value) && isText(item.labelBn) && isText(item.labelEn) && typeof item.visible === "boolean");
-}
-function validateFaqItems(value: unknown): boolean {
-  if (!Array.isArray(value) || value.length > 100) return false;
-  return value.every((item) => isRecord(item) && isId(item.id) && isText(item.category, 80, true) && isText(item.questionBn) && isText(item.questionEn) && isText(item.answerBn, 5000) && isText(item.answerEn, 5000) && typeof item.visible === "boolean");
-}
-function validateSearchScope(value: unknown): boolean {
-  if (!Array.isArray(value) || value.length > 30) return false;
-  return value.every((item) => {
-    if (!isRecord(item)) return false;
-    const w = Number(item.weight);
-    return isId(item.id) && isText(item.value) && isText(item.labelBn) && isText(item.labelEn) && Number.isFinite(w) && w >= 0 && w <= 100 && typeof item.enabled === "boolean";
-  });
-}
-function validateLegal(value: unknown): boolean {
-  if (!Array.isArray(value) || value.length > 20) return false;
-  return value.every((item) => isRecord(item) && isId(item.key) && isText(item.titleBn) && isText(item.titleEn) && isText(item.bodyBn, MAX_BODY, true) && isText(item.bodyEn, MAX_BODY, true) && isText(item.updatedAtBn, MAX_SHORT, true) && isText(item.updatedAtEn, MAX_SHORT, true) && typeof item.visible === "boolean");
-}
+  for entry in select * from jsonb_array_elements(pages) loop
+    page_key := entry->>'key';
+    body_bn := coalesce(entry->>'bodyBn', '');
+    body_en := coalesce(entry->>'bodyEn', '');
+    new_body_bn := null;
+    new_body_en := null;
 
-export function validateContentConfig(input: unknown): ContentConfig | null {
-  if (!isRecord(input)) return null;
-  if (typeof input.visible !== "boolean") return null;
-  if (!isText(input.faqSectionTitleBn) || !isText(input.faqSectionTitleEn)) return null;
-  if (!isText(input.faqSectionSubtitleBn, MAX_SHORT, true) || !isText(input.faqSectionSubtitleEn, MAX_SHORT, true)) return null;
-  if (!validateCategories(input.faqCategories)) return null;
-  if (!validateFaqItems(input.faqItems)) return null;
-  if (!validateSearchScope(input.searchScope)) return null;
-  if (!isText(input.searchPlaceholderBn, MAX_SHORT, true) || !isText(input.searchPlaceholderEn, MAX_SHORT, true)) return null;
-  if (!validateLegal(input.legalPages)) return null;
-  return input as unknown as ContentConfig;
-}
+    if page_key in ('privacy', 'privacy-policy') then
+      new_body_bn := privacy_bn;
+      new_body_en := privacy_en;
+    elsif page_key in ('terms', 'terms-of-service') then
+      new_body_bn := terms_bn;
+      new_body_en := terms_en;
+    elsif page_key = 'cookie' then
+      new_body_bn := cookie_bn;
+      new_body_en := cookie_en;
+    elsif page_key = 'refund' then
+      new_body_bn := refund_bn;
+      new_body_en := refund_en;
+    end if;
+
+    -- Replace ONLY thin/legacy bodies (same rule the app applies at render
+    -- time): under 200 chars, or no markdown "## " heading anywhere.
+    if new_body_bn is not null
+       and (
+         length(btrim(body_bn)) < 200
+         or position('## ' in body_bn) = 0
+         or length(btrim(body_en)) < 200
+         or position('## ' in body_en) = 0
+       ) then
+      entry := entry
+        || jsonb_build_object(
+             'bodyBn', new_body_bn,
+             'bodyEn', new_body_en,
+             'updatedAtBn', '৯ আগস্ট, ২০২৬',
+             'updatedAtEn', 'August 9, 2026'
+           );
+      changed := true;
+    end if;
+
+    new_pages := new_pages || jsonb_build_array(entry);
+  end loop;
+
+  if changed then
+    update public.site_settings
+    set value = jsonb_set(cfg, '{legalPages}', new_pages)
+    where key = 'content_config';
+  end if;
+end $$;
+
+-- ── 2) FAQ items (append-missing only) ────────────────
+do $$
+declare
+  cfg jsonb;
+  items jsonb;
+  existing_ids text[];
+  additions jsonb := $P4B$[
+    { "id": "faq-payment", "category": "payments", "questionBn": "পেমেন্ট কীভাবে করবো?", "questionEn": "How do payments work?", "answerBn": "প্রজেক্ট শুরুর আগে ৫০% অগ্রিম এবং ডেলিভারির পূর্বে অবশিষ্ট ৫০%। bKash, Nagad বা সরাসরি ব্যাংক ট্রান্সফারে বাংলাদেশি টাকা (৳) অথবা মার্কিন ডলারে ($) পেমেন্ট করা যায়।", "answerEn": "50% advance before the project starts and the remaining 50% before final delivery. Payments are accepted in BDT (৳) or USD ($) via bKash, Nagad, or direct bank transfer.", "visible": true },
+    { "id": "faq-process", "category": "ordering", "questionBn": "অর্ডার করার পর কাজ কীভাবে এগিয়ে যায়?", "questionEn": "What happens after I place an order?", "answerBn": "পাঁচটি ধাপে কাজ সম্পন্ন হয়: প্রয়োজন আলোচনা, ডিজাইন, ডেভেলপমেন্ট, টেস্টিং এবং ডেলিভারি। অর্ডার উইজার্ড জমা দেওয়ার পর আমি ইমেইল বা হোয়াটসঅ্যাপে যোগাযোগ করে বিস্তারিত চূড়ান্ত করি।", "answerEn": "Work moves through five steps: requirements discussion, design, development, testing and delivery. After you submit the order wizard, I contact you by email or WhatsApp to finalize the details.", "visible": true },
+    { "id": "faq-tech", "category": "general", "questionBn": "কোন প্রযুক্তি দিয়ে ওয়েবসাইট তৈরি হয়?", "questionEn": "Which technologies do you build with?", "answerBn": "Next.js (App Router), React ও TypeScript দিয়ে ফ্রন্টএন্ড, Tailwind CSS দিয়ে ডিজাইন, Supabase দিয়ে ডেটাবেস ও অথেনটিকেশন, Cloudinary দিয়ে ছবি অপটিমাইজেশন এবং Vercel-এ হোস্টিং — এই সাইটটিও একই স্ট্যাকে তৈরি।", "answerEn": "Next.js (App Router), React and TypeScript on the front end, Tailwind CSS for design, Supabase for database and authentication, Cloudinary for image optimization, hosted on Vercel — this very site runs on the same stack.", "visible": true },
+    { "id": "faq-support", "category": "general", "questionBn": "ডেলিভারির পরে কি সাপোর্ট পাবো?", "questionEn": "Do I get support after delivery?", "answerBn": "হ্যাঁ। ডেলিভারির পরও সাপোর্ট পাবেন; ডেভেলপমেন্ট চলাকালে ৩ বার বিনামূল্যে রিভিশন এবং চুক্তিভুক্ত ওয়ারেন্টি সময়ের মধ্যে পাওয়া বাগ বিনামূল্যে ঠিক করে দেওয়া হয়।", "answerEn": "Yes. Support continues after delivery — up to 3 complimentary revision rounds during development, and bugs found within the agreed warranty period are fixed free of charge.", "visible": true },
+    { "id": "faq-blood-org", "category": "blood", "questionBn": "রক্তদান সংগঠনের ওয়েবসাইট বানাতে আপনার অভিজ্ঞতা কী?", "questionEn": "What is your experience with blood-donation organization websites?", "answerBn": "আমি ২০২৫ সালে সুনামগঞ্জে শান্তিচক্র ব্লাড সোসাইটি সহ-প্রতিষ্ঠা করি এবং সাধারণ সম্পাদক হিসেবে দাতা ব্যবস্থাপনা করি — তাই দাতা ডিরেক্টরি ও জরুরি অনুরোধ ব্যবস্থার প্রয়োজন আমি প্রথম হাতে জানি। সংগঠনটির জন্য ডিজিটাল ডিরেক্টরি বর্তমানে ডেভেলপমেন্টের পর্যায়ে আছে।", "answerEn": "I co-founded Shantichakra Blood Society in Sunamganj in 2025 and manage donor coordination as its General Secretary, so I understand donor directories and emergency request workflows first-hand. A digital directory for the organization is currently in development.", "visible": true },
+    { "id": "faq-rahatverse", "category": "general", "questionBn": "রাহাতভার্স কী?", "questionEn": "What is RahatVerse?", "answerBn": "রাহাতভার্স হলো রাহাত আহমেদের নিজের তৈরি দ্বিভাষিক (বাংলা–ইংরেজি) পার্সোনাল ইকোসিস্টেম — পোর্টফোলিও, ব্লগ, গ্যালারি, সার্ভিস অর্ডারিং এবং সম্পূর্ণ অ্যাডমিন CMS একসাথে। ওয়েব ডেভেলপমেন্ট সার্ভিসও এখান থেকেই পরিচালিত হয়।", "answerEn": "RahatVerse is the personal ecosystem Rahat Ahmed built himself — a bilingual (Bengali–English) portfolio with a blog, gallery, service ordering and a full admin CMS. All web development services are managed from here.", "visible": true },
+    { "id": "faq-portfolio", "category": "ordering", "questionBn": "অর্ডারের আগে আপনার কাজ কোথায় দেখবো?", "questionEn": "Where can I see your work before ordering?", "answerBn": "পোর্টফোলিও পেজে বাস্তব প্রজেক্ট ও কেস স্টাডি দেখুন — প্রতিটির সাথে বর্তমান অবস্থা (লাইভ, ডেভেলপমেন্ট চলছে, বা কনসেপ্ট) স্পষ্টভাবে উল্লেখ আছে। এই রাহাতভার্স সাইটটিও একটি লাইভ নমুনা।", "answerEn": "Browse the portfolio page for real projects and case studies — each one is clearly labelled with its current status (live, in development, or concept). This RahatVerse site itself is a live example.", "visible": true },
+    { "id": "faq-custom", "category": "ordering", "questionBn": "প্যাকেজের বাইরে কাস্টম ফিচার দরকার হলে?", "questionEn": "What if I need features beyond a package?", "answerBn": "এন্টারপ্রাইজ বা সম্পূর্ণ কাস্টম প্রয়োজনের জন্য আলাদা করে কোটেশন দেওয়া হয়। যোগাযোগ ফর্ম বা হোয়াটসঅ্যাপে আপনার ধারণাটি জানান — আলোচনার পর নির্ধারিত পরিধি ও মূল্য লিখিতভাবে জানিয়ে দেওয়া হবে।", "answerEn": "Enterprise or fully custom requirements are quoted individually. Share your idea through the contact form or WhatsApp — after a discussion, the agreed scope and price are confirmed in writing.", "visible": true }
+  ]$P4B$;
+  item jsonb;
+begin
+  select value into cfg from public.site_settings where key = 'content_config';
+  if cfg is null then
+    return;
+  end if;
+
+  items := cfg->'faqItems';
+  if items is null or jsonb_typeof(items) <> 'array' then
+    return;
+  end if;
+
+  select coalesce(array_agg(e->>'id') filter (where e->>'id' is not null), '{}')
+    into existing_ids
+    from jsonb_array_elements(items) e;
+
+  for item in select * from jsonb_array_elements(additions) loop
+    if not (item->>'id' = any(existing_ids)) then
+      items := items || jsonb_build_array(item);
+    end if;
+  end loop;
+
+  if items <> cfg->'faqItems' then
+    update public.site_settings
+    set value = jsonb_set(cfg, '{faqItems}', items)
+    where key = 'content_config';
+  end if;
+end $$;

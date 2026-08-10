@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import Link from "next/link";
 import Gallery from "@/components/gallery/Gallery";
 import { FadeInUp } from "@/components/animations/FadeIn";
 import { JsonLd, getGalleryCollectionSchema, getCollectionPageSchema } from "@/components/seo/JsonLd";
@@ -263,6 +264,33 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
             </h1>
             <p className="text-muted-foreground text-lg">
               {isBn ? "আমার যাত্রার মুহূর্তগুলো দেখুন" : "See moments from my journey"}
+            </p>
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
+              {isBn ? (
+                <>
+                  এই ছবিগুলোর পেছনের গল্প জানতে দেখুন{" "}
+                  <Link href={`/${locale}/achievements`} className="font-medium text-primary hover:underline">
+                    আমার অর্জন
+                  </Link>{" "}
+                  ও{" "}
+                  <Link href={`/${locale}/experience`} className="font-medium text-primary hover:underline">
+                    অভিজ্ঞতার পেজ
+                  </Link>
+                  ।
+                </>
+              ) : (
+                <>
+                  Every photo here has a story — read about{" "}
+                  <Link href={`/${locale}/achievements`} className="font-medium text-primary hover:underline">
+                    my achievements
+                  </Link>{" "}
+                  and{" "}
+                  <Link href={`/${locale}/experience`} className="font-medium text-primary hover:underline">
+                    experience
+                  </Link>
+                  .
+                </>
+              )}
             </p>
           </div>
         </FadeInUp>

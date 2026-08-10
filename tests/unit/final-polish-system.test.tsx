@@ -33,14 +33,16 @@ describe("Phase J — Final Polish, QA & Lighthouse Performance System", () => {
       expect(
         screen.getByTestId("lighthouse-score-badge-compact")
       ).toBeInTheDocument();
-      expect(screen.getByText("লাইটহাউস স্কোর: ১০০/১০০")).toBeInTheDocument();
+      expect(screen.getByText("লাইটহাউস: ১০০/১০০ (ল্যাব অডিট, আগস্ট ২০২৬)")).toBeInTheDocument();
     });
 
     it("renders compact footer badge in English when locale is en", () => {
       render(<LighthouseScoreBadge compact locale="en" />);
 
+      // Phase 4J: the score is labelled as a dated lab audit, not a
+      // permanent certification.
       expect(
-        screen.getByText("Lighthouse Score: 100/100")
+        screen.getByText("Lighthouse: 100/100 (lab audit, Aug 2026)")
       ).toBeInTheDocument();
     });
   });

@@ -9,6 +9,10 @@ import { absoluteUrl, getBlogPostingSchema, localeAlternates, localePath, SITE_I
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+// Render on every request so a newly published post is immediately readable
+// (and never 404s behind a stale prerendered snapshot).
+export const dynamic = "force-dynamic";
+
 interface BlogPostPageProps {
   params: Promise<{ locale: string; slug: string }>;
 }

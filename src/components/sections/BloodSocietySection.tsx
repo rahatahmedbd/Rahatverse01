@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,14 +21,18 @@ import type { BloodStat, ExperienceConfig } from "@/types/experience";
 // ── Blood Society Section (DB-driven) ──────────────────
 interface BloodSocietySectionProps {
   locale?: string;
+  /** Server-loaded validated config. When provided, the section renders in the
+   *  initial HTML (crawlable) and the client refetch is skipped. */
+  initialConfig?: ExperienceConfig;
 }
 
-export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps) {
+export function BloodSocietySection({ locale = "bn", initialConfig }: BloodSocietySectionProps) {
   const isBn = locale === "bn";
-  const [config, setConfig] = useState<ExperienceConfig>(DEFAULT_EXPERIENCE_CONFIG);
-  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<ExperienceConfig>(initialConfig ?? DEFAULT_EXPERIENCE_CONFIG);
+  const [loading, setLoading] = useState(!initialConfig);
 
   useEffect(() => {
+    if (initialConfig) return;
     let cancelled = false;
     fetch("/api/experience-config", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
@@ -44,7 +50,7 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialConfig]);
 
   if (loading) {
     return (
@@ -224,6 +230,42 @@ export function BloodSocietySection({ locale = "bn" }: BloodSocietySectionProps)
             ))}
           </StaggerContainer>
         </div>
+
+        {/* Contextual cross-links — photos, the platform being built, and writing */}
+        <FadeInUp delay={0.2}>
+          <nav
+            aria-label={isBn ? "শান্তিচক্র সম্পর্কিত পেজ" : "Shantichakra related pages"}
+            className="mt-10 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm"
+          >
+            <Link
+              href={`/${locale}/gallery`}
+              className="inline-flex items-center gap-1.5 font-medium text-red-400 hover:underline"
+            >
+              {isBn
+                ? "গ্যালারিতে আমাদের কার্যক্রমের ছবি"
+                : "Photos of our activities in the gallery"}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href={`/${locale}/portfolio`}
+              className="inline-flex items-center gap-1.5 font-medium text-red-400 hover:underline"
+            >
+              {isBn
+                ? "যে ডিজিটাল রক্তদাতা ডিরেক্টরি তৈরি হচ্ছে"
+                : "The digital donor directory in development"}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href={`/${locale}/blog`}
+              className="inline-flex items-center gap-1.5 font-medium text-red-400 hover:underline"
+            >
+              {isBn
+                ? "রক্তদান ও সমাজসেবা নিয়ে আমার লেখা"
+                : "My writing on blood donation & service"}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </nav>
+        </FadeInUp>
       </div>
     </section>
   );

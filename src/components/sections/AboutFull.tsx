@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";
@@ -88,6 +90,65 @@ export function AboutFull({ locale = "bn", config, titleAs = "h1" }: AboutFullPr
                       </div>
                     </StaggerContainer>
                   </div>
+
+                  {/* Continue exploring — natural next steps from the biography */}
+                  <nav
+                    aria-label={isBn ? "আরও দেখুন" : "Continue exploring"}
+                    className="mt-8 border-t border-border/50 pt-5"
+                  >
+                    <h4 className="mb-3 text-sm font-semibold text-muted-foreground">
+                      {isBn ? "আমাকে আরও জানুন" : "Get to know me further"}
+                    </h4>
+                    <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                      <li>
+                        <Link
+                          href={`/${locale}/experience`}
+                          className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                        >
+                          {isBn
+                            ? "অভিজ্ঞতা ও সমাজসেবা"
+                            : "My experience & social service"}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href={`/${locale}/achievements`}
+                          className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                        >
+                          {isBn ? "অর্জন ও সম্মাননা" : "Achievements & honours"}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href={`/${locale}/gallery`}
+                          className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                        >
+                          {isBn ? "ছবির গ্যালারি" : "Photo gallery"}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href={`/${locale}/portfolio`}
+                          className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                        >
+                          {isBn ? "পোর্টফোলিও ও কেস স্টাডি" : "Portfolio & case studies"}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href={`/${locale}/contact`}
+                          className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                        >
+                          {isBn ? "যোগাযোগ করুন" : "Get in touch"}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </li>
+                    </ul>
+                  </nav>
                 </div>
               </GlassCard>
             </FadeInLeft>

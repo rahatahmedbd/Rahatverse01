@@ -2,7 +2,8 @@ import { ContactSection } from "@/components/sections/ContactSection";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
-import { JsonLd, getContactPageSchema } from "@/components/seo/JsonLd";
+import { JsonLd, getContactPageSchema, getFAQPageSchema } from "@/components/seo/JsonLd";
+import { getContentConfig } from "@/lib/content/server";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -59,16 +60,26 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
 
 export default async function ContactPage({ params }: ContactPageProps) {
   const { locale } = await params;
+  // Server-load the FAQ/legal/search config so the accordion ships in the
+  // initial HTML and the FAQPage JSON-LD mirrors exactly the visible Q&A.
+  const contentConfig = await getContentConfig();
+  const visibleFaqItems = contentConfig.faqItems.filter((item) => item.visible);
 
   return (
     <>
       <JsonLd type="ContactPage" data={getContactPageSchema(locale)} />
+      {visibleFaqItems.length > 0 && (
+        <JsonLd
+          type="FAQPage"
+          data={getFAQPageSchema({ locale, items: visibleFaqItems })}
+        />
+      )}
       <div className="mx-auto max-w-7xl px-4">
         <ContactSection locale={locale} />
         <AuroraDivider />
         <TestimonialsSection locale={locale} />
         <AuroraDivider />
-        <FAQSection locale={locale} />
+        <FAQSection locale={locale} initialConfig={contentConfig} />
       </div>
     </>
   );

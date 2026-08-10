@@ -6,6 +6,12 @@ export interface PortfolioCategory {
   visible: boolean;
 }
 
+/**
+ * Honest project lifecycle status. A "concept" is a design-stage personal
+ * blueprint and must never be presented as a delivered client project.
+ */
+export type PortfolioProjectStatus = "live" | "in-development" | "concept";
+
 export interface PortfolioProject {
   id: string;
   title: string;
@@ -23,6 +29,7 @@ export interface PortfolioProject {
   featured: boolean;
   visible: boolean;
   completedAt?: string;
+  status?: PortfolioProjectStatus;
 }
 
 export interface PortfolioSectionContent {

@@ -491,6 +491,7 @@ const defaultComparisonRows: ServicesComparisonRow[] = [
     featureBn: "পেজ সংখ্যা",
     featureEn: "Pages",
     values: { basic: "১-৩", standard: "৫-১০", premium: "আনলিমিটেড", enterprise: "কাস্টম" },
+    valuesEn: { basic: "1-3", standard: "5-10", premium: "Unlimited", enterprise: "Custom" },
   },
   {
     id: "cmp-responsive",
@@ -521,18 +522,21 @@ const defaultComparisonRows: ServicesComparisonRow[] = [
     featureBn: "SEO",
     featureEn: "SEO",
     values: { basic: "বেসিক", standard: "অ্যাডভান্সড", premium: "ফুল", enterprise: "ফুল" },
+    valuesEn: { basic: "Basic", standard: "Advanced", premium: "Full", enterprise: "Full" },
   },
   {
     id: "cmp-support",
     featureBn: "সাপোর্ট",
     featureEn: "Support",
     values: { basic: "সীমিত", standard: "স্ট্যান্ডার্ড", premium: "প্রায়োরিটি", enterprise: "প্রায়োরিটি" },
+    valuesEn: { basic: "Limited", standard: "Standard", premium: "Priority", enterprise: "Priority" },
   },
   {
     id: "cmp-delivery",
     featureBn: "ডেলিভারি",
     featureEn: "Delivery",
     values: { basic: "১ সপ্তাহ", standard: "২ সপ্তাহ", premium: "৩ সপ্তাহ", enterprise: "কাস্টম" },
+    valuesEn: { basic: "1 week", standard: "2 weeks", premium: "3 weeks", enterprise: "Custom" },
   },
 ];
 
@@ -782,10 +786,21 @@ function validateComparisonRows(value: unknown, packageIds: Set<string>): boolea
     if (!isText(row.id, 80)) return false;
     if (!isText(row.featureBn, MAX_SHORT) || !isText(row.featureEn, MAX_SHORT)) return false;
     if (!isRecord(row.values)) return false;
-    return Object.entries(row.values).every(([key, cell]) => {
+    const cellsValid = Object.entries(row.values).every(([key, cell]) => {
       if (!packageIds.has(key)) return false;
       return isText(cell, MAX_SHORT, true);
     });
+    if (!cellsValid) return false;
+    // valuesEn is optional English cell text; when present it follows the same
+    // key/shape rules as `values`.
+    if (row.valuesEn !== undefined) {
+      if (!isRecord(row.valuesEn)) return false;
+      return Object.entries(row.valuesEn).every(([key, cell]) => {
+        if (!packageIds.has(key)) return false;
+        return isText(cell, MAX_SHORT, true);
+      });
+    }
+    return true;
   });
 }
 

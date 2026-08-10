@@ -2,6 +2,7 @@ import { ExperienceSection } from "@/components/sections/ExperienceSection";
 import { BloodSocietySection } from "@/components/sections/BloodSocietySection";
 import { MemorialSection } from "@/components/sections/MemorialSection";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
+import { getExperienceConfig } from "@/lib/experience/server";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -58,14 +59,18 @@ export async function generateMetadata({ params }: ExperiencePageProps): Promise
 
 export default async function ExperiencePage({ params }: ExperiencePageProps) {
   const { locale } = await params;
+  // Server-load the validated CMS payload so the initial HTML contains the
+  // real, crawlable experience content (Phase 4A) — the client islands reuse
+  // this data and skip their redundant client-side fetches.
+  const experienceConfig = await getExperienceConfig();
 
   return (
     <div className="mx-auto max-w-7xl px-4">
-      <ExperienceSection locale={locale} />
+      <ExperienceSection locale={locale} initialConfig={experienceConfig} />
       <AuroraDivider />
-      <BloodSocietySection locale={locale} />
+      <BloodSocietySection locale={locale} initialConfig={experienceConfig} />
       <AuroraDivider />
-      <MemorialSection locale={locale} />
+      <MemorialSection locale={locale} initialConfig={experienceConfig} />
     </div>
   );
 }

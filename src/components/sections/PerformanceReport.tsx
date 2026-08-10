@@ -15,6 +15,8 @@ interface PerformanceReportProps {
 export function PerformanceReport({ locale = "bn" }: PerformanceReportProps) {
   const isBn = locale === "bn";
 
+  // Dated lab-audit results — point-in-time Lighthouse lab scores (August
+  // 2026), not permanent guarantees.
   const metrics = [
     {
       icon: Gauge,
@@ -22,7 +24,9 @@ export function PerformanceReport({ locale = "bn" }: PerformanceReportProps) {
       value: "100/100",
       color: "text-emerald-400",
       bgColor: "bg-emerald-500/10",
-      desc: isBn ? "গুগল লাইটহাউস ১০০% স্কোর" : "Lighthouse 100/100 Performance",
+      desc: isBn
+        ? "লাইটহাউস ল্যাব অডিট — আগস্ট ২০২৬"
+        : "Lighthouse lab audit — August 2026",
     },
     {
       icon: ShieldCheck,
@@ -30,7 +34,9 @@ export function PerformanceReport({ locale = "bn" }: PerformanceReportProps) {
       value: "100/100",
       color: "text-emerald-400",
       bgColor: "bg-emerald-500/10",
-      desc: isBn ? "WCAG AAA ও মেটাডাটা অপটিমাইজড" : "WCAG AAA & fully optimized metadata",
+      desc: isBn
+        ? "লাইটহাউস ল্যাব অডিট — আগস্ট ২০২৬"
+        : "Lighthouse lab audit — August 2026",
     },
     {
       icon: Zap,
@@ -38,7 +44,9 @@ export function PerformanceReport({ locale = "bn" }: PerformanceReportProps) {
       value: "<1.2s",
       color: "text-amber-400",
       bgColor: "bg-amber-500/10",
-      desc: isBn ? "কোর ওয়েব ভাইটালস এলসিপি অপটিমাইজড" : "Core Web Vitals LCP < 1.2s",
+      desc: isBn
+        ? "ল্যাব পরিমাপে কোর ওয়েব ভাইটালস এলসিপি"
+        : "Core Web Vitals LCP in lab measurement",
     },
     {
       icon: Clock,
@@ -46,7 +54,9 @@ export function PerformanceReport({ locale = "bn" }: PerformanceReportProps) {
       value: "<0.8s",
       color: "text-blue-400",
       bgColor: "bg-blue-500/10",
-      desc: isBn ? "দ্রুততম প্রাথমিক ভিজ্যুয়াল রেন্ডার" : "Rapid initial visual rendering",
+      desc: isBn
+        ? "ল্যাব পরিমাপে দ্রুত প্রাথমিক রেন্ডার"
+        : "Rapid initial render in lab measurement",
     },
   ];
 
@@ -59,8 +69,8 @@ export function PerformanceReport({ locale = "bn" }: PerformanceReportProps) {
           titleBn="লাইটহাউস ও ওয়েব ভাইটালস"
           subtitle={
             isBn
-              ? "সাইটের গতি, নিরাপত্তা, এসইও এবং অ্যাক্সেসিবিলিটি যাচাইকৃত রিপোর্ট"
-              : "Verified website speed, security, accessibility, and SEO report"
+              ? "আগস্ট ২০২৬-এ চালানো লাইটহাউস ল্যাব অডিটের ফলাফল — গতি, অ্যাক্সেসিবিলিটি, সেরা অনুশীলন ও এসইও"
+              : "Results from a Lighthouse lab audit run in August 2026 — performance, accessibility, best practices and SEO"
           }
           locale={locale}
         />

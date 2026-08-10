@@ -25,8 +25,32 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { DEFAULT_PORTFOLIO_CONFIG, validatePortfolioConfig } from "@/lib/portfolio/config";
-import type { PortfolioConfig } from "@/types/portfolio";
+import type { PortfolioConfig, PortfolioProjectStatus } from "@/types/portfolio";
 import { cn } from "@/lib/utils";
+
+// Honest lifecycle labels — a concept stays visibly a concept.
+const STATUS_META: Record<
+  PortfolioProjectStatus,
+  { labelEn: string; labelBn: string; className: string }
+> = {
+  live: {
+    labelEn: "Live",
+    labelBn: "লাইভ",
+    className:
+      "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  },
+  "in-development": {
+    labelEn: "In Development",
+    labelBn: "ডেভেলপমেন্ট চলছে",
+    className:
+      "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  },
+  concept: {
+    labelEn: "Concept Project",
+    labelBn: "কনসেপ্ট প্রজেক্ট",
+    className: "border-dashed border-muted-foreground/40 text-muted-foreground",
+  },
+};
 
 function ProjectImage({
   src,
@@ -91,15 +115,28 @@ function ProjectImage({
   );
 }
 
-export function PortfolioSection() {
+interface PortfolioSectionProps {
+  /** Server-loaded validated config. When provided, the full project grid is
+   *  rendered in the initial HTML (crawlable) and the client refetch is
+   *  skipped. Omit for legacy client-only usage (skeleton + fetch). */
+  initialConfig?: PortfolioConfig;
+}
+
+export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
   const locale = useLocale();
   const isBn = locale === "bn";
-  const [config, setConfig] = useState<PortfolioConfig>(DEFAULT_PORTFOLIO_CONFIG);
+  // When the server hands us the config (SSR), render the full project grid in
+  // the initial HTML so crawlers see real project content. Without it — e.g. a
+  // hypothetical client-only usage — keep the legacy fetch + skeleton fallback.
+  const [config, setConfig] = useState<PortfolioConfig>(initialConfig ?? DEFAULT_PORTFOLIO_CONFIG);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialConfig);
 
   useEffect(() => {
+    // Server-loaded data is fresh per request (dynamic CMS page) — skip the
+    // redundant client refetch instead of duplicating the same network call.
+    if (initialConfig) return;
     let cancelled = false;
     fetch("/api/portfolio-config", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : null))
@@ -121,7 +158,7 @@ export function PortfolioSection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialConfig]);
 
   const visibleProjects = config.projects.filter((p) => p.visible);
   const visibleCategories = config.categories.filter((c) => c.visible);
@@ -242,9 +279,24 @@ export function PortfolioSection() {
 
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <Badge variant="outline" className="text-[10px] uppercase tracking-wider font-semibold text-primary border-primary/30">
-                        {project.category}
-                      </Badge>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Badge variant="outline" className="text-[10px] uppercase tracking-wider font-semibold text-primary border-primary/30">
+                          {project.category}
+                        </Badge>
+                        {project.status && (
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-[10px] uppercase tracking-wider font-semibold",
+                              STATUS_META[project.status].className
+                            )}
+                          >
+                            {isBn
+                              ? STATUS_META[project.status].labelBn
+                              : STATUS_META[project.status].labelEn}
+                          </Badge>
+                        )}
+                      </div>
                       {project.completedAt && (
                         <span className="text-xs text-muted-foreground font-mono">
                           {project.completedAt}
@@ -260,9 +312,10 @@ export function PortfolioSection() {
                   </CardHeader>
 
                   <CardContent className="flex flex-1 flex-col pt-0">
-                    {/* Excerpt if present */}
+                    {/* Case-study excerpt — shown in full so the honest project
+                        context (problem, scope, current status) stays visible. */}
                     {project.longDescription && (
-                      <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-muted-foreground/90 italic border-l-2 border-primary/30 pl-2.5">
+                      <p className="mb-4 text-xs leading-relaxed text-muted-foreground/90 italic border-l-2 border-primary/30 pl-2.5">
                         {longDesc}
                       </p>
                     )}
@@ -300,7 +353,13 @@ export function PortfolioSection() {
                           )}
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
-                          {isBn ? "লাইভ ডেমো" : "Live Demo"}
+                          {project.liveUrl !== "#"
+                            ? isBn
+                              ? "লাইভ ডেমো"
+                              : "Live Demo"
+                            : isBn
+                              ? "এখনো লাইভ নয়"
+                              : "Not Live Yet"}
                         </a>
                       </Button>
 

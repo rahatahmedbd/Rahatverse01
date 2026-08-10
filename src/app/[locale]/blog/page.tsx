@@ -13,6 +13,11 @@ import {
 } from "@/lib/seo";
 
 // ── Blog Page ──────────────────────────────────────────
+// Render on every request so newly published posts appear immediately and the
+// listing never serves a stale "no posts yet" snapshot while published posts
+// exist in the CMS.
+export const dynamic = "force-dynamic";
+
 interface BlogPageProps {
   params: Promise<{ locale: string }>;
 }

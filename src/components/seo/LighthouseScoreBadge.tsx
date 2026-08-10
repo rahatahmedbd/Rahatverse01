@@ -35,7 +35,9 @@ export function LighthouseScoreBadge({
       >
         <Zap className="h-3.5 w-3.5 text-emerald-400" />
         <span className="bn">
-          {isBn ? "লাইটহাউস স্কোর: ১০০/১০০" : "Lighthouse Score: 100/100"}
+          {isBn
+            ? "লাইটহাউস: ১০০/১০০ (ল্যাব অডিট, আগস্ট ২০২৬)"
+            : "Lighthouse: 100/100 (lab audit, Aug 2026)"}
         </span>
       </div>
     );
@@ -63,8 +65,8 @@ export function LighthouseScoreBadge({
             </h4>
             <p className="text-[11px] text-muted-foreground bn">
               {isBn
-                ? "গুগল কোর ওয়েব ভাইটালস ও আন্তর্জাতিক মানসম্পন্ন"
-                : "Verified Core Web Vitals & accessibility standards"}
+                ? "লাইটহাউস ল্যাব অডিট — আগস্ট ২০২৬ (ল্যাব পরিমাপ)"
+                : "Lighthouse lab audit — August 2026 (lab measurement)"}
             </p>
           </div>
         </div>

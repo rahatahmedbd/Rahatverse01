@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";
@@ -206,6 +207,31 @@ export function AchievementsSection({ locale = "bn", config }: AchievementsSecti
           }
           locale={locale}
         />
+
+        {/* Contextual cross-links — see the moments and the journey behind the numbers */}
+        <FadeInUp>
+          <nav
+            aria-label={isBn ? "সম্পর্কিত পেজ" : "Related pages"}
+            className="mb-12 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm"
+          >
+            <Link
+              href={`/${locale}/gallery`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/60 px-4 py-1.5 font-medium text-primary transition-colors hover:border-primary/40 hover:bg-primary/5"
+            >
+              {isBn
+                ? "গ্যালারিতে মুহূর্তগুলো দেখুন"
+                : "See these moments in the gallery"}
+            </Link>
+            <Link
+              href={`/${locale}/experience`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/60 px-4 py-1.5 font-medium text-primary transition-colors hover:border-primary/40 hover:bg-primary/5"
+            >
+              {isBn
+                ? "যে পথে এই অর্জন — আমার অভিজ্ঞতা"
+                : "The journey behind them — my experience"}
+            </Link>
+          </nav>
+        </FadeInUp>
 
         {/* Admin-controlled achievement statistics */}
         <FadeInUp>

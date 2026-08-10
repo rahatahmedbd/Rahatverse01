@@ -26,6 +26,9 @@ export const DEFAULT_HERO_CONFIG: HeroConfig = {
     { id: "c-3", labelBn: "রক্তদান", labelEn: "Blood Donations", value: 4, suffix: "" },
     { id: "c-4", labelBn: "GPA 5.00", labelEn: "GPA 5.00", value: 2, suffix: "×" },
   ],
+  // Phase 6 conversion funnel: primary = order (no friction), secondary = proof.
+  // The Contact CTA remains reachable via bottom-nav, navbar utilities and
+  // final CTA bands — it is no longer a competing third hero button.
   ctas: [
     {
       id: "cta-order",
@@ -38,20 +41,11 @@ export const DEFAULT_HERO_CONFIG: HeroConfig = {
     },
     {
       id: "cta-portfolio",
-      labelBn: "প্রজেক্ট দেখুন",
-      labelEn: "View Projects",
+      labelBn: "কাজ ও প্রমাণ দেখুন",
+      labelEn: "View Work & Proof",
       href: "/portfolio",
       variant: "glass",
       icon: "Eye",
-      pulse: false,
-    },
-    {
-      id: "cta-contact",
-      labelBn: "যোগাযোগ",
-      labelEn: "Contact",
-      href: "/contact",
-      variant: "outline",
-      icon: "MessageCircle",
       pulse: false,
     },
   ],

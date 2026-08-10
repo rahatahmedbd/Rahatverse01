@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Heart, Mail, Phone, MapPin } from "lucide-react";
+import { Heart, Mail, MapPin } from "lucide-react";
+import { FooterWhatsAppLink } from "./footer-whatsapp-link";
 import { GlowEffect } from "@/components/animations/GlowEffect";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { LighthouseScoreBadge } from "@/components/seo/LighthouseScoreBadge";
@@ -117,10 +118,7 @@ export async function EnhancedFooter({ locale }: EnhancedFooterProps) {
                 </a>
               </li>
               <li>
-                <a href={footer.businessWhatsapp} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary">
-                  <Phone className="h-4 w-4 shrink-0" />
-                  <span>{footer.businessPhone}</span>
-                </a>
+                <FooterWhatsAppLink href={footer.businessWhatsapp} phone={footer.businessPhone} locale={currentLocale} />
               </li>
               <li>
                 <div className="flex items-start gap-2 text-sm text-muted-foreground">

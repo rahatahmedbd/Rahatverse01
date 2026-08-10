@@ -1,6 +1,9 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, MessageCircle, Rocket } from "lucide-react";
 import Link from "next/link";
+import { trackEvent } from "@/lib/analytics/tracker";
 
 interface OrderCtaBandProps {
   locale?: string;
@@ -35,13 +38,33 @@ export function OrderCtaBand({ locale = "bn" }: OrderCtaBandProps) {
 
           <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:mt-8 sm:flex-row sm:items-center sm:gap-4">
             <Button variant="gradient" size="lg" asChild className="w-full sm:w-auto">
-              <Link href={`/${locale}/order#order-checkout`} className="inline-flex items-center justify-center gap-2">
+              <Link
+                href={`/${locale}/order#order-checkout`}
+                onClick={() =>
+                  trackEvent("cta_click", {
+                    category: "conversion",
+                    label: "order_cta_band_primary",
+                    metadata: { cta_id: "order_cta_band_primary", location: "order_cta_band", locale },
+                  })
+                }
+                className="inline-flex items-center justify-center gap-2"
+              >
                 <ShoppingCart className="h-4 w-4" />
                 {isBn ? "ওয়েবসাইট অর্ডার করুন" : "Order a Website"}
               </Link>
             </Button>
             <Button variant="outline" size="lg" asChild className="w-full sm:w-auto">
-              <Link href={`/${locale}/contact`} className="inline-flex items-center justify-center gap-2">
+              <Link
+                href={`/${locale}/contact`}
+                onClick={() =>
+                  trackEvent("cta_click", {
+                    category: "conversion",
+                    label: "order_cta_band_secondary",
+                    metadata: { cta_id: "order_cta_band_secondary", location: "order_cta_band", locale },
+                  })
+                }
+                className="inline-flex items-center justify-center gap-2"
+              >
                 <MessageCircle className="h-4 w-4" />
                 {isBn ? "যোগাযোগ করুন" : "Contact Me"}
               </Link>

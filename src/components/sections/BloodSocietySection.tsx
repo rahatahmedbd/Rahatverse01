@@ -12,6 +12,7 @@ import { FadeInUp, FadeInLeft, FadeInRight } from "@/components/animations/FadeI
 import { StaggerContainer, StaggerItem } from "@/components/animations/Stagger";
 import { motion } from "framer-motion";
 import { Siren, MapPin, MessageCircle, ExternalLink, Loader2 } from "lucide-react";
+import { trackEvent } from "@/lib/analytics/tracker";
 import { DEFAULT_EXPERIENCE_CONFIG, validateExperienceConfig } from "@/lib/experience/config";
 import { ExperienceIcon } from "@/lib/experience/icons";
 import { CloudinaryImage } from "@/components/ui/cloudinary-image";
@@ -130,7 +131,17 @@ export function BloodSocietySection({ locale = "bn", initialConfig }: BloodSocie
                     </div>
                     {emergency.whatsappLink && (
                       <Button size="sm" variant="outline" asChild>
-                        <a href={emergency.whatsappLink} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={emergency.whatsappLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() =>
+                            trackEvent("whatsapp_click", {
+                              category: "conversion",
+                              metadata: { location: "blood_society_emergency", locale },
+                            })
+                          }
+                        >
                           <MessageCircle className="mr-1 h-4 w-4" />
                           {isBn ? emergency.whatsappLabelBn : emergency.whatsappLabelEn}
                         </a>

@@ -27,7 +27,11 @@ import {
   Phone,
   User,
   Layers,
+  ShieldCheck,
+  Info,
+  Mail,
 } from "lucide-react";
+import { trackEvent } from "@/lib/analytics/tracker";
 import { DEFAULT_ORDERS_CONFIG, validateOrdersConfig } from "@/lib/orders/config";
 import { calculateLiveQuote, formatQuoteAmount } from "@/lib/orders/quote";
 import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
@@ -89,6 +93,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const [errors, setErrors] = useState<Partial<Record<keyof OrderData, string>>>({});
 
   const wizardRef = useRef<HTMLDivElement>(null);
+  const orderStartFiredRef = useRef(false);
+  const orderCompleteFiredRef = useRef(false);
 
   const [data, setData] = useState<OrderData>({
     packageType: initialPackage,
@@ -166,6 +172,59 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     }
   }, [step]);
 
+  // ── Phase 6 analytics: order_start once per session ──
+  useEffect(() => {
+    if (orderStartFiredRef.current) return;
+    orderStartFiredRef.current = true;
+    try {
+      const key = "rv_order_start_fired";
+      if (typeof window !== "undefined" && window.sessionStorage.getItem(key)) return;
+      window.sessionStorage.setItem(key, "1");
+    } catch {}
+    trackEvent("order_start", { category: "conversion", metadata: { locale } });
+  }, [locale]);
+
+  // ── Phase 6 mobile UX: keep focused fields visible when keyboard opens ──
+  useEffect(() => {
+    const container = wizardRef.current;
+    if (!container) return;
+    const onFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const isField =
+        target.matches("input, textarea, select") ||
+        target.matches("button[role=\"radio\"], button[role=\"checkbox\"]");
+      if (!isField) return;
+      // Give the browser / visualViewport a moment to settle before scrolling.
+      window.setTimeout(() => {
+        try {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        } catch {}
+        // Extra nudge for devices where the bottom nav overlaps content.
+        const rect = target.getBoundingClientRect();
+        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+        const bottomOverlap = 96; // bottom nav + safe area
+        if (rect.bottom > viewportHeight - bottomOverlap) {
+          window.scrollBy({ top: rect.bottom - (viewportHeight - bottomOverlap) + 16, behavior: "smooth" });
+        }
+      }, 280);
+    };
+    container.addEventListener("focusin", onFocusIn);
+    // Also react to visualViewport resize (keyboard open/close)
+    const vv = window.visualViewport;
+    const onResize = () => {
+      const active = document.activeElement as HTMLElement | null;
+      if (active && active.matches("input, textarea, select")) {
+        active.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+    vv?.addEventListener("resize", onResize);
+    return () => {
+      container.removeEventListener("focusin", onFocusIn);
+      vv?.removeEventListener("resize", onResize);
+    };
+  }, []);
+
   const updateData = <K extends keyof OrderData>(field: K, value: OrderData[K]) => {
     setData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => {
@@ -174,6 +233,14 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       delete next[field];
       return next;
     });
+    // Phase 6: service/package selection intent (privacy-safe)
+    if (field === "packageType" && typeof value === "string" && value) {
+      trackEvent("service_select", {
+        category: "conversion",
+        label: value,
+        metadata: { package_id: value, location: "order_wizard", locale },
+      });
+    }
   };
 
   const toggleFeature = (feature: string) => {
@@ -258,10 +325,27 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       document.querySelector(`[data-field="${firstKey}"]`);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
-      // focus inner input if exists
+      // Ensure the field is not hidden behind sticky header / bottom nav.
+      window.setTimeout(() => {
+        const rect = el.getBoundingClientRect();
+        const headerOffset = 80;
+        const bottomNavOffset = 96;
+        if (rect.top < headerOffset) {
+          window.scrollBy({ top: rect.top - headerOffset - 12, behavior: "smooth" });
+        } else if (rect.bottom > window.innerHeight - bottomNavOffset) {
+          window.scrollBy({ top: rect.bottom - (window.innerHeight - bottomNavOffset) + 12, behavior: "smooth" });
+        }
+      }, 360);
+      // focus inner input if exists (accessibility: focus first invalid)
       const focusable = el.querySelector<HTMLElement>("input, textarea, select, button");
       if (focusable) {
-        setTimeout(() => focusable.focus(), 350);
+        setTimeout(() => {
+          try {
+            focusable.focus({ preventScroll: true } as FocusOptions);
+          } catch {
+            focusable.focus();
+          }
+        }, 380);
       } else if (el instanceof HTMLElement) {
         // if chip group, focus first chip
         const chip = el.querySelector<HTMLElement>('button[role="radio"], button[role="checkbox"]');
@@ -279,6 +363,12 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       return;
     }
     setErrors({});
+    const completedStep = step + 1; // 1-based for analytics
+    trackEvent("order_step_complete", {
+      category: "conversion",
+      label: String(completedStep),
+      metadata: { step: completedStep, locale },
+    });
     setStep((s) => Math.min(s + 1, steps.length - 1));
   };
 
@@ -342,6 +432,13 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
         return;
       }
 
+      if (!orderCompleteFiredRef.current) {
+        orderCompleteFiredRef.current = true;
+        trackEvent("order_complete", {
+          category: "conversion",
+          metadata: { locale, package_id: data.packageType },
+        });
+      }
       setIsSubmitted(true);
     } catch {
       setSubmitError(
@@ -359,19 +456,67 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       <section className="py-20">
         <div className="mx-auto max-w-2xl px-4 text-center">
           <FadeInUp>
-            <GlassCard>
+            <GlassCard className="text-left sm:text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
                 <CheckCircle2 className="h-8 w-8 text-green-400" />
               </div>
-              <h2 className="text-heading-md font-bold bn">
+              <h2 className="text-heading-md font-bold bn text-center">
                 {isBn ? config.cta.successTitleBn : config.cta.successTitleEn}
               </h2>
-              <p className="mt-4 text-muted-foreground bn">
+              <p className="mt-3 text-muted-foreground bn text-center">
                 {isBn ? config.cta.successMessageBn : config.cta.successMessageEn}
               </p>
-              <Badge variant="success" className="mt-4">
+              <Badge variant="success" className="mt-4 mx-auto">
                 {isBn ? "অর্ডারটি নিরাপদে গ্রহণ করা হয়েছে" : "Your order was received securely"}
               </Badge>
+
+              {/* Phase 6: clear next-steps, communication & payment reassurance */}
+              <div className="mt-8 space-y-4 text-left">
+                <div className="rounded-xl border border-border/60 bg-card/40 p-4">
+                  <h3 className="flex items-center gap-2 text-sm font-semibold bn">
+                    <Info className="h-4 w-4 text-primary" />
+                    {isBn ? "এরপর কী হবে?" : "What happens next?"}
+                  </h3>
+                  <ol className="mt-3 space-y-2 text-sm text-muted-foreground bn list-decimal list-inside leading-relaxed">
+                    <li>{isBn ? "আমরা আপনার প্রয়োজনগুলো পর্যালোচনা করব।" : "We’ll review your requirements carefully."}</li>
+                    <li>
+                      {isBn
+                        ? "আপনার বেছে নেওয়া মাধ্যমে — ইমেইল, ফোন বা হোয়াটসঅ্যাপ — যোগাযোগ করে বিস্তারিত চূড়ান্ত করব।"
+                        : "We’ll contact you through your selected method — email, phone or WhatsApp — to finalize the details."}
+                    </li>
+                    <li>
+                      {isBn
+                        ? "আলোচনার পর কাস্টম পরিধি ও কোট নিশ্চিত করা হবে — এখন কোনো পেমেন্টের প্রয়োজন নেই।"
+                        : "After the discussion your custom scope and quote will be confirmed — no payment is required now."}
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                  <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-500 mt-0.5" />
+                  <div className="text-sm leading-relaxed bn">
+                    <p className="font-semibold text-foreground">
+                      {isBn ? "এখন কোনো পেমেন্টের প্রয়োজন নেই" : "No payment required now"}
+                    </p>
+                    <p className="mt-1 text-muted-foreground">
+                      {isBn
+                        ? "এই অনুরোধ জমা দেওয়া একটি ফ্রি পরামর্শ ও কাস্টম প্রজেক্ট কোটের প্রক্রিয়া শুরু করে। চূড়ান্ত কোট অনুমোদনের পরেই পেমেন্টের বিষয় আসবে।"
+                        : "Submitting this request starts a free consultation and custom project quote. Payment is only discussed after you approve the final quote."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                  <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-background px-3 py-1.5 text-xs">
+                    <Mail className="h-3.5 w-3.5 text-primary" />
+                    <span className="font-medium">{isBn ? "ইমেইলে কনফার্মেশন পাঠানো হয়েছে" : "Confirmation sent to your email"}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-background px-3 py-1.5 text-xs">
+                    <Phone className="h-3.5 w-3.5 text-primary" />
+                    <span className="font-medium">{isBn ? "প্রয়োজনে ফোন/হোয়াটসঅ্যাপে যোগাযোগ" : "We’ll reach you by phone/WhatsApp if needed"}</span>
+                  </div>
+                </div>
+              </div>
             </GlassCard>
           </FadeInUp>
         </div>
@@ -380,7 +525,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   }
 
   return (
-    <section ref={wizardRef} className="py-20 scroll-mt-24" id="order-wizard">
+    <section ref={wizardRef} className="py-20 scroll-mt-24 scroll-pb-28 pb-28 sm:pb-20" id="order-wizard">
       <div className="mx-auto max-w-3xl px-4">
         <SectionTitle
           badge={isBn ? config.section.badgeBn : config.section.badgeEn}
@@ -949,6 +1094,25 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                     ? "অর্ডার জমা দিলে আমরা ইমেইলে কনফার্মেশন পাঠাব এবং শীঘ্রই যোগাযোগ করব।"
                     : "After submitting, you'll receive an email confirmation and we'll contact you shortly."}
                 </span>
+              </div>
+
+              {/* Phase 6: reassurance immediately before final submit */}
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4">
+                <div className="flex items-start gap-3">
+                  <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-500 mt-0.5" />
+                  <div className="space-y-1.5 text-sm leading-relaxed bn">
+                    <p className="font-semibold text-foreground">
+                      {isBn
+                        ? "এখন কোনো পেমেন্টের প্রয়োজন নেই — এই অনুরোধ জমা দিলে ফ্রি পরামর্শ ও আপনার প্রজেক্টের জন্য কাস্টম কোটের প্রক্রিয়া শুরু হবে।"
+                        : "No payment required now — submitting this request starts a free consultation and custom project quote."}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {isBn
+                        ? "জমা দেওয়ার পর আমরা আপনার প্রয়োজনগুলো পর্যালোচনা করে আপনার বেছে নেওয়া মাধ্যমে (ইমেইল / ফোন / হোয়াটসঅ্যাপ) যোগাযোগ করব।"
+                        : "After submission, we'll review your requirements and contact you through your selected contact method."}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-2">

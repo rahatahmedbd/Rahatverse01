@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import BlogPostContent from "@/components/blog/BlogPostContent";
 import { BlogComments } from "@/components/blog/BlogComments";
 import { FadeInUp } from "@/components/animations/FadeIn";
-import { JsonLd } from "@/components/seo/JsonLd";
+import { JsonLd, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import { absoluteUrl, getBlogPostingSchema, localeAlternates, localePath, SITE_IMAGE } from "@/lib/seo";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -118,6 +118,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           tags: post.tags,
           readingTime: post.reading_time,
         })}
+      />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "ব্লগ" : "Blog",
+            url: absoluteUrl(localePath(locale, "/blog")),
+          },
+        ])}
       />
       <div className="container mx-auto px-4">
         <FadeInUp>

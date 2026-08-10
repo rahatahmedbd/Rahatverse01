@@ -3,7 +3,7 @@ import { EducationTimeline } from "@/components/sections/EducationTimeline";
 import { PerformanceReport } from "@/components/sections/PerformanceReport";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getAboutConfig } from "@/lib/about/server";
-import { JsonLd, getProfilePageSchema } from "@/components/seo/JsonLd";
+import { JsonLd, getProfilePageSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -62,11 +62,22 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
 
 export default async function AboutPage({ params }: AboutPageProps) {
   const { locale } = await params;
+  const isBn = locale === "bn";
   const aboutConfig = await getAboutConfig();
 
   return (
     <>
       <JsonLd type="ProfilePage" data={getProfilePageSchema(locale)} />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "আমার সম্পর্কে" : "About",
+            url: absoluteUrl(localePath(locale, "/about")),
+          },
+        ])}
+      />
       <div className="mx-auto max-w-7xl px-4">
         <AboutFull locale={locale} config={aboutConfig} />
         <AuroraDivider />

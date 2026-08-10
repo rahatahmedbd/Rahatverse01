@@ -10,6 +10,15 @@ import { getServicesConfig } from "@/lib/services/server";
 import { getApprovedTestimonialsServer } from "@/lib/testimonials/server";
 import { ServicesIcon } from "@/lib/services/icons";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
+import { JsonLd, getCollectionPageSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
+import type { Metadata } from "next";
+import {
+  absoluteUrl,
+  localeAlternates,
+  localePath,
+  SITE_IMAGE,
+  SITE_NAME,
+} from "@/lib/seo";
 
 // Contextual proof links — connect each service claim to a real, honest
 // example (live site, in-development portal, or clearly-labelled concept).
@@ -32,11 +41,56 @@ const PROOF_LINKS: Record<string, { labelBn: string; labelEn: string }> = {
   },
 };
 
+// ── Services Page ─────────────────────────────────────
+interface ServicesPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: ServicesPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const isBn = locale === "bn";
+  const canonicalUrl = absoluteUrl(localePath(locale, "/services"));
+  const title = isBn
+    ? "ওয়েব ডেভেলপমেন্ট সার্ভিস — রাহাত আহমেদ"
+    : "Web Development Services — Rahat Ahmed";
+  const description = isBn
+    ? "রাহাত আহমেদের পেশাদার ওয়েব ডিজাইন ও ডেভেলপমেন্ট সার্ভিস — পোর্টফোলিও, ব্যবসায়িক, ই-কমার্স ও কাস্টম ওয়েব অ্যাপ্লিকেশন।"
+    : "Professional website design and development services by Rahat Ahmed — portfolio, business, e-commerce and custom web application websites built with modern technology.";
+  const ogImageAlt = isBn ? "রাহাত আহমেদ — রাহাতভার্স" : "Rahat Ahmed — RahatVerse";
+
+  return {
+    title,
+    description,
+    alternates: localeAlternates(locale, "/services"),
+    openGraph: {
+      type: "website",
+      locale: isBn ? "bn_BD" : "en_US",
+      alternateLocale: isBn ? "en_US" : "bn_BD",
+      siteName: SITE_NAME,
+      title,
+      description,
+      url: canonicalUrl,
+      images: [
+        {
+          url: SITE_IMAGE,
+          width: 1200,
+          height: 630,
+          alt: ogImageAlt,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [SITE_IMAGE],
+    },
+  };
+}
+
 export default async function ServicesPage({
   params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+}: ServicesPageProps) {
   const { locale } = await params;
   const isBn = locale === "bn";
 
@@ -62,6 +116,30 @@ export default async function ServicesPage({
   const cta = config.cta;
 
   return (
+    <>
+      <JsonLd
+        type="CollectionPage"
+        data={getCollectionPageSchema({
+          locale,
+          path: "/services",
+          name: "Web Development Services — RahatVerse",
+          nameBn: "ওয়েব ডেভেলপমেন্ট সার্ভিস — রাহাতভার্স",
+          description:
+            "Professional website design and development services by Rahat Ahmed — portfolio, business, e-commerce and custom web applications.",
+          descriptionBn:
+            "রাহাত আহমেদের পেশাদার ওয়েবসাইট ডিজাইন ও ডেভেলপমেন্ট সার্ভিস — পোর্টফোলিও, ব্যবসায়িক, ই-কমার্স ও কাস্টম ওয়েব অ্যাপ্লিকেশন।",
+        })}
+      />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "সার্ভিস" : "Services",
+            url: absoluteUrl(localePath(locale, "/services")),
+          },
+        ])}
+      />
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
         {/* Header */}
@@ -323,5 +401,6 @@ export default async function ServicesPage({
         </FadeInUp>
       </div>
     </div>
+    </>
   );
 }

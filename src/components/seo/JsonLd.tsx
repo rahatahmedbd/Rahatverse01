@@ -143,6 +143,36 @@ export function getWebPageSchema(locale = "bn") {
   };
 }
 
+// Generic entity-tied WebPage schema for pages whose primary subject is
+// Rahat Ahmed / RahatVerse content but which are neither collections nor
+// profile/contact pages (e.g. experience, achievements, order). Every page is
+// tied to the single site-wide Person (/#person) and WebSite (/#website)
+// entities so they reinforce entity authority instead of fragmenting it.
+export function getEntityWebPageSchema({
+  locale,
+  path,
+  name,
+  nameBn,
+}: {
+  locale: string;
+  path: string;
+  name: string;
+  nameBn: string;
+}) {
+  const isBn = locale === "bn";
+  const canonical = absoluteUrl(localePath(locale, path));
+  return {
+    "@id": `${canonical}#webpage`,
+    url: canonical,
+    name: isBn ? nameBn : name,
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    about: { "@id": absoluteUrl("/#person") },
+    author: { "@id": absoluteUrl("/#person") },
+    mainEntity: { "@id": absoluteUrl("/#person") },
+    inLanguage: isBn ? ["bn-BD", "en"] : ["en", "bn-BD"],
+  };
+}
+
 export function getPortfolioSchema(locale = "bn") {
   const isBn = locale === "bn";
   return {

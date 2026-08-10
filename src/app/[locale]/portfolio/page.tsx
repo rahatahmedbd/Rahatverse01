@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PortfolioSection } from "@/components/portfolio/PortfolioSection";
 import { SectionTitle } from "@/components/sections/SectionTitle";
-import { JsonLd, getPortfolioSchema } from "@/components/seo/JsonLd";
+import { JsonLd, getPortfolioSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import { getPortfolioConfig } from "@/lib/portfolio/server";
 import type { Metadata } from "next";
 import {
@@ -76,6 +76,16 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
           itemListElement: (getPortfolioSchema(locale).mainEntity as any).itemListElement,
           numberOfItems: 3,
         }}
+      />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "পোর্টফোলিও" : "Portfolio",
+            url: absoluteUrl(localePath(locale, "/portfolio")),
+          },
+        ])}
       />
       <div className="min-h-screen py-8 sm:py-12">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">

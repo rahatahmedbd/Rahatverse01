@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Gallery from "@/components/gallery/Gallery";
 import { FadeInUp } from "@/components/animations/FadeIn";
-import { JsonLd, getGalleryCollectionSchema, getCollectionPageSchema } from "@/components/seo/JsonLd";
+import { JsonLd, getGalleryCollectionSchema, getCollectionPageSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 import {
@@ -256,6 +256,16 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
     <div className="min-h-screen py-12">
       <JsonLd type="CollectionPage" data={enrichedGallery} />
       <JsonLd type="ImageGallery" data={enrichedGallery} />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "গ্যালারি" : "Gallery",
+            url: absoluteUrl(localePath(locale, "/gallery")),
+          },
+        ])}
+      />
       <div className="container mx-auto px-4">
         <FadeInUp>
           <div className="text-center mb-12">

@@ -2,6 +2,7 @@ import { AchievementsSection } from "@/components/sections/AchievementsSection";
 import { OrderCtaBand } from "@/components/sections/OrderCtaBand";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getAboutConfig } from "@/lib/about/server";
+import { JsonLd, getEntityWebPageSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -58,14 +59,36 @@ export async function generateMetadata({ params }: AchievementsPageProps): Promi
 
 export default async function AchievementsPage({ params }: AchievementsPageProps) {
   const { locale } = await params;
+  const isBn = locale === "bn";
   const aboutConfig = await getAboutConfig();
 
   return (
+    <>
+      <JsonLd
+        type="WebPage"
+        data={getEntityWebPageSchema({
+          locale,
+          path: "/achievements",
+          name: "Achievements & Milestones — Rahat Ahmed",
+          nameBn: "অর্জন ও মাইলফলক — রাহাত আহমেদ",
+        })}
+      />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "অর্জন ও মাইলফলক" : "Achievements & Milestones",
+            url: absoluteUrl(localePath(locale, "/achievements")),
+          },
+        ])}
+      />
     <div className="mx-auto max-w-7xl px-4">
       <AchievementsSection locale={locale} config={aboutConfig} />
       {/* Phase 6: trust → proof → conversion — natural conclusion after reading proof */}
       <AuroraDivider />
       <OrderCtaBand locale={locale} />
     </div>
+    </>
   );
 }

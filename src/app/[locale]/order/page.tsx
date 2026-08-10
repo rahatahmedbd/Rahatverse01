@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { PricingSection } from "@/components/sections/PricingSection";
 import { OrderWizard } from "@/components/sections/OrderWizard";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
+import { JsonLd, getEntityWebPageSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -58,8 +59,29 @@ export async function generateMetadata({ params }: OrderPageProps): Promise<Meta
 
 export default async function OrderPage({ params }: OrderPageProps) {
   const { locale } = await params;
+  const isBn = locale === "bn";
 
   return (
+    <>
+      <JsonLd
+        type="WebPage"
+        data={getEntityWebPageSchema({
+          locale,
+          path: "/order",
+          name: "Order a Website — Packages & Pricing | RahatVerse",
+          nameBn: "ওয়েবসাইট অর্ডার করুন — প্যাকেজ ও মূল্য | রাহাতভার্স",
+        })}
+      />
+      <JsonLd
+        type="BreadcrumbList"
+        data={getBreadcrumbListSchema([
+          { name: isBn ? "হোম" : "Home", url: absoluteUrl(localePath(locale)) },
+          {
+            name: isBn ? "ওয়েবসাইট অর্ডার" : "Order a Website",
+            url: absoluteUrl(localePath(locale, "/order")),
+          },
+        ])}
+      />
     <div className="mx-auto max-w-7xl px-4">
       {/* Pricing Packages */}
       <PricingSection locale={locale} />
@@ -73,5 +95,6 @@ export default async function OrderPage({ params }: OrderPageProps) {
         </Suspense>
       </div>
     </div>
+    </>
   );
 }

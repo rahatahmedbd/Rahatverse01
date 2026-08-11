@@ -18,7 +18,9 @@ export function ScrollProgress({
   className,
   position = "top",
   height = 3,
-  color = "bg-primary",
+  // Signature gradient beam with a soft static glow — same cheap
+  // compositor-driven scaleX, just dressed up.
+  color = "bg-[linear-gradient(90deg,#fbbf24,#f97316_38%,#8b5cf6_72%,#3b82f6)] shadow-[0_0_10px_rgba(249,115,22,0.45)]",
 }: ScrollProgressProps) {
   // Direct 1:1 binding — no spring physics loop running per scroll frame.
   // scaleX is transform-based, so the bar stays compositor-cheap.

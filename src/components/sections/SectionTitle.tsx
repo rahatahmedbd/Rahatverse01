@@ -47,18 +47,18 @@ export function SectionTitle({
   return (
     <motion.div
       className={cn("mb-12", alignMap[align], className)}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
     >
       {badge && (
         <motion.span
           className="gradient-badge gradient-border heading-kicker mb-3 inline-block rounded-full border border-transparent px-3 py-1"
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: 0.85, y: 6 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.1, duration: 0.4 }}
+          transition={{ type: "spring", stiffness: 300, damping: 22, delay: 0.08 }}
         >
           {badge}
         </motion.span>
@@ -69,10 +69,10 @@ export function SectionTitle({
           "text-gradient text-heading-lg font-bold",
           locale === "bn" && "bn"
         )}
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
+        whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         viewport={{ once: true }}
-        transition={{ delay: 0.2, duration: 0.5 }}
+        transition={{ delay: 0.16, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         {displayTitle}
       </HeadingTag>

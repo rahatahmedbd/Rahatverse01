@@ -999,6 +999,55 @@ html[lang="bn"] .heading-kicker,
   animation-play-state: running;
 }
 
+/* ── Signature FX — a few eye-catching moments ──────────
+   Deliberately few, all cheap: one text repaint for ~1.4s per cycle
+   (hero name) and transform-only compositor motion (CTA halo). Everything
+   renders paused and is resumed by AnimationGovernor only while on screen,
+   and is fully disabled under prefers-reduced-motion. */
+
+/* 1. Hero name — an occasional light sweep crossing the gradient name.
+   Two stacked backgrounds, both clipped to the glyph shapes; only the
+   shine layer's position animates. */
+.hero-name-shine {
+  background-image:
+    linear-gradient(115deg, #fbbf24 0%, #f59e0b 35%, #14b8a6 100%),
+    linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.9) 50%, transparent 58%);
+  background-size: 100% 100%, 260% 100%;
+  background-position: 50% 50%, 230% 50%;
+  animation: name-shine 7.5s ease-in-out 1.2s infinite paused;
+  backface-visibility: hidden;
+}
+
+@keyframes name-shine {
+  0% { background-position: 50% 50%, 230% 50%; }
+  19% { background-position: 50% 50%, -130% 50%; }
+  100% { background-position: 50% 50%, -130% 50%; }
+}
+
+/* 2. Primary CTA halo — a soft conic "aurora orbit" rotating behind the
+   gradient button. Static blur raster + transform rotation = compositor-only. */
+.cta-halo {
+  position: absolute;
+  inset: -0.45rem;
+  border-radius: 1rem;
+  background: conic-gradient(
+    from 0deg,
+    rgba(251, 191, 36, 0) 0%,
+    rgba(251, 191, 36, 0.5) 18%,
+    rgba(139, 92, 246, 0.42) 42%,
+    rgba(59, 130, 246, 0.4) 60%,
+    rgba(249, 115, 22, 0.5) 80%,
+    rgba(251, 191, 36, 0) 100%
+  );
+  filter: blur(14px);
+  opacity: 0.55;
+  animation: fx-rotate 9s linear infinite paused;
+}
+
+@keyframes fx-rotate {
+  to { transform: rotate(360deg); }
+}
+
 /* ── Stagger delays ───────────────────────────────────── */
 .stagger-1 { animation-delay: 0.1s; }
 .stagger-2 { animation-delay: 0.2s; }
@@ -1413,7 +1462,9 @@ img[style*="width"], img[style*="height"] {
   .animate-spin-slow,
   .animate-spin-reverse,
   .aurora-divider,
-  .particle-canvas {
+  .particle-canvas,
+  .hero-name-shine,
+  .cta-halo {
     animation: none !important;
     transition: none !important;
     transform: none !important;
@@ -1533,6 +1584,7 @@ a:not(.button-ripple):not([class*="rounded"]):hover {
   canvas,
   nav[aria-label="Mobile navigation"],
   .nuva-glass,
+  .cta-halo,
   [data-pwa-prompt] {
     display: none !important;
   }

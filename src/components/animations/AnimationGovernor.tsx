@@ -18,7 +18,7 @@ import { useMotionPreference } from "./motion-preferences";
  * (the global reduced-motion block already forces animation: none).
  */
 
-const OBSERVED_SELECTOR = ".aurora-divider, .gradient-border";
+const OBSERVED_SELECTOR = ".aurora-divider, .gradient-border, [data-fx]";
 
 export function AnimationGovernor() {
   const prefersReducedMotion = useMotionPreference();

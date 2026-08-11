@@ -1,6 +1,7 @@
 import { CustomCursor } from "./CustomCursor";
 import { ScrollProgress } from "./ScrollProgress";
 import { ScrollToTop } from "./ScrollProgress";
+import { AnimationGovernor } from "./AnimationGovernor";
 import { PWAInstallPrompt } from "../interactive/PWAInstallPrompt";
 import { MagneticCursor } from "../interactive/MagneticCursor";
 
@@ -24,6 +25,7 @@ export function AnimationProviders({
 }: ProvidersProps) {
   return (
     <>
+      <AnimationGovernor />
       {showProgress && <ScrollProgress />}
       {showCursor && <CustomCursor />}
       {showMagnetic && <MagneticCursor />}

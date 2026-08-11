@@ -25,6 +25,12 @@ import { localeAlternates } from "@/lib/seo";
 // ── Locale-based Layout ────────────────────────────────
 // Wraps app with next-intl provider for translations
 
+// All site_settings reads are served from the shared 60s cache
+// (src/lib/site-settings.ts), but maintenance mode / admin bypass is
+// user-specific, so pages stay request-time rendered — now with zero
+// database latency in the navigation hot path.
+export const dynamic = "force-dynamic";
+
 interface LocaleLayoutProps {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;

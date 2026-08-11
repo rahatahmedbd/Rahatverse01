@@ -1,26 +1,10 @@
 import { NextResponse } from "next/server";
-import { DEFAULT_ANALYTICS_CONFIG, validateAnalyticsConfig } from "@/lib/analytics/config";
-import { createClient } from "@/lib/supabase/server";
+import { getAnalyticsConfig } from "@/lib/analytics/configServer";
 
 export const dynamic = "force-dynamic";
 
-/** Public, validated analytics configuration endpoint (Phase 14). */
+/** Public, validated analytics configuration endpoint (served from the shared 60s config cache). */
 export async function GET() {
-  try {
-    const supabase = await createClient();
-    if (!supabase) return NextResponse.json({ data: DEFAULT_ANALYTICS_CONFIG });
-
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "analytics_config")
-      .maybeSingle();
-
-    if (error || !data?.value) {
-      return NextResponse.json({ data: DEFAULT_ANALYTICS_CONFIG });
-    }
-    return NextResponse.json({ data: validateAnalyticsConfig(data.value) ?? DEFAULT_ANALYTICS_CONFIG });
-  } catch {
-    return NextResponse.json({ data: DEFAULT_ANALYTICS_CONFIG });
-  }
+  const data = await getAnalyticsConfig();
+  return NextResponse.json({ data });
 }

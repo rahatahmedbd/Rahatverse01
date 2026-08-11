@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
     // Reduce bundle for large icon lib and animation libs
-    optimizePackageImports: ["lucide-react", "framer-motion", "gsap"],
+    optimizePackageImports: ["lucide-react", "framer-motion"],
   },
   images: {
     remotePatterns: [
@@ -37,8 +37,9 @@ const nextConfig: NextConfig = {
     // Allow SVG placeholders like gallery-blood.svg without breaking
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // Phase 8: longer cache for optimized images
-    minimumCacheTTL: 60,
+    // Phase 8: longer cache for optimized images — 24h keeps repeat visits
+    // instant instead of re-optimizing every minute.
+    minimumCacheTTL: 86400,
   },
 };
 

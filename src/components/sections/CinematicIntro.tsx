@@ -1,29 +1,57 @@
 "use client";
 
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 import { useLocale } from "next-intl";
 import { useMotionPreference } from "@/components/animations/motion-preferences";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
 import type { HeroConfig } from "@/types/hero";
 
-function shouldPlayIntro(): boolean {
-  if (typeof window === "undefined") return false;
+interface CinematicIntroProps {
+  config?: HeroConfig;
+}
+
+// ── Intro-played flag (hydration-safe) ─────────────────
+// Reading localStorage inside a useState initializer caused an SSR/hydration
+// mismatch on every first visit, forcing React to discard hydration and
+// re-render the whole page. useSyncExternalStore is the canonical fix: the
+// server snapshot is "already played" (intro hidden in SSR markup) and the
+// client snapshot reads localStorage post-hydration without any mismatch.
+
+const INTRO_PLAYED_KEY = "rahatverse-intro-played";
+
+function subscribeNoop() {
+  return () => {};
+}
+
+function getIntroPlayedSnapshot(): boolean {
   try {
-    return localStorage.getItem("rahatverse-intro-played") === null;
+    return localStorage.getItem(INTRO_PLAYED_KEY) !== null;
   } catch {
-    return false;
+    return true;
   }
 }
 
-interface CinematicIntroProps {
-  config?: HeroConfig;
+function getIntroPlayedServerSnapshot(): boolean {
+  return true;
+}
+
+function markIntroPlayed() {
+  try {
+    localStorage.setItem(INTRO_PLAYED_KEY, "true");
+  } catch {}
 }
 
 export function CinematicIntro({ config }: CinematicIntroProps = {}) {
   const locale = useLocale();
   const isBn = locale === "bn";
-  const [isPlaying, setIsPlaying] = useState(shouldPlayIntro);
+  const introAlreadyPlayed = useSyncExternalStore(
+    subscribeNoop,
+    getIntroPlayedSnapshot,
+    getIntroPlayedServerSnapshot
+  );
+  const [dismissed, setDismissed] = useState(false);
+  const isPlaying = !introAlreadyPlayed && !dismissed;
   const prefersReducedMotion = useMotionPreference();
   const reducedMotionFramer = Boolean(useReducedMotion());
   const initialGreeting = config ? config.intro.greetingBn : DEFAULT_HERO_CONFIG.intro.greetingBn;
@@ -56,10 +84,8 @@ export function CinematicIntro({ config }: CinematicIntroProps = {}) {
     if (!isPlaying) return;
     const maxDuration = Math.min(durationMs + 2500, 7000);
     timeoutRef.current = window.setTimeout(() => {
-      setIsPlaying(false);
-      try {
-        localStorage.setItem("rahatverse-intro-played", "true");
-      } catch {}
+      setDismissed(true);
+      markIntroPlayed();
     }, maxDuration);
     return () => {
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
@@ -68,10 +94,8 @@ export function CinematicIntro({ config }: CinematicIntroProps = {}) {
 
   const handleComplete = useCallback(() => {
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    setIsPlaying(false);
-    try {
-      localStorage.setItem("rahatverse-intro-played", "true");
-    } catch {}
+    setDismissed(true);
+    markIntroPlayed();
   }, []);
 
   // Keyboard: Escape skips

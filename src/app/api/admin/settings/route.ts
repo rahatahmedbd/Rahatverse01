@@ -1,6 +1,8 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { getCurrentUserContext } from "@/lib/supabase/guards";
 import { logAudit } from "@/lib/admin/audit";
+import { SITE_SETTINGS_TAG, siteSettingTag } from "@/lib/site-settings";
 import { requiredText } from "@/lib/api/validation";
 
 export const dynamic = "force-dynamic";
@@ -74,6 +76,11 @@ export async function PATCH(request: Request) {
       ip: getClientIpSafe(request),
     });
 
+    // Bust the cached public config read so visitors see the change on the
+    // next navigation instead of waiting for the 60s TTL.
+    revalidateTag(SITE_SETTINGS_TAG, "max");
+    revalidateTag(siteSettingTag(key), "max");
+
     return NextResponse.json({ success: true, data });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -93,6 +100,8 @@ export async function DELETE(request: Request) {
 
   const { error } = await supabase.from("site_settings").delete().eq("id", id);
   if (error) return NextResponse.json({ error: "Failed to delete setting" }, { status: 500 });
+
+  revalidateTag(SITE_SETTINGS_TAG, "max");
 
   await logAudit({
     action: "settings.delete",

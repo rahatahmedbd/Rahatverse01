@@ -305,8 +305,7 @@ html[lang="bn"] .heading-kicker,
   border-radius: 999px;
   background-image: var(--gradient-primary);
   background-size: 300% 100%;
-  background-position: 0% 50%;
-  animation: gradient-flow 9s ease-in-out infinite;
+  background-position: 50% 50%;
 }
 
 /* ── Scrollbar ────────────────────────────────────────── */
@@ -362,8 +361,7 @@ html[lang="bn"] .heading-kicker,
   .gradient-badge,
   .gradient-cta,
   .gradient-border::before,
-  .aurora-divider,
-  .aurora-divider::before {
+  .aurora-divider {
     animation: none !important;
     background-position: 50% 50%;
   }
@@ -482,7 +480,6 @@ html[lang="bn"] .heading-kicker,
 /* ── Phase E — Motion & micro-interaction primitives ─── */
 .page-transition {
   min-height: 1px;
-  will-change: opacity, transform;
 }
 
 /* Click ripples use a pseudo-element so Button can safely render as a link
@@ -564,11 +561,11 @@ html[lang="bn"] .heading-kicker,
   color: var(--primary);
   background-image: var(--gradient-primary);
   background-size: 300% 100%;
-  background-position: 0% 50%;
+  /* Static midpoint of the sweep: same palette, zero per-frame text repaints. */
+  background-position: 50% 50%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradient-flow 9s ease-in-out infinite;
 }
 
 /* Two-color hero name gradient (amber accent + deep teal) — keeps Bengali
@@ -584,14 +581,13 @@ html[lang="bn"] .heading-kicker,
 .bg-brand-gradient {
   background-image: var(--gradient-primary);
   background-size: 300% 100%;
-  background-position: 0% 50%;
-  animation: gradient-flow 9s ease-in-out infinite;
+  background-position: 50% 50%;
 }
 
 .bg-brand-gradient-soft {
   background-image: var(--gradient-primary-soft);
   background-size: 220% 220%;
-  animation: gradient-flow 12s ease-in-out infinite;
+  background-position: 50% 50%;
 }
 
 /* Animated border that does not alter a component's own surface. */
@@ -610,7 +606,8 @@ html[lang="bn"] .heading-kicker,
   pointer-events: none;
   background-image: var(--gradient-border);
   background-size: 300% 300%;
-  animation: gradient-border-flow 8s linear infinite;
+  /* Flows only while visible — AnimationGovernor toggles .anim-active. */
+  animation: gradient-border-flow 8s linear infinite paused;
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -621,8 +618,8 @@ html[lang="bn"] .heading-kicker,
 .gradient-badge {
   background-image: var(--gradient-primary-soft);
   background-size: 220% 220%;
+  background-position: 50% 50%;
   color: var(--gradient-start);
-  animation: gradient-flow 10s ease-in-out infinite;
 }
 
 .light .gradient-badge {
@@ -636,8 +633,7 @@ html[lang="bn"] .heading-kicker,
   overflow: hidden;
   background-image: var(--gradient-primary);
   background-size: 300% 100%;
-  background-position: 0% 50%;
-  animation: gradient-flow 7s ease-in-out infinite;
+  background-position: 50% 50%;
 }
 
 .gradient-cta::after {
@@ -667,8 +663,10 @@ html[lang="bn"] .heading-kicker,
   margin-inline: auto;
   background-image: var(--gradient-divider);
   background-size: 240% 100%;
+  background-position: 50% 50%;
   opacity: 0.75;
-  animation: divider-flow 10s ease-in-out infinite;
+  /* Flows only while visible — AnimationGovernor toggles .anim-active. */
+  animation: divider-flow 10s ease-in-out infinite paused;
 }
 
 .aurora-divider::before {
@@ -678,10 +676,9 @@ html[lang="bn"] .heading-kicker,
   pointer-events: none;
   background-image: var(--gradient-divider);
   background-size: 240% 100%;
+  background-position: 50% 50%;
   filter: blur(18px);
   opacity: 0.38;
-  transform: scaleX(0.92);
-  animation: divider-aurora 10s ease-in-out infinite;
 }
 
 .aurora-divider::after {
@@ -829,18 +826,7 @@ html[lang="bn"] .heading-kicker,
   50% { background-position: 100% 50%; opacity: 0.88; }
 }
 
-@keyframes divider-aurora {
-  0%, 100% {
-    background-position: 0% 50%;
-    opacity: 0.26;
-    transform: scaleX(0.9);
-  }
-  50% {
-    background-position: 100% 50%;
-    opacity: 0.48;
-    transform: scaleX(1.04);
-  }
-}
+
 
 @keyframes cta-shine {
   0%, 28% { transform: translate3d(-220%, 0, 0) rotate(12deg); }
@@ -1002,6 +988,16 @@ html[lang="bn"] .heading-kicker,
 }
 .animate-spin-slow { animation: spin-slow 8s linear infinite; }
 .animate-spin-reverse { animation: spin-reverse 12s linear infinite; }
+
+/* ── Animation visibility governor ──────────────────────
+   Expensive decorative keyframes (aurora divider flow, gradient-border flow)
+   render paused and are resumed by AnimationGovernor's IntersectionObserver
+   only while the element is near the viewport. Keeps off-screen paint work
+   at zero without any per-component JavaScript. */
+.anim-active::before,
+.anim-active {
+  animation-play-state: running;
+}
 
 /* ── Stagger delays ───────────────────────────────────── */
 .stagger-1 { animation-delay: 0.1s; }

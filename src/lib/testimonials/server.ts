@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+import { unstable_cache } from "next/cache";
+import { createPublicClient } from "@/lib/supabase/server";
 
 export interface TestimonialItem {
   id: string;
@@ -26,26 +27,35 @@ function isPlaceholderTestimonial(row: {
   return false;
 }
 
+export const TESTIMONIALS_TAG = "testimonials";
+
 /**
  * Server helper to fetch approved, non-placeholder testimonials directly from
  * Supabase during SSR/build without client-side API waterfall requests.
+ * Cached for 60s and tagged so admin moderation invalidates it instantly.
  */
 export async function getApprovedTestimonialsServer(limit = 12): Promise<TestimonialItem[]> {
-  try {
-    const supabase = await createClient();
-    if (!supabase) return [];
+  return unstable_cache(
+    async () => {
+      try {
+        const supabase = createPublicClient();
+        if (!supabase) return [];
 
-    const { data, error } = await supabase
-      .from("testimonials")
-      .select("*")
-      .eq("is_approved", true)
-      .order("created_at", { ascending: false })
-      .limit(limit * 2);
+        const { data, error } = await supabase
+          .from("testimonials")
+          .select("*")
+          .eq("is_approved", true)
+          .order("created_at", { ascending: false })
+          .limit(limit * 2);
 
-    if (error || !data) return [];
-    const filtered = (data as TestimonialItem[]).filter((row) => !isPlaceholderTestimonial(row));
-    return filtered.slice(0, limit);
-  } catch {
-    return [];
-  }
+        if (error || !data) return [];
+        const filtered = (data as TestimonialItem[]).filter((row) => !isPlaceholderTestimonial(row));
+        return filtered.slice(0, limit);
+      } catch {
+        return [];
+      }
+    },
+    ["approved-testimonials", String(limit)],
+    { revalidate: 60, tags: [TESTIMONIALS_TAG] }
+  )();
 }

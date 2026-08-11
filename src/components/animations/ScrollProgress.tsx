@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useMotionPreference } from "./motion-preferences";
 
@@ -20,12 +20,9 @@ export function ScrollProgress({
   height = 3,
   color = "bg-primary",
 }: ScrollProgressProps) {
+  // Direct 1:1 binding — no spring physics loop running per scroll frame.
+  // scaleX is transform-based, so the bar stays compositor-cheap.
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
 
   return (
     <motion.div
@@ -36,7 +33,7 @@ export function ScrollProgress({
         className
       )}
       style={{
-        scaleX,
+        scaleX: scrollYProgress,
         height: `${height}px`,
       }}
     />
@@ -87,12 +84,21 @@ export function ScrollIndicator({ className }: { className?: string }) {
 export function ScrollToTop({ className }: { className?: string }) {
   const [isVisible, setIsVisible] = useState(false);
   const prefersReducedMotion = useMotionPreference();
+  const tickingRef = useRef(false);
 
   useEffect(() => {
+    // rAF-throttled: at most one state check per frame, and setState with an
+    // unchanged boolean is a no-op bail-out in React.
     const handleScroll = () => {
-      setIsVisible(window.scrollY > 300);
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+      requestAnimationFrame(() => {
+        setIsVisible(window.scrollY > 300);
+        tickingRef.current = false;
+      });
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);

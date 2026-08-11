@@ -1,7 +1,6 @@
 import { LinkHubSection } from "@/components/sections/LinkHubSection";
 import { JsonLd, getCollectionPageSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
-import { createClient } from "@/lib/supabase/server";
-import { DEFAULT_LINKS_CONFIG, validateLinksConfig } from "@/lib/links/config";
+import { getLinksConfig } from "@/lib/links/server";
 import type { Metadata } from "next";
 import { absoluteUrl, localeAlternates, localePath, SITE_IMAGE, SITE_NAME } from "@/lib/seo";
 
@@ -50,25 +49,9 @@ export async function generateMetadata({ params }: LinksPageProps): Promise<Meta
   };
 }
 
-async function getLinksConfigServer() {
-  try {
-    const supabase = await createClient();
-    if (!supabase) return DEFAULT_LINKS_CONFIG;
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "links_config")
-      .maybeSingle();
-    if (error || !data?.value) return DEFAULT_LINKS_CONFIG;
-    return validateLinksConfig(data.value) ?? DEFAULT_LINKS_CONFIG;
-  } catch {
-    return DEFAULT_LINKS_CONFIG;
-  }
-}
-
 export default async function LinksPage({ params }: LinksPageProps) {
   const { locale } = await params;
-  const config = await getLinksConfigServer();
+  const config = await getLinksConfig();
 
   const collectionSchema = getCollectionPageSchema({
     locale,

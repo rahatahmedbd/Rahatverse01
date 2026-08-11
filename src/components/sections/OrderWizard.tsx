@@ -95,6 +95,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const wizardRef = useRef<HTMLDivElement>(null);
   const orderStartFiredRef = useRef(false);
   const orderCompleteFiredRef = useRef(false);
+  const submitLockRef = useRef(false);
 
   const [data, setData] = useState<OrderData>({
     packageType: initialPackage,
@@ -378,6 +379,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   };
 
   const handleSubmit = async () => {
+    if (submitLockRef.current) return; // Phase 8: prevent duplicate submissions
     // validate all required steps together
     const allErrs: Partial<Record<keyof OrderData, string>> = {
       ...validateStep(0),
@@ -393,6 +395,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       return;
     }
 
+    submitLockRef.current = true;
     setSubmitError("");
     setIsSubmitting(true);
 
@@ -443,11 +446,12 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     } catch {
       setSubmitError(
         isBn
-          ? "নেটওয়ার্ক সমস্যার কারণে অর্ডার জমা দেওয়া যায়নি।"
-          : "Your order could not be submitted because of a network problem."
+          ? "নেটওয়ার্ক সমস্যার কারণে অর্ডার জমা দেওয়া যায়নি। ইন্টারনেট চেক করে আবার চেষ্টা করুন।"
+          : "Your order could not be submitted because of a network problem. Please check your connection and try again."
       );
     } finally {
       setIsSubmitting(false);
+      submitLockRef.current = false;
     }
   };
 
@@ -1140,20 +1144,20 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             </p>
           )}
 
-          {/* Navigation Buttons — fixed validation + auto scroll */}
+          {/* Navigation Buttons — Phase 8: a11y, 44px tap, busy state */}
           <div className="mt-8 flex items-center justify-between gap-3">
-            <Button variant="ghost" onClick={handleBack} disabled={step === 0}>
-              <ArrowLeft className="h-4 w-4" />
+            <Button variant="ghost" onClick={handleBack} disabled={step === 0} className="min-h-[44px]">
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               {isBn ? config.cta.backBn : config.cta.backEn}
             </Button>
 
             {step < steps.length - 1 ? (
-              <Button variant="default" onClick={handleNext} className="min-w-32">
+              <Button variant="default" onClick={handleNext} className="min-w-32 min-h-[44px]">
                 {isBn ? config.cta.nextBn : config.cta.nextEn}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Button>
             ) : (
-              <Button variant="gradient" onClick={handleSubmit} disabled={isSubmitting} className="min-w-32">
+              <Button variant="gradient" onClick={handleSubmit} busy={isSubmitting} className="min-w-32 min-h-[46px]">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />

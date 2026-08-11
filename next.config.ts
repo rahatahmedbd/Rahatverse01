@@ -4,6 +4,14 @@ import type { NextConfig } from "next";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Phase 8: performance hardening
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  experimental: {
+    // Reduce bundle for large icon lib and animation libs
+    optimizePackageImports: ["lucide-react", "framer-motion", "gsap"],
+  },
   images: {
     remotePatterns: [
       {
@@ -29,6 +37,8 @@ const nextConfig: NextConfig = {
     // Allow SVG placeholders like gallery-blood.svg without breaking
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Phase 8: longer cache for optimized images
+    minimumCacheTTL: 60,
   },
 };
 

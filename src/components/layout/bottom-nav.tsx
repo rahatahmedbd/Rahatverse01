@@ -34,7 +34,7 @@ function NuvaCenterButton({
   showTooltip: boolean;
   onDismissTooltip: () => void;
 }) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = Boolean(useReducedMotion());
 
   return (
     <div className="relative flex flex-col items-center">
@@ -42,36 +42,37 @@ function NuvaCenterButton({
       <AnimatePresence>
         {showTooltip && (
           <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.92 }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.9 }}
+            animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.92 }}
             transition={{ type: "spring", stiffness: 420, damping: 30 }}
             className="pointer-events-auto absolute bottom-[calc(100%+18px)] left-1/2 z-20 -translate-x-1/2"
             role="status"
             aria-live="polite"
+            aria-label={isBn ? "Nuva AI সহকারী পরিচিতি" : "Nuva AI introduction"}
           >
             <div className="relative flex items-center gap-2 whitespace-nowrap rounded-full border border-white/12 bg-[rgba(10,22,40,0.92)] px-3.5 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.42),0_0_0_1px_rgba(255,255,255,0.06)_inset,0_0_20px_rgba(16,185,129,0.18)] backdrop-blur-[18px]">
               {/* Glow behind tooltip */}
-              <div className="pointer-events-none absolute -inset-3 -z-10 rounded-full bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-violet-500/10 blur-[12px]" />
+              <div className="pointer-events-none absolute -inset-3 -z-10 rounded-full bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-violet-500/10 blur-[12px]" aria-hidden="true" />
               <span className="text-[12px] font-medium leading-none text-white">
                 {isBn ? (
                   <span className="bn">✨ আমাকে জিজ্ঞেস করুন</span>
                 ) : (
                   <span className="inline-flex items-center gap-1">
-                    Meet Nuva <span className="text-amber-300">✨</span>
+                    Meet Nuva <span className="text-amber-300" aria-hidden="true">✨</span>
                   </span>
                 )}
               </span>
               <button
                 type="button"
-                aria-label={isBn ? "বন্ধ করুন" : "Dismiss"}
+                aria-label={isBn ? "টুলটিপ বন্ধ করুন" : "Dismiss tooltip"}
                 onClick={onDismissTooltip}
-                className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/8 text-white/50 transition-colors hover:bg-white/15 hover:text-white"
+                className="ml-1 flex h-7 w-7 min-h-[28px] min-w-[28px] items-center justify-center rounded-full bg-white/8 text-white/50 transition-colors hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
               >
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3" aria-hidden="true" />
               </button>
               {/* Arrow pointing to Nuva button */}
-              <span className="absolute -bottom-[5px] left-1/2 h-2.5 w-2.5 -translate-x-1/2 rotate-45 border-b border-r border-white/12 bg-[rgba(10,22,40,0.92)]" />
+              <span className="absolute -bottom-[5px] left-1/2 h-2.5 w-2.5 -translate-x-1/2 rotate-45 border-b border-r border-white/12 bg-[rgba(10,22,40,0.92)]" aria-hidden="true" />
             </div>
           </motion.div>
         )}
@@ -162,6 +163,7 @@ function NuvaCenterButton({
 }
 
 // ── Regular Nav Item Rendering ─────────────────────────
+// Phase 8: improved a11y, 44px targets, reduced-motion safe, visible focus
 function NavItem({
   item,
   href,
@@ -174,46 +176,51 @@ function NavItem({
   label: string;
 }) {
   const Icon = item.icon;
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <Link
       href={href}
       aria-current={isActive ? "page" : undefined}
-      aria-label={label}
+      aria-label={isActive ? `${label} (current page)` : label}
       className={cn(
-        "group relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 rounded-full px-1.5 py-2 text-center",
-        "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+        "group relative flex min-h-[44px] min-w-[44px] flex-1 flex-col items-center justify-center gap-1 rounded-full px-1.5 py-2 text-center",
+        "transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgba(10,22,40,0.9)]",
         "active:scale-[0.96]",
+        "touch-manipulation",
         isActive ? "text-emerald-400" : "text-white/55 hover:text-white/85"
       )}
     >
-      {isActive && (
+      {isActive && !shouldReduceMotion ? (
         <motion.span
           layoutId="bottom-nav-active-pill"
           className="absolute inset-0 rounded-full border border-emerald-400/20 bg-gradient-to-br from-emerald-500/12 via-cyan-500/10 to-teal-500/10 shadow-[0_2px_16px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[6px]"
           transition={{ type: "spring", stiffness: 420, damping: 34 }}
           aria-hidden="true"
         />
-      )}
+      ) : isActive ? (
+        <span
+          className="absolute inset-0 rounded-full border border-emerald-400/20 bg-gradient-to-br from-emerald-500/12 via-cyan-500/10 to-teal-500/10"
+          aria-hidden="true"
+        />
+      ) : null}
 
       <span
         className={cn(
-          "relative flex h-7 w-9 items-center justify-center rounded-full transition-colors duration-300",
+          "relative flex h-7 w-9 items-center justify-center rounded-full transition-colors duration-200",
           isActive ? "text-emerald-400" : "text-white/60 group-hover:text-white/90"
         )}
       >
         {isActive && (
-          <motion.span
-            layoutId="bottom-nav-active-dot"
+          <span
             className="absolute -top-1 h-1 w-1 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.7)]"
-            transition={{ type: "spring", stiffness: 420, damping: 34 }}
             aria-hidden="true"
           />
         )}
         <Icon
           className={cn(
-            "h-[22px] w-[22px] shrink-0 stroke-[1.85] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "h-[22px] w-[22px] shrink-0 stroke-[1.85] transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
             isActive && "-translate-y-px scale-110",
             "group-hover:scale-105"
           )}
@@ -223,7 +230,7 @@ function NavItem({
 
       <span
         className={cn(
-          "relative line-clamp-1 max-w-full text-[10px] font-medium leading-none tracking-[-0.01em] transition-colors duration-300",
+          "relative line-clamp-1 max-w-full text-[10px] font-medium leading-none tracking-[-0.01em] transition-colors duration-200",
           isActive ? "font-semibold text-emerald-300" : "font-medium text-white/55 group-hover:text-white/80"
         )}
       >

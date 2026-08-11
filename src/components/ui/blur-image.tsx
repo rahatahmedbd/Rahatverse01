@@ -4,6 +4,7 @@ import * as React from "react";
 import Image, { ImageProps as NextImageProps } from "next/image";
 import { cn } from "@/lib/utils";
 import { Camera } from "lucide-react";
+import { useMotionPreference } from "@/components/animations/motion-preferences";
 
 export interface BlurImageProps extends Omit<NextImageProps, "onLoad" | "onError"> {
   fallbackText?: string;
@@ -18,11 +19,13 @@ export function ImageSkeleton({ className }: { className?: string }) {
     <div
       data-testid="image-skeleton"
       className={cn(
-        "absolute inset-0 z-0 overflow-hidden rounded-inherit bg-muted/60",
+        "absolute inset-0 z-0 overflow-hidden rounded-[inherit] bg-muted/60",
+        "motion-reduce:animate-none",
         className
       )}
+      aria-hidden="true"
     >
-      <div className="animate-shimmer absolute inset-0 h-full w-full" />
+      <div className="animate-shimmer absolute inset-0 h-full w-full motion-reduce:hidden" />
     </div>
   );
 }
@@ -41,35 +44,18 @@ export function BlurImage({
 }: BlurImageProps) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    }
-    return false;
-  });
+  const prefersReducedMotion = useMotionPreference();
 
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-      const handleChange = (event: MediaQueryListEvent) => {
-        setPrefersReducedMotion(event.matches);
-      };
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
-    }
-  }, []);
-
-  const handleLoad = () => {
+  const handleLoad = React.useCallback(() => {
     setIsLoading(false);
     onLoad?.();
-  };
+  }, [onLoad]);
 
-  const handleError = () => {
+  const handleError = React.useCallback(() => {
     setIsLoading(false);
     setHasError(true);
     onError?.();
-  };
+  }, [onError]);
 
   const isSrcEmpty = !src || src === "";
 
@@ -84,48 +70,50 @@ export function BlurImage({
           wrapperClassName,
           className
         )}
+        style={{ contain: "layout" }}
       >
-        <Camera className="mb-2 h-8 w-8 text-primary/40" />
-        {fallbackText ? (
-          <span className="text-xs font-medium text-muted-foreground">
-            {fallbackText}
-          </span>
-        ) : (
-          <span className="text-xs font-medium text-muted-foreground">
-            {alt || "Image preview"}
-          </span>
-        )}
+        <Camera className="mb-2 h-8 w-8 text-primary/40" aria-hidden="true" />
+        <span className="text-xs font-medium text-muted-foreground line-clamp-2">
+          {fallbackText || alt || "Image preview"}
+        </span>
       </div>
     );
   }
+
+  // Determine if fill or fixed size; preserve aspect for CLS
+  const hasFixedSize = typeof props.width === "number" && typeof props.height === "number";
 
   return (
     <div
       className={cn(
         "relative overflow-hidden",
-        props.fill ? "h-full w-full" : "inline-block",
+        props.fill ? "h-full w-full" : hasFixedSize ? "inline-block" : "relative w-full",
         wrapperClassName
       )}
       data-testid="blur-image-container"
+      style={{ contain: hasFixedSize ? "layout" : undefined }}
     >
       {isLoading && showSkeleton && <ImageSkeleton />}
       <Image
         src={src}
         alt={alt}
         priority={priority}
+        decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
+        sizes={props.sizes || (priority ? "100vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw")}
         className={cn(
-          "object-cover transition-all duration-700 ease-out",
+          "object-cover transition-all duration-500 ease-out",
           isLoading
             ? prefersReducedMotion
               ? "opacity-0"
-              : "scale-105 blur-md opacity-0"
+              : "scale-[1.02] blur-[6px] opacity-0"
             : prefersReducedMotion
               ? "opacity-100"
               : "scale-100 blur-0 opacity-100",
           className
         )}
-        onLoad={handleLoad}
-        onError={handleError}
+        onLoad={handleLoad as unknown as () => void}
+        onError={handleError as unknown as () => void}
         {...props}
       />
     </div>

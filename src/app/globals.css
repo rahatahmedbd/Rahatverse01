@@ -1275,3 +1275,273 @@ img, svg, video, canvas {
   animation: science-glide-right 56s ease-in-out infinite;
   will-change: transform;
 }
+
+/* ════════════════════════════════════════════════════════
+   Phase 8 — UX, Accessibility & Performance Polish
+   FASTER • SMOOTHER • MORE ACCESSIBLE • MORE STABLE
+   Preserve visual identity, conversion, SEO
+   ════════════════════════════════════════════════════════ */
+
+/* ── 1. Skip link for keyboard users ─────────────────── */
+.skip-link {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 0 0.75rem 0;
+  background: var(--background);
+  color: var(--foreground);
+  border: 2px solid var(--ring);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  left: 0;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ── 2. Prevent iOS auto-zoom: inputs >=16px on mobile ── */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="search"],
+  input[type="url"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* ── 3. Enhanced visible focus (WCAG 2.4.7) ─────────── */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ring) 22%, transparent);
+}
+
+/* Navbar links focus */
+nav a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Bottom nav focus */
+nav[aria-label="Mobile navigation"] a:focus-visible {
+  outline: 2px solid rgba(16,185,129,0.6);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(16,185,129,0.18);
+  border-radius: 999px;
+}
+
+/* ── 4. Tap targets: ensure 44px minimum on mobile UX critical areas ── */
+@media (max-width: 1024px) {
+  /* Bottom nav already handles its own sizing, but enforce */
+  nav[aria-label="Mobile navigation"] a,
+  nav[aria-label="Mobile navigation"] button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* Utility: any button in hero/order band should be touch friendly */
+  .hero-cta-group a,
+  .hero-cta-group button,
+  [data-testid="hero-cta"] a,
+  [data-testid="hero-cta"] button {
+    min-height: 44px;
+  }
+}
+
+/* ── 5. Prevent horizontal overflow edge cases (320px) ─ */
+html, body {
+  overflow-x: clip;
+  max-width: 100vw;
+  scrollbar-gutter: stable;
+}
+main, section, header, footer, nav, div {
+  min-width: 0;
+}
+img, svg, video, canvas, picture {
+  max-width: 100%;
+  height: auto;
+}
+img[style*="width"], img[style*="height"] {
+  max-width: 100%;
+}
+
+/* ── 6. Scroll stability / CLS guards ───────────────── */
+.hero-profile-container,
+.profile-image-wrapper,
+[class*="cloudinary-image-container"] {
+  contain: layout style;
+}
+/* Reserve space for images that load async: */
+.aspect-preserve {
+  aspect-ratio: var(--aspect-ratio, 16/9);
+  background: color-mix(in srgb, var(--card) 80%, var(--border) 20%);
+}
+
+/* ── 7. Reduced motion — Phase 8 thorough coverage ─── */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  .site-gradient-canvas::before,
+  .site-gradient-canvas::after {
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+  .science-backdrop,
+  .science-animate-spin,
+  .science-animate-drift,
+  .science-animate-float,
+  .science-animate-glide-left,
+  .science-animate-glide-right,
+  .animate-float,
+  .animate-pulse-glow,
+  .animate-shimmer,
+  .animate-spin-slow,
+  .animate-spin-reverse,
+  .aurora-divider,
+  .particle-canvas {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+  /* Disable particle canvas rendering via opacity */
+  canvas[aria-hidden="true"].particle-canvas {
+    display: none !important;
+  }
+  /* Disable backdrop entirely for reduced motion if requested */
+  .science-backdrop {
+    display: none !important;
+  }
+}
+
+/* ── 8. Loading / skeleton stability ────────────────── */
+.skeleton-stable {
+  min-height: 1lh;
+  contain: layout;
+}
+[data-testid="loading-spinner"],
+[data-testid="section-loader"] {
+  contain: layout style;
+}
+
+/* ── 9. Form UX polish ──────────────────────────────── */
+.form-error-summary {
+  border: 1px solid color-mix(in srgb, var(--destructive) 55%, transparent);
+  background: color-mix(in srgb, var(--destructive) 8%, var(--card));
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+/* Ensure error announcements are visible to screen readers */
+[role="alert"] {
+  animation: fadeIn 0.28s ease-out;
+}
+
+/* ── 10. Interaction feedback — pressed / loading ──── */
+button:active:not(:disabled),
+[role="button"]:active:not([aria-disabled="true"]) {
+  transform: scale(0.98);
+}
+button[aria-busy="true"] {
+  cursor: wait;
+  pointer-events: none;
+  opacity: 0.85;
+}
+button:disabled,
+button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ── 11. Safe area insets — robust iPhone support ─── */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  header.fixed {
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+  }
+}
+
+/* ── 12. Content-visibility — extended to large sections (Phase 8) ── */
+@media (min-width: 1024px) {
+  .page-transition > section:nth-child(n+4),
+  .page-transition > div > section:nth-child(n+4) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 700px;
+  }
+}
+
+/* ── 13. Focus trap & modal improvements ───────────── */
+[role="dialog"] {
+  overscroll-behavior: contain;
+}
+[role="dialog"]:focus {
+  outline: none;
+}
+
+/* ── 14. Link contrast & underline improvement ─────── */
+a:not(.button-ripple):not([class*="rounded"]):hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ── 15. Bottom nav overlap guard — form fields ─────── */
+@media (max-width: 1024px) {
+  form, [data-form] {
+    scroll-padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── 16. High contrast mode support ────────────────── */
+@media (forced-colors: active) {
+  .glass,
+  .glass-interactive,
+  .gradient-cta,
+  .gradient-border {
+    border: 1px solid CanvasText !important;
+    background: Canvas !important;
+  }
+  button, a {
+    border: 1px solid transparent;
+  }
+  :focus-visible {
+    outline: 2px solid CanvasText !important;
+  }
+}
+
+/* ── 17. Print styles — keep SEO happy, hide decorative ─ */
+@media print {
+  .site-gradient-canvas::before,
+  .site-gradient-canvas::after,
+  .science-backdrop,
+  canvas,
+  nav[aria-label="Mobile navigation"],
+  .nuva-glass,
+  [data-pwa-prompt] {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

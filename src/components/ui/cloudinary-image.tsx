@@ -1,4 +1,4 @@
-// ── Cloudinary Image Component ─────────────────────────
+// ── Cloudinary Image Component — Phase 8 Performance & A11y ─
 "use client";
 
 import * as React from "react";
@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Camera } from "lucide-react";
 import { ImageSkeleton } from "@/components/ui/blur-image";
 import { PUBLIC_ID_TO_GITHUB_URL_MAP } from "@/lib/cloudinary/utils";
+import { useMotionPreference } from "@/components/animations/motion-preferences";
 
 export interface CloudinaryImageProps {
   publicId: string;
@@ -23,10 +24,6 @@ export interface CloudinaryImageProps {
   onError?: () => void;
 }
 
-/**
- * Cloudinary Image Component
- * Optimized image component using Cloudinary with Blur-up and Skeleton shimmer
- */
 export function CloudinaryImage({
   publicId,
   alt,
@@ -43,40 +40,26 @@ export function CloudinaryImage({
 }: CloudinaryImageProps) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    }
-    return false;
-  });
+  const prefersReducedMotion = useMotionPreference();
 
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "kbc3dfnj";
 
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-      const handleChange = (event: MediaQueryListEvent) => {
-        setPrefersReducedMotion(event.matches);
-      };
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
-    }
-  }, []);
-
-  const handleLoad = () => {
+  const handleLoad = React.useCallback(() => {
     setIsLoading(false);
     onLoad?.();
-  };
+  }, [onLoad]);
 
-  const handleError = () => {
+  const handleError = React.useCallback(() => {
     setIsLoading(false);
     setHasError(true);
     onError?.();
-  };
+  }, [onError]);
 
-  // Local previews and deployments without media credentials must remain
-  // renderable. The real Cloudinary image is used whenever it is configured.
+  // Compute aspect ratio for CLS stability
+  const w = width || 800;
+  const h = height || 600;
+  const aspectRatio = `${w} / ${h}`;
+
   if (!cloudName || hasError) {
     const githubFallbackUrl = PUBLIC_ID_TO_GITHUB_URL_MAP[publicId];
     if (githubFallbackUrl) {
@@ -86,12 +69,17 @@ export function CloudinaryImage({
           aria-label={alt}
           data-testid="cloudinary-image-github-fallback"
           className={cn("relative inline-block overflow-hidden", wrapperClassName, className)}
+          style={{ aspectRatio }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={githubFallbackUrl}
             alt={alt}
+            width={w}
+            height={h}
             className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
           />
         </div>
       );
@@ -114,12 +102,17 @@ export function CloudinaryImage({
             wrapperClassName,
             className
           )}
+          style={{ aspectRatio }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/rahat-avatar.svg"
             alt={alt || "Rahat Ahmed"}
+            width={w}
+            height={h}
             className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
           />
         </div>
       );
@@ -135,14 +128,13 @@ export function CloudinaryImage({
           wrapperClassName,
           className
         )}
+        style={{ aspectRatio }}
       >
         <div className="flex flex-col items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Camera className="h-5 w-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary" aria-hidden="true">
+            <Camera className="h-5 w-5" aria-hidden="true" />
           </div>
-          <span className="text-xs font-medium text-muted-foreground line-clamp-2">
-            {alt}
-          </span>
+          <span className="text-xs font-medium text-muted-foreground line-clamp-2">{alt}</span>
         </div>
       </div>
     );
@@ -150,28 +142,23 @@ export function CloudinaryImage({
 
   return (
     <div
-      className={cn(
-        "relative overflow-hidden inline-block",
-        wrapperClassName
-      )}
+      className={cn("relative overflow-hidden inline-block", wrapperClassName)}
       data-testid="cloudinary-image-container"
+      style={{ aspectRatio, contain: "layout" }}
     >
       {isLoading && showSkeleton && <ImageSkeleton />}
       <CldImage
         src={publicId}
         alt={alt}
-        width={width || 800}
-        height={height || 600}
-        // Always pass a cloud name so CldImage never throws when
-        // NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is missing locally; the real
-        // cloud is used whenever the env var is configured.
+        width={w}
+        height={h}
         config={{ cloud: { cloudName } }}
         className={cn(
-          "object-cover transition-all duration-700 ease-out",
+          "object-cover transition-all duration-500 ease-out",
           isLoading
             ? prefersReducedMotion
               ? "opacity-0"
-              : "scale-105 blur-md opacity-0"
+              : "scale-[1.02] blur-[6px] opacity-0"
             : prefersReducedMotion
               ? "opacity-100"
               : "scale-100 blur-0 opacity-100",
@@ -180,6 +167,8 @@ export function CloudinaryImage({
         priority={priority}
         sizes={sizes || (priority ? "100vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw")}
         loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
+        decoding="async"
         onLoad={handleLoad}
         onError={handleError}
       />

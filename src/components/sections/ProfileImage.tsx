@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { CloudinaryImage } from "@/components/ui/cloudinary-image";
@@ -10,6 +10,7 @@ import { IMAGE_IDS } from "@/lib/cloudinary/utils";
 import type { AboutFrameStyle } from "@/types/about";
 
 // ── Profile Image with configurable glowing frame ───────
+// Phase 8: reduced-motion safe, CLS stable container, graceful loading
 interface ProfileImageProps {
   src?: string;
   publicId?: string;
@@ -18,16 +19,11 @@ interface ProfileImageProps {
   frame?: AboutFrameStyle;
   showStatus?: boolean;
   statusLabel?: string;
-  /** Optional animated typing line rendered below the square image. */
   animatedCaption?: string[];
   className?: string;
 }
 
-// Per-frame premium styling: soft rim, gradient ring, shadow & ambient glow
-const frameStyles: Record<
-  AboutFrameStyle,
-  { rim: string; gradient: string; shadow: string; glow: string }
-> = {
+const frameStyles: Record<AboutFrameStyle, { rim: string; gradient: string; shadow: string; glow: string }> = {
   amber: {
     rim: "border-amber-400/30",
     gradient: "from-amber-300/90 via-amber-500/70 to-purple-500/80",
@@ -80,11 +76,11 @@ export function ProfileImage({
   className,
 }: ProfileImageProps) {
   const [imgError, setImgError] = React.useState(false);
+  const prefersReducedMotion = Boolean(useReducedMotion());
   const isLg = size === "lg";
   const sizeMap = {
     sm: "h-24 w-24",
     md: "h-36 w-36",
-    // Responsive: smaller on 320px to avoid overflow, scales up gracefully
     lg: "h-40 w-40 xs:h-44 xs:w-44 sm:h-52 sm:w-52 lg:h-56 lg:w-56 xl:h-60 xl:w-60",
   };
 
@@ -106,34 +102,36 @@ export function ProfileImage({
   const radius = radiusMap[size];
 
   return (
-    <div className={cn("relative inline-flex flex-col items-center justify-center pb-3", className)}>
+    <div
+      className={cn("relative inline-flex flex-col items-center justify-center pb-3", className)}
+      style={{ contain: "layout style" }}
+    >
       <motion.div
         className="relative inline-flex items-center justify-center"
-        whileHover={{ scale: 1.03 }}
+        whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+        transition={{ type: "spring", stiffness: 320, damping: 28 }}
       >
-        {/* Ambient Halo — gently breathes via opacity only (no scale/position
-            motion, so the page never looks like it is shaking) */}
+        {/* Ambient Halo — breathes via opacity only */}
         <motion.div
           className={cn("absolute rounded-3xl blur-2xl", ringSizeMap[size], styles.glow)}
-          animate={{ opacity: [0.28, 0.5, 0.28] }}
+          animate={prefersReducedMotion ? undefined : { opacity: [0.28, 0.5, 0.28] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden="true"
         />
 
-        {/* Rotating Conic Rim Light */}
+        {/* Rotating Conic Rim Light — disabled when reduced motion */}
         <motion.div
           className={cn("absolute rounded-3xl", ringSizeMap[size])}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
+          animate={prefersReducedMotion ? undefined : { rotate: 360 }}
+          transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
           aria-hidden="true"
         >
           <div
-            className={cn("h-full w-full rounded-3xl")}
+            className="h-full w-full rounded-3xl"
             style={{
               background: `conic-gradient(from 0deg, transparent 0deg, ${conicColors[frame]} 60deg, transparent 140deg, ${conicColors[frame]} 230deg, transparent 300deg, ${conicColors[frame]} 355deg, transparent 360deg)`,
               padding: 4,
-              WebkitMask:
-                "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+              WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
               WebkitMaskComposite: "xor",
               mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
               maskComposite: "exclude",
@@ -143,16 +141,11 @@ export function ProfileImage({
 
         {/* Soft Static Ring */}
         <div
-          className={cn(
-            "absolute rounded-3xl border",
-            ringSizeMap[size],
-            styles.rim,
-            "opacity-40"
-          )}
+          className={cn("absolute rounded-3xl border", ringSizeMap[size], styles.rim, "opacity-40")}
           aria-hidden="true"
         />
 
-        {/* Gradient Rim + Square Image */}
+        {/* Gradient Rim + Square Image — CLS stable */}
         <div
           className={cn(
             "relative rounded-3xl bg-gradient-to-br p-[3px]",
@@ -161,6 +154,7 @@ export function ProfileImage({
             "shadow-2xl",
             styles.shadow
           )}
+          style={{ aspectRatio: "1 / 1" }}
         >
           <div className={cn("relative h-full w-full overflow-hidden bg-card", radius)}>
             {useCloudinary ? (
@@ -175,7 +169,6 @@ export function ProfileImage({
               />
             ) : (
               <>
-                {/* Direct URL with graceful fallback — prevents giant blank */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
@@ -183,10 +176,10 @@ export function ProfileImage({
                   className="h-full w-full object-cover"
                   loading="eager"
                   decoding="async"
+                  width={isLg ? 240 : 144}
+                  height={isLg ? 240 : 144}
                   onError={() => setImgError(true)}
                 />
-                {/* If error, overlay fallback handled by useCloudinary switch on next render.
-                    Ensure broken image doesn't create blank: also show avatar icon beneath. */}
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 hidden items-center justify-center bg-gradient-to-br from-amber-500/10 via-card to-purple-500/10"
@@ -199,17 +192,21 @@ export function ProfileImage({
           </div>
         </div>
 
-        {/* Premium Status Pill — compact on mobile */}
+        {/* Premium Status Pill */}
         {showStatus && (
           <motion.div
             className="absolute -bottom-1 z-20 flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-card/95 px-3 py-1 text-[11px] font-medium text-emerald-400 shadow-xl backdrop-blur-md"
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
             title={statusLabel}
+            role="status"
+            aria-live="polite"
           >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative flex h-2 w-2" aria-hidden="true">
+              {!prefersReducedMotion && (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              )}
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
             <span className="bn truncate max-w-[10rem]">{statusLabel}</span>
@@ -228,12 +225,7 @@ export function ProfileImage({
           <span className="glass inline-flex max-w-[18rem] items-center gap-2 rounded-full border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary shadow-md shadow-primary/10 sm:max-w-none sm:px-4 sm:text-sm">
             <Sparkles className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
             <span className="truncate">
-              <TypingAnimation
-                texts={animatedCaption}
-                className="bn"
-                typingSpeed={70}
-                deletingSpeed={30}
-              />
+              <TypingAnimation texts={animatedCaption} className="bn" typingSpeed={70} deletingSpeed={30} />
             </span>
           </span>
         </motion.div>

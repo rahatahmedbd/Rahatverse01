@@ -1,7 +1,5 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
-import dynamic from "next/dynamic";
-import { Inter, Hind_Siliguri, JetBrains_Mono } from "next/font/google";
 import { Navbar } from "@/components/layout/navbar";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { EnhancedFooter } from "@/components/layout/enhanced-footer";
@@ -156,8 +154,13 @@ export default async function LocaleLayout({
               {/* Glass Navigation Bar */}
               <Navbar />
 
-              {/* Main Content — extra bottom padding ensures floating nav never covers last section */}
-              <main className="relative flex-1 pt-24 pb-28 lg:pb-8">
+              {/* Main Content — id for skip link, extra bottom padding ensures floating nav never covers last section */}
+              <main
+                id="main-content"
+                tabIndex={-1}
+                className="relative flex-1 pt-24 pb-28 lg:pb-8 focus:outline-none"
+                aria-label={locale === "bn" ? "মূল বিষয়বস্তু" : "Main content"}
+              >
                 <PageTransition>{children}</PageTransition>
               </main>
 

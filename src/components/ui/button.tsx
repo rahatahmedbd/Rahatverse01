@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 // ── Button Design System — Premium Mobile Polish ────────
 // Phase Mobile Polish: consistent radius/height/typography,
 // subtle glass + neon for secondaries, gradient + glow for primary.
+// Phase 8: improved focus, 44px tap targets on mobile for lg/xl, busy state, reduced-motion safe ripple
 
 const buttonVariants = cva(
-  "group button-ripple magnetic-target inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-[14px] font-semibold tracking-[-0.01em] leading-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 cursor-pointer select-none touch-manipulation active:scale-[0.98]",
+  "group button-ripple magnetic-target inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-[14px] font-semibold tracking-[-0.01em] leading-none transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-60 cursor-pointer select-none touch-manipulation active:scale-[0.98] data-[rippling=true]:ring-2 data-[rippling=true]:ring-white/20",
   {
     variants: {
       variant: {
@@ -35,13 +36,13 @@ const buttonVariants = cva(
           "glass border border-cyan-400/20 bg-white/[0.04] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_4px_20px_rgba(0,0,0,0.18)] hover:border-cyan-400/35 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_8px_28px_rgba(6,182,212,0.14)] hover:bg-white/[0.06] active:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_4px_16px_rgba(0,0,0,0.16)]",
       },
       size: {
-        default: "h-10 px-5 py-2 text-[14px]",
-        sm: "h-9 px-4 py-2 text-[13px] rounded-xl",
-        lg: "h-[46px] px-7 py-2 text-[15px] rounded-xl",
-        xl: "h-[52px] px-8 py-2 text-[16px] rounded-xl",
-        icon: "h-10 w-10 rounded-xl",
-        "icon-sm": "h-8 w-8 rounded-lg",
-        "icon-lg": "h-12 w-12 rounded-xl",
+        default: "h-10 px-5 py-2 text-[14px] min-h-[44px] sm:min-h-0 sm:h-10",
+        sm: "h-9 px-4 py-2 text-[13px] rounded-xl min-h-[36px]",
+        lg: "h-[46px] min-h-[46px] px-7 py-2 text-[15px] rounded-xl",
+        xl: "h-[52px] min-h-[52px] px-8 py-2 text-[16px] rounded-xl",
+        icon: "h-10 w-10 rounded-xl min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:h-10 sm:w-10",
+        "icon-sm": "h-8 w-8 rounded-lg min-h-[32px] min-w-[32px]",
+        "icon-lg": "h-12 w-12 rounded-xl min-h-[48px] min-w-[48px]",
       },
     },
     defaultVariants: {
@@ -58,6 +59,8 @@ export interface ButtonProps
   asChild?: boolean;
   /** Enables the shared pointer magnet. It safely falls back to a normal button on touch/reduced-motion devices. */
   magnetic?: boolean;
+  /** When true, button shows busy state and prevents pointer events */
+  busy?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -70,6 +73,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       magnetic = true,
       onPointerDown,
       disabled,
+      busy = false,
       ...props
     },
     ref
@@ -79,7 +83,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
       onPointerDown?.(event);
 
-      if (event.defaultPrevented || disabled) return;
+      if (event.defaultPrevented || disabled || busy) return;
+      // Respect reduced motion: skip ripple
+      if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
       const target = event.currentTarget;
       const bounds = target.getBoundingClientRect();
@@ -96,9 +102,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        data-magnetic={magnetic && !disabled ? "true" : undefined}
+        data-magnetic={magnetic && !disabled && !busy ? "true" : undefined}
         onPointerDown={handlePointerDown}
-        disabled={disabled}
+        disabled={disabled || busy}
+        aria-disabled={disabled || busy ? "true" : undefined}
+        aria-busy={busy ? "true" : undefined}
         {...props}
       />
     );

@@ -23,6 +23,7 @@ function fieldTone(invalid?: boolean | string) {
 }
 
 // ── Field wrapper (label + control + hint/error/success) ──
+// Phase 8: aria-describedby linking, error announcements, required semantics
 export interface FormFieldProps {
   id: string;
   label?: string;
@@ -44,28 +45,51 @@ export function FormField({
   className,
   children,
 }: FormFieldProps) {
+  const describedById = error ? `${id}-error` : hint ? `${id}-hint` : success ? `${id}-success` : undefined;
+
+  // Clone child to inject a11y attributes if it's a single element
+  const enhancedChildren = React.Children.map(children, (child) => {
+    if (!React.isValidElement(child)) return child;
+    const childProps = child.props as Record<string, unknown>;
+    // Preserve existing aria-describedby, merge with ours
+    const existingDescribedBy = childProps["aria-describedby"] as string | undefined;
+    const mergedDescribedBy = [existingDescribedBy, describedById].filter(Boolean).join(" ") || undefined;
+    return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
+      id: (childProps.id as string) || id,
+      "aria-describedby": mergedDescribedBy,
+      "aria-invalid": error ? "true" : undefined,
+      "aria-required": required ? "true" : undefined,
+    });
+  });
+
   return (
-    <div className={cn("space-y-1.5", className)}>
+    <div className={cn("space-y-1.5", className)} data-field={id}>
       {label && (
         <Label htmlFor={id} className="text-sm font-medium">
           {label}
-          {required && <span className="ml-0.5 text-destructive">*</span>}
+          {required && (
+            <span className="ml-0.5 text-destructive" aria-hidden="true">
+              *
+            </span>
+          )}
+          {required && <span className="sr-only"> (required)</span>}
         </Label>
       )}
-      {children}
+      {enhancedChildren}
       {error ? (
         <p
           id={`${id}-error`}
           role="alert"
+          aria-live="polite"
           className="flex items-center gap-1.5 text-xs font-medium text-destructive"
         >
-          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-          {error}
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span>{error}</span>
         </p>
       ) : success ? (
-        <p className="flex items-center gap-1.5 text-xs font-medium text-green-500">
-          <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-          {success}
+        <p id={`${id}-success`} className="flex items-center gap-1.5 text-xs font-medium text-green-500" role="status">
+          <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span>{success}</span>
         </p>
       ) : hint ? (
         <p id={`${id}-hint`} className="text-xs text-muted-foreground">
@@ -183,6 +207,7 @@ export function ChipGroup({
     <div
       role={multi ? "group" : "radiogroup"}
       aria-invalid={invalid ? "true" : undefined}
+      aria-label={multi ? "Multiple choice selection" : "Single choice selection"}
       className={cn(
         "grid gap-2",
         columns === 1 && "grid-cols-1",
@@ -200,12 +225,12 @@ export function ChipGroup({
             type="button"
             role={multi ? "checkbox" : "radio"}
             aria-checked={isSelected}
+            aria-label={option.label}
             onClick={() => onChange(option.value)}
             className={cn(
               "rounded-lg border-2 px-3 py-2.5 text-center text-xs font-medium transition-all duration-200 " +
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 " +
-                "focus-visible:ring-offset-background " +
-                "active:scale-[0.98]",
+                "focus-visible:ring-offset-background active:scale-[0.98] touch-manipulation min-h-[44px]",
               isSelected
                 ? "border-primary bg-primary/10 text-primary shadow-sm shadow-primary/10"
                 : "border-border bg-transparent text-foreground/80 hover:border-primary/40 hover:bg-primary/5"

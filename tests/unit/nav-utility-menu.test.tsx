@@ -1,8 +1,9 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NavUtilityMenu } from "@/components/layout/nav-utility-menu";
 import { useAppStore } from "@/store";
 import { useAiChatStore } from "@/components/ai/ai-chat-store";
+import { isSoundEnabled, setSoundEnabled } from "@/lib/audio/ui-sounds";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/bn/about",
@@ -36,6 +37,7 @@ describe("Nav utility menu — command center", () => {
   beforeEach(() => {
     useAppStore.setState({ accent: "emerald" });
     useAiChatStore.setState({ isOpen: false });
+    setSoundEnabled(false);
     vi.clearAllMocks();
   });
 
@@ -82,7 +84,7 @@ describe("Nav utility menu — command center", () => {
     );
   });
 
-  it("opens the Nuva assistant and closes the panel", () => {
+  it("opens the Nuva assistant and closes the panel", async () => {
     const panel = openPanel();
 
     fireEvent.click(
@@ -92,7 +94,7 @@ describe("Nav utility menu — command center", () => {
     );
 
     expect(useAiChatStore.getState().isOpen).toBe(true);
-    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole("menu")).not.toBeInTheDocument());
   });
 
   it("switches the accent colour from the inline swatches", () => {
@@ -121,7 +123,7 @@ describe("Nav utility menu — command center", () => {
     expect(await screen.findByText("Copied!")).toBeInTheDocument();
   });
 
-  it("scrolls back to top and closes the panel", () => {
+  it("scrolls back to top and closes the panel", async () => {
     const scrollTo = vi.fn();
     Object.defineProperty(window, "scrollTo", { configurable: true, value: scrollTo });
 
@@ -129,17 +131,17 @@ describe("Nav utility menu — command center", () => {
     fireEvent.click(within(panel).getByRole("menuitem", { name: "Back to top" }));
 
     expect(scrollTo).toHaveBeenCalled();
-    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole("menu")).not.toBeInTheDocument());
   });
 
-  it("closes on Escape and restores focus to the trigger", () => {
+  it("closes on Escape and restores focus to the trigger", async () => {
     render(<NavUtilityMenu locale="en" />);
     const trigger = screen.getByTestId("nav-utility-trigger");
     fireEvent.click(trigger);
 
     fireEvent.keyDown(document, { key: "Escape" });
 
-    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole("menu")).not.toBeInTheDocument());
     expect(document.activeElement).toBe(trigger);
   });
 
@@ -157,5 +159,48 @@ describe("Nav utility menu — command center", () => {
 
     expect(screen.getByText("কুইক মেনু")).toBeInTheDocument();
     expect(screen.getByText("লিংক কপি")).toBeInTheDocument();
+  });
+
+  it("exposes a sound toggle that is off by default and persists the opt-in", () => {
+    const panel = openPanel();
+    const soundToggle = within(panel).getByTestId("nav-sound-toggle");
+
+    expect(soundToggle).toHaveAttribute("aria-checked", "false");
+    expect(soundToggle).toHaveAttribute("aria-label", "Turn sound on");
+
+    fireEvent.click(soundToggle);
+
+    expect(isSoundEnabled()).toBe(true);
+    expect(soundToggle).toHaveAttribute("aria-checked", "true");
+    expect(soundToggle).toHaveAttribute("aria-label", "Turn sound off");
+    expect(localStorage.getItem("rahatverse_sound_enabled")).toBe("1");
+
+    fireEvent.click(soundToggle);
+    expect(isSoundEnabled()).toBe(false);
+  });
+
+  it("never plays audio before the visitor opts in", () => {
+    const createOscillator = vi.fn();
+    Object.defineProperty(window, "AudioContext", {
+      configurable: true,
+      writable: true,
+      value: class {
+        state = "running";
+        currentTime = 0;
+        destination = {};
+        resume = vi.fn();
+        createGain = () => ({
+          gain: { value: 1, setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+          connect: vi.fn(),
+          disconnect: vi.fn(),
+        });
+        createOscillator = createOscillator;
+      },
+    });
+
+    const panel = openPanel();
+    fireEvent.click(within(panel).getByRole("menuitem", { name: "Back to top" }));
+
+    expect(createOscillator).not.toHaveBeenCalled();
   });
 });

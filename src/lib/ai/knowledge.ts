@@ -1,8 +1,8 @@
 // ── Nuva — AI Knowledge Base ──────────────────────────
 // Single source of truth about the site for the AI assistant.
 // Used in two ways:
-//   1. As the system prompt context for the real LLM providers (Grok AI
-//      on Vercel, then Groq) — see /api/chat and /lib/ai/server.ts.
+//   1. As the verified system-prompt context for the server-side Groq call —
+//      see /api/chat and /lib/ai/server.ts.
 //   2. As a built-in keyword-matched FAQ so the assistant still answers
 //      common questions instantly and for free when no provider is set.
 //
@@ -774,4 +774,37 @@ export function answerFromKnowledgeBase(
       { ...AI_LINKS.whatsapp },
     ],
   };
+}
+
+// Safe action vocabulary. The model never supplies hrefs; application code maps these IDs.
+export const NUVA_ACTIONS = {
+  VIEW_PORTFOLIO: AI_LINKS.portfolio,
+  VIEW_SERVICES: AI_LINKS.services,
+  START_ORDER: AI_LINKS.order,
+  CONTACT: AI_LINKS.contact,
+  WHATSAPP: AI_LINKS.whatsapp,
+  VIEW_ABOUT: AI_LINKS.about,
+  VIEW_EXPERIENCE: AI_LINKS.experience,
+  VIEW_ACHIEVEMENTS: AI_LINKS.achievements,
+  VIEW_BLOG: AI_LINKS.blog,
+  VIEW_GALLERY: AI_LINKS.gallery,
+  VIEW_LINKS: AI_LINKS.links,
+} as const;
+
+export type NuvaActionId = keyof typeof NUVA_ACTIONS;
+
+/** Deterministic, safe CTA selection based on a visitor's public intent. */
+export function actionsForMessage(message: string): NuvaActionId[] {
+  const text = message.toLowerCase();
+  const has = (...terms: string[]) => terms.some((term) => text.includes(term));
+  if (has("api key", "system prompt", "hidden instruction", "environment variable", "private database", "admin")) return [];
+  if (has("portfolio", "project", "work", "প্রজেক্ট", "পোর্টফোলিও", "কাজ")) return ["VIEW_PORTFOLIO"];
+  if (has("order", "website", "package", "price", "pricing", "service", "প্যাকেজ", "অর্ডার", "ওয়েবসাইট", "ওয়েবসাইট", "সেবা", "দাম")) return ["VIEW_SERVICES", "START_ORDER"];
+  if (has("whatsapp", "contact", "email", "phone", "যোগাযোগ", "হোয়াটসঅ্যাপ")) return ["CONTACT", "WHATSAPP"];
+  if (has("blood", "donation", "social", "education", "experience", "রক্ত", "শিক্ষা", "অভিজ্ঞতা")) return ["VIEW_EXPERIENCE"];
+  if (has("achievement", "award", "অর্জন")) return ["VIEW_ACHIEVEMENTS"];
+  if (has("blog", "article", "ব্লগ")) return ["VIEW_BLOG"];
+  if (has("gallery", "গ্যালারি")) return ["VIEW_GALLERY"];
+  if (has("about", "who are you", "rahat", "সম্পর্কে", "তুমি কে", "রাহাত")) return ["VIEW_ABOUT"];
+  return ["VIEW_SERVICES", "VIEW_PORTFOLIO"];
 }

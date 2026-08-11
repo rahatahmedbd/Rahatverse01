@@ -22,10 +22,22 @@ interface SearchResult {
 
 interface SearchDialogProps {
   locale?: string;
+  /** Controlled open state. When provided, the parent owns open/close. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function SearchDialog({ locale = "bn" }: SearchDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function SearchDialog({ locale = "bn", open, onOpenChange }: SearchDialogProps) {
+  const isControlled = open !== undefined;
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const isOpen = isControlled ? open : uncontrolledOpen;
+  const setIsOpen = useCallback(
+    (next: boolean) => {
+      if (!isControlled) setUncontrolledOpen(next);
+      onOpenChange?.(next);
+    },
+    [isControlled, onOpenChange]
+  );
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -59,8 +71,12 @@ export function SearchDialog({ locale = "bn" }: SearchDialogProps) {
   }, [query, performSearch]);
 
   useEffect(() => {
+    // When the dialog is controlled by a parent (e.g. the nav command menu),
+    // that parent owns the ⌘K shortcut so the two do not fight each other.
+    if (isControlled) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setIsOpen(true);
       }
@@ -71,7 +87,7 @@ export function SearchDialog({ locale = "bn" }: SearchDialogProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [isControlled, setIsOpen]);
 
   const handleResultClick = () => {
     setIsOpen(false);
@@ -82,14 +98,16 @@ export function SearchDialog({ locale = "bn" }: SearchDialogProps) {
   return (
     <>
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+        aria-label={isBn ? "সাইটে খুঁজুন" : "Search the site"}
+        className="flex min-h-[40px] items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <Search className="h-4 w-4" />
-        <span className="hidden sm:inline">
+        <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <span className={isBn ? "bn" : undefined}>
           {isBn ? "খুঁজুন..." : "Search..."}
         </span>
-        <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+        <kbd className="ml-auto hidden h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:inline-flex">
           <span className="text-xs">⌘</span>K
         </kbd>
       </button>

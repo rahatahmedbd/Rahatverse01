@@ -1048,6 +1048,45 @@ html[lang="bn"] .heading-kicker,
   to { transform: rotate(360deg); }
 }
 
+/* 3. Aurora button — a rotating conic-gradient ring around a dark core,
+   for signature links (e.g. the homepage "Learn more about Rahat" CTA).
+   The ring is transform-only rotation → compositor-cheap; it renders paused
+   and AnimationGovernor resumes it while visible ([data-fx] on the root). */
+.btn-aurora {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 999px;
+  padding: 1.5px;
+}
+
+.btn-aurora::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -120%;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg,
+    #fbbf24,
+    #f97316,
+    #ef4444,
+    #8b5cf6,
+    #3b82f6,
+    #14b8a6,
+    #fbbf24
+  );
+  animation: fx-rotate 6s linear infinite paused;
+}
+
+/* Solid core over the spinning ring — leaves a 1.5px animated border. */
+.btn-aurora-core {
+  position: relative;
+  z-index: 1;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+}
+
 /* ── Stagger delays ───────────────────────────────────── */
 .stagger-1 { animation-delay: 0.1s; }
 .stagger-2 { animation-delay: 0.2s; }
@@ -1464,7 +1503,8 @@ img[style*="width"], img[style*="height"] {
   .aurora-divider,
   .particle-canvas,
   .hero-name-shine,
-  .cta-halo {
+  .cta-halo,
+  .btn-aurora::before {
     animation: none !important;
     transition: none !important;
     transform: none !important;

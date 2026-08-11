@@ -67,31 +67,36 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
         </div>
 
         {/* Entity-strong internal link — homepage preview → canonical About page.
-            Highlighted as a pill CTA: icon chip + amber glow on hover. */}
+            Signature "aurora button": a slowly spinning rainbow ring, gradient
+            label, and a hover shine sweep. The ring renders paused and the
+            AnimationGovernor resumes it only while visible; reduced-motion
+            users get a calm static rainbow ring. */}
         <FadeInUp delay={0.15}>
           <div className="mt-8 text-center sm:mt-10">
             <Link
               href={`/${locale}/about`}
-              className="group relative inline-flex min-h-[48px] items-center gap-2.5 rounded-full border border-primary/25 bg-card/40 px-6 py-2.5 text-sm font-semibold text-foreground shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-card/60 hover:shadow-[0_10px_30px_rgba(245,158,11,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              data-fx
+              className="btn-aurora group inline-flex transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(245,158,11,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              {/* Soft static amber glow revealed on hover (compositor-only opacity) */}
-              <span
-                className="pointer-events-none absolute -inset-3 -z-10 rounded-full bg-amber-500/10 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"
-                aria-hidden="true"
-              />
-              <span
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary transition-transform duration-300 group-hover:scale-110"
-                aria-hidden="true"
-              >
-                <UserRound className="h-3.5 w-3.5" />
+              <span className="btn-aurora-core inline-flex min-h-[50px] items-center gap-2.5 overflow-hidden px-7 py-3 text-sm font-semibold sm:text-[15px]">
+                {/* Shine sweep across the pill on hover (transform-only) */}
+                <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-full" aria-hidden="true">
+                  <span className="absolute inset-y-0 -left-1/2 w-1/2 -translate-x-full -skew-x-12 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[280%]" />
+                </span>
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"
+                  aria-hidden="true"
+                >
+                  <UserRound className="h-4 w-4" />
+                </span>
+                <span className="bn text-gradient">
+                  {isBn ? "রাহাত আহমেদ সম্পর্কে আরও জানুন" : "Learn more about Rahat Ahmed"}
+                </span>
+                <ArrowRight
+                  className="h-4 w-4 shrink-0 text-primary transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
               </span>
-              <span className="bn">
-                {isBn ? "রাহাত আহমেদ সম্পর্কে আরও জানুন" : "Learn more about Rahat Ahmed"}
-              </span>
-              <ArrowRight
-                className="h-4 w-4 shrink-0 text-primary transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
-                aria-hidden="true"
-              />
             </Link>
           </div>
         </FadeInUp>

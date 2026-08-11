@@ -2,6 +2,7 @@ import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";
 import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
+import { FadeInUp } from "@/components/animations/FadeIn";
 import { ABOUT_ICON_MAP } from "@/lib/about/icons";
 import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";
 import type { AboutConfig } from "@/types/about";
@@ -65,16 +66,35 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
           </GlassCard>
         </div>
 
-        {/* Entity-strong internal link — homepage preview → canonical About page */}
-        <div className="mt-6 text-center">
-          <Link
-            href={`/${locale}/about`}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-          >
-            {isBn ? "রাহাত আহমেদ সম্পর্কে আরও জানুন" : "Learn more about Rahat Ahmed"}
-            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-          </Link>
-        </div>
+        {/* Entity-strong internal link — homepage preview → canonical About page.
+            Highlighted as a pill CTA: icon chip + amber glow on hover. */}
+        <FadeInUp delay={0.15}>
+          <div className="mt-8 text-center sm:mt-10">
+            <Link
+              href={`/${locale}/about`}
+              className="group relative inline-flex min-h-[48px] items-center gap-2.5 rounded-full border border-primary/25 bg-card/40 px-6 py-2.5 text-sm font-semibold text-foreground shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-card/60 hover:shadow-[0_10px_30px_rgba(245,158,11,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {/* Soft static amber glow revealed on hover (compositor-only opacity) */}
+              <span
+                className="pointer-events-none absolute -inset-3 -z-10 rounded-full bg-amber-500/10 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"
+                aria-hidden="true"
+              />
+              <span
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary transition-transform duration-300 group-hover:scale-110"
+                aria-hidden="true"
+              >
+                <UserRound className="h-3.5 w-3.5" />
+              </span>
+              <span className="bn">
+                {isBn ? "রাহাত আহমেদ সম্পর্কে আরও জানুন" : "Learn more about Rahat Ahmed"}
+              </span>
+              <ArrowRight
+                className="h-4 w-4 shrink-0 text-primary transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+                aria-hidden="true"
+              />
+            </Link>
+          </div>
+        </FadeInUp>
       </div>
     </section>
   );

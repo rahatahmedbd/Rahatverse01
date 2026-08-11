@@ -132,7 +132,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
             <FadeInUp delay={prefersReducedMotion ? 0 : 0.5}>
               <h1 className="bn text-display-xl font-bold tracking-[-0.02em]">
-                <span className="text-gradient-name">{isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}</span>
+                <span className="text-gradient-name hero-name-shine" data-fx>{isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}</span>
               </h1>
               <p className="mt-1 text-[15px] font-medium tracking-[-0.01em] text-muted-foreground sm:text-lg lg:text-xl">
                 {isBn ? "Rahat Ahmed" : "রাহাত আহমেদ"}
@@ -168,10 +168,10 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
                     const href = primaryCta.href.startsWith("/") ? `/${locale}${primaryCta.href}` : primaryCta.href;
                     return (
                       <div className="relative w-full sm:w-auto">
-                        <div
-                          className="pointer-events-none absolute inset-x-3 -bottom-3 h-10 rounded-full bg-gradient-to-r from-amber-500/14 via-orange-500/10 to-violet-500/10 blur-2xl sm:inset-x-6"
-                          aria-hidden="true"
-                        />
+                        {/* Rotating aurora halo — AnimationGovernor pauses it off-screen */}
+                        {!prefersReducedMotion && (
+                          <span className="cta-halo pointer-events-none" data-fx aria-hidden="true" />
+                        )}
                         <Button
                           variant="gradient"
                           size="lg"

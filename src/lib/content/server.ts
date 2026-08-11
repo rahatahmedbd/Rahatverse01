@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getCachedSiteSetting } from "@/lib/site-settings";
 import { DEFAULT_CONTENT_CONFIG, validateContentConfig } from "@/lib/content/config";
 import type { ContentConfig, LegalPage } from "@/types/content";
 
@@ -39,15 +39,9 @@ function fillThinLegalPages(config: ContentConfig): ContentConfig {
 /** Fetches the public search/FAQ/legal config with a safe fallback. */
 export async function getContentConfig(): Promise<ContentConfig> {
   try {
-    const supabase = await createClient();
-    if (!supabase) return DEFAULT_CONTENT_CONFIG;
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "content_config")
-      .maybeSingle();
-    if (error || !data?.value) return DEFAULT_CONTENT_CONFIG;
-    const validated = validateContentConfig(data.value);
+    const value = await getCachedSiteSetting("content_config");
+    if (value == null) return DEFAULT_CONTENT_CONFIG;
+    const validated = validateContentConfig(value);
     if (!validated) return DEFAULT_CONTENT_CONFIG;
     return fillThinLegalPages(validated);
   } catch {

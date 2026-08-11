@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Heart, Mail, MapPin } from "lucide-react";
@@ -7,6 +8,7 @@ import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { LighthouseScoreBadge } from "@/components/seo/LighthouseScoreBadge";
 import { getGlobalConfig } from "@/lib/global/server";
 import { getNewsletterConfig } from "@/lib/newsletter/server";
+import { brandLogoCircleUrl } from "@/lib/brand";
 
 const socialLinks = [
   { href: "https://www.facebook.com/rahat.ahmed.948943", label: "Facebook", symbol: "f" },
@@ -59,7 +61,14 @@ export async function EnhancedFooter({ locale }: EnhancedFooterProps) {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-3 sm:space-y-4 lg:col-span-1">
-            <Link href={`/${locale}`} className="inline-block">
+            <Link href={`/${locale}`} className="inline-flex items-center gap-2.5">
+              <Image
+                src={brandLogoCircleUrl(96)}
+                alt=""
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full shadow-md shadow-primary/20"
+              />
               <h3 className="text-gradient text-xl font-bold sm:text-2xl">
                 RahatVerse
               </h3>

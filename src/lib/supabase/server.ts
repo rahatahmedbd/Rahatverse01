@@ -44,3 +44,25 @@ export function createServiceClient() {
   if (!url || !serviceRoleKey) return null;
   return createSupabaseClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
 }
+
+/**
+ * Cookie-less, stateless anon client for PUBLIC read paths (site_settings CMS).
+ *
+ * Unlike {@link createClient} it never touches `cookies()`, so it is safe to
+ * call inside `unstable_cache` and never opts a route into per-user dynamic
+ * rendering. Row-level security still applies exactly the same as the
+ * cookie-bound anon client — it only drops request-scoped auth state, which
+ * public config reads never use.
+ */
+export function createPublicClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}

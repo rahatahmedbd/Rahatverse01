@@ -11,22 +11,22 @@
   "categories": ["education", "portfolio", "social"],
   "icons": [
     {
-      "src": "/images/rahat-2d-favicon-from-profile.png",
+      "src": "https://res.cloudinary.com/kbc3dfnj/image/upload/c_pad,w_192,h_192,b_transparent,r_max,f_png,q_auto/v1786455518/file_00000000ae388207be40b5dcd3c9a81b_jygogn.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/kbc3dfnj/image/upload/c_pad,w_512,h_512,b_transparent,r_max,f_png,q_auto/v1786455518/file_00000000ae388207be40b5dcd3c9a81b_jygogn.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/icons/icon-192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-512.svg",
+      "src": "https://res.cloudinary.com/kbc3dfnj/image/upload/c_pad,w_512,h_512,b_black,r_max,f_png,q_auto/v1786455518/file_00000000ae388207be40b5dcd3c9a81b_jygogn.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [],
@@ -35,13 +35,23 @@
       "name": "অর্ডার করুন",
       "short_name": "Order",
       "url": "/bn/order",
-      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "https://res.cloudinary.com/kbc3dfnj/image/upload/c_pad,w_192,h_192,b_transparent,r_max,f_png,q_auto/v1786455518/file_00000000ae388207be40b5dcd3c9a81b_jygogn.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "যোগাযোগ",
       "short_name": "Contact",
       "url": "/bn/contact",
-      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "https://res.cloudinary.com/kbc3dfnj/image/upload/c_pad,w_192,h_192,b_transparent,r_max,f_png,q_auto/v1786455518/file_00000000ae388207be40b5dcd3c9a81b_jygogn.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

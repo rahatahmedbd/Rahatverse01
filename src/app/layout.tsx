@@ -6,6 +6,7 @@ import {
   getWebsiteSchema,
 } from "@/components/seo/JsonLd";
 import { SITE_IMAGE, SITE_URL } from "@/lib/seo";
+import { brandLogoCircleUrl, brandLogoSquareUrl } from "@/lib/brand";
 
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
@@ -72,18 +73,19 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  // One badge everywhere: the circular RahatVerse logo delivered from
+  // Cloudinary as a transparent-corner PNG (see src/lib/brand.ts).
   icons: {
     icon: [
-      { url: "/images/rahat-2d-favicon-from-profile.png", type: "image/png", sizes: "512x512" },
-      { url: "/icons/icon-192.svg", type: "image/svg+xml", sizes: "192x192" },
-      { url: "/icons/icon-512.svg", type: "image/svg+xml", sizes: "512x512" },
+      { url: brandLogoCircleUrl(512), type: "image/png", sizes: "512x512" },
+      { url: brandLogoCircleUrl(192), type: "image/png", sizes: "192x192" },
+      { url: brandLogoCircleUrl(64), type: "image/png", sizes: "64x64" },
     ],
     apple: [
-      { url: "/images/rahat-2d-favicon-from-profile.png", type: "image/png", sizes: "512x512" },
-      { url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
-      { url: "/icons/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
+      // Apple flattens transparency — serve the opaque square badge.
+      { url: brandLogoSquareUrl(180), type: "image/png", sizes: "180x180" },
     ],
-    shortcut: "/images/rahat-2d-favicon-from-profile.png",
+    shortcut: brandLogoCircleUrl(64),
   },
   verification: googleVerification ? { google: googleVerification } : undefined,
   category: "technology",

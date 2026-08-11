@@ -2,6 +2,7 @@ import { GlassCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "./SectionTitle";
 import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
+import { FadeInUp } from "@/components/animations/FadeIn";
 import { ABOUT_ICON_MAP } from "@/lib/about/icons";
 import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";
 import type { AboutConfig } from "@/types/about";
@@ -65,16 +66,40 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
           </GlassCard>
         </div>
 
-        {/* Entity-strong internal link — homepage preview → canonical About page */}
-        <div className="mt-6 text-center">
-          <Link
-            href={`/${locale}/about`}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-          >
-            {isBn ? "রাহাত আহমেদ সম্পর্কে আরও জানুন" : "Learn more about Rahat Ahmed"}
-            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-          </Link>
-        </div>
+        {/* Entity-strong internal link — homepage preview → canonical About page.
+            Signature "aurora button": a slowly spinning rainbow ring, gradient
+            label, and a hover shine sweep. The ring renders paused and the
+            AnimationGovernor resumes it only while visible; reduced-motion
+            users get a calm static rainbow ring. */}
+        <FadeInUp delay={0.15}>
+          <div className="mt-8 text-center sm:mt-10">
+            <Link
+              href={`/${locale}/about`}
+              data-fx
+              className="btn-aurora group inline-flex transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(245,158,11,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <span className="btn-aurora-core inline-flex min-h-[50px] items-center gap-2.5 overflow-hidden px-7 py-3 text-sm font-semibold sm:text-[15px]">
+                {/* Shine sweep across the pill on hover (transform-only) */}
+                <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-full" aria-hidden="true">
+                  <span className="absolute inset-y-0 -left-1/2 w-1/2 -translate-x-full -skew-x-12 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[280%]" />
+                </span>
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"
+                  aria-hidden="true"
+                >
+                  <UserRound className="h-4 w-4" />
+                </span>
+                <span className="bn text-gradient">
+                  {isBn ? "রাহাত আহমেদ সম্পর্কে আরও জানুন" : "Learn more about Rahat Ahmed"}
+                </span>
+                <ArrowRight
+                  className="h-4 w-4 shrink-0 text-primary transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
+              </span>
+            </Link>
+          </div>
+        </FadeInUp>
       </div>
     </section>
   );

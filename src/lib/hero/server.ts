@@ -1,25 +1,13 @@
-import { createClient } from "@/lib/supabase/server";
+import { getCachedSiteSetting } from "@/lib/site-settings";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
 import type { HeroConfig } from "@/types/hero";
 
+/** Fetches the public hero payload with a safe fallback for local/CI builds. */
 export async function getHeroConfig(): Promise<HeroConfig> {
   try {
-    const supabase = await createClient();
-    if (!supabase) {
-      return DEFAULT_HERO_CONFIG;
-    }
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "hero_config")
-      .maybeSingle();
-
-    if (error || !data?.value) {
-      return DEFAULT_HERO_CONFIG;
-    }
-
-    const validated = validateHeroConfig(data.value);
-    return validated ?? DEFAULT_HERO_CONFIG;
+    const value = await getCachedSiteSetting("hero_config");
+    if (value == null) return DEFAULT_HERO_CONFIG;
+    return validateHeroConfig(value) ?? DEFAULT_HERO_CONFIG;
   } catch {
     return DEFAULT_HERO_CONFIG;
   }

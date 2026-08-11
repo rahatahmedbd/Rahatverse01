@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { NAVIGATION_ITEMS } from "@/lib/constants";
+import { brandLogoCircleUrl } from "@/lib/brand";
 
 const NavUtilityMenu = dynamic(
   () => import("./nav-utility-menu").then((mod) => mod.NavUtilityMenu),
@@ -56,12 +58,14 @@ export function Navbar() {
             className="flex shrink-0 items-center gap-2 rounded-lg transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             aria-label="RahatVerse home"
           >
-            <div
-              className="bg-brand-gradient gradient-border flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold text-white shadow-md shadow-primary/20 sm:h-9 sm:w-9 sm:text-base"
-              aria-hidden="true"
-            >
-              R
-            </div>
+            <Image
+              src={brandLogoCircleUrl(96)}
+              alt=""
+              width={36}
+              height={36}
+              priority
+              className="h-8 w-8 rounded-full shadow-md shadow-primary/20 sm:h-9 sm:w-9"
+            />
             <span className="hidden text-[15px] font-bold tracking-tight sm:block sm:text-lg">
               <span className="text-gradient">Rahat</span>
               <span className="text-foreground">Verse</span>

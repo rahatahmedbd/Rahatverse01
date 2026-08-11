@@ -1,6 +1,8 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { getCurrentUserContext } from "@/lib/supabase/guards";
 import { logAudit, getClientIp } from "@/lib/admin/audit";
+import { TESTIMONIALS_TAG } from "@/lib/testimonials/server";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +68,7 @@ export async function PATCH(request: Request) {
       metadata: { fields: Object.keys(update) },
       ip: getClientIp(request),
     });
+    revalidateTag(TESTIMONIALS_TAG, "max");
     return NextResponse.json({ success: true, data });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -87,5 +90,6 @@ export async function DELETE(request: Request) {
   if (error) return NextResponse.json({ error: "Failed to delete testimonial" }, { status: 500 });
 
   await logAudit({ action: "testimonials.delete", entity: "testimonials", entityId: id, ip: getClientIp(request) });
+  revalidateTag(TESTIMONIALS_TAG, "max");
   return NextResponse.json({ success: true });
 }

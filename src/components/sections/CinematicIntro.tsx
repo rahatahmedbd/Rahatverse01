@@ -1,29 +1,59 @@
 "use client";
 
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 import { useLocale } from "next-intl";
+import Image from "next/image";
+import { brandLogoCircleUrl } from "@/lib/brand";
 import { useMotionPreference } from "@/components/animations/motion-preferences";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
 import type { HeroConfig } from "@/types/hero";
-
-function shouldPlayIntro(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return localStorage.getItem("rahatverse-intro-played") === null;
-  } catch {
-    return false;
-  }
-}
 
 interface CinematicIntroProps {
   config?: HeroConfig;
 }
 
+// ── Intro-played flag (hydration-safe) ─────────────────
+// Reading localStorage inside a useState initializer caused an SSR/hydration
+// mismatch on every first visit, forcing React to discard hydration and
+// re-render the whole page. useSyncExternalStore is the canonical fix: the
+// server snapshot is "already played" (intro hidden in SSR markup) and the
+// client snapshot reads localStorage post-hydration without any mismatch.
+
+const INTRO_PLAYED_KEY = "rahatverse-intro-played";
+
+function subscribeNoop() {
+  return () => {};
+}
+
+function getIntroPlayedSnapshot(): boolean {
+  try {
+    return localStorage.getItem(INTRO_PLAYED_KEY) !== null;
+  } catch {
+    return true;
+  }
+}
+
+function getIntroPlayedServerSnapshot(): boolean {
+  return true;
+}
+
+function markIntroPlayed() {
+  try {
+    localStorage.setItem(INTRO_PLAYED_KEY, "true");
+  } catch {}
+}
+
 export function CinematicIntro({ config }: CinematicIntroProps = {}) {
   const locale = useLocale();
   const isBn = locale === "bn";
-  const [isPlaying, setIsPlaying] = useState(shouldPlayIntro);
+  const introAlreadyPlayed = useSyncExternalStore(
+    subscribeNoop,
+    getIntroPlayedSnapshot,
+    getIntroPlayedServerSnapshot
+  );
+  const [dismissed, setDismissed] = useState(false);
+  const isPlaying = !introAlreadyPlayed && !dismissed;
   const prefersReducedMotion = useMotionPreference();
   const reducedMotionFramer = Boolean(useReducedMotion());
   const initialGreeting = config ? config.intro.greetingBn : DEFAULT_HERO_CONFIG.intro.greetingBn;
@@ -56,10 +86,8 @@ export function CinematicIntro({ config }: CinematicIntroProps = {}) {
     if (!isPlaying) return;
     const maxDuration = Math.min(durationMs + 2500, 7000);
     timeoutRef.current = window.setTimeout(() => {
-      setIsPlaying(false);
-      try {
-        localStorage.setItem("rahatverse-intro-played", "true");
-      } catch {}
+      setDismissed(true);
+      markIntroPlayed();
     }, maxDuration);
     return () => {
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
@@ -68,10 +96,8 @@ export function CinematicIntro({ config }: CinematicIntroProps = {}) {
 
   const handleComplete = useCallback(() => {
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    setIsPlaying(false);
-    try {
-      localStorage.setItem("rahatverse-intro-played", "true");
-    } catch {}
+    setDismissed(true);
+    markIntroPlayed();
   }, []);
 
   // Keyboard: Escape skips
@@ -131,12 +157,20 @@ export function CinematicIntro({ config }: CinematicIntroProps = {}) {
             />
 
             <motion.div
-              className="bg-brand-gradient gradient-border relative flex h-20 w-20 items-center justify-center rounded-2xl text-3xl font-bold text-white shadow-2xl shadow-primary/30"
+              className="relative flex h-24 w-24 items-center justify-center shadow-2xl shadow-primary/30"
               initial={{ scale: 0, rotate: -18 }}
               animate={{ scale: [0, 1.05, 1], rotate: 0 }}
               transition={{ delay: 0.35, duration: 0.7, ease: "easeOut" }}
+              style={{ borderRadius: "50%" }}
             >
-              R
+              <Image
+                src={brandLogoCircleUrl(192)}
+                alt="RahatVerse"
+                width={96}
+                height={96}
+                priority
+                className="h-24 w-24 rounded-full"
+              />
             </motion.div>
 
             <motion.div

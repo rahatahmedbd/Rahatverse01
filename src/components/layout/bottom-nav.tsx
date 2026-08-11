@@ -7,6 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAiChatStore } from "@/components/ai/ai-chat-store";
+import { useUiSound } from "@/hooks/useUiSound";
 import { Home, ShoppingCart, MessageCircle, FolderOpen, Sparkles, X } from "lucide-react";
 
 // ── Bottom Navigation Items ────────────────────────────
@@ -177,10 +178,12 @@ function NavItem({
 }) {
   const Icon = item.icon;
   const shouldReduceMotion = useReducedMotion();
+  const { tap } = useUiSound();
 
   return (
     <Link
       href={href}
+      onClick={() => tap()}
       aria-current={isActive ? "page" : undefined}
       aria-label={isActive ? `${label} (current page)` : label}
       className={cn(
@@ -248,6 +251,7 @@ export function BottomNavBar() {
   const locale = isBn ? "bn" : "en";
   const basePath = `/${locale}`;
   const openAiChat = useAiChatStore((state) => state.open);
+  const { tap } = useUiSound();
 
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -282,6 +286,7 @@ export function BottomNavBar() {
 
   const handleNuvaOpen = () => {
     handleDismissTooltip();
+    tap("success");
     openAiChat();
   };
 

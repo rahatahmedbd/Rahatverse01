@@ -33,21 +33,21 @@ interface GalleryProps {
 }
 
 function normalizeImageUrl(url?: string | null): string {
-  if (!url) return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-2025";
+  if (!url) return "/images/legacy/ssc-gpa5-2025.jpg";
   if (url.includes("rahatahmedbd.github.io/assets/images/profile.jpg")) {
-    return "https://res.cloudinary.com/kbc3dfnj/image/upload/v1786125213/rahatverse/profile/1786125213546.jpg";
+    return "/images/legacy/rahat-profile.jpg";
   }
   if (url.includes("rahatahmedbd.github.io/assets/images/logo.png")) {
     return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/shantichakra-logo";
   }
   if (url.includes("rahatahmedbd.github.io/assets/images/baba-farid-ahmed.jpg")) {
-    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/father-photo";
+    return "/images/legacy/farid-ahmed.jpg";
   }
   if (url.includes("rahatahmedbd.github.io/assets/images/ssc-gpa5-2025.jpg")) {
-    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-2025";
+    return "/images/legacy/ssc-gpa5-2025.jpg";
   }
   if (url.includes("rahatahmedbd.github.io/assets/images/ssc-songbordhona-2025.jpg")) {
-    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-songbordhona";
+    return "/images/legacy/ssc-reception-2025.jpg";
   }
   if (url.includes("rahatahmedbd.github.io/assets/images/ssc-crest-shantichakra.jpg")) {
     return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/ssc-crest-shantichakra";
@@ -59,7 +59,7 @@ function normalizeImageUrl(url?: string | null): string {
     return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/46-science-fair-2025";
   }
   if (url.includes("rahatahmedbd.github.io/assets/images/45-science-fair-2023.jpg")) {
-    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/45-science-fair-2023";
+    return "/images/legacy/science-fair-2023.jpg";
   }
   if (url.includes("rahatahmedbd.github.io/assets/images/44-science-fair-2024.jpg")) {
     return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/44-science-fair-2024";
@@ -74,7 +74,7 @@ function normalizeImageUrl(url?: string | null): string {
     return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/fs-coaching-center";
   }
   if (url.includes("rahatahmedbd.github.io/assets/images/helping-hand-org.jpg")) {
-    return "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/helping-hand-org";
+    return "/images/legacy/helping-hand.jpg";
   }
   return url;
 }

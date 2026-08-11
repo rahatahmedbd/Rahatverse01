@@ -84,7 +84,17 @@ ABOUT RAHAT AHMED:
   with GPA 5.00 (Golden A+) from Sunamganj Govt. Jubilee High School. Earlier
   primary education in Sylhet (Scholars Home) and PSC from Jibdara Govt. Primary School.
 - BNCC Army Cadet (Cadet No. 25071152), blood donor (blood group A+, 4 donations),
-  member of Shantichakra Blood Society (a voluntary blood donation organization in Sunamganj).
+  co-founder and General Secretary of Shantichakra Blood Society (a voluntary blood
+  donation organization founded in Sunamganj in 2025).
+- Private tutor since 2023 for class 7-9 students; founder of Helping Hand Organization
+  (established 2023, aid for underprivileged families, currently paused).
+- Science-fair record: 1st place at the 42nd National Science & Technology Week (2020),
+  1st in quiz / 2nd in extempore speech / 3rd in project at the 45th fair (2023), 1st place
+  at the 44th National Science Exhibition (2024), 1st in Science at the Creative Talent
+  Search (2024), and 1st in quiz / 3rd in project / 4th in olympiad at the 46th fair (2025).
+  PSC (2019) also completed with GPA 5.00.
+- Languages: Bangla and English. Interests: web development, AI, science, teaching,
+  content creation (YouTube, TikTok) and social service.
 - Founder & director of FS Coaching Center (Jibdara Bazar, Shantiganj, Sunamganj), which
   provided affordable quality tuition for underprivileged students of class 6-10 —
   currently temporarily paused.
@@ -124,7 +134,7 @@ can also message Rahat directly on WhatsApp.
 PORTFOLIO PROJECTS (see /portfolio for details):
 - RahatVerse — this very site (Next.js 16, TypeScript, Tailwind, Supabase, Cloudinary, i18n).
 - Shantichakra Blood Society — digital donor directory & emergency blood request portal.
-- EduCare — interactive tutoring & student management platform.
+- EduCare — interactive tutoring & student management platform (concept stage).
 
 BLOG: articles about education, technology and social service (categories: Science,
 Social, Education, Technology).

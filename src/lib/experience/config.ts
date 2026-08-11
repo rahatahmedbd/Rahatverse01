@@ -331,7 +331,7 @@ const DEFAULT_MEMORIAL_CONFIG: MemorialConfig = {
   epigraphBn: "ইন্না লিল্লাহি ওয়া ইন্না ইলাইহি রাজিউন",
   epigraphEn: "Indeed we belong to Allah, and indeed to Him we will return",
   imagePublicId: "rahatverse/father-photo",
-  imageUrl: "https://res.cloudinary.com/kbc3dfnj/image/upload/q_auto,f_auto/rahatverse/father-photo",
+  imageUrl: "/images/legacy/farid-ahmed.jpg",
   nameBn: "মরহুম জনাব ফরিদ আহমেদ",
   nameEn: "Late Md. Farid Ahmed",
   relationBn: "আমার শ্রদ্ধেয় পিতা",

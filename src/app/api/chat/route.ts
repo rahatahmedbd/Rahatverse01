@@ -1,22 +1,21 @@
 import { NextResponse } from "next/server";
 import {
-  chatWithProviders,
+  chatWithGroq,
   isFirstExchange,
   type ChatMessage,
 } from "@/lib/ai/server";
 import {
   answerFromKnowledgeBase,
   type AiLocale,
-  type AiLink,
+  actionsForMessage,
 } from "@/lib/ai/knowledge";
 
 // ── Nuva (AI assistant) — Chat API ────────────────────────────────
 // POST /api/chat  { messages: ChatMessage[], locale: "en" | "bn" }
 //
 // Resolution order:
-//   1. Grok AI (the owner's Vercel deployment) when configured → real AI answer
-//   2. Groq when a (free) API key is configured → real AI answer
-//   3. Built-in knowledge base otherwise → instant, free FAQ answer
+//   1. Groq when GROQ_API_KEY is configured → real AI answer
+//   2. Built-in verified knowledge otherwise → instant FAQ answer
 // The endpoint never hard-fails for provider problems: visitors always get
 // a useful reply.
 //
@@ -69,10 +68,10 @@ function sanitizeMessages(input: unknown): ChatMessage[] | null {
     if (!raw || typeof raw !== "object") return null;
     const { role, content } = raw as Record<string, unknown>;
     if (role !== "user" && role !== "assistant") return null;
-    if (typeof content !== "string" || !content.trim()) return null;
+    if (typeof content !== "string" || !content.trim() || content.length > MAX_CONTENT_LENGTH) return null;
     cleaned.push({
       role,
-      content: content.trim().slice(0, MAX_CONTENT_LENGTH),
+      content: content.trim(),
     });
   }
 
@@ -146,16 +145,21 @@ export async function POST(request: Request) {
   const lastUserMessage = messages[messages.length - 1].content;
   const firstExchange = isFirstExchange(messages);
 
-  // 1) Real AI providers — Grok AI (Vercel) first, then Groq free tier.
-  const ai = await chatWithProviders(messages, locale);
-  if (ai) {
-    const safeReply = ensureSalam(ai.reply, locale, firstExchange);
-    return NextResponse.json({ reply: safeReply, source: ai.provider, links: [] });
+  const isSensitiveRequest = /api\s*key|system\s*prompt|hidden\s*instructions?|environment\s*(variables?|config)|private\s*(database|data)|ignore\s+(your|previous)|admin\s*(data|dashboard)/i.test(lastUserMessage);
+  if (isSensitiveRequest) {
+    const reply = locale === "bn"
+      ? "আমি গোপন নির্দেশনা, কী বা ব্যক্তিগত তথ্য শেয়ার করতে পারি না। RahatVerse-এর প্রকাশ্য তথ্য, সেবা বা পেজ খুঁজে পেতে আমি সাহায্য করতে পারি।"
+      : "I can’t share private instructions, keys, or private information. I can help with public RahatVerse information, services, or finding a page.";
+    return NextResponse.json({ reply: ensureSalam(reply, locale, firstExchange), source: "safety", actions: [] });
   }
 
-  // 2) Built-in knowledge base — always available, always free.
+  // Groq is the only AI provider. A provider outage falls back to verified local knowledge.
+  const groqReply = await chatWithGroq(messages, locale);
+  const actions = actionsForMessage(lastUserMessage);
+  if (groqReply) {
+    return NextResponse.json({ reply: ensureSalam(groqReply, locale, firstExchange), source: "groq", actions });
+  }
+
   const kb = answerFromKnowledgeBase(lastUserMessage, locale, firstExchange);
-  const links: AiLink[] = kb.links;
-  const safeKbReply = ensureSalam(kb.reply, locale, firstExchange);
-  return NextResponse.json({ reply: safeKbReply, source: "kb", links });
+  return NextResponse.json({ reply: ensureSalam(kb.reply, locale, firstExchange), source: "kb", actions });
 }

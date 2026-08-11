@@ -27,12 +27,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAiChatStore } from "@/components/ai/ai-chat-store";
-import { QUICK_PROMPTS, AI_TEXTS, type AiLink } from "@/lib/ai/knowledge";
+import { QUICK_PROMPTS, AI_TEXTS, NUVA_ACTIONS, type NuvaActionId } from "@/lib/ai/knowledge";
 
 interface WidgetMessage {
   role: "user" | "assistant";
   content: string;
-  links?: AiLink[];
+  actions?: NuvaActionId[];
+  retryText?: string;
 }
 
 const UI_TEXT = {
@@ -49,6 +50,8 @@ const UI_TEXT = {
     talk: "Talk to Nuva",
     ask: "Ask Nuva",
     meet: "Meet Nuva ✨",
+    clear: "Clear conversation",
+    retry: "Retry",
   },
   bn: {
     title: "নুভা",
@@ -63,6 +66,8 @@ const UI_TEXT = {
     talk: "নুভার সাথে কথা বলুন",
     ask: "আমাকে জিজ্ঞেস করুন",
     meet: "আমাকে জিজ্ঞেস করুন ✨",
+    clear: "কথোপকথন মুছুন",
+    retry: "আবার চেষ্টা করুন",
   },
 } as const;
 
@@ -230,7 +235,8 @@ export function AIChatWidget() {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showDesktopIntro, setShowDesktopIntro] = useState(false);
-  const [origin, setOrigin] = useState("50% 100%"); // transform origin for emerge animation
+  const [origin, setOrigin] = useState("50% 100%");
+  const [lastFailedText, setLastFailedText] = useState(""); // transform origin for emerge animation
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const greetedRef = useRef(false);
@@ -325,7 +331,7 @@ export function AIChatWidget() {
             messages: history.map(({ role, content }) => ({ role, content })),
           }),
         });
-        const data: { reply?: string; links?: AiLink[]; error?: string } =
+        const data: { reply?: string; actions?: NuvaActionId[]; error?: string } =
           await response.json().catch(() => ({}));
 
         if (!response.ok || !data.reply) {
@@ -334,19 +340,36 @@ export function AIChatWidget() {
 
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: data.reply as string, links: data.links },
+          { role: "assistant", content: data.reply as string, actions: data.actions },
         ]);
       } catch {
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: t.error, links: [] },
+          { role: "assistant", content: t.error, actions: [], retryText: text },
         ]);
+        setLastFailedText(text);
+        return;
       } finally {
         setIsSending(false);
       }
     },
     [isSending, messages, locale, t.error]
   );
+
+  const clearConversation = () => {
+    setMessages([]);
+    setInput("");
+    setLastFailedText("");
+    greetedRef.current = false;
+    inputRef.current?.focus();
+  };
+
+  const retryLastMessage = () => {
+    if (lastFailedText) {
+      setMessages((prev) => prev.filter((message) => !message.retryText));
+      send(lastFailedText);
+    }
+  };
 
   const showQuickPrompts =
     !isSending && messages.length > 0 && messages.every((m) => m.role === "assistant");
@@ -459,6 +482,14 @@ export function AIChatWidget() {
                 </div>
                 <button
                   type="button"
+                  onClick={clearConversation}
+                  aria-label={t.clear}
+                  className="relative min-h-8 rounded-full px-2 text-[11px] text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/50"
+                >
+                  {t.clear}
+                </button>
+                <button
+                  type="button"
                   onClick={close}
                   aria-label={t.close}
                   className="relative flex h-8 w-8 items-center justify-center rounded-full border border-white/8 bg-white/[0.06] text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/50"
@@ -521,24 +552,29 @@ export function AIChatWidget() {
                         {message.content}
                       </div>
 
-                      {message.links && message.links.length > 0 && (
+                      {message.actions && message.actions.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                          {message.links.map((link) => (
-                            <a
-                              key={link.href + link.labelEn}
-                              href={link.external ? link.href : `${basePath}${link.href}`}
-                              {...(link.external
-                                ? { target: "_blank", rel: "noopener noreferrer" }
-                                : {})}
-                              className="inline-flex items-center gap-1 rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-1 text-[11px] font-medium text-amber-200 transition-colors hover:border-amber-300/50 hover:bg-amber-400/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-300/40"
-                            >
-                              {isBn ? link.labelBn : link.labelEn}
-                              {link.external && (
-                                <ExternalLink className="h-3 w-3" aria-hidden="true" />
-                              )}
-                            </a>
-                          ))}
+                          {message.actions.map((actionId) => {
+                            const action = NUVA_ACTIONS[actionId];
+                            const isExternal = "external" in action && action.external === true;
+                            return (
+                              <a
+                                key={actionId}
+                                href={isExternal ? action.href : `${basePath}${action.href}`}
+                                {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                                className="inline-flex items-center gap-1 rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-1 text-[11px] font-medium text-amber-200 transition-colors hover:border-amber-300/50 hover:bg-amber-400/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-300/40"
+                              >
+                                {isBn ? action.labelBn : action.labelEn}
+                                {isExternal && <ExternalLink className="h-3 w-3" aria-hidden="true" />}
+                              </a>
+                            );
+                          })}
                         </div>
+                      )}
+                      {message.retryText && (
+                        <button type="button" onClick={retryLastMessage} className="rounded-full border border-white/15 px-3 py-1 text-[11px] text-white/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-300/50">
+                          {t.retry}
+                        </button>
                       )}
                     </div>
                   </div>

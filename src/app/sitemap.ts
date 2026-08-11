@@ -1,32 +1,14 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { absoluteUrl, localePath } from "@/lib/seo";
-
-const locales = ["bn", "en"];
-const staticPages = [
-  "",
-  "/about",
-  "/achievements",
-  "/experience",
-  "/gallery",
-  "/services",
-  "/portfolio",
-  "/order",
-  "/contact",
-  "/blog",
-  "/links",
-  // Canonical legal routes only — the short duplicates (/privacy, /terms) are
-  // noindexed and intentionally excluded so they cannot compete in search.
-  "/privacy-policy",
-  "/terms-of-service",
-];
+import { PUBLIC_ROUTES, SEO_LOCALES } from "@/lib/seo-routes";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticUrls = locales.flatMap((locale) =>
-    staticPages.map((page) => ({
-      url: absoluteUrl(localePath(locale, page)),
-      changeFrequency: getChangeFrequency(page),
-      priority: getPriority(page),
+  const staticUrls = SEO_LOCALES.flatMap((locale) =>
+    PUBLIC_ROUTES.map((route) => ({
+      url: absoluteUrl(localePath(locale, route.path)),
+      changeFrequency: route.changeFrequency,
+      priority: route.priority,
     }))
   );
 
@@ -40,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .order("published_at", { ascending: false });
 
   const blogUrls = (posts || []).flatMap((post) =>
-    locales.map((locale) => ({
+    SEO_LOCALES.map((locale) => ({
       url: absoluteUrl(localePath(locale, `/blog/${post.slug}`)),
       lastModified: post.updated_at || post.published_at || undefined,
       changeFrequency: "monthly" as const,
@@ -49,18 +31,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   return [...staticUrls, ...blogUrls];
-}
-
-function getChangeFrequency(page: string): MetadataRoute.Sitemap[0]["changeFrequency"] {
-  if (page === "" || page === "/blog") return "weekly";
-  if (page === "/achievements" || page === "/gallery" || page === "/portfolio") return "monthly";
-  return "yearly";
-}
-
-function getPriority(page: string): number {
-  if (page === "") return 1;
-  if (page === "/about" || page === "/services" || page === "/order" || page === "/portfolio") return 0.9;
-  if (page === "/achievements" || page === "/experience") return 0.8;
-  if (page === "/gallery" || page === "/contact" || page === "/blog") return 0.7;
-  return 0.5;
 }

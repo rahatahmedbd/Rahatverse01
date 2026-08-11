@@ -4,6 +4,7 @@ import * as React from "react";
 import { LucideIcon, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "@/components/animations/motion-preferences";
 
 export interface EmptyStateAction {
   label: string;
@@ -31,23 +32,7 @@ export function EmptyState({
   className,
   iconClassName,
 }: EmptyStateProps) {
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    }
-    return false;
-  });
-
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-      const handleChange = (event: MediaQueryListEvent) => {
-        setPrefersReducedMotion(event.matches);
-      };
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
-    }
-  }, []);
+  const prefersReducedMotion = useMotionPreference();
 
   const sizeClasses = {
     sm: {
@@ -78,56 +63,44 @@ export function EmptyState({
   return (
     <div
       data-testid="empty-state"
+      role="status"
+      aria-live="polite"
       className={cn(
         "glass relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-card/40 text-center shadow-lg transition-all",
         currentSize.container,
         className
       )}
+      style={{ contain: "layout" }}
     >
-      {/* Subtle background radial glow */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex items-center justify-center"
-      >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div className="h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
       </div>
 
-      {/* Floating / Pulsing Icon Container */}
       <div
         className={cn(
           "relative mb-4 flex items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary shadow-inner",
           currentSize.iconWrapper,
           !prefersReducedMotion && "animate-float"
         )}
+        aria-hidden="true"
       >
-        <Icon className={cn(currentSize.icon, iconClassName)} />
+        <Icon className={cn(currentSize.icon, iconClassName)} aria-hidden="true" />
       </div>
 
-      {/* Title & Description */}
       <div className="relative z-10 max-w-md">
-        <h3 className={cn("text-foreground bn", currentSize.title)}>
-          {title}
-        </h3>
+        <h3 className={cn("text-foreground bn", currentSize.title)}>{title}</h3>
         {description && (
-          <div
-            className={cn(
-              "text-muted-foreground bn leading-relaxed",
-              currentSize.description
-            )}
-          >
-            {description}
-          </div>
+          <div className={cn("text-muted-foreground bn leading-relaxed", currentSize.description)}>{description}</div>
         )}
       </div>
 
-      {/* CTA Action Button */}
       {action && (
         <div className="relative z-10 mt-6">
           <Button
             variant={action.variant || "gradient"}
             size={size === "sm" ? "sm" : size === "lg" ? "lg" : "default"}
             onClick={action.onClick}
-            className="shadow-md"
+            className="shadow-md min-h-[44px]"
           >
             {action.label}
           </Button>

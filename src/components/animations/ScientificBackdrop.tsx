@@ -4,14 +4,14 @@
 // science-student identity. It sits behind every section, never intercepts
 // clicks, and is invisible to screen readers.
 //
-// Subtlety rules:
-//  - Everything is very low opacity (≈0.06–0.16) so text stays readable.
-//  - Only a handful of elements move, and they move slowly (30–90s cycles).
-//  - prefers-reduced-motion is handled globally in globals.css (all CSS
-//    animations collapse to a single 0.01ms frame).
+// Phase 8: reduced-motion aware (client-side), low-quality device detection,
+// data-saver handling, content-visibility friendly.
+
+"use client";
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "./motion-preferences";
 
 // ── Individual science glyphs (stroke SVGs, currentColor) ──
 function AtomGlyph() {
@@ -56,12 +56,7 @@ function FlaskGlyph() {
     <svg viewBox="0 0 90 110" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
       <path d="M36 10 h18" />
       <path d="M40 10 v28 L18 82 a11 11 0 0 0 10 16 h34 a11 11 0 0 0 10 -16 L50 38 v-28" />
-      <path
-        d="M25 84 q6 -8 12 0 t12 0 t12 0"
-        stroke="currentColor"
-        strokeOpacity="0.6"
-        strokeLinecap="round"
-      />
+      <path d="M25 84 q6 -8 12 0 t12 0 t12 0" stroke="currentColor" strokeOpacity="0.6" strokeLinecap="round" />
       <path d="M20 96 h50" strokeOpacity="0.5" />
     </svg>
   );
@@ -240,7 +235,11 @@ const ITEMS: BackdropItem[] = [
   },
   {
     key: "formula-euler",
-    glyph: <span className="font-mono">e<sup>iπ</sup>&nbsp;+&nbsp;1&nbsp;=&nbsp;0</span>,
+    glyph: (
+      <span className="font-mono">
+        e<sup>iπ</sup>&nbsp;+&nbsp;1&nbsp;=&nbsp;0
+      </span>
+    ),
     left: "55%",
     top: "72%",
     width: "auto",
@@ -302,19 +301,48 @@ const MOTION_CLASSES: Record<string, string> = {
 };
 
 export function ScientificBackdrop() {
+  const prefersReducedMotion = useMotionPreference();
+  const [isLowPower, setIsLowPower] = React.useState(false);
+  const [isDataSaver, setIsDataSaver] = React.useState(false);
+
+  React.useEffect(() => {
+    try {
+      const nav = navigator as unknown as {
+        connection?: { saveData?: boolean };
+        deviceMemory?: number;
+        hardwareConcurrency?: number;
+      };
+      const dataSaver = Boolean(nav.connection?.saveData);
+      const lowPower = Boolean(
+        (nav.deviceMemory && nav.deviceMemory <= 2) || (nav.hardwareConcurrency && nav.hardwareConcurrency <= 2)
+      );
+      // Async state updates to avoid synchronous setState in effect
+      const t1 = window.setTimeout(() => {
+        if (dataSaver) setIsDataSaver(true);
+      }, 0);
+      const t2 = window.setTimeout(() => {
+        if (lowPower) setIsLowPower(true);
+      }, 0);
+      return () => {
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+      };
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // If reduced motion, don't render moving backdrop at all (CSS also hides)
+  if (prefersReducedMotion) return null;
+  // If data saver or low power, reduce to minimal static icons only
+  const visibleItems = isDataSaver || isLowPower ? ITEMS.filter((i) => !i.motion).slice(0, 4) : ITEMS;
+
   return (
-    <div
-      className="science-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden"
-      aria-hidden="true"
-    >
-      {ITEMS.map((item) => (
+    <div className="science-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+      {visibleItems.map((item) => (
         <div
           key={item.key}
-          className={cn(
-            "absolute select-none",
-            item.hiddenMobile && "hidden sm:block",
-            item.hiddenTablet && "hidden lg:block",
-          )}
+          className={cn("absolute select-none", item.hiddenMobile && "hidden sm:block", item.hiddenTablet && "hidden lg:block")}
           style={{ left: item.left, top: item.top, width: item.width }}
         >
           <div
@@ -322,8 +350,8 @@ export function ScientificBackdrop() {
               "flex items-center justify-center",
               item.color,
               item.opacity,
-              item.motion && MOTION_CLASSES[item.motion],
-              item.width === "auto" && "whitespace-nowrap text-[clamp(0.9rem,1.6vw,1.35rem)]",
+              !isLowPower && !isDataSaver && item.motion && MOTION_CLASSES[item.motion],
+              item.width === "auto" && "whitespace-nowrap text-[clamp(0.9rem,1.6vw,1.35rem)]"
             )}
             style={{ animationDelay: item.delay }}
           >

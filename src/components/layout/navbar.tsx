@@ -13,6 +13,7 @@ const NavUtilityMenu = dynamic(
 );
 
 // ── Glass Navigation Bar — premium, responsive 320→1536+ ─
+// Phase 8: improved a11y, focus, active state, reduced motion safe
 export function Navbar() {
   const pathname = usePathname();
   const t = useTranslations("nav");
@@ -35,9 +36,14 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 pointer-events-none">
+      {/* Skip link for keyboard navigation - visually hidden until focused */}
+      <a href="#main-content" className="skip-link">
+        {locale === "bn" ? "মূল বিষয়বস্তুতে যান" : "Skip to main content"}
+      </a>
       {/* Centered container for 320→1536+, avoids stretched look */}
       <div className="mx-auto w-full max-w-7xl px-2 sm:px-4">
         <nav
+          aria-label={locale === "bn" ? "প্রধান নেভিগেশন" : "Primary navigation"}
           className={cn(
             "pointer-events-auto glass mt-2 flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 sm:mt-4 sm:px-4 sm:py-3",
             "border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.18),0_2px_8px_rgba(0,0,0,0.12)]",
@@ -47,10 +53,13 @@ export function Navbar() {
           {/* Logo — always visible, compact on 320 */}
           <Link
             href={basePath}
-            className="flex shrink-0 items-center gap-2 transition-opacity hover:opacity-80"
+            className="flex shrink-0 items-center gap-2 rounded-lg transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             aria-label="RahatVerse home"
           >
-            <div className="bg-brand-gradient gradient-border flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold text-white shadow-md shadow-primary/20 sm:h-9 sm:w-9 sm:text-base">
+            <div
+              className="bg-brand-gradient gradient-border flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold text-white shadow-md shadow-primary/20 sm:h-9 sm:w-9 sm:text-base"
+              aria-hidden="true"
+            >
               R
             </div>
             <span className="hidden text-[15px] font-bold tracking-tight sm:block sm:text-lg">
@@ -60,7 +69,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation — clean, minimal, scales 1024→1536+ */}
-          <div className="hidden items-center gap-0.5 lg:flex xl:gap-1">
+          <div className="hidden items-center gap-0.5 lg:flex xl:gap-1" role="navigation" aria-label="desktop">
             {NAVIGATION_ITEMS.map((item) => {
               const normalizedPathname = pathname.replace(/\/+$/, "");
               const rawHref = `${basePath}${item.path}`.replace(/\/+$/, "");
@@ -71,8 +80,10 @@ export function Navbar() {
                 <Link
                   key={item.key}
                   href={href}
+                  aria-current={isActive ? "page" : undefined}
+                  aria-label={isActive ? `${navLabels[item.key] || item.key} (current)` : undefined}
                   className={cn(
-                    "relative rounded-lg px-2 py-1.5 text-xs font-medium tracking-[-0.01em] transition-all duration-200 xl:px-2.5 xl:py-2 xl:text-[13px] 2xl:px-3 2xl:text-sm hover:scale-[1.03]",
+                    "relative rounded-lg px-2 py-1.5 text-xs font-medium tracking-[-0.01em] transition-all duration-200 xl:px-2.5 xl:py-2 xl:text-[13px] 2xl:px-3 2xl:text-sm hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     isActive
                       ? "text-primary font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-white/[0.06]"
@@ -80,7 +91,10 @@ export function Navbar() {
                 >
                   {navLabels[item.key] || item.key}
                   {isActive && (
-                    <span className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] xl:w-6" />
+                    <span
+                      className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] xl:w-6"
+                      aria-hidden="true"
+                    />
                   )}
                 </Link>
               );

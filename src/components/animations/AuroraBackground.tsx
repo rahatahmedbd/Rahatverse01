@@ -1,17 +1,22 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useMotionPreference } from "./motion-preferences";
 
 // ── Aurora Background ──────────────────────────────────
 // Subtle animated gradient background effect
+// Phase 8: respects reduced motion, low power
 
 interface AuroraBackgroundProps {
   className?: string;
   variant?: "default" | "amber" | "blue" | "purple";
+  animated?: boolean;
 }
 
-export function AuroraBackground({
-  className,
-  variant = "default",
-}: AuroraBackgroundProps) {
+export function AuroraBackground({ className, variant = "default", animated = true }: AuroraBackgroundProps) {
+  const prefersReducedMotion = useMotionPreference();
+  const shouldAnimate = animated && !prefersReducedMotion;
+
   const variantClasses = {
     default: "from-amber-500/10 via-blue-500/5 to-purple-500/10",
     amber: "from-amber-500/20 via-orange-500/10 to-red-500/5",
@@ -20,12 +25,12 @@ export function AuroraBackground({
   };
 
   return (
-    <div className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}>
+    <div className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)} aria-hidden="true">
       {/* Main gradient blob */}
       <div
         className={cn(
-          "absolute -top-1/2 -left-1/2 h-[200%] w-[200%] animate-spin-slow",
-          "bg-gradient-conic opacity-30 blur-3xl",
+          "absolute -top-1/2 -left-1/2 h-[200%] w-[200%] bg-gradient-conic opacity-30 blur-3xl",
+          shouldAnimate && "animate-spin-slow",
           variantClasses[variant]
         )}
         style={{
@@ -33,7 +38,7 @@ export function AuroraBackground({
         }}
       />
 
-      {/* Glow spots */}
+      {/* Glow spots — static if reduced motion */}
       <div
         className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full opacity-20 blur-3xl"
         style={{
@@ -57,7 +62,7 @@ interface GradientMeshProps {
 
 export function GradientMesh({ className }: GradientMeshProps) {
   return (
-    <div className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}>
+    <div className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)} aria-hidden="true">
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -91,6 +96,7 @@ export function Glow({ className, color = "amber" }: GlowProps) {
   return (
     <div
       className={cn("pointer-events-none absolute rounded-full blur-3xl", className)}
+      aria-hidden="true"
       style={{
         background: `radial-gradient(circle, ${colors[color]} 0%, transparent 70%)`,
       }}

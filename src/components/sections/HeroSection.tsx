@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProfileImage } from "./ProfileImage";
@@ -57,6 +57,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
   const isBn = locale === "bn";
   const [config, setConfig] = useState<HeroConfig>(heroConfig ?? DEFAULT_HERO_CONFIG);
   const [isMobile, setIsMobile] = useState(false);
+  const prefersReducedMotion = Boolean(useReducedMotion());
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
@@ -83,14 +84,9 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
   }, [heroConfig]);
 
   // Phase 6: only two hero CTAs — primary (order) + one secondary (proof).
-  // Stored configs that still contain a third (legacy Contact) entry are
-  // gracefully downgraded so the third button never reappears.
   const { primaryCta, secondaryCtas } = useMemo(() => {
-    const primary =
-      config.ctas.find((c) => c.variant === "gradient") ?? config.ctas[0];
-    const secondaries = config.ctas
-      .filter((c) => c.id !== primary?.id)
-      .slice(0, 1);
+    const primary = config.ctas.find((c) => c.variant === "gradient") ?? config.ctas[0];
+    const secondaries = config.ctas.filter((c) => c.id !== primary?.id).slice(0, 1);
     return { primaryCta: primary, secondaryCtas: secondaries };
   }, [config.ctas]);
 
@@ -99,13 +95,17 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
   const welcomeText = isBn ? config.intro.welcomeTextBn : config.intro.welcomeTextEn;
 
   return (
-    <section className="relative flex min-h-[calc(100svh-3.5rem)] items-center justify-center overflow-hidden py-8 sm:py-12 lg:min-h-[86vh] lg:py-16 xl:py-20">
-      {/* Particle Background — reduced on mobile for performance */}
-      <div className="absolute inset-0">
+    <section
+      className="relative flex min-h-[calc(100svh-3.5rem)] items-center justify-center overflow-hidden py-8 sm:py-12 lg:min-h-[86vh] lg:py-16 xl:py-20"
+      aria-label={isBn ? "হিরো সেকশন" : "Hero section"}
+    >
+      {/* Particle Background — adaptive quality, reduced motion handled inside component */}
+      <div className="absolute inset-0" aria-hidden="true">
         <ParticleBackground
-          particleCount={isMobile ? 12 : 24}
-          speed={isMobile ? 0.1 : 0.15}
-          mouseInteraction={!isMobile}
+          particleCount={isMobile ? 12 : 28}
+          speed={isMobile ? 0.08 : 0.14}
+          mouseInteraction={!isMobile && !prefersReducedMotion}
+          quality={isMobile ? "low" : "medium"}
         />
       </div>
 
@@ -120,36 +120,30 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
       {/* Content container — 320..1536+ */}
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Two-column composition: mobile vertical (profile top), desktop balanced */}
         <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
-          {/* LEFT — Intro, Name, Description, CTAs (order 2 on mobile, 1 on desktop) */}
+          {/* LEFT — Intro, Name, Description, CTAs */}
           <div className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
-            {/* Badge */}
-            <FadeInDown delay={0.4}>
+            <FadeInDown delay={prefersReducedMotion ? 0 : 0.4}>
               <Badge variant="gradient" className="mb-4 text-xs font-medium sm:mb-6 sm:text-sm">
                 <Sparkles className="mr-1 h-3 w-3 shrink-0" aria-hidden="true" />
                 <span className="truncate">{welcomeText}</span>
               </Badge>
             </FadeInDown>
 
-            {/* Name */}
-            <FadeInUp delay={0.5}>
+            <FadeInUp delay={prefersReducedMotion ? 0 : 0.5}>
               <h1 className="bn text-display-xl font-bold tracking-[-0.02em]">
-                <span className="text-gradient-name">
-                  {isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}
-                </span>
+                <span className="text-gradient-name">{isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}</span>
               </h1>
               <p className="mt-1 text-[15px] font-medium tracking-[-0.01em] text-muted-foreground sm:text-lg lg:text-xl">
                 {isBn ? "Rahat Ahmed" : "রাহাত আহমেদ"}
               </p>
             </FadeInUp>
 
-            {/* Role Badges */}
             {config.badges.length > 0 && (
-              <FadeInUp delay={0.65}>
-                <div className="mt-3.5 flex flex-wrap justify-center gap-1.5 sm:gap-2 lg:justify-start">
+              <FadeInUp delay={prefersReducedMotion ? 0 : 0.65}>
+                <div className="mt-3.5 flex flex-wrap justify-center gap-1.5 sm:gap-2 lg:justify-start" role="list" aria-label={isBn ? "দক্ষতা" : "Skills"}>
                   {config.badges.map((b) => (
-                    <Badge key={b.id} variant="glow" className="bn rounded-full px-3 py-1 text-xs font-medium leading-none">
+                    <Badge key={b.id} variant="glow" className="bn rounded-full px-3 py-1 text-xs font-medium leading-none" role="listitem">
                       {isBn ? b.labelBn : b.labelEn}
                     </Badge>
                   ))}
@@ -157,8 +151,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
               </FadeInUp>
             )}
 
-            {/* Description */}
-            <FadeInUp delay={0.8}>
+            <FadeInUp delay={prefersReducedMotion ? 0 : 0.8}>
               <p className="mx-auto mt-4 max-w-[30ch] text-pretty text-[14.5px] leading-[1.75] text-muted-foreground bn sm:max-w-xl lg:mx-0 lg:max-w-[42ch] xl:max-w-[48ch] sm:text-[15.5px] lg:text-lead">
                 {isBn
                   ? "শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য। সুনামগঞ্জ থেকে স্বপ্ন দেখি একটি উন্নত ও সমৃদ্ধ ডিজিটাল বিশ্ব গড়ে তোলার।"
@@ -166,56 +159,57 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
               </p>
             </FadeInUp>
 
-            {/* CTA Hierarchy */}
-            <FadeInUp delay={0.95}>
-              <div className="mx-auto mt-6 flex w-full max-w-[340px] flex-col items-stretch gap-3 sm:mt-7 sm:max-w-none sm:items-center lg:mx-0 lg:items-start sm:gap-4">
-                {primaryCta && (() => {
-                  const label = getDisplayLabel(primaryCta, isBn);
-                  const href = primaryCta.href.startsWith("/") ? `/${locale}${primaryCta.href}` : primaryCta.href;
-                  return (
-                    <div className="relative w-full sm:w-auto">
-                      <div
-                        className="pointer-events-none absolute inset-x-3 -bottom-3 h-10 rounded-full bg-gradient-to-r from-amber-500/14 via-orange-500/10 to-violet-500/10 blur-2xl sm:inset-x-6"
-                        aria-hidden="true"
-                      />
-                      <Button
-                        variant="gradient"
-                        size="lg"
-                        asChild
-                        className="group relative w-full justify-between gap-3 rounded-xl px-5 py-3 text-[15px] font-semibold tracking-[-0.01em] sm:w-auto sm:min-w-[300px] sm:justify-center sm:px-7"
-                        aria-label={label}
-                      >
-                        <Link
-                          href={href}
-                          onClick={() =>
-                            trackEvent("cta_click", {
-                              category: "conversion",
-                              label: primaryCta.id,
-                              metadata: { cta_id: primaryCta.id, location: "hero", locale },
-                            })
-                          }
+            {/* CTA Hierarchy — exactly 2 CTAs per Phase 6, preserved */}
+            <FadeInUp delay={prefersReducedMotion ? 0 : 0.95}>
+              <div className="hero-cta-group mx-auto mt-6 flex w-full max-w-[340px] flex-col items-stretch gap-3 sm:mt-7 sm:max-w-none sm:items-center lg:mx-0 lg:items-start sm:gap-4" data-testid="hero-cta">
+                {primaryCta &&
+                  (() => {
+                    const label = getDisplayLabel(primaryCta, isBn);
+                    const href = primaryCta.href.startsWith("/") ? `/${locale}${primaryCta.href}` : primaryCta.href;
+                    return (
+                      <div className="relative w-full sm:w-auto">
+                        <div
+                          className="pointer-events-none absolute inset-x-3 -bottom-3 h-10 rounded-full bg-gradient-to-r from-amber-500/14 via-orange-500/10 to-violet-500/10 blur-2xl sm:inset-x-6"
+                          aria-hidden="true"
+                        />
+                        <Button
+                          variant="gradient"
+                          size="lg"
+                          asChild
+                          className="group relative w-full justify-between gap-3 rounded-xl px-5 py-3 text-[15px] font-semibold tracking-[-0.01em] sm:w-auto sm:min-w-[300px] sm:justify-center sm:px-7 min-h-[46px]"
+                          aria-label={label}
                         >
-                          <span className="flex items-center gap-2.5">
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/14 ring-1 ring-white/10 backdrop-blur">
-                              <Zap className="h-3.5 w-3.5 text-white" aria-hidden="true" />
+                          <Link
+                            href={href}
+                            onClick={() =>
+                              trackEvent("cta_click", {
+                                category: "conversion",
+                                label: primaryCta.id,
+                                metadata: { cta_id: primaryCta.id, location: "hero", locale },
+                              })
+                            }
+                          >
+                            <span className="flex items-center gap-2.5">
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/14 ring-1 ring-white/10 backdrop-blur" aria-hidden="true">
+                                <Zap className="h-3.5 w-3.5 text-white" aria-hidden="true" />
+                              </span>
+                              <span className="text-white">{label}</span>
                             </span>
-                            <span className="text-white">{label}</span>
-                          </span>
-                          <ArrowRight
-                            className="h-4 w-4 shrink-0 text-white/90 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1 group-active:translate-x-0.5"
-                            aria-hidden="true"
-                          />
-                        </Link>
-                      </Button>
-                    </div>
-                  );
-                })()}
+                            <ArrowRight
+                              className="h-4 w-4 shrink-0 text-white/90 transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1 group-active:translate-x-0.5"
+                              aria-hidden="true"
+                            />
+                          </Link>
+                        </Button>
+                      </div>
+                    );
+                  })()}
 
                 {secondaryCtas.length > 0 && (
                   <div className="flex w-full items-stretch gap-3 sm:w-auto sm:gap-4">
                     {secondaryCtas.map((cta) => {
                       const isViewProjects = cta.id === "cta-portfolio" || cta.href.includes("portfolio");
-                      const variant = isViewProjects ? "glass" as const : "outline" as const;
+                      const variant = isViewProjects ? ("glass" as const) : ("outline" as const);
                       const Icon = getIcon(cta.icon);
                       const label = getDisplayLabel(cta, isBn);
                       const href = cta.href.startsWith("/") ? `/${locale}${cta.href}` : cta.href;
@@ -227,7 +221,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
                           variant={variant}
                           size="lg"
                           asChild
-                          className="group flex-1 justify-center gap-2 rounded-xl px-4 text-[13.5px] font-semibold tracking-[-0.01em] sm:flex-initial sm:min-w-[148px] sm:px-6 sm:text-[14px]"
+                          className="group flex-1 justify-center gap-2 rounded-xl px-4 text-[13.5px] font-semibold tracking-[-0.01em] sm:flex-initial sm:min-w-[148px] sm:px-6 sm:text-[14px] min-h-[44px]"
                           aria-label={label}
                         >
                           <Link
@@ -241,7 +235,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
                             }
                           >
                             <UseIcon
-                              className="h-4 w-4 shrink-0 opacity-90 transition-transform duration-300 group-hover:scale-110 group-active:scale-95"
+                              className="h-4 w-4 shrink-0 opacity-90 transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
                               aria-hidden="true"
                             />
                             <span className="truncate">{label}</span>
@@ -255,14 +249,14 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
             </FadeInUp>
           </div>
 
-          {/* RIGHT — Profile Image (order 1 on mobile, 2 on desktop) */}
+          {/* RIGHT — Profile Image */}
           <motion.div
             className="order-1 flex justify-center lg:order-2 lg:justify-end xl:justify-center"
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.92 }}
+            animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.7, ease: "easeOut" }}
           >
-            <Parallax3DContainer intensity={10} className="inline-block">
+            <Parallax3DContainer intensity={prefersReducedMotion ? 0 : 10} className="inline-block">
               <ProfileImage
                 size="lg"
                 src={aboutConfig?.profileImage.url || undefined}
@@ -277,20 +271,21 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
           </motion.div>
         </div>
 
-        {/* Stats — horizontal scrollable row on mobile / 4-col grid tablet+ */}
-        <FadeInUp delay={1.15}>
-          <div className="mt-10 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch] sm:mt-12 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:pb-0 sm:snap-none lg:mt-14">
+        {/* Stats — horizontal scrollable row on mobile */}
+        <FadeInUp delay={prefersReducedMotion ? 0 : 1.15}>
+          <div
+            className="mt-10 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch] sm:mt-12 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:pb-0 sm:snap-none lg:mt-14"
+            role="list"
+            aria-label={isBn ? "পরিসংখ্যান" : "Statistics"}
+          >
             {config.counters.map((stat) => (
               <div
                 key={stat.id}
-                className="glass group relative min-w-[9.5rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] px-3 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_4px_20px_rgba(0,0,0,0.14)] transition-colors duration-300 hover:border-white/[0.09] sm:min-w-0 sm:shrink sm:snap-none sm:px-4 sm:py-5"
+                role="listitem"
+                className="glass group relative min-w-[9.5rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] px-3 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_4px_20px_rgba(0,0,0,0.14)] transition-colors duration-200 hover:border-white/[0.09] sm:min-w-0 sm:shrink sm:snap-none sm:px-4 sm:py-5"
               >
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-60" aria-hidden="true" />
-                <Counter
-                  to={stat.value}
-                  suffix={stat.suffix}
-                  className="text-[22px] font-bold tracking-[-0.02em] text-primary sm:text-3xl"
-                />
+                <Counter to={stat.value} suffix={stat.suffix} className="text-[22px] font-bold tracking-[-0.02em] text-primary sm:text-3xl" />
                 <p className="mt-1.5 line-clamp-2 text-xs font-medium leading-tight text-muted-foreground bn sm:text-sm">
                   {isBn ? stat.labelBn : stat.labelEn}
                 </p>
@@ -300,14 +295,14 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
         </FadeInUp>
       </div>
 
-      {/* Scroll Indicator — hidden on small mobile to avoid nav overlap, visible on tablet/desktop */}
-      <div className="pointer-events-none absolute bottom-8 left-1/2 hidden -translate-x-1/2 lg:flex">
+      {/* Scroll Indicator — hidden on mobile where bottom nav exists */}
+      <div className="pointer-events-none absolute bottom-8 left-1/2 hidden -translate-x-1/2 lg:flex" aria-hidden="true">
         <ScrollIndicator />
       </div>
-      <div className="pointer-events-none absolute bottom-[7.5rem] left-1/2 hidden -translate-x-1/2 sm:flex lg:hidden">
+      <div className="pointer-events-none absolute bottom-[7.5rem] left-1/2 hidden -translate-x-1/2 sm:flex lg:hidden" aria-hidden="true">
         <ScrollIndicator />
       </div>
-      <div className="absolute bottom-[7.25rem] left-1/2 -translate-x-1/2 sm:hidden">
+      <div className="absolute bottom-[7.25rem] left-1/2 -translate-x-1/2 sm:hidden" aria-hidden="true">
         <motion.div
           className="flex flex-col items-center gap-1.5 opacity-50"
           initial={{ opacity: 0 }}

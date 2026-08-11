@@ -28,7 +28,6 @@ import { OrbitingRings } from "@/components/interactive";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()-]{5,24}$/;
 
-// ── Contact Section ────────────────────────────────────
 interface ContactSectionProps {
   locale?: string;
 }
@@ -41,6 +40,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const formRef = useRef<HTMLFormElement>(null);
   const contactSectionRef = useRef<HTMLElement>(null);
+  const submitRef = useRef(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -58,6 +58,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
       delete next[field];
       return next;
     });
+    if (error) setError("");
   };
 
   const validate = () => {
@@ -104,13 +105,10 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
             focusable.focus();
           }
         }, 380);
-      } else if (el instanceof HTMLElement) {
-        (el as HTMLElement).focus();
       }
     }
   };
 
-  // Phase 6 mobile UX: keep focused fields visible above keyboard / bottom nav
   useEffect(() => {
     const container = formRef.current ?? contactSectionRef.current;
     if (!container) return;
@@ -124,11 +122,11 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
         } catch {}
         const rect = target.getBoundingClientRect();
         const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-        const bottomOverlap = 96;
+        const bottomOverlap = 110;
         if (rect.bottom > viewportHeight - bottomOverlap) {
           window.scrollBy({ top: rect.bottom - (viewportHeight - bottomOverlap) + 16, behavior: "smooth" });
         }
-      }, 280);
+      }, 260);
     };
     container.addEventListener("focusin", onFocusIn);
     const vv = window.visualViewport;
@@ -147,6 +145,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitRef.current) return; // prevent duplicate
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length > 0) {
@@ -154,6 +153,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
       return;
     }
 
+    submitRef.current = true;
     setIsSubmitting(true);
     setError("");
 
@@ -169,12 +169,14 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
         setIsSubmitted(true);
         setForm({ name: "", email: "", phone: "", subject: "", message: "" });
       } else {
-        setError(isBn ? "কিছু একটা সমস্যা হয়েছে" : "Something went wrong");
+        const data = await res.json().catch(() => null);
+        setError(data?.error || (isBn ? "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।" : "Something went wrong. Please try again."));
       }
     } catch {
-      setError(isBn ? "নেটওয়ার্ক সমস্যা" : "Network error");
+      setError(isBn ? "নেটওয়ার্ক সমস্যা। ইন্টারনেট চেক করে আবার চেষ্টা করুন।" : "Network error. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
+      submitRef.current = false;
     }
   };
 
@@ -185,9 +187,12 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
   ];
 
   return (
-    <section ref={contactSectionRef} className="relative py-20 overflow-hidden scroll-mt-24 scroll-pb-28 pb-28 sm:pb-20">
-      {/* Phase I Decorative Orbiting Element */}
-      <div className="pointer-events-none absolute left-10 bottom-10 -z-10 flex items-center justify-center opacity-30">
+    <section
+      ref={contactSectionRef}
+      className="relative py-20 overflow-hidden scroll-mt-24 scroll-pb-28 pb-28 sm:pb-20"
+      aria-labelledby="contact-heading"
+    >
+      <div className="pointer-events-none absolute left-10 bottom-10 -z-10 flex items-center justify-center opacity-30" aria-hidden="true">
         <OrbitingRings size="lg" />
       </div>
 
@@ -206,19 +211,21 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
         />
 
         <div className="grid gap-8 lg:grid-cols-3">
-          {/* Left: Quick Contact */}
           <div className="space-y-4">
             <FadeInLeft>
               <GlassCard className="relative overflow-hidden">
                 <OrbitingRings size="sm" className="absolute -right-16 -top-16 opacity-30 pointer-events-none" />
-                <h3 className="mb-4 text-lg font-bold bn">{isBn ? "দ্রুত যোগাযোগ" : "Quick Contact"}</h3>
-                <div className="space-y-3">
+                <h3 id="quick-contact-heading" className="mb-4 text-lg font-bold bn">
+                  {isBn ? "দ্রুত যোগাযোগ" : "Quick Contact"}
+                </h3>
+                <div className="space-y-3" role="list" aria-labelledby="quick-contact-heading">
                   {quickLinks.map((link) => (
                     <a
                       key={link.label}
                       href={link.href}
                       target={link.href.startsWith("http") ? "_blank" : undefined}
                       rel="noopener noreferrer"
+                      role="listitem"
                       onClick={() => {
                         if (link.href.includes("wa.me") || link.href.includes("whatsapp")) {
                           trackEvent("whatsapp_click", {
@@ -232,9 +239,9 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                           });
                         }
                       }}
-                      className="flex items-center gap-3 rounded-lg border border-border/50 p-3 transition-all hover:border-primary/30 hover:bg-accent/20"
+                      className="flex items-center gap-3 rounded-lg border border-border/50 p-3 transition-all hover:border-primary/30 hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px]"
                     >
-                      <link.icon className={`h-5 w-5 ${link.color}`} />
+                      <link.icon className={`h-5 w-5 shrink-0 ${link.color}`} aria-hidden="true" />
                       <span className="text-sm">{link.label}</span>
                     </a>
                   ))}
@@ -245,7 +252,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
             <FadeInLeft delay={0.1}>
               <GlassCard>
                 <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5 text-primary" />
+                  <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
                   <div>
                     <p className="text-xs text-muted-foreground">{isBn ? "অবস্থান" : "Location"}</p>
                     <p className="font-medium bn">{isBn ? "সুনামগঞ্জ, বাংলাদেশ" : "Sunamganj, Bangladesh"}</p>
@@ -257,7 +264,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
             <FadeInLeft delay={0.2}>
               <GlassCard>
                 <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-primary" />
+                  <Clock className="h-5 w-5 text-primary" aria-hidden="true" />
                   <div>
                     <p className="text-xs text-muted-foreground">{isBn ? "রেসপন্স টাইম" : "Response Time"}</p>
                     <p className="font-medium bn">{isBn ? "সাধারণত ২৪ ঘণ্টার মধ্যে" : "Usually within 24 hours"}</p>
@@ -267,54 +274,52 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
             </FadeInLeft>
           </div>
 
-          {/* Right: Contact Form */}
           <div className="lg:col-span-2">
             <FadeInRight>
               <GlassCard>
                 {isSubmitted ? (
-                  <div className="py-8 text-center">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
+                  <div className="py-8 text-center" role="status" aria-live="polite">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20" aria-hidden="true">
                       <CheckCircle2 className="h-8 w-8 text-green-400" />
                     </div>
-                    <h3 className="text-xl font-bold bn">
-                      {isBn ? "বার্তা পাঠানো হয়েছে!" : "Message Sent!"}
-                    </h3>
-                    <p className="mt-2 text-muted-foreground bn">
-                      {isBn ? "ধন্যবাদ! আমি শীঘ্রই উত্তর দেব।" : "Thank you! I will reply shortly."}
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="mt-4"
-                      onClick={() => setIsSubmitted(false)}
-                    >
+                    <h3 className="text-xl font-bold bn">{isBn ? "বার্তা পাঠানো হয়েছে!" : "Message Sent!"}</h3>
+                    <p className="mt-2 text-muted-foreground bn">{isBn ? "ধন্যবাদ! আমি শীঘ্রই উত্তর দেব।" : "Thank you! I will reply shortly."}</p>
+                    <Button variant="outline" className="mt-4 min-h-[44px]" onClick={() => setIsSubmitted(false)}>
                       {isBn ? "আরেকটি বার্তা পাঠান" : "Send Another Message"}
                     </Button>
                   </div>
                 ) : (
-                  <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-                    <h3 className="text-lg font-bold bn">{isBn ? "বার্তা পাঠান" : "Send a Message"}</h3>
+                  <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" noValidate data-form aria-labelledby="contact-form-heading">
+                    <h3 id="contact-form-heading" className="text-lg font-bold bn">
+                      {isBn ? "বার্তা পাঠান" : "Send a Message"}
+                    </h3>
+
+                    {Object.keys(errors).length > 0 && (
+                      <div className="form-error-summary flex items-start gap-2 text-sm" role="alert" aria-live="assertive">
+                        <AlertCircle className="h-4 w-4 shrink-0 text-destructive mt-0.5" aria-hidden="true" />
+                        <div>
+                          <p className="font-semibold text-destructive">{isBn ? "অনুগ্রহ করে নিচের সমস্যাগুলো ঠিক করুন:" : "Please fix the following issues:"}</p>
+                          <ul className="mt-1 list-disc list-inside text-muted-foreground">
+                            {Object.entries(errors).map(([k, v]) => (
+                              <li key={k}>{v}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <FormField
-                        id="contact-name"
-                        label={isBn ? "নাম" : "Name"}
-                        required
-                        error={errors.name}
-                      >
+                      <FormField id="contact-name" label={isBn ? "নাম" : "Name"} required error={errors.name}>
                         <TextField
                           id="contact-name"
                           value={form.name}
                           onChange={(e) => updateField("name", e.target.value)}
                           placeholder={isBn ? "আপনার নাম" : "Your name"}
                           invalid={!!errors.name}
+                          autoComplete="name"
                         />
                       </FormField>
-                      <FormField
-                        id="contact-email"
-                        label={isBn ? "ইমেইল" : "Email"}
-                        required
-                        error={errors.email}
-                      >
+                      <FormField id="contact-email" label={isBn ? "ইমেইল" : "Email"} required error={errors.email}>
                         <TextField
                           id="contact-email"
                           type="email"
@@ -322,17 +327,14 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                           onChange={(e) => updateField("email", e.target.value)}
                           placeholder="email@example.com"
                           invalid={!!errors.email}
+                          autoComplete="email"
+                          inputMode="email"
                         />
                       </FormField>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <FormField
-                        id="contact-phone"
-                        label={isBn ? "ফোন" : "Phone"}
-                        hint={isBn ? "ঐচ্ছিক" : "Optional"}
-                        error={errors.phone}
-                      >
+                      <FormField id="contact-phone" label={isBn ? "ফোন" : "Phone"} hint={isBn ? "ঐচ্ছিক" : "Optional"} error={errors.phone}>
                         <TextField
                           id="contact-phone"
                           type="tel"
@@ -340,14 +342,11 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                           onChange={(e) => updateField("phone", e.target.value)}
                           placeholder="+880 1XXX-XXXXXX"
                           invalid={!!errors.phone}
+                          autoComplete="tel"
+                          inputMode="tel"
                         />
                       </FormField>
-                      <FormField
-                        id="contact-subject"
-                        label={isBn ? "বিষয়" : "Subject"}
-                        required
-                        error={errors.subject}
-                      >
+                      <FormField id="contact-subject" label={isBn ? "বিষয়" : "Subject"} required error={errors.subject}>
                         <SelectField
                           id="contact-subject"
                           value={form.subject}
@@ -364,12 +363,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                       </FormField>
                     </div>
 
-                    <FormField
-                      id="contact-message"
-                      label={isBn ? "বার্তা" : "Message"}
-                      required
-                      error={errors.message}
-                    >
+                    <FormField id="contact-message" label={isBn ? "বার্তা" : "Message"} required error={errors.message}>
                       <TextAreaField
                         id="contact-message"
                         value={form.message}
@@ -381,28 +375,28 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                     </FormField>
 
                     {error && (
-                      <div className="flex items-center gap-2 text-sm text-red-400">
-                        <AlertCircle className="h-4 w-4" />
+                      <div className="flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive" role="alert" aria-live="assertive">
+                        <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
                         <span>{error}</span>
                       </div>
                     )}
 
-                    <Button type="submit" variant="gradient" disabled={isSubmitting} className="w-full">
+                    <Button type="submit" variant="gradient" busy={isSubmitting} className="w-full min-h-[46px]" aria-label={isBn ? "বার্তা পাঠান" : "Send message"}>
                       {isSubmitting ? (
                         <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                           {isBn ? "পাঠানো হচ্ছে..." : "Sending..."}
                         </>
                       ) : (
                         <>
-                          <Send className="h-4 w-4" />
+                          <Send className="h-4 w-4" aria-hidden="true" />
                           {isBn ? "বার্তা পাঠান" : "Send Message"}
                         </>
                       )}
                     </Button>
 
                     <p className="text-center text-xs text-muted-foreground bn">
-                      🔒 {isBn ? "আপনার তথ্য সম্পূর্ণ গোপনীয়" : "Your information is completely private"}
+                      <span aria-hidden="true">🔒</span> {isBn ? "আপনার তথ্য সম্পূর্ণ গোপনীয়" : "Your information is completely private"}
                     </p>
                   </form>
                 )}

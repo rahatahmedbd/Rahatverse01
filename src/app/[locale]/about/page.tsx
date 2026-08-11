@@ -26,8 +26,8 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
     ? "রাহাত আহমেদ সম্পর্কে — শিক্ষার্থী, শিক্ষক ও ওয়েব ডেভেলপার"
     : "About Rahat Ahmed — Student, Teacher & Web Developer";
   const description = isBn
-    ? "রাহাত আহমেদের পরিচয় — সুনামগঞ্জের একজন শিক্ষার্থী, শিক্ষক, বিএনসিসি ক্যাডেট ও ওয়েব ডেভেলপার। শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে কাজ করছেন।"
-    : "Meet Rahat Ahmed — an HSC student, teacher, BNCC cadet and web developer from Sunamganj, Bangladesh, working to make a difference through education, social service and technology.";
+    ? "রাহাত আহমেদের পরিচয় — সুনামগঞ্জ, সিলেট, বাংলাদেশের একজন শিক্ষার্থী, শিক্ষক, বিএনসিসি ক্যাডেট ও ওয়েব ডেভেলপার এবং রাহাতভার্সের স্রষ্টা।"
+    : "Meet Rahat Ahmed — a web developer, student, teacher and BNCC cadet from Sunamganj, Sylhet, Bangladesh, and the creator of RahatVerse.";
   const ogImageAlt = isBn ? "রাহাত আহমেদ — রাহাতভার্স" : "Rahat Ahmed — RahatVerse";
 
   return {

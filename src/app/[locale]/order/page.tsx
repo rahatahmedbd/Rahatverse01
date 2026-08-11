@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: OrderPageProps): Promise<Meta
   const canonicalUrl = absoluteUrl(localePath(locale, "/order"));
   const title = isBn ? "ওয়েবসাইট অর্ডার করুন — প্যাকেজ ও মূল্য" : "Order a Website — Packages & Pricing";
   const description = isBn
-    ? "আপনার প্রজেক্টের জন্য ওয়েবসাইট প্যাকেজ বেছে নিন — পোর্টফোলিও, ব্যবসায়িক, ই-কমার্স ও কাস্টম ওয়েব অ্যাপ্লিকেশন, রাহাতভার্সে তৈরি।"
-    : "Choose a website package and start your project — portfolio, business, e-commerce and custom web applications built by RahatVerse.";
+    ? "আপনার প্রজেক্টের জন্য ওয়েবসাইট প্যাকেজ বেছে নিন — পোর্টফোলিও, ব্যবসায়িক, ই-কমার্স ও কাস্টম ওয়েব অ্যাপ্লিকেশন, রাহাত আহমেদের রাহাতভার্সে তৈরি।"
+    : "Choose a website package and start your project — portfolio, business, e-commerce and custom web applications built by Rahat Ahmed at RahatVerse.";
   const ogImageAlt = isBn ? "রাহাত আহমেদ — রাহাতভার্স" : "Rahat Ahmed — RahatVerse";
 
   return {

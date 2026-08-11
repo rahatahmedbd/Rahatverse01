@@ -332,8 +332,8 @@ export const DEFAULT_ABOUT_CONFIG: AboutConfig = {
   section: {
     badgeBn: "👤 আমার গল্প",
     badgeEn: "👤 My Story",
-    titleBn: "আমার সম্পর্কে",
-    titleEn: "About Me",
+    titleBn: "রাহাত আহমেদ সম্পর্কে",
+    titleEn: "About Rahat Ahmed",
     subtitleBn: "গ্রাম থেকে শহর, স্বপ্ন থেকে বাস্তব — একটি অবিরাম যাত্রার গল্প",
     subtitleEn: "From village to city, dream to reality — a continuous journey",
   },
@@ -344,8 +344,8 @@ export const DEFAULT_ABOUT_CONFIG: AboutConfig = {
         en: "I am Rahat Ahmed. I was born on June 21, 2006 in Jibdara village, Shantiganj, Sunamganj. This village, raised in the lap of nature, taught me to dream and to fight.",
       },
       {
-        bn: "বর্তমানে আমি সুনামগঞ্জ সরকারি কলেজে HSC ২য় বর্ষে বিজ্ঞান বিভাগের শিক্ষার্থী। পড়াশোনার পাশাপাশি আমি একজন শিক্ষক, শান্তিচক্র ব্লাড সোসাইটির সহ-প্রতিষ্ঠাতা ও সাধারণ সম্পাদক, এবং BNCC-এর একজন সক্রিয় ক্যাডেট।",
-        en: "Currently I am a 2nd year HSC student in the Science department at Sunamganj Government College. Alongside studies, I am a teacher, co-founder and General Secretary of Shantichakra Blood Society, and an active BNCC cadet.",
+        bn: "বর্তমানে আমি সুনামগঞ্জ সরকারি কলেজে HSC ২য় বর্ষে বিজ্ঞান বিভাগের শিক্ষার্থী। পড়াশোনার পাশাপাশি আমি একজন শিক্ষক, শান্তিচক্র ব্লাড সোসাইটির সহ-প্রতিষ্ঠাতা ও সাধারণ সম্পাদক, এবং BNCC-এর একজন সক্রিয় ক্যাডেট। আমি সুনামগঞ্জ, সিলেট, বাংলাদেশে অবস্থিত একজন ওয়েব ডেভেলপার এবং রাহাতভার্সের স্রষ্টা।",
+        en: "Currently I am a 2nd year HSC student in the Science department at Sunamganj Government College. Alongside studies, I am a teacher, co-founder and General Secretary of Shantichakra Blood Society, and an active BNCC cadet. I am also a web developer based in Sunamganj, Sylhet, Bangladesh, and the creator of RahatVerse.",
       },
       {
         bn: "ওয়েব ডেভেলপমেন্ট, আর্টিফিশিয়াল ইন্টেলিজেন্স, কনটেন্ট ক্রিয়েশন এবং সামাজিক সেবা — এই বিষয়গুলো নিয়ে কাজ করতে ভালোবাসি। আমার লক্ষ্য শিক্ষা ও প্রযুক্তির মাধ্যমে সমাজে ইতিবাচক পরিবর্তন আনা।",

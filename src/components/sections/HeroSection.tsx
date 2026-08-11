@@ -154,8 +154,8 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
             <FadeInUp delay={prefersReducedMotion ? 0 : 0.8}>
               <p className="mx-auto mt-4 max-w-[30ch] text-pretty text-[14.5px] leading-[1.75] text-muted-foreground bn sm:max-w-xl lg:mx-0 lg:max-w-[42ch] xl:max-w-[48ch] sm:text-[15.5px] lg:text-lead">
                 {isBn
-                  ? "শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোই আমার লক্ষ্য। সুনামগঞ্জ থেকে স্বপ্ন দেখি একটি উন্নত ও সমৃদ্ধ ডিজিটাল বিশ্ব গড়ে তোলার।"
-                  : "My goal is to stand by people through education, social service, and technology. From Sunamganj, I dream of building a better digital world."}
+                  ? "সুনামগঞ্জ, সিলেট, বাংলাদেশের একজন শিক্ষার্থী ও ওয়েব ডেভেলপার এবং রাহাতভার্সের স্রষ্টা — শিক্ষা, সমাজসেবা ও প্রযুক্তির জন্য আধুনিক ডিজিটাল অভিজ্ঞতা তৈরি করি।"
+                  : "A student and web developer from Sunamganj, Sylhet, Bangladesh, and the creator of RahatVerse — I build modern digital experiences for education, social service and technology."}
               </p>
             </FadeInUp>
 

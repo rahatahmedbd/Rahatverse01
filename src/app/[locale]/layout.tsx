@@ -21,6 +21,7 @@ import { MaintenanceScreen } from "@/components/layout/MaintenanceScreen";
 import { AIChatWidgetLoader } from "@/components/ai/AIChatWidgetLoader";
 import type { Metadata } from "next";
 import { localeAlternates } from "@/lib/seo";
+import { brandLogoCircleUrl, brandLogoSquareUrl } from "@/lib/brand";
 
 // ── Locale-based Layout ────────────────────────────────
 // Wraps app with next-intl provider for translations
@@ -127,9 +128,8 @@ export default async function LocaleLayout({
         </noscript>
         {/* PWA Meta Tags */}
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/images/rahat-2d-favicon-from-profile.png" type="image/png" />
-        <link rel="icon" href="/icons/icon-192.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/images/rahat-2d-favicon-from-profile.png" />
+        <link rel="icon" href={brandLogoCircleUrl(512)} type="image/png" />
+        <link rel="apple-touch-icon" href={brandLogoSquareUrl(180)} />
         <meta name="theme-color" content="#f59e0b" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

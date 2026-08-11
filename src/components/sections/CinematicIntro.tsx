@@ -3,6 +3,8 @@
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 import { useLocale } from "next-intl";
+import Image from "next/image";
+import { brandLogoCircleUrl } from "@/lib/brand";
 import { useMotionPreference } from "@/components/animations/motion-preferences";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
 import type { HeroConfig } from "@/types/hero";
@@ -155,12 +157,20 @@ export function CinematicIntro({ config }: CinematicIntroProps = {}) {
             />
 
             <motion.div
-              className="bg-brand-gradient gradient-border relative flex h-20 w-20 items-center justify-center rounded-2xl text-3xl font-bold text-white shadow-2xl shadow-primary/30"
+              className="relative flex h-24 w-24 items-center justify-center shadow-2xl shadow-primary/30"
               initial={{ scale: 0, rotate: -18 }}
               animate={{ scale: [0, 1.05, 1], rotate: 0 }}
               transition={{ delay: 0.35, duration: 0.7, ease: "easeOut" }}
+              style={{ borderRadius: "50%" }}
             >
-              R
+              <Image
+                src={brandLogoCircleUrl(192)}
+                alt="RahatVerse"
+                width={96}
+                height={96}
+                priority
+                className="h-24 w-24 rounded-full"
+              />
             </motion.div>
 
             <motion.div

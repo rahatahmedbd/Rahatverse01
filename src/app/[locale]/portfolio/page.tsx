@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PortfolioSection } from "@/components/portfolio/PortfolioSection";
 import { SectionTitle } from "@/components/sections/SectionTitle";
 import { JsonLd, getPortfolioSchema, getBreadcrumbListSchema } from "@/components/seo/JsonLd";
@@ -66,6 +65,11 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
   // real, crawlable project content (Phase 4A). The client island reuses this
   // data and skips its refetch.
   const portfolioConfig = await getPortfolioConfig();
+  // Derive the ItemList from the collection schema so adding a project never
+  // leaves `numberOfItems` out of sync with the listed entries.
+  const portfolioItemList =
+    ((getPortfolioSchema(locale).mainEntity as { itemListElement?: unknown[] })
+      ?.itemListElement as unknown[]) ?? [];
 
   return (
     <>
@@ -73,8 +77,8 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
       <JsonLd
         type="ItemList"
         data={{
-          itemListElement: (getPortfolioSchema(locale).mainEntity as any).itemListElement,
-          numberOfItems: 3,
+          itemListElement: portfolioItemList,
+          numberOfItems: portfolioItemList.length,
         }}
       />
       <JsonLd

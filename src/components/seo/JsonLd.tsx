@@ -215,6 +215,12 @@ export function getPortfolioSchema(locale = "bn") {
           name: "EduCare — Interactive Tutoring System",
           url: absoluteUrl(`/${locale}/portfolio`),
         },
+        {
+          "@type": "ListItem",
+          position: 4,
+          name: "Rahat Ahmed — Static Personal Profile Site",
+          url: "https://rahatahmedbd.github.io/",
+        },
       ],
     },
   };

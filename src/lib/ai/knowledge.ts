@@ -135,8 +135,6 @@ PORTFOLIO PROJECTS (see /portfolio for details):
 - RahatVerse — this very site (Next.js 16, TypeScript, Tailwind, Supabase, Cloudinary, i18n).
 - Shantichakra Blood Society — digital donor directory & emergency blood request portal.
 - EduCare — interactive tutoring & student management platform (concept stage).
-- Static personal profile site (rahatahmedbd.github.io) — his first published website,
-  hand-coded HTML, CSS and JavaScript on GitHub Pages.
 
 BLOG: articles about education, technology and social service (categories: Science,
 Social, Education, Technology).

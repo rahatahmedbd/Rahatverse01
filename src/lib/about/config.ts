@@ -320,7 +320,7 @@ const defaultAchievements: AboutAchievement[] = [
 export const DEFAULT_ABOUT_CONFIG: AboutConfig = {
   visible: true,
   profileImage: {
-    url: "https://res.cloudinary.com/kbc3dfnj/image/upload/v1786125213/rahatverse/profile/1786125213546.jpg",
+    url: "/images/legacy/rahat-profile.jpg",
     publicId: "rahatverse/profile/1786125213546",
     altBn: "রাহাত আহমেদের প্রোফাইল ছবি",
     altEn: "Rahat Ahmed profile photo",

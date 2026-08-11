@@ -10,7 +10,7 @@ import {
 } from "@/lib/portfolio/config";
 import { ABOUT_ICON_MAP, ACHIEVEMENT_ICON_MAP } from "@/lib/about/icons";
 
-const MIGRATION = "supabase/migrations/034_about_depth_and_legacy_project.sql";
+const MIGRATION = "supabase/migrations/034_about_depth_from_legacy_site.sql";
 
 /** Reads every `$TAG$ ... $TAG$` payload of one dollar-quote tag, in order. */
 function dollarBlocks(sql: string, tag: string): unknown[] {
@@ -103,18 +103,17 @@ describe("public content stays free of private contact details", () => {
 });
 
 describe("portfolio config depth", () => {
-  it("publishes the legacy static profile site as a live project", () => {
-    const legacy = DEFAULT_PORTFOLIO_CONFIG.projects.find(
-      (project) => project.id === "proj-legacy-profile"
-    );
-
-    expect(legacy).toBeDefined();
-    expect(legacy?.status).toBe("live");
-    expect(legacy?.visible).toBe(true);
-    expect(legacy?.category).toBe("portfolio");
-    expect(legacy?.liveUrl).toBe("https://rahatahmedbd.github.io/");
-    expect(legacy?.longDescription?.length ?? 0).toBeGreaterThan(200);
-    expect(legacy?.longDescriptionBn?.length ?? 0).toBeGreaterThan(200);
+  it("does not list the old static profile site as a portfolio project", () => {
+    expect(
+      DEFAULT_PORTFOLIO_CONFIG.projects.some(
+        (project) => project.id === "proj-legacy-profile"
+      )
+    ).toBe(false);
+    expect(
+      DEFAULT_PORTFOLIO_CONFIG.projects.some(
+        (project) => project.liveUrl === "https://rahatahmedbd.github.io/"
+      )
+    ).toBe(false);
   });
 
   it("keeps every project on a known category and unique id", () => {
@@ -135,9 +134,9 @@ describe("migration 034 payloads", () => {
   const aboutBlocks = dollarBlocks(sql, "A6");
   const portfolioBlocks = dollarBlocks(sql, "P6");
 
-  it("declares one payload per about-config edit and one project", () => {
+  it("declares one payload per about-config edit and no project payload", () => {
     expect(aboutBlocks).toHaveLength(6);
-    expect(portfolioBlocks).toHaveLength(1);
+    expect(portfolioBlocks).toHaveLength(0);
   });
 
   it("produces an about document that passes the runtime validator", () => {
@@ -190,27 +189,12 @@ describe("migration 034 payloads", () => {
     expect(validated?.biography.paragraphs).toHaveLength(4);
   });
 
-  it("appends a portfolio project that passes the runtime validator", () => {
-    const legacyProject = portfolioBlocks[0] as Record<string, unknown>;
-    expect(legacyProject.id).toBe("proj-legacy-profile");
-    expect(legacyProject.status).toBe("live");
-
-    const applied = {
-      ...DEFAULT_PORTFOLIO_CONFIG,
-      projects: [
-        ...DEFAULT_PORTFOLIO_CONFIG.projects.filter(
-          (project) => project.id !== "proj-legacy-profile"
-        ),
-        legacyProject,
-      ],
-    };
-
-    expect(validatePortfolioConfig(applied)).not.toBeNull();
+  it("keeps the shipped portfolio defaults valid under the runtime validator", () => {
+    expect(validatePortfolioConfig(DEFAULT_PORTFOLIO_CONFIG)).not.toBeNull();
   });
 
   it("is guarded so admin-edited values are never overwritten", () => {
     expect(sql).toMatch(/select value into cfg from public\.site_settings/);
-    expect(sql).toMatch(/select value into cfg from public\.content_config/);
     // Every write path is conditional on the stored value still matching a
     // previously shipped default, or on the entry being absent entirely.
     expect(sql).toMatch(/if cfg is null then\s+return;/);

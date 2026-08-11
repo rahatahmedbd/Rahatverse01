@@ -90,27 +90,6 @@ const DEFAULT_PROJECTS: PortfolioProject[] = [
     visible: true,
     completedAt: "2025",
   },
-  {
-    id: "proj-legacy-profile",
-    status: "live",
-    title: "Rahat Ahmed — Static Personal Profile Site",
-    titleBn: "রাহাত আহমেদ — স্ট্যাটিক ব্যক্তিগত প্রোফাইল সাইট",
-    description: "My first published website: a fast, single-page bilingual profile built with hand-written HTML, CSS and JavaScript, deployed on GitHub Pages.",
-    descriptionBn: "আমার প্রথম প্রকাশিত ওয়েবসাইট — হাতে লেখা HTML, CSS ও JavaScript দিয়ে তৈরি দ্রুতগতির একক-পৃষ্ঠার প্রোফাইল সাইট, GitHub Pages-এ ডিপ্লয় করা।",
-    longDescription:
-      "Before RahatVerse, I built my personal profile as a completely hand-coded static site — no framework, no build step. It is a single-page experience covering my introduction, education timeline, achievements, organisations, the Shantichakra Blood Society and a contact form, with smooth scroll navigation, section filtering in the gallery and a responsive layout that works from small phones to desktops. The project taught me the fundamentals I still rely on: semantic HTML, accessible markup, CSS layout and animation, vanilla JavaScript interactions, image optimisation and Core Web Vitals. It runs on GitHub Pages with the full source public, and remains online as the earlier chapter of the same story RahatVerse now tells.",
-    longDescriptionBn:
-      "রাহাতভার্সের আগে আমার ব্যক্তিগত প্রোফাইল সাইটটি সম্পূর্ণ হাতে কোড করা স্ট্যাটিক সাইট হিসেবে তৈরি করেছিলাম — কোনো ফ্রেমওয়ার্ক বা বিল্ড স্টেপ ছাড়াই। একক পৃষ্ঠাতেই রয়েছে পরিচিতি, শিক্ষাজীবনের টাইমলাইন, অর্জন, সংগঠন, শান্তিচক্র ব্লাড সোসাইটি ও যোগাযোগ ফর্ম; সাথে স্মুথ স্ক্রল নেভিগেশন, গ্যালারিতে ক্যাটাগরি ফিল্টার এবং ছোট ফোন থেকে ডেস্কটপ পর্যন্ত রেসপনসিভ লেআউট। এই প্রজেক্ট থেকেই শিখেছি সেই মৌলিক বিষয়গুলো যেগুলো আজও কাজে লাগে — সিমান্টিক HTML, অ্যাক্সেসিবল মার্কআপ, CSS লেআউট ও অ্যানিমেশন, ভ্যানিলা JavaScript ইন্টারঅ্যাকশন, ইমেজ অপটিমাইজেশন ও Core Web Vitals। সাইটটি GitHub Pages-এ চলছে, সোর্স কোড সম্পূর্ণ পাবলিক, এবং রাহাতভার্সের যাত্রার আগের অধ্যায় হিসেবে এখনো অনলাইনে রয়েছে।",
-    image: "/images/gallery-web.svg",
-    tags: ["HTML5", "CSS3", "JavaScript", "Responsive Design", "GitHub Pages", "SEO"],
-    tagsBn: ["HTML5", "CSS3", "JavaScript", "Responsive Design", "GitHub Pages", "SEO"],
-    liveUrl: "https://rahatahmedbd.github.io/",
-    githubUrl: "https://github.com/rahatahmedbd/rahatahmedbd.github.io",
-    category: "portfolio",
-    featured: false,
-    visible: true,
-    completedAt: "2025",
-  },
 ];
 
 export const DEFAULT_PORTFOLIO_CONFIG: PortfolioConfig = {

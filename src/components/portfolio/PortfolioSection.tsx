@@ -98,7 +98,14 @@ function LiveSitePreview({
   isBn: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
-  const [stage, setStage] = useState<"proxy" | "direct">("proxy");
+  const [failed, setFailed] = useState(false);
+  // In development (e.g. sandboxed previews with no outbound network) start
+  // with a DIRECT embed so frame-friendly sites render immediately. In
+  // production start with the same-origin proxy snapshot, which works even
+  // when the target blocks framing.
+  const [stage, setStage] = useState<"proxy" | "direct">(
+    process.env.NODE_ENV === "development" ? "direct" : "proxy"
+  );
   let domain = liveUrl;
   try {
     domain = new URL(liveUrl).hostname.replace(/^www\./, "");
@@ -106,13 +113,32 @@ function LiveSitePreview({
     /* keep raw */
   }
 
-  // Stage 1 — same-origin proxy snapshot (works even when the target site
-  // sets X-Frame-Options; on production the server fetches the real HTML).
-  // Stage 2 — if the proxy signals a fetch failure (its fallback page carries
-  // data-preview-fallback), retry with the site URL directly so the visitor's
-  // own browser can render it when framing is allowed.
+  // Stage 1 — same-origin proxy snapshot (production default).
+  // Stage 2 — direct embed from the visitor's browser: used in dev, or when
+  // the proxy reports it could not fetch the target (postMessage below).
   const proxySrc = `/api/site-preview?url=${encodeURIComponent(embedUrl)}`;
   const frameSrc = stage === "proxy" ? proxySrc : embedUrl;
+
+  // The proxy's fallback page announces itself; switch to a direct embed.
+  useEffect(() => {
+    if (stage !== "proxy") return;
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as { type?: string; url?: string } | null;
+      if (data?.type === "rv-preview-fallback" && data.url === embedUrl) {
+        setStage("direct");
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [stage, embedUrl]);
+
+  // If neither stage confirms a load within a reasonable window, stop the
+  // endless "loading" state and tell the visitor honestly.
+  useEffect(() => {
+    if (loaded || failed) return;
+    const timer = window.setTimeout(() => setFailed(true), 15_000);
+    return () => window.clearTimeout(timer);
+  }, [loaded, failed, stage]);
 
   const handleFrameLoad = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
     if (stage === "proxy") {
@@ -127,18 +153,25 @@ function LiveSitePreview({
       }
     }
     setLoaded(true);
+    setFailed(false);
   };
 
   return (
     <div className="relative h-52 w-full overflow-hidden bg-card">
-      {/* Backdrop — visible while loading or if the proxy is unreachable */}
+      {/* Backdrop — visible while loading or if the preview cannot render */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/10 via-card to-blue-500/[0.07]" aria-hidden="true">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
-          <Globe className="h-6 w-6 animate-pulse text-primary" />
+          <Globe className={cn("h-6 w-6 text-primary", !failed && "animate-pulse")} />
         </div>
         <span className="font-mono text-xs font-semibold text-muted-foreground">{domain}</span>
         <span className="text-[10px] text-muted-foreground/70">
-          {isBn ? "লাইভ প্রিভিউ লোড হচ্ছে…" : "Loading live preview…"}
+          {failed
+            ? isBn
+              ? "প্রিভিউ এখানে দেখা যাচ্ছে না — লাইভ সাইট খুলুন ↗"
+              : "Preview can't render here — open the live site ↗"
+            : isBn
+              ? "লাইভ প্রিভিউ লোড হচ্ছে…"
+              : "Loading live preview…"}
         </span>
       </div>
 

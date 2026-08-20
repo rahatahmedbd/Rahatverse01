@@ -55,8 +55,14 @@ const FALLBACK_HTML = (domain: string, url: string) => `<!doctype html><html><he
 <body data-preview-fallback="1" style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#0b1120;color:#94a3b8;font-family:ui-sans-serif,system-ui,sans-serif;text-align:center;padding:16px">
   <div>
     <p style="font-size:13px;margin:0 0 6px">${domain}</p>
-    <p style="font-size:12px;margin:0;opacity:.7">Live preview is loading… <a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#fbbf24">open the site ↗</a></p>
+    <p style="font-size:12px;margin:0 0 10px;opacity:.7">Live preview is loading…</p>
+    <a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#fbbf24;font-size:12px">open the site ↗</a>
   </div>
+  <script>
+    // Tell the embedding card that the server could not fetch the target, so
+    // it can retry with a direct embed from the visitor's own browser.
+    try { parent.postMessage({ type: "rv-preview-fallback", url: ${JSON.stringify(url)} }, "*"); } catch (e) {}
+  </script>
 </body></html>`;
 
 export async function GET(request: Request) {

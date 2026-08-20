@@ -21,6 +21,12 @@ export interface PortfolioProject {
   longDescription?: string;
   longDescriptionBn?: string;
   image: string;
+  /**
+   * When set, the card renders a live iframe preview of this URL instead of a
+   * static image — used for real, deployed projects that permit framing.
+   * Clicking the preview always opens `liveUrl` in a new tab.
+   */
+  embedUrl?: string;
   tags: string[];
   tagsBn: string[];
   liveUrl: string;

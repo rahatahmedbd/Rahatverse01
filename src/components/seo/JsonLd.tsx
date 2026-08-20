@@ -206,14 +206,14 @@ export function getPortfolioSchema(locale = "bn") {
         {
           "@type": "ListItem",
           position: 2,
-          name: "Shantichakra Blood Society Portal",
-          url: absoluteUrl(`/${locale}/experience`),
+          name: "Shantichakra Blood Society — Emergency Donor Directory",
+          url: "https://shantichakrabloodsociety.rahatahmed.site/",
         },
         {
           "@type": "ListItem",
           position: 3,
-          name: "EduCare — Interactive Tutoring System",
-          url: absoluteUrl(`/${locale}/portfolio`),
+          name: "PoraSathi — Tuition Marketplace for Teachers & Students",
+          url: "https://porasathi.rahatahmed.site/",
         },
       ],
     },

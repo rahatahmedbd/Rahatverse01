@@ -59,7 +59,8 @@ const DEFAULT_PROJECTS: PortfolioProject[] = [
       "Shantichakra Blood Society is a voluntary blood-donation organization I helped establish in Sunamganj in 2025, where I serve as General Secretary. This platform is now live and makes emergency donor discovery faster: registered donors searchable by blood group, district and upazila; emergency blood-request posting with request tracking; a blood-compatibility guide; SOS share messages for WhatsApp/SMS/Facebook; a donation eligibility checker and before/after donation guide; and a quick-assistance wizard that routes visitors to the right service in three questions. The society is active across Sylhet division with a goal of expanding nationwide — the site shows live coverage stats and a Bangladesh division map. Built with Next.js, React, Supabase and Tailwind CSS, with Cloudinary for donor photos.",
     longDescriptionBn:
       "শান্তিচক্র ব্লাড সোসাইটি সুনামগঞ্জে ২০২৫ সালে প্রতিষ্ঠিত একটি স্বেচ্ছাসেবী রক্তদান সংগঠন, যেখানে আমি সাধারণ সম্পাদক হিসেবে দাতা ব্যবস্থাপনা ও সমন্বয় করি। এই প্ল্যাটফর্মটি এখন লাইভ — জরুরি মুহূর্তে রক্তদাতা খুঁজতে: রক্তের গ্রুপ, জেলা ও উপজেলা দিয়ে নিবন্ধিত দাতা অনুসন্ধান; রোগীর তথ্যসহ জরুরি রক্তের অনুরোধ পোস্ট ও ট্র্যাকিং; রক্ত সামঞ্জস্যতা গাইড; WhatsApp/SMS/Facebook-এর জন্য প্রস্তুত SOS শেয়ার মেসেজ; রক্তদান যোগ্যতা যাচাই ও দানের আগে-পরে গাইড; আর ৩টি প্রশ্নে সঠিক সেবায় পৌঁছে দেওয়া দ্রুত সহায়তা উইজার্ড। সংগঠনটি সিলেট বিভাগ জুড়ে সক্রিয় এবং সারা দেশে সম্প্রসারণের লক্ষ্যে কাজ করছে — সাইটে লাইভ কভারেজ পরিসংখ্যান ও বাংলাদেশের বিভাগ-ম্যাপ রয়েছে। টেক স্ট্যাক: Next.js, React, Supabase ও Tailwind CSS; দাতাদের ছবি Cloudinary-তে।",
-    image: "/images/portfolio-shantichakra.png",
+    image: "",
+    embedUrl: "https://shantichakrabloodsociety.rahatahmed.site/",
     tags: ["Next.js", "React", "Supabase", "Tailwind CSS", "Cloudinary", "Emergency Requests"],
     tagsBn: ["Next.js", "React", "Supabase", "Tailwind CSS", "Cloudinary", "জরুরি অনুরোধ"],
     liveUrl: "https://shantichakrabloodsociety.rahatahmed.site/",
@@ -80,7 +81,8 @@ const DEFAULT_PROJECTS: PortfolioProject[] = [
       "PoraSathi (পড়াসাথী) is my live tuition-marketplace project for Bangladesh — born directly from my own experience as a private tutor since 2023. Students and guardians can browse teacher profiles without logging in, filter by class, subject, district and medium (online or in-person), then connect safely: controlled requests, messaging, and schedule/session management from a dashboard. Teachers publish profiles with subjects, fees, availability and verification badges, and discover tuition opportunities posted by students. The platform also includes a teacher leaderboard, free study resources, and a safety guide before contact. Built end-to-end with Next.js, React, TypeScript, Tailwind CSS and Supabase.",
     longDescriptionBn:
       "পড়াসাথী বাংলাদেশের জন্য আমার তৈরি লাইভ টিউশন মার্কেটপ্লেস — ২০২৩ সাল থেকে নিজে গৃহশিক্ষক হিসেবে কাজ করার অভিজ্ঞতা থেকেই এর জন্ম। শিক্ষার্থী ও অভিভাবক লগইন ছাড়াই শিক্ষকদের প্রোফাইল দেখতে পারেন এবং ক্লাস, বিষয়, জেলা ও মাধ্যম (অনলাইন/সরাসরি) দিয়ে ফিল্টার করে যুক্ত হতে পারেন — নিয়ন্ত্রিত অনুরোধ, মেসেজ ও ড্যাশবোর্ড থেকে সময়সূচি/সেশন ব্যবস্থাপনা সব এক জায়গায়। শিক্ষকরা বিষয়, ফি, সুবিধা ও ভেরিফিকেশন ব্যাজসহ প্রোফাইল তৈরি করেন এবং শিক্ষার্থীদের পোস্ট করা টিউশন সুযোগ দেখেন। এছাড়া আছে শিক্ষক লিডারবোর্ড, ফ্রি শিক্ষা রিসোর্স এবং যোগাযোগের আগে পড়ার মতো নিরাপত্তা গাইড। শুরু থেকে শেষ পর্যন্ত Next.js, React, TypeScript, Tailwind CSS ও Supabase দিয়ে তৈরি।",
-    image: "/images/portfolio-porasathi.png",
+    image: "",
+    embedUrl: "https://porasathi.rahatahmed.site/",
     tags: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "Marketplace"],
     tagsBn: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "মার্কেটপ্লেস"],
     liveUrl: "https://porasathi.rahatahmed.site/",
@@ -89,27 +91,6 @@ const DEFAULT_PROJECTS: PortfolioProject[] = [
     featured: true,
     visible: true,
     completedAt: "2026",
-  },
-  {
-    id: "proj-educare",
-    status: "concept",
-    title: "EduCare — Interactive Tutoring & Student Management",
-    titleBn: "এডুকেয়ার — ইন্টারঅ্যাক্টিভ টিউটরিং ও স্টুডেন্ট ট্র্যাকার",
-    description: "A concept-stage tutoring management design for private tutors to organize batch schedules, student progress, and lecture notes.",
-    descriptionBn: "গৃহশিক্ষকদের ব্যাচ শিডিউল, উপস্থিতি ও পরীক্ষার অগ্রগতি সহজে গুছিয়ে রাখার জন্য ডিজাইন-পর্যায়ের ধারণা (কনসেপ্ট) প্রজেক্ট।",
-    longDescription:
-      "EduCare is a concept project grounded in my everyday work: I teach class 7–9 students as a private tutor, and I founded FS Coaching Center at Jibdara Bazar to make quality lessons affordable for underprivileged students in my village. Running batches by hand showed me exactly what a tutoring-management tool should solve — batch schedules, attendance tracking, exam-progress visualization and study-material distribution. EduCare is the design-stage blueprint for that tool: a personal project that is not yet a deployed product, planned around React, TypeScript, Node.js and PostgreSQL.",
-    longDescriptionBn:
-      "এডুকেয়ার আমার দৈনন্দিন কাজের অভিজ্ঞতা থেকে জন্ম নেওয়া একটি কনসেপ্ট প্রজেক্ট: আমি গৃহশিক্ষক হিসেবে সপ্তম–নবম শ্রেণির শিক্ষার্থীদের পড়াই এবং গ্রামের অসহায় মেধাবী শিক্ষার্থীদের সুলভ মূল্যে মানসম্মত পাঠদানের লক্ষ্যে জীবদাড়া বাজারে FS কোচিং সেন্টার প্রতিষ্ঠা করি। হাতে-কলমে ব্যাচ চালাতে গিয়েই বুঝেছি একটা টিউটরিং-ম্যানেজমেন্ট টুলে আসলে কী কী দরকার — ব্যাচ শিডিউল, উপস্থিতি ট্র্যাকিং, পরীক্ষার অগ্রগতির চিত্র এবং স্টাডি ম্যাটেরিয়াল বিতরণ। এডুকেয়ার সেই টুলের ডিজাইন-পর্যায়ের খসড়া; এটি এখনো ডিপ্লয় করা প্রোডাক্ট নয়, পরিকল্পিত স্ট্যাক React, TypeScript, Node.js ও PostgreSQL।",
-    image: "/images/gallery-science.svg",
-    tags: ["React", "TypeScript", "Node.js", "Tailwind CSS", "PostgreSQL"],
-    tagsBn: ["React", "TypeScript", "Node.js", "Tailwind CSS", "PostgreSQL"],
-    liveUrl: "#",
-    githubUrl: "https://github.com/rahatahmedbd",
-    category: "education",
-    featured: true,
-    visible: true,
-    completedAt: "2025",
   },
 ];
 
@@ -184,6 +165,13 @@ function validateProjects(value: unknown): boolean {
       item.status === undefined ||
       (typeof item.status === "string" &&
         PROJECT_STATUSES.has(item.status as PortfolioProjectStatus));
+    // embedUrl is optional: missing/empty, or an absolute http(s) URL rendered
+    // by the card as a live iframe preview.
+    const embedOk =
+      item.embedUrl === undefined ||
+      (typeof item.embedUrl === "string" &&
+        (item.embedUrl === "" || /^https?:\/\//i.test(item.embedUrl)) &&
+        item.embedUrl.length <= 500);
     return (
       isId(item.id) &&
       isText(item.title, MAX_SHORT) &&
@@ -191,6 +179,7 @@ function validateProjects(value: unknown): boolean {
       isText(item.description, MAX_TEXT) &&
       isText(item.descriptionBn, MAX_TEXT) &&
       typeof item.image === "string" &&
+      embedOk &&
       tagsOk &&
       tagsBnOk &&
       longDescOk &&

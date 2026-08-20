@@ -36,8 +36,8 @@ const PROOF_LINKS: Record<string, { labelBn: string; labelEn: string }> = {
     labelEn: "Live proof: the Shantichakra donor directory website",
   },
   "education-website": {
-    labelBn: "সম্পর্কিত কনসেপ্ট: এডুকেয়ার টিউটরিং সিস্টেম",
-    labelEn: "Related concept: the EduCare tutoring system",
+    labelBn: "লাইভ প্রমাণ: পড়াসাথী টিউশন মার্কেটপ্লেস",
+    labelEn: "Live proof: the PoraSathi tuition marketplace",
   },
 };
 

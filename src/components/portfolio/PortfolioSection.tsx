@@ -20,6 +20,8 @@ import {
   FolderOpen,
   ArrowRight,
   Sparkles,
+  Globe,
+  Lock,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -76,6 +78,81 @@ function packageForProjectCategory(category: string): string {
 
 function buildSimilarLabel(isBn: boolean): string {
   return isBn ? "এমন ওয়েবসাইট তৈরি করুন →" : "Build a Similar Website →";
+}
+
+// ── Live site preview ─────────────────────────────────
+// For deployed projects (embedUrl set) the card embeds the REAL website in a
+// lazy iframe inside a mock browser frame — no static image. A full-size link
+// overlay sits on top, so clicking anywhere on the preview opens the live
+// site in a new tab. If the site refuses framing, the framed backdrop with
+// the domain pill still reads clearly.
+function LiveSitePreview({
+  embedUrl,
+  liveUrl,
+  title,
+  isBn,
+}: {
+  embedUrl: string;
+  liveUrl: string;
+  title: string;
+  isBn: boolean;
+}) {
+  let domain = liveUrl;
+  try {
+    domain = new URL(liveUrl).hostname.replace(/^www\./, "");
+  } catch {
+    /* keep raw */
+  }
+
+  return (
+    <div className="relative h-52 w-full overflow-hidden bg-card">
+      {/* Framed backdrop (visible while the iframe loads or if framing is blocked) */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/10 via-card to-blue-500/[0.07]" aria-hidden="true">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
+          <Globe className="h-6 w-6 text-primary" />
+        </div>
+        <span className="font-mono text-xs font-semibold text-muted-foreground">{domain}</span>
+      </div>
+
+      {/* The real website, live */}
+      <iframe
+        src={embedUrl}
+        title={`${title} — ${isBn ? "লাইভ প্রিভিউ" : "live preview"}`}
+        loading="lazy"
+        scrolling="no"
+        tabIndex={-1}
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 top-8 h-[calc(100%-2rem)] w-full border-0 bg-background"
+      />
+
+      {/* Browser chrome — drawn above the iframe */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-8 items-center gap-2 border-b border-white/[0.08] bg-card/85 px-3 backdrop-blur" aria-hidden="true">
+        <span className="flex gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-red-400/80" />
+          <span className="h-2 w-2 rounded-full bg-amber-400/80" />
+          <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
+        </span>
+        <span className="flex min-w-0 items-center gap-1 rounded bg-background/60 px-2 py-0.5 text-[10px] text-muted-foreground">
+          <Lock className="h-2.5 w-2.5 shrink-0 text-emerald-400/80" />
+          <span className="truncate font-mono">{domain}</span>
+        </span>
+      </div>
+
+      {/* Full-area click overlay — always opens the live site */}
+      <a
+        href={liveUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${title} — ${isBn ? "লাইভ ওয়েবসাইট খুলুন" : "open the live website"}`}
+        className="group/preview absolute inset-0 z-20 flex items-end justify-center pb-4 focus-visible:outline-none"
+      >
+        <span className="pointer-events-none inline-flex translate-y-2 items-center gap-1.5 rounded-full border border-primary/40 bg-background/85 px-3 py-1.5 text-[11px] font-semibold text-primary opacity-0 shadow-lg backdrop-blur transition-all duration-300 group-hover/preview:translate-y-0 group-hover/preview:opacity-100 group-focus-visible/preview:translate-y-0 group-focus-visible/preview:opacity-100">
+          <ExternalLink className="h-3 w-3" aria-hidden="true" />
+          {isBn ? "লাইভ সাইট খুলুন" : "Open Live Site"}
+        </span>
+      </a>
+    </div>
+  );
 }
 
 function ProjectImage({
@@ -297,11 +374,20 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
             return (
               <StaggerItem key={project.id}>
                 <Card className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/80 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_12px_40px_rgba(245,158,11,0.12)]">
-                  <ProjectImage
-                    src={project.image}
-                    alt={titleText}
-                    category={project.category}
-                  />
+                  {project.embedUrl && project.embedUrl !== "" ? (
+                    <LiveSitePreview
+                      embedUrl={project.embedUrl}
+                      liveUrl={project.liveUrl}
+                      title={titleText}
+                      isBn={isBn}
+                    />
+                  ) : (
+                    <ProjectImage
+                      src={project.image}
+                      alt={titleText}
+                      category={project.category}
+                    />
+                  )}
 
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between gap-2 mb-1">

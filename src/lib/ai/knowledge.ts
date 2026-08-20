@@ -175,7 +175,8 @@ Payments: bKash, Nagad and SSLCommerz (details are discussed after ordering). Vi
 can also message Rahat directly on WhatsApp. Rahat also works through freelance
 marketplaces — find him on Fiverr and Upwork (linked in the site footer).
 
-PORTFOLIO PROJECTS (see /portfolio for details):
+PORTFOLIO PROJECTS (all live, see /portfolio — each card embeds a live preview
+and links to the real site):
 - RahatVerse — this very site (Next.js 16, TypeScript, Tailwind, Supabase, Cloudinary, i18n).
 - Shantichakra Blood Society — LIVE emergency donor directory & blood-request platform:
   https://shantichakrabloodsociety.rahatahmed.site/ — donor search by group/district/upazila,
@@ -186,7 +187,6 @@ PORTFOLIO PROJECTS (see /portfolio for details):
   teachers post profiles and find tuition opportunities; controlled requests, messaging,
   schedule management, leaderboard, resources and a safety guide. Next.js, React,
   TypeScript, Tailwind CSS, Supabase.
-- EduCare — interactive tutoring & student management platform (concept stage).
 
 BLOG: articles about education, technology and social service (categories: Science,
 Social, Education, Technology).
@@ -352,9 +352,9 @@ export const AI_FAQ: AiFaqEntry[] = [
       "কাজ দেখ",
     ],
     answerEn:
-      "Rahat's portfolio includes live, production projects: RahatVerse (this site), the Shantichakra Blood Society emergency donor directory and PoraSathi, a tuition marketplace connecting teachers and students. Case studies, tech stacks and live links are all on the Portfolio page — plus EduCare, a concept-stage tutoring platform.",
+      "Rahat's portfolio is all live, production projects: RahatVerse (this site), the Shantichakra Blood Society emergency donor directory and PoraSathi, a tuition marketplace connecting teachers and students. Case studies, tech stacks and live links (with live site previews) are all on the Portfolio page.",
     answerBn:
-      "রাহাতের পোর্টফোলিওতে লাইভ প্রজেক্ট রয়েছে — রাহাতভার্স (এই সাইট), শান্তিচক্র ব্লাড সোসাইটির জরুরি রক্তদাতা ডিরেক্টরি এবং শিক্ষক-শিক্ষার্থী সংযোগকারী টিউশন মার্কেটপ্লেস পড়াসাথী। কেস স্টাডি, টেক স্ট্যাক ও লাইভ লিংক পোর্টফোলিও পেজে আছে — সাথে কনসেপ্ট-পর্যায়ের এডুকেয়ার।",
+      "রাহাতের পোর্টফোলিওর সব প্রজেক্টই লাইভ — রাহাতভার্স (এই সাইট), শান্তিচক্র ব্লাড সোসাইটির জরুরি রক্তদাতা ডিরেক্টরি এবং শিক্ষক-শিক্ষার্থী সংযোগকারী টিউশন মার্কেটপ্লেস পড়াসাথী। কেস স্টাডি, টেক স্ট্যাক, লাইভ লিংক ও লাইভ সাইট প্রিভিউ পোর্টফোলিও পেজে আছে।",
     links: [AI_LINKS.portfolio, AI_LINKS.shantichakra, AI_LINKS.porasathi],
   },
   {

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Camera } from "lucide-react";
 import { ImageSkeleton } from "@/components/ui/blur-image";
 import { PUBLIC_ID_TO_GITHUB_URL_MAP } from "@/lib/cloudinary/utils";
+import { RAHAT_PORTRAIT_FIT, RAHAT_PROFILE_PHOTO } from "@/lib/profile";
 import { useMotionPreference } from "@/components/animations/motion-preferences";
 
 export interface CloudinaryImageProps {
@@ -77,7 +78,10 @@ export function CloudinaryImage({
             alt={alt}
             width={w}
             height={h}
-            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+            className={cn(
+              "h-full w-full transition-transform duration-500 hover:scale-105",
+              publicId.includes("profile") ? RAHAT_PORTRAIT_FIT : "object-cover"
+            )}
             loading={priority ? "eager" : "lazy"}
             decoding="async"
           />
@@ -106,11 +110,11 @@ export function CloudinaryImage({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/rahat-avatar.svg"
+            src={RAHAT_PROFILE_PHOTO}
             alt={alt || "Rahat Ahmed"}
             width={w}
             height={h}
-            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+            className={cn("h-full w-full transition-transform duration-500 hover:scale-105", RAHAT_PORTRAIT_FIT)}
             loading={priority ? "eager" : "lazy"}
             decoding="async"
           />
@@ -153,8 +157,10 @@ export function CloudinaryImage({
         width={w}
         height={h}
         config={{ cloud: { cloudName } }}
+        {...(publicId.includes("profile") ? { crop: "fill" as const, gravity: "north" as const } : {})}
         className={cn(
-          "object-cover transition-all duration-500 ease-out",
+          publicId.includes("profile") ? RAHAT_PORTRAIT_FIT : "object-cover",
+          "transition-all duration-500 ease-out",
           isLoading
             ? prefersReducedMotion
               ? "opacity-0"

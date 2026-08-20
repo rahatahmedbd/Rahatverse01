@@ -8,6 +8,7 @@ import type {
   ToolRecommendation,
 } from "@/types/links";
 import { FREELANCE_LINKS } from "@/lib/constants";
+import { RAHAT_PROFILE_PHOTO } from "@/lib/profile";
 
 const MAX_SHORT = 260;
 
@@ -26,7 +27,7 @@ const DEFAULT_PROFILE: LinksProfile = {
   nameEn: "Rahat Ahmed",
   taglineBn: "ওয়েব ডেভেলপার • Next.js, React ও TypeScript",
   taglineEn: "Web Developer • Next.js, React & TypeScript",
-  avatar: "",
+  avatar: RAHAT_PROFILE_PHOTO,
 };
 
 const DEFAULT_LINKS: LinkItem[] = [

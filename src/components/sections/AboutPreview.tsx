@@ -8,6 +8,7 @@ import { DEFAULT_ABOUT_CONFIG } from "@/lib/about/config";
 import type { AboutConfig } from "@/types/about";
 import { UserRound, ArrowRight, MapPin, BookOpen, Code2, Rocket } from "lucide-react";
 import Link from "next/link";
+import { RahatPortrait } from "./RahatPortrait";
 
 interface AboutPreviewProps {
   locale?: string;
@@ -60,9 +61,14 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
               <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8">
                 {/* Small photo — secondary on the homepage */}
                 <div className="mx-auto flex items-center gap-3 sm:mx-0 sm:flex-col sm:gap-2">
-                  <span className="icon-frame flex h-16 w-16 items-center justify-center rounded-2xl">
-                    <UserRound className="h-8 w-8" aria-hidden="true" />
-                  </span>
+                  <RahatPortrait
+                    locale={locale}
+                    src={about.profileImage.url || undefined}
+                    alt={isBn ? about.profileImage.altBn : about.profileImage.altEn}
+                    className="h-20 w-20 shrink-0 ring-2 ring-primary/40 shadow-lg shadow-primary/20 sm:h-24 sm:w-24"
+                    sizes="96px"
+                    rounded="2xl"
+                  />
                   <Badge variant="glow" className="bn whitespace-nowrap text-xs">
                     {isBn ? "ওয়েব ডেভেলপার" : "Web Developer"}
                   </Badge>

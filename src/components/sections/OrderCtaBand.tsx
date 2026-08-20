@@ -1,9 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, MessageCircle, Rocket } from "lucide-react";
+import { ShoppingCart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics/tracker";
+import { RahatPortrait } from "./RahatPortrait";
 
 interface OrderCtaBandProps {
   locale?: string;
@@ -20,9 +21,11 @@ export function OrderCtaBand({ locale = "bn" }: OrderCtaBandProps) {
         <div className="pointer-events-none absolute -bottom-16 right-0 h-40 w-60 rounded-full bg-blue-500/[0.06] blur-3xl sm:h-48 sm:w-72" aria-hidden="true" />
 
         <div className="relative mx-auto max-w-2xl">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-purple-600 text-white shadow-lg shadow-amber-500/20 sm:mb-5 sm:h-14 sm:w-14 sm:rounded-2xl">
-            <Rocket className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
-          </div>
+          <RahatPortrait
+            locale={locale}
+            className="mx-auto mb-4 h-16 w-16 ring-2 ring-primary/40 shadow-lg shadow-primary/20 sm:mb-5 sm:h-20 sm:w-20"
+            sizes="80px"
+          />
 
           <h2 className="bn text-heading-sm font-bold tracking-tight text-foreground sm:text-heading-lg">
             {isBn

@@ -168,7 +168,7 @@ export function AboutFull({ locale = "bn", config, titleAs = "h1" }: AboutFullPr
                           <p className="text-xs text-muted-foreground">
                             {isBn ? info.labelBn : info.labelEn}
                           </p>
-                          <p className="truncate font-semibold bn">
+                          <p className="break-words font-semibold bn">
                             {isBn ? info.valueBn : info.valueEn}
                           </p>
                         </div>

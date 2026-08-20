@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Heart, Mail, MapPin } from "lucide-react";
@@ -9,7 +8,7 @@ import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { LighthouseScoreBadge } from "@/components/seo/LighthouseScoreBadge";
 import { getGlobalConfig } from "@/lib/global/server";
 import { getNewsletterConfig } from "@/lib/newsletter/server";
-import { brandLogoCircleUrl } from "@/lib/brand";
+import { RahatPortrait } from "@/components/sections/RahatPortrait";
 
 // Brand icons rendered as inline SVG paths (lucide has no brand set).
 function GithubMark({ className }: { className?: string }) {
@@ -95,13 +94,11 @@ export async function EnhancedFooter({ locale }: EnhancedFooterProps) {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-3 sm:space-y-4 lg:col-span-1">
-            <Link href={`/${locale}`} className="inline-flex items-center gap-2.5">
-              <Image
-                src={brandLogoCircleUrl(96)}
-                alt=""
-                width={32}
-                height={32}
-                className="h-8 w-8 rounded-full shadow-md shadow-primary/20"
+            <Link href={`/${currentLocale}`} className="inline-flex items-center gap-2.5">
+              <RahatPortrait
+                locale={currentLocale}
+                className="h-10 w-10 shrink-0 ring-2 ring-primary/30 shadow-md shadow-primary/20"
+                sizes="40px"
               />
               <h3 className="text-gradient text-xl font-bold sm:text-2xl">
                 RahatVerse

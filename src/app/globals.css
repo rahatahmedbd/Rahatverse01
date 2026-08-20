@@ -435,7 +435,8 @@ html[lang="bn"] .heading-kicker,
 .section-atmosphere {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .section-atmosphere::before {
@@ -1261,8 +1262,10 @@ html, body {
   max-width: 100vw;
 }
 
-/* Ensure images/SVGs never force overflow on 360px */
-img, svg, video, canvas {
+/* Ensure replaced media never force overflow on 360px.
+   Do not force height:auto on SVG icons or Next.js fill images. */
+img:not([data-nimg="fill"]),
+video {
   max-width: 100%;
 }
 
@@ -1484,12 +1487,13 @@ html, body {
 main, section, header, footer, nav, div {
   min-width: 0;
 }
-img, svg, video, canvas, picture {
+img:not([data-nimg="fill"]),
+video,
+picture {
   max-width: 100%;
-  height: auto;
 }
-img[style*="width"], img[style*="height"] {
-  max-width: 100%;
+img:not([data-nimg]) {
+  height: auto;
 }
 
 /* ── 6. Scroll stability / CLS guards ───────────────── */

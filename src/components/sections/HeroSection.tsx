@@ -97,7 +97,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
   return (
     <section
-      className="relative flex min-h-[calc(100svh-3.5rem)] items-center justify-center overflow-hidden py-8 sm:py-12 lg:min-h-[86vh] lg:py-16 xl:py-20"
+      className="relative flex min-h-[calc(100svh-3.5rem)] items-center justify-center overflow-x-clip py-8 sm:py-12 lg:min-h-[86vh] lg:py-16 xl:py-20"
       aria-label={isBn ? "হিরো সেকশন" : "Hero section"}
     >
       {/* Particle Background — adaptive quality, reduced motion handled inside component */}

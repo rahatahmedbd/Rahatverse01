@@ -452,7 +452,7 @@ export function AboutControlPanel({ locale = "bn" }: AboutControlPanelProps) {
               <div className="h-28 w-28 overflow-hidden rounded-full bg-muted">
                 {config.profileImage.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={config.profileImage.url} alt={isBn ? config.profileImage.altBn : config.profileImage.altEn} className="h-full w-full object-cover" />
+                  <img src={config.profileImage.url} alt={isBn ? config.profileImage.altBn : config.profileImage.altEn} className="h-full w-full object-cover object-[center_16%]" />
                 ) : (
                   <div className="flex h-full items-center justify-center text-center text-xs text-muted-foreground">{isBn ? "Cloudinary fallback" : "Cloudinary fallback"}</div>
                 )}

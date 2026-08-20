@@ -24,6 +24,7 @@ import {
   SelectField,
 } from "@/components/ui/form";
 import { OrbitingRings } from "@/components/interactive";
+import { RahatPortrait } from "./RahatPortrait";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+\d][\d\s()-]{5,24}$/;
@@ -233,6 +234,23 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
 
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="space-y-4">
+            <FadeInLeft>
+              <GlassCard className="flex items-center gap-4 overflow-visible">
+                <RahatPortrait
+                  locale={locale}
+                  className="h-16 w-16 shrink-0 ring-2 ring-primary/40 shadow-md shadow-primary/20 sm:h-20 sm:w-20"
+                  sizes="80px"
+                  rounded="2xl"
+                />
+                <div className="min-w-0">
+                  <p className="text-base font-bold bn">{isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}</p>
+                  <p className="text-sm text-muted-foreground bn">
+                    {isBn ? "ওয়েব ডেভেলপার — সাধারণত ২৪ ঘণ্টার মধ্যে উত্তর দিই" : "Web Developer — I usually reply within 24 hours"}
+                  </p>
+                </div>
+              </GlassCard>
+            </FadeInLeft>
+
             <FadeInLeft>
               <GlassCard className="relative overflow-hidden">
                 <OrbitingRings size="sm" className="absolute -right-16 -top-16 opacity-30 pointer-events-none" />

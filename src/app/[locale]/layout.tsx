@@ -147,8 +147,10 @@ export default async function LocaleLayout({
               {/* Ambient science background — faint motifs behind all content */}
               <ScientificBackdrop />
 
-              {/* Global Animation Effects */}
-              <AnimationProviders />
+              {/* Global Animation Effects — magnetic buttons enabled for a
+                  satisfying pointer pull on every primary CTA; the custom
+                  cursor stays off (native cursors feel faster). */}
+              <AnimationProviders showMagnetic />
 
               {/* Admin-controlled announcement banner */}
               <AnnouncementBanner

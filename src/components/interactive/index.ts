@@ -18,3 +18,6 @@ export type { FlipCard3DProps } from "./FlipCard3D";
 
 export { OrbitingRings } from "./OrbitingRings";
 export type { OrbitingRingsProps } from "./OrbitingRings";
+
+export { SpotlightCard } from "./SpotlightCard";
+export { HoverCard3D } from "./HoverCard3D";

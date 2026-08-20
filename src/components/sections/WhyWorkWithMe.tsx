@@ -2,6 +2,7 @@ import { GlassCard } from "@/components/ui/card";
 import { SectionTitle } from "./SectionTitle";
 import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
 import { ShieldCheck } from "lucide-react";
+import { SpotlightCard } from "@/components/interactive/SpotlightCard";
 import { getServicesConfig } from "@/lib/services/server";
 import { ServicesIcon } from "@/lib/services/icons";
 
@@ -42,6 +43,7 @@ export async function WhyWorkWithMe({ locale = "bn" }: WhyWorkWithMeProps) {
         <StaggerGrid className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           {features.map((feature) => (
             <StaggerItem key={feature.id}>
+              <SpotlightCard className="h-full rounded-2xl">
               <GlassCard className="group h-full p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 sm:p-6">
                 <div className="flex items-start gap-4">
                   <span className="icon-frame h-11 w-11 shrink-0 rounded-xl transition-transform duration-300 group-hover:scale-110 sm:h-12 sm:w-12">
@@ -57,6 +59,7 @@ export async function WhyWorkWithMe({ locale = "bn" }: WhyWorkWithMeProps) {
                   </div>
                 </div>
               </GlassCard>
+              </SpotlightCard>
             </StaggerItem>
           ))}
         </StaggerGrid>

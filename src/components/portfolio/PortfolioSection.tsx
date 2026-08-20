@@ -26,6 +26,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "next-intl";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 import { DEFAULT_PORTFOLIO_CONFIG, validatePortfolioConfig } from "@/lib/portfolio/config";
 import type { PortfolioConfig, PortfolioProjectStatus } from "@/types/portfolio";
 import { cn } from "@/lib/utils";
@@ -446,6 +447,8 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
 
             return (
               <StaggerItem key={project.id}>
+                {/* Subtle 3D tilt on hover (fine pointers only, reduced-motion safe) */}
+                <HoverCard3D intensity={5} className="h-full overflow-visible rounded-2xl">
                 <Card className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/80 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_12px_40px_rgba(245,158,11,0.12)]">
                   {project.embedUrl && project.embedUrl !== "" ? (
                     <LiveSitePreview
@@ -624,6 +627,7 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
                     </div>
                   </CardContent>
                 </Card>
+                </HoverCard3D>
               </StaggerItem>
             );
           })}

@@ -5,6 +5,7 @@ import { SectionTitle } from "./SectionTitle";
 import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
 import { ArrowRight, CheckCircle2, Clock3, Wallet, Layers3 } from "lucide-react";
 import Link from "next/link";
+import { SpotlightCard } from "@/components/interactive/SpotlightCard";
 import { getServicesConfig } from "@/lib/services/server";
 import { DEFAULT_SERVICES_CONFIG } from "@/lib/services/config";
 import { ServicesIcon } from "@/lib/services/icons";
@@ -51,6 +52,7 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
         <StaggerGrid className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
           {services.map((service) => (
             <StaggerItem key={service.id}>
+              <SpotlightCard className="h-full rounded-xl">
               <GlassCard className="group flex h-full flex-col p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <span className="icon-frame h-12 w-12 shrink-0 rounded-xl transition-transform duration-300 group-hover:scale-110">
@@ -97,6 +99,7 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
                   </Link>
                 </div>
               </GlassCard>
+              </SpotlightCard>
             </StaggerItem>
           ))}
         </StaggerGrid>

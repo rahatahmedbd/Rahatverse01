@@ -4,7 +4,6 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { Lock, CheckCircle2, Code2 } from "lucide-react";
 import type { AboutConfig } from "@/types/about";
-import { trackEvent } from "@/lib/analytics/tracker";
 import { RAHAT_PORTRAIT_FIT, RAHAT_PROFILE_PHOTO } from "@/lib/profile";
 
 interface HeroProjectPreviewProps {
@@ -53,20 +52,7 @@ export function HeroProjectPreview({ locale = "bn", aboutConfig }: HeroProjectPr
         </div>
 
         {/* Website screenshot — the actual project preview */}
-        <a
-          href="https://rahatahmed.site"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() =>
-            trackEvent("cta_click", {
-              category: "conversion",
-              label: "hero_project_preview",
-              metadata: { cta_id: "hero_project_preview", location: "hero", locale },
-            })
-          }
-          aria-label={isBn ? "লাইভ প্রজেক্ট দেখুন — rahatahmed.site" : "View live project — rahatahmed.site"}
-          className="group relative block aspect-[16/10] bg-card"
-        >
+        <div className="group relative aspect-[16/10] bg-card">
           <Image
             src="/images/project-preview.png"
             alt={isBn ? "আধুনিক ওয়েবসাইট প্রিভিউ — রাহাত আহমেদের প্রজেক্ট" : "Modern website preview — a project by Rahat Ahmed"}
@@ -84,7 +70,7 @@ export function HeroProjectPreview({ locale = "bn", aboutConfig }: HeroProjectPr
             </span>
             {isBn ? "লাইভ" : "Live"}
           </span>
-        </a>
+        </div>
 
         {/* Bottom strip — status + the developer (secondary) */}
         <div className="flex items-center gap-3 border-t border-white/[0.07] bg-card/70 px-4 py-3">

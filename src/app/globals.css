@@ -383,6 +383,10 @@ html[lang="bn"] .heading-kicker,
   .tilt-card::after {
     display: none;
   }
+
+  .spotlight-card::after {
+    display: none;
+  }
 }
 
 /* ── Utility Classes ──────────────────────────────────── */
@@ -539,6 +543,28 @@ html[lang="bn"] .heading-kicker,
     transparent 48%
   );
   transition: opacity 180ms ease-out;
+}
+
+/* ── Spotlight Card — silver pointer-following glow (colourless light,
+   so it never stacks with the amber brand accent) ────── */
+.spotlight-card {
+  position: relative;
+}
+
+.spotlight-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: var(--spotlight-opacity, 0);
+  background: radial-gradient(
+    320px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    rgb(203 213 225 / 0.14),
+    transparent 65%
+  );
+  transition: opacity 260ms ease-out;
 }
 
 @media (hover: none), (pointer: coarse) {

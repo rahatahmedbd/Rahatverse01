@@ -47,13 +47,13 @@ export async function generateMetadata({
   return {
     title: {
       default: isBn
-        ? "রাহাত আহমেদ — ওয়েব ডেভেলপার, শিক্ষার্থী ও শিক্ষক"
-        : "Rahat Ahmed — Web Developer, Student & Teacher",
+        ? "রাহাত আহমেদ — ওয়েব ডেভেলপার | আধুনিক ওয়েবসাইট ও ওয়েব অ্যাপ্লিকেশন"
+        : "Rahat Ahmed — Web Developer | Modern Websites & Web Applications",
       template: "%s | RahatVerse",
     },
     description: isBn
-      ? "রাহাত আহমেদ — শিক্ষার্থী, শিক্ষক, রক্তদাতা, BNCC ক্যাডেট ও ওয়েব ডেভেলপার। শিক্ষা, সমাজসেবা ও প্রযুক্তির মাধ্যমে মানুষের পাশে দাঁড়ানোর লক্ষ্যে আধুনিক ডিজিটাল অভিজ্ঞতা তৈরি করি।"
-      : "Rahat Ahmed is a student, teacher and web developer building modern digital experiences with AI and technology.",
+      ? "রাহাত আহমেদ — ওয়েব ডেভেলপার এবং রাহাতভার্সের স্রষ্টা। Next.js, React ও TypeScript দিয়ে ব্যবসা ও ব্যক্তিগত ব্র্যান্ডের জন্য আধুনিক, দ্রুত ও রেসপনসিভ ওয়েবসাইট তৈরি করেন।"
+      : "Rahat Ahmed — web developer and creator of RahatVerse. He builds modern, fast, responsive websites and web applications with Next.js, React and TypeScript.",
     alternates: localeAlternates(locale, ""),
     openGraph: {
       locale: isBn ? "bn_BD" : "en_US",
@@ -147,8 +147,10 @@ export default async function LocaleLayout({
               {/* Ambient science background — faint motifs behind all content */}
               <ScientificBackdrop />
 
-              {/* Global Animation Effects */}
-              <AnimationProviders />
+              {/* Global Animation Effects — magnetic buttons enabled for a
+                  satisfying pointer pull on every primary CTA; the custom
+                  cursor stays off (native cursors feel faster). */}
+              <AnimationProviders showMagnetic />
 
               {/* Admin-controlled announcement banner */}
               <AnnouncementBanner

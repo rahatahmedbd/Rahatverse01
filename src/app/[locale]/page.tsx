@@ -2,14 +2,20 @@ import { CinematicIntro } from "@/components/sections/CinematicIntro";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { AboutPreview } from "@/components/sections/AboutPreview";
 import { ServicesPreview } from "@/components/sections/ServicesPreview";
+import { WhyWorkWithMe } from "@/components/sections/WhyWorkWithMe";
+import { ProcessSection } from "@/components/sections/ProcessSection";
+import { BlogPreview } from "@/components/sections/BlogPreview";
 import { OrderCtaBand } from "@/components/sections/OrderCtaBand";
+import { FAQSection } from "@/components/sections/FAQSection";
+import { SectionTitle } from "@/components/sections/SectionTitle";
+import { PortfolioSection } from "@/components/portfolio/PortfolioSection";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
-import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { AuroraDivider } from "@/components/ui/aurora-divider";
 import { getAboutConfig } from "@/lib/about/server";
 import { getHeroConfig } from "@/lib/hero/server";
+import { getPortfolioConfig } from "@/lib/portfolio/server";
+import { getContentConfig } from "@/lib/content/server";
 import { getApprovedTestimonialsServer } from "@/lib/testimonials/server";
-import { getNewsletterConfig } from "@/lib/newsletter/server";
 import { JsonLd, getWebPageSchema } from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 import {
@@ -24,16 +30,21 @@ interface HomePageProps {
   params: Promise<{ locale: string }>;
 }
 
+// ── Homepage — client-focused hierarchy ────────────────
+// Hero (web-developer focus) → Portfolio (the most important section — clients
+// buy proof) → Services → Why Work With Me → How I Work → About (reduced
+// personal info) → Testimonials → FAQ → final CTA → Blog (secondary, bottom).
+// Newsletter moved off the homepage; it remains in the footer.
 export async function generateMetadata({ params }: HomePageProps): Promise<Metadata> {
   const { locale } = await params;
   const isBn = locale === "bn";
   const canonicalUrl = absoluteUrl(localePath(locale));
   const title = isBn
-    ? "রাহাত আহমেদ — ওয়েব ডেভেলপার, শিক্ষার্থী ও শিক্ষক"
-    : "Rahat Ahmed — Web Developer, Student & Teacher";
+    ? "রাহাত আহমেদ — ওয়েব ডেভেলপার | আধুনিক ওয়েবসাইট ও ওয়েব অ্যাপ্লিকেশন"
+    : "Rahat Ahmed — Web Developer | Modern Websites & Web Applications";
   const description = isBn
-    ? "রাহাত আহমেদ — সুনামগঞ্জ, সিলেট, বাংলাদেশের ওয়েব ডেভেলপার ও শিক্ষার্থী এবং রাহাতভার্সের স্রষ্টা। শিক্ষা, সমাজসেবা ও প্রযুক্তির জন্য আধুনিক ডিজিটাল অভিজ্ঞতা তৈরি করি।"
-    : "Rahat Ahmed is a web developer and student from Sunamganj, Sylhet, Bangladesh, and the creator of RahatVerse.";
+    ? "রাহাত আহমেদ আধুনিক, দ্রুত ও রেসপনসিভ ওয়েবসাইট ও ওয়েব অ্যাপ্লিকেশন তৈরি করেন — Next.js, React ও TypeScript দিয়ে। পোর্টফোলিও, সার্ভিস ও কেস স্টাডি দেখুন।"
+    : "Rahat Ahmed builds modern, fast, responsive websites and web applications with Next.js, React and TypeScript. Explore the portfolio, services and case studies.";
   const ogImageAlt = isBn ? "রাহাত আহমেদ — রাহাতভার্স" : "Rahat Ahmed — RahatVerse";
 
   return {
@@ -68,11 +79,13 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
 
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
-  const [aboutConfig, heroConfig, testimonials, newsletterConfig] = await Promise.all([
+  const isBn = locale === "bn";
+  const [aboutConfig, heroConfig, portfolioConfig, contentConfig, testimonials] = await Promise.all([
     getAboutConfig(),
     getHeroConfig(),
+    getPortfolioConfig(),
+    getContentConfig(),
     getApprovedTestimonialsServer(6),
-    getNewsletterConfig(),
   ]);
 
   return (
@@ -83,11 +96,47 @@ export default async function HomePage({ params }: HomePageProps) {
 
       <AuroraDivider spacing="md" />
 
-      <AboutPreview locale={locale} config={aboutConfig} />
+      {/* Portfolio — the homepage's most important section. Clients buy proof:
+          screenshots, tech stack, live demos and honest case studies. */}
+      <section
+        id="portfolio"
+        className="section-atmosphere scroll-mt-24 py-12 sm:py-16 lg:py-20"
+        aria-labelledby="home-portfolio-heading"
+      >
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <span id="home-portfolio-heading" className="sr-only">
+            {isBn ? "পোর্টফোলিও" : "Portfolio"}
+          </span>
+          <SectionTitle
+            badge={isBn ? "💼 কাজ ও কেস স্টাডি" : "💼 Work & Case Studies"}
+            title="Featured Work"
+            titleBn="সেরা কাজসমূহ"
+            subtitle={
+              isBn
+                ? "প্রতিটি প্রজেক্টে স্ক্রিনশট, টেক স্ট্যাক, লাইভ ডেমো ও সৎ কেস স্টাডি — কোনো কাল্পনিক দাবি নয়"
+                : "Every project ships with a screenshot, tech stack, live demo and an honest case study"
+            }
+            locale={locale}
+          />
+          <PortfolioSection initialConfig={portfolioConfig} />
+        </div>
+      </section>
 
       <AuroraDivider spacing="md" />
 
       <ServicesPreview locale={locale} />
+
+      <AuroraDivider spacing="md" />
+
+      <WhyWorkWithMe locale={locale} />
+
+      <AuroraDivider spacing="md" />
+
+      <ProcessSection locale={locale} />
+
+      <AuroraDivider spacing="md" />
+
+      <AboutPreview locale={locale} config={aboutConfig} />
 
       <AuroraDivider spacing="md" />
 
@@ -98,14 +147,15 @@ export default async function HomePage({ params }: HomePageProps) {
 
       <AuroraDivider spacing="md" />
 
-      <OrderCtaBand locale={locale} />
+      {/* FAQ — client questions answered before they ask */}
+      <FAQSection locale={locale} initialConfig={contentConfig} />
 
       <AuroraDivider spacing="md" />
 
-      {/* Newsletter — compact, not giant */}
-      <section id="newsletter" className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:py-12">
-        <NewsletterSignup locale={locale} source="homepage" initialConfig={newsletterConfig} />
-      </section>
+      <OrderCtaBand locale={locale} />
+
+      {/* Blog — secondary content, kept at the bottom of the homepage */}
+      <BlogPreview locale={locale} />
     </>
   );
 }

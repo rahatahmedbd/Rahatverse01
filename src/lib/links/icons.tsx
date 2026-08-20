@@ -44,7 +44,16 @@ export const LINK_ICON_OPTIONS = [
   "Twitter",
   "Globe",
   "Link2",
+  "Fiverr",
+  "Upwork",
 ] as const;
+
+function FiverrIcon({ className }: IconProps) {
+  return <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M23.15 9.07h-.96v-.15c0-1.05-.85-1.9-1.9-1.9h-.15V5.05c1.5-.25 2.6-.9 2.6-1.95h-4.05c-.15 0-.25.1-.25.25v3.65h-6.1v-.15c0-1.05-.85-1.9-1.9-1.9h-.15V5.05c1.5-.25 2.6-.9 2.6-1.95H5.2v5.97h-.96c-.3 0-.55.25-.55.55v1.53c0 .3.25.55.55.55h.96v1.34c0 3.53 2.13 5.36 5.42 5.36.9 0 1.63-.1 2.25-.3v-2.9c-.4.15-.86.23-1.38.23-1.5 0-2.5-.83-2.5-2.4v-1.34h3.9v.15c0 1.05.85 1.9 1.9 1.9h.15v.44c0 1.57-.86 2.4-2.35 2.4-.55 0-1.04-.08-1.45-.24v2.9c.65.2 1.43.3 2.35.3 3.3 0 5.4-1.83 5.4-5.36v-1.34h.96c.3 0 .55-.25.55-.55V9.62c0-.3-.25-.55-.55-.55z" /></svg>;
+}
+function UpworkIcon({ className }: IconProps) {
+  return <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M18.4 6.6c-2.7 0-4.1 1.9-4.9 3.9-.4-.9-.8-2.1-1.1-3l-3.2-.014v6.114c-.6 1.1-1.4 1.8-2.4 1.8-1.4 0-2.1-1-2.1-2.9V7.5H1.6v5c0 3.4 1.7 5.6 4.6 5.6 2 0 3.4-1.1 4.4-2.6.4 1.4 1.5 2.6 3.3 2.6 2.6 0 4.5-2.9 5.4-6.5h-1.9c-.5 1.9-1.4 3.2-2.4 3.2-.9 0-1.3-.6-1.3-2V6.6h-.7z" /></svg>;
+}
 
 const MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Facebook: FacebookIcon,
@@ -59,6 +68,8 @@ const MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Twitter: TwitterIcon,
   Globe,
   Link2,
+  Fiverr: FiverrIcon,
+  Upwork: UpworkIcon,
 };
 
 export function LinkIcon({ name, className }: { name: string; className?: string }) {

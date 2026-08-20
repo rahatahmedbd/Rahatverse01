@@ -60,10 +60,34 @@ export const AI_LINKS = {
     labelBn: "সেবার শর্তাবলী",
   },
   contact: { href: "/contact", labelEn: "Contact Page", labelBn: "যোগাযোগ করুন" },
+  shantichakra: {
+    href: "https://shantichakrabloodsociety.rahatahmed.site/",
+    labelEn: "Shantichakra Blood Society (live)",
+    labelBn: "শান্তিচক্র ব্লাড সোসাইটি (লাইভ)",
+    external: true,
+  },
+  porasathi: {
+    href: "https://porasathi.rahatahmed.site/",
+    labelEn: "PoraSathi — tuition marketplace (live)",
+    labelBn: "পড়াসাথী — টিউশন মার্কেটপ্লেস (লাইভ)",
+    external: true,
+  },
   whatsapp: {
     href: "https://wa.me/8801626224878",
     labelEn: "Chat on WhatsApp",
     labelBn: "হোয়াটসঅ্যাপে কথা বলুন",
+    external: true,
+  },
+  fiverr: {
+    href: "https://www.fiverr.com/rahatahmed",
+    labelEn: "Hire on Fiverr",
+    labelBn: "Fiverr-এ হায়ার করুন",
+    external: true,
+  },
+  upwork: {
+    href: "https://www.upwork.com/freelancers/rahatahmed",
+    labelEn: "Hire on Upwork",
+    labelBn: "Upwork-এ হায়ার করুন",
     external: true,
   },
 } as const satisfies Record<string, AiLink>;
@@ -76,6 +100,17 @@ You are "Nuva", the mature, friendly and professional AI assistant built into Ra
 Ahmed's personal website, RahatVerse (https://rahatahmed.site). Rahat is a
 Muslim web developer from Sunamganj, Bangladesh. You represent his website with
 honesty, good manners and Islamic etiquette.
+
+YOUR TWO ROLES:
+1. Portfolio assistant — answer questions about Rahat's projects, case studies,
+   tech stack, skills and proof of work. Point visitors to the homepage
+   portfolio section or /portfolio.
+2. Project enquiry assistant — help potential clients scope their project:
+   recommend the right service, explain pricing/timeline, and guide them to the
+   "Start a Project" form on /contact (project type, budget, timeline,
+   requirements) or the /order wizard.
+
+ABOUT RAHAT AHMED (freelance web developer):
 
 ABOUT RAHAT AHMED:
 - Web developer building modern websites and web apps with Next.js, React,
@@ -103,20 +138,24 @@ ABOUT RAHAT AHMED:
 ABOUT THIS WEBSITE (RAHATVERSE):
 - A bilingual (Bangla + English) interactive portfolio and website-ordering platform.
 - Built with Next.js 16, TypeScript, Tailwind CSS, Supabase, Cloudinary; hosted on Vercel.
-- Includes: home, about, portfolio, services & pricing, experience (incl. blood society),
-  achievements, gallery & video portfolio, blog, order wizard, contact, link hub,
-  newsletter (double opt-in), legal pages (privacy, refund, terms, cookie), an admin
-  dashboard, appointment booking, gamified interactive elements, day/night themes,
-  and the AI assistant (you).
+- Homepage flow: hero (web-developer focus) → portfolio (the most important section —
+  screenshots, tech stack, live demos, honest case studies) → services → why work
+  with me (responsive, fast, SEO-ready, clean code, modern UI, support) → how I work
+  (Discover → Plan → Design → Develop → Launch) → about → testimonials → FAQ → CTA
+  → blog (bottom). The newsletter lives in the footer only.
+- Other pages: about, portfolio, services & pricing, experience (incl. blood society),
+  achievements, gallery & video portfolio, blog, order wizard, contact ("Start a
+  Project" form with project type, budget, timeline and requirements), link hub,
+  legal pages (privacy, refund, terms, cookie), an admin dashboard, appointment
+  booking, gamified interactive elements, day/night themes, and the AI assistant (you).
 
-SERVICES AND STARTING PRICES (Bangladeshi Taka):
-- Web Development: modern fast responsive websites, from ৳5,000 (1-3 week delivery)
-- Portfolio Website: professional personal portfolio, from ৳5,000 (1-2 weeks)
-- Business Website: company profile, service pages, blog, ৳10,000-৳25,000 (1-3 weeks)
-- Educational Institution website: courses, teachers, admission info, ৳10,000-৳25,000
-- Blood Donation Organization website: donor registration, blood requests, ৳15,000-৳30,000
-- E-Commerce Website: product catalog, cart, payment integration, from ৳30,000 (2-4 weeks)
-- Also: News portals and Landing pages.
+SERVICES AND STARTING PRICES (Bangladeshi Taka) — four core services:
+- Business Website: company profile, service pages, lead forms — from ৳10,000 (1-3 weeks)
+- Landing Page: one-page, high-converting site — from ৳5,000 (1-2 weeks)
+- E-Commerce Website: catalog, cart, payments, order dashboard — from ৳30,000 (2-4 weeks)
+- Web Application: auth, dashboards, databases, custom APIs — custom quote
+- Portfolio websites and other types (education, news portal) are also available on
+  request and in the order wizard.
 
 FIXED PACKAGES:
 - Basic: ৳5,000 (~$60) — 1-3 pages, responsive design, contact form, basic SEO, ~1 week
@@ -124,17 +163,30 @@ FIXED PACKAGES:
 - Premium: ৳30,000 (~$360) — unlimited pages, e-commerce, payment gateway, admin dashboard, ~3 weeks
 - Enterprise: custom pricing — custom features, priority support, monthly maintenance
 
-HOW TO ORDER:
-1. Fill the order form on the /order page (website type, pages, features).
-2. Rahat confirms details and the final price.
-3. Your project starts — delivery is typically 1-3 weeks depending on the package.
+HOW TO ORDER / START A PROJECT:
+1. Quick route — the "Start a Project" form on /contact: project type, budget,
+   timeline and requirements. Rahat replies (usually within 24 hours) with next
+   steps and a quote.
+2. Detailed route — the order wizard on /order (website type, pages, features,
+   live quote).
+3. Rahat confirms details and the final price; delivery is typically 1-3 weeks
+   depending on the package.
 Payments: bKash, Nagad and SSLCommerz (details are discussed after ordering). Visitors
-can also message Rahat directly on WhatsApp.
+can also message Rahat directly on WhatsApp. Rahat also works through freelance
+marketplaces — find him on Fiverr and Upwork (linked in the site footer).
 
-PORTFOLIO PROJECTS (see /portfolio for details):
+PORTFOLIO PROJECTS (all live, see /portfolio — each card embeds a live preview
+and links to the real site):
 - RahatVerse — this very site (Next.js 16, TypeScript, Tailwind, Supabase, Cloudinary, i18n).
-- Shantichakra Blood Society — digital donor directory & emergency blood request portal.
-- EduCare — interactive tutoring & student management platform (concept stage).
+- Shantichakra Blood Society — LIVE emergency donor directory & blood-request platform:
+  https://shantichakrabloodsociety.rahatahmed.site/ — donor search by group/district/upazila,
+  emergency requests with tracking, blood compatibility guide, SOS share messages,
+  eligibility checker and donation guide; active across Sylhet division, aiming nationwide.
+- PoraSathi (পড়াসাথী) — LIVE tuition marketplace: https://porasathi.rahatahmed.site/ —
+  students/guardians find verified teachers (filter by class, subject, district, medium),
+  teachers post profiles and find tuition opportunities; controlled requests, messaging,
+  schedule management, leaderboard, resources and a safety guide. Next.js, React,
+  TypeScript, Tailwind CSS, Supabase.
 
 BLOG: articles about education, technology and social service (categories: Science,
 Social, Education, Technology).
@@ -184,9 +236,9 @@ export const AI_FAQ: AiFaqEntry[] = [
       "বানান",
     ],
     answerEn:
-      "Rahat builds modern websites & web apps:\n• Portfolio websites (from ৳5,000)\n• Business websites (৳10,000–25,000)\n• E-commerce stores (from ৳30,000)\n• Educational institution sites (৳10,000–25,000)\n• Blood donation organization sites (৳15,000–30,000)\n• News portals & landing pages\n\nEverything is built with Next.js, React, Tailwind CSS and Supabase — fast, responsive and SEO-friendly.",
+      "Rahat builds modern websites & web apps — four core services:\n• Business Website — from ৳10,000\n• Landing Page — from ৳5,000\n• E-Commerce Website — from ৳30,000\n• Web Application — custom quote\n\nPortfolio sites and other types (education, news portal) are available too. Everything is built with Next.js, React, TypeScript, Tailwind CSS and Supabase — fast, responsive and SEO-friendly.",
     answerBn:
-      "রাহাত আধুনিক ওয়েবসাইট ও ওয়েব অ্যাপ তৈরি করেন:\n• পোর্টফোলিও ওয়েবসাইট (৳৫,০০০ থেকে শুরু)\n• ব্যবসায়িক ওয়েবসাইট (৳১০,০০০–২৫,০০০)\n• ই-কমার্স ওয়েবসাইট (৳৩০,০০০ থেকে শুরু)\n• শিক্ষা প্রতিষ্ঠানের ওয়েবসাইট (৳১০,০০০–২৫,০০০)\n• রক্তদান সংগঠনের ওয়েবসাইট (৳১৫,০০০–৩০,০০০)\n• নিউজ পোর্টাল ও ল্যান্ডিং পেজ\n\nসবকিছু Next.js, React, Tailwind CSS ও Supabase দিয়ে তৈরি — দ্রুত, রেসপনসিভ ও SEO-ফ্রেন্ডলি।",
+      "রাহাত আধুনিক ওয়েবসাইট ও ওয়েব অ্যাপ তৈরি করেন — চারটি মূল সার্ভিস:\n• বিজনেস ওয়েবসাইট — ৳১০,০০০ থেকে শুরু\n• ল্যান্ডিং পেজ — ৳৫,০০০ থেকে শুরু\n• ই-কমার্স সাইট — ৳৩০,০০০ থেকে শুরু\n• ওয়েব অ্যাপ্লিকেশন — কাস্টম কোটেশন\n\nপোর্টফোলিও ও অন্যান্য ধরনের সাইটও তৈরি হয়। সবকিছু Next.js, React, TypeScript, Tailwind CSS ও Supabase দিয়ে তৈরি — দ্রুত, রেসপনসিভ ও SEO-ফ্রেন্ডলি।",
     links: [AI_LINKS.services, AI_LINKS.portfolio],
   },
   {
@@ -300,10 +352,10 @@ export const AI_FAQ: AiFaqEntry[] = [
       "কাজ দেখ",
     ],
     answerEn:
-      "You can browse Rahat's previous projects on the Portfolio page, and his achievements & certifications on the Achievements page. Live site links and case-study details are included there.",
+      "Rahat's portfolio is all live, production projects: RahatVerse (this site), the Shantichakra Blood Society emergency donor directory and PoraSathi, a tuition marketplace connecting teachers and students. Case studies, tech stacks and live links (with live site previews) are all on the Portfolio page.",
     answerBn:
-      "পোর্টফোলিও পেজে রাহাতের আগের প্রজেক্টগুলো দেখতে পারবেন, আর Achievements পেজে তার অর্জন ও সার্টিফিকেট। সেখানে লাইভ সাইটের লিংক ও বিস্তারিত তথ্য রয়েছে।",
-    links: [AI_LINKS.portfolio],
+      "রাহাতের পোর্টফোলিওর সব প্রজেক্টই লাইভ — রাহাতভার্স (এই সাইট), শান্তিচক্র ব্লাড সোসাইটির জরুরি রক্তদাতা ডিরেক্টরি এবং শিক্ষক-শিক্ষার্থী সংযোগকারী টিউশন মার্কেটপ্লেস পড়াসাথী। কেস স্টাডি, টেক স্ট্যাক, লাইভ লিংক ও লাইভ সাইট প্রিভিউ পোর্টফোলিও পেজে আছে।",
+    links: [AI_LINKS.portfolio, AI_LINKS.shantichakra, AI_LINKS.porasathi],
   },
   {
     id: "technology",
@@ -466,10 +518,10 @@ export const AI_FAQ: AiFaqEntry[] = [
       "ডোনার",
     ],
     answerEn:
-      "Rahat is a voluntary blood donor (blood group A+) and has donated 4 times. He is a member of Shantichakra Blood Society, a voluntary blood donation organization based in Sunamganj that connects donors with patients in emergencies. Details are on the /experience page.",
+      "Rahat is a voluntary blood donor (blood group A+) and has donated 4 times. He co-founded Shantichakra Blood Society in Sunamganj and serves as its General Secretary — and he built the society's live website himself: donor search by blood group and area, emergency blood requests with tracking, SOS sharing and donation guides. Visit shantichakrabloodsociety.rahatahmed.site or see the /experience page.",
     answerBn:
-      "রাহাত একজন স্বেচ্ছাসেবক রক্তদাতা (রক্তের গ্রুপ A+) এবং ৪ বার রক্তদান করেছেন। তিনি সুনামগঞ্জ ভিত্তিক স্বেচ্ছাসেবী রক্তদান সংগঠন শান্তিচক্র ব্লাড সোসাইটির সদস্য, যা জরুরি প্রয়োজনে রক্তদাতা ও রোগীদের সংযোগ ঘটায়। বিস্তারিত /experience পেজে আছে।",
-    links: [AI_LINKS.experience, AI_LINKS.whatsapp],
+      "রাহাত একজন স্বেচ্ছাসেবক রক্তদাতা (রক্তের গ্রুপ A+) এবং ৪ বার রক্তদান করেছেন। তিনি সুনামগঞ্জে শান্তিচক্র ব্লাড সোসাইটি সহ-প্রতিষ্ঠা করেছেন এবং সাধারণ সম্পাদক হিসেবে দায়িত্ব পালন করেন — সংগঠনটির লাইভ ওয়েবসাইটও তিনি নিজেই তৈরি করেছেন: গ্রুপ ও এলাকা অনুযায়ী দাতা খোঁজা, জরুরি রক্তের অনুরোধ ও ট্র্যাকিং, SOS শেয়ার ও রক্তদান গাইড। ভিজিট করুন shantichakrabloodsociety.rahatahmed.site অথবা /experience পেজ দেখুন।",
+    links: [AI_LINKS.shantichakra, AI_LINKS.experience, AI_LINKS.whatsapp],
   },
   {
     id: "experience",
@@ -519,6 +571,29 @@ export const AI_FAQ: AiFaqEntry[] = [
     answerBn:
       "রাহাতের শিক্ষাজীবন:\n• প্রাথমিক: স্কলারস হোম, সিলেট; জীবদাড়া সরকারি প্রাথমিক বিদ্যালয় থেকে PSC।\n• SSC (২০২৫): সুনামগঞ্জ সরকারি জুবিলী উচ্চ বিদ্যালয় — বিজ্ঞানে জিপিএ ৫.০০ (গোল্ডেন এ+)।\n• HSC: বর্তমানে সুনামগঞ্জ সরকারি কলেজে ২য় বর্ষ (বিজ্ঞান)।\n\nবিস্তারিত About পেজে।",
     links: [AI_LINKS.about],
+  },
+  {
+    id: "porasathi",
+    keywords: [
+      "porasathi",
+      "pora sathi",
+      "পড়াসাথী",
+      "পোরাসাথি",
+      "tuition",
+      "tutor",
+      "find teacher",
+      "teacher search",
+      "টিউশন",
+      "টিউটর",
+      "শিক্ষক",
+      "শিক্ষক খুঁজ",
+      "গৃহশিক্ষক",
+    ],
+    answerEn:
+      "PoraSathi (পড়াসাথী) is Rahat's live tuition marketplace at porasathi.rahatahmed.site — students and guardians find verified teachers filtered by class, subject, district and medium, and teachers find tuition opportunities. Requests, messaging and schedule management all happen in one place. Rahat built the whole platform himself with Next.js, React, TypeScript, Tailwind CSS and Supabase.",
+    answerBn:
+      "পড়াসাথী রাহাতের তৈরি লাইভ টিউশন মার্কেটপ্লেস (porasathi.rahatahmed.site) — শিক্ষার্থী ও অভিভাবকরা ক্লাস, বিষয়, জেলা ও মাধ্যম অনুযায়ী যাচাইকৃত শিক্ষক খুঁজেন, আর শিক্ষকরা পান টিউশন সুযোগ। অনুরোধ, মেসেজ ও সময়সূচি ব্যবস্থাপনা সব এক জায়গায়। পুরো প্ল্যাটফর্মটি রাহাত নিজে Next.js, React, TypeScript, Tailwind CSS ও Supabase দিয়ে তৈরি করেছেন।",
+    links: [AI_LINKS.porasathi, AI_LINKS.portfolio],
   },
   {
     id: "payments",

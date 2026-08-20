@@ -20,10 +20,13 @@ import {
   FolderOpen,
   ArrowRight,
   Sparkles,
+  Globe,
+  Lock,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "next-intl";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 import { DEFAULT_PORTFOLIO_CONFIG, validatePortfolioConfig } from "@/lib/portfolio/config";
 import type { PortfolioConfig, PortfolioProjectStatus } from "@/types/portfolio";
 import { cn } from "@/lib/utils";
@@ -76,6 +79,154 @@ function packageForProjectCategory(category: string): string {
 
 function buildSimilarLabel(isBn: boolean): string {
   return isBn ? "এমন ওয়েবসাইট তৈরি করুন →" : "Build a Similar Website →";
+}
+
+// ── Live site preview ─────────────────────────────────
+// For deployed projects (embedUrl set) the card embeds the REAL website in a
+// lazy iframe inside a mock browser frame — no static image. A full-size link
+// overlay sits on top, so clicking anywhere on the preview opens the live
+// site in a new tab. If the site refuses framing, the framed backdrop with
+// the domain pill still reads clearly.
+function LiveSitePreview({
+  embedUrl,
+  liveUrl,
+  title,
+  isBn,
+}: {
+  embedUrl: string;
+  liveUrl: string;
+  title: string;
+  isBn: boolean;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+  // In development (e.g. sandboxed previews with no outbound network) start
+  // with a DIRECT embed so frame-friendly sites render immediately. In
+  // production start with the same-origin proxy snapshot, which works even
+  // when the target blocks framing.
+  const [stage, setStage] = useState<"proxy" | "direct">(
+    process.env.NODE_ENV === "development" ? "direct" : "proxy"
+  );
+  let domain = liveUrl;
+  try {
+    domain = new URL(liveUrl).hostname.replace(/^www\./, "");
+  } catch {
+    /* keep raw */
+  }
+
+  // Stage 1 — same-origin proxy snapshot (production default).
+  // Stage 2 — direct embed from the visitor's browser: used in dev, or when
+  // the proxy reports it could not fetch the target (postMessage below).
+  const proxySrc = `/api/site-preview?url=${encodeURIComponent(embedUrl)}`;
+  const frameSrc = stage === "proxy" ? proxySrc : embedUrl;
+
+  // The proxy's fallback page announces itself; switch to a direct embed.
+  useEffect(() => {
+    if (stage !== "proxy") return;
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as { type?: string; url?: string } | null;
+      if (data?.type === "rv-preview-fallback" && data.url === embedUrl) {
+        setStage("direct");
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [stage, embedUrl]);
+
+  // If neither stage confirms a load within a reasonable window, stop the
+  // endless "loading" state and tell the visitor honestly.
+  useEffect(() => {
+    if (loaded || failed) return;
+    const timer = window.setTimeout(() => setFailed(true), 15_000);
+    return () => window.clearTimeout(timer);
+  }, [loaded, failed, stage]);
+
+  const handleFrameLoad = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
+    if (stage === "proxy") {
+      try {
+        const doc = e.currentTarget.contentDocument;
+        if (doc?.body?.hasAttribute("data-preview-fallback")) {
+          setStage("direct"); // server couldn't fetch — let the browser try
+          return;
+        }
+      } catch {
+        /* cross-origin surprise — treat as loaded */
+      }
+    }
+    setLoaded(true);
+    setFailed(false);
+  };
+
+  return (
+    <div className="relative h-52 w-full overflow-hidden bg-card">
+      {/* Backdrop — visible while loading or if the preview cannot render */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/10 via-card to-blue-500/[0.07]" aria-hidden="true">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
+          <Globe className={cn("h-6 w-6 text-primary", !failed && "animate-pulse")} />
+        </div>
+        <span className="font-mono text-xs font-semibold text-muted-foreground">{domain}</span>
+        <span className="text-[10px] text-muted-foreground/70">
+          {failed
+            ? isBn
+              ? "প্রিভিউ এখানে দেখা যাচ্ছে না — লাইভ সাইট খুলুন ↗"
+              : "Preview can't render here — open the live site ↗"
+            : isBn
+              ? "লাইভ প্রিভিউ লোড হচ্ছে…"
+              : "Loading live preview…"}
+        </span>
+      </div>
+
+      {/* The real website — same-origin snapshot via /api/site-preview,
+          falling back to a direct embed when the proxy can't fetch */}
+      <iframe
+        src={frameSrc}
+        title={`${title} — ${isBn ? "লাইভ প্রিভিউ" : "live preview"}`}
+        loading="lazy"
+        scrolling="no"
+        tabIndex={-1}
+        aria-hidden="true"
+        onLoad={handleFrameLoad}
+        className={cn(
+          "absolute inset-x-0 bottom-0 top-8 h-[calc(100%-2rem)] w-full border-0 bg-background transition-opacity duration-500",
+          loaded ? "opacity-100" : "opacity-0"
+        )}
+      />
+
+      {/* Browser chrome — drawn above the iframe */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-8 items-center gap-2 border-b border-white/[0.08] bg-card/85 px-3 backdrop-blur" aria-hidden="true">
+        <span className="flex gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-red-400/80" />
+          <span className="h-2 w-2 rounded-full bg-amber-400/80" />
+          <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
+        </span>
+        <span className="flex min-w-0 items-center gap-1 rounded bg-background/60 px-2 py-0.5 text-[10px] text-muted-foreground">
+          <Lock className="h-2.5 w-2.5 shrink-0 text-emerald-400/80" />
+          <span className="truncate font-mono">{domain}</span>
+        </span>
+        <span className="ml-auto hidden items-center gap-1 text-[9px] font-medium uppercase tracking-wider text-emerald-400/80 sm:flex">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          </span>
+          {isBn ? "লাইভ" : "Live"}
+        </span>
+      </div>
+
+      {/* Full-area click overlay — always opens the live site */}
+      <a
+        href={liveUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${title} — ${isBn ? "লাইভ ওয়েবসাইট খুলুন" : "open the live website"}`}
+        className="group/preview absolute inset-0 z-20 flex items-end justify-center pb-4 focus-visible:outline-none"
+      >
+        <span className="pointer-events-none inline-flex translate-y-2 items-center gap-1.5 rounded-full border border-primary/40 bg-background/85 px-3 py-1.5 text-[11px] font-semibold text-primary opacity-0 shadow-lg backdrop-blur transition-all duration-300 group-hover/preview:translate-y-0 group-hover/preview:opacity-100 group-focus-visible/preview:translate-y-0 group-focus-visible/preview:opacity-100">
+          <ExternalLink className="h-3 w-3" aria-hidden="true" />
+          {isBn ? "লাইভ সাইট খুলুন" : "Open Live Site"}
+        </span>
+      </a>
+    </div>
+  );
 }
 
 function ProjectImage({
@@ -296,12 +447,23 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
 
             return (
               <StaggerItem key={project.id}>
+                {/* Subtle 3D tilt on hover (fine pointers only, reduced-motion safe) */}
+                <HoverCard3D intensity={5} className="h-full overflow-visible rounded-2xl">
                 <Card className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/80 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_12px_40px_rgba(245,158,11,0.12)]">
-                  <ProjectImage
-                    src={project.image}
-                    alt={titleText}
-                    category={project.category}
-                  />
+                  {project.embedUrl && project.embedUrl !== "" ? (
+                    <LiveSitePreview
+                      embedUrl={project.embedUrl}
+                      liveUrl={project.liveUrl}
+                      title={titleText}
+                      isBn={isBn}
+                    />
+                  ) : (
+                    <ProjectImage
+                      src={project.image}
+                      alt={titleText}
+                      category={project.category}
+                    />
+                  )}
 
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between gap-2 mb-1">
@@ -465,6 +627,7 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
                     </div>
                   </CardContent>
                 </Card>
+                </HoverCard3D>
               </StaggerItem>
             );
           })}

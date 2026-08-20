@@ -46,8 +46,10 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
     name: "",
     email: "",
     phone: "",
-    subject: "",
-    message: "",
+    projectType: "",
+    budget: "",
+    timeline: "",
+    requirements: "",
   });
 
   const updateField = (field: keyof typeof form, value: string) => {
@@ -72,13 +74,15 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
     if (form.phone && !PHONE_RE.test(form.phone.trim())) {
       errs.phone = isBn ? "সঠিক ফোন নম্বর দিন" : "Enter a valid phone number";
     }
-    if (!form.subject) errs.subject = isBn ? "বিষয় বেছে নিন" : "Please choose a subject";
-    if (!form.message.trim()) errs.message = isBn ? "বার্তা লিখুন" : "Please write your message";
+    if (!form.projectType) errs.projectType = isBn ? "প্রজেক্টের ধরন বেছে নিন" : "Please choose a project type";
+    if (!form.budget) errs.budget = isBn ? "বাজেট বেছে নিন" : "Please choose a budget";
+    if (!form.timeline) errs.timeline = isBn ? "সময়রেখা বেছে নিন" : "Please choose a timeline";
+    if (!form.requirements.trim()) errs.requirements = isBn ? "প্রজেক্টের বিবরণ লিখুন" : "Please describe your project";
     return errs;
   };
 
   const scrollToFirstContactError = (errs: Record<string, string>) => {
-    const order = ["name", "email", "phone", "subject", "message"];
+    const order = ["name", "email", "phone", "projectType", "budget", "timeline", "requirements"];
     const firstKey = order.find((k) => k in errs);
     if (!firstKey) return;
     const el =
@@ -157,17 +161,34 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
     setIsSubmitting(true);
     setError("");
 
+    // Compose a structured enquiry for the messages API: the subject stays
+    // within its enum, and project type / budget / timeline lead the message
+    // body so replies can reference them directly.
+    const composedMessage = [
+      `Project type: ${form.projectType}`,
+      `Budget: ${form.budget}`,
+      `Timeline: ${form.timeline}`,
+      "",
+      form.requirements.trim(),
+    ].join("\n");
+
     try {
       const res = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim() || undefined,
+          subject: "web_dev",
+          message: composedMessage,
+        }),
       });
 
       if (res.ok) {
         trackEvent("contact_submit", { category: "conversion", metadata: { locale } });
         setIsSubmitted(true);
-        setForm({ name: "", email: "", phone: "", subject: "", message: "" });
+        setForm({ name: "", email: "", phone: "", projectType: "", budget: "", timeline: "", requirements: "" });
       } else {
         const data = await res.json().catch(() => null);
         setError(data?.error || (isBn ? "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।" : "Something went wrong. Please try again."));
@@ -199,13 +220,13 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
           as="h1"
-          badge={isBn ? "📞 যোগাযোগ" : "📞 Contact"}
-          title="Get In Touch"
-          titleBn="যোগাযোগ করুন"
+          badge={isBn ? "🚀 প্রজেক্ট শুরু করুন" : "🚀 Start a Project"}
+          title="Start a Project"
+          titleBn="প্রজেক্ট শুরু করুন"
           subtitle={
             isBn
-              ? "পড়াশোনা, রক্তদান, ওয়েব ডেভেলপমেন্ট বা যেকোনো সহযোগিতার জন্য যোগাযোগ করুন"
-              : "Contact me for tutoring, blood donation, web development, or any help"
+              ? "আপনার প্রজেক্টের ধরন, বাজেট ও সময়রেখা জানান — আমি সাধারণত ২৪ ঘণ্টার মধ্যে বিস্তারিত উত্তর দিই"
+              : "Tell me your project type, budget and timeline — I usually reply with details within 24 hours"
           }
           locale={locale}
         />
@@ -282,8 +303,8 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20" aria-hidden="true">
                       <CheckCircle2 className="h-8 w-8 text-green-400" />
                     </div>
-                    <h3 className="text-xl font-bold bn">{isBn ? "বার্তা পাঠানো হয়েছে!" : "Message Sent!"}</h3>
-                    <p className="mt-2 text-muted-foreground bn">{isBn ? "ধন্যবাদ! আমি শীঘ্রই উত্তর দেব।" : "Thank you! I will reply shortly."}</p>
+                    <h3 className="text-xl font-bold bn">{isBn ? "রিকোয়েস্ট পাঠানো হয়েছে!" : "Request Sent!"}</h3>
+                    <p className="mt-2 text-muted-foreground bn">{isBn ? "ধন্যবাদ! আমি সাধারণত ২৪ ঘণ্টার মধ্যে পরবর্তী ধাপ ও কোটেশন নিয়ে যোগাযোগ করি।" : "Thank you! I usually reply within 24 hours with next steps and a quote."}</p>
                     <Button variant="outline" className="mt-4 min-h-[44px]" onClick={() => setIsSubmitted(false)}>
                       {isBn ? "আরেকটি বার্তা পাঠান" : "Send Another Message"}
                     </Button>
@@ -291,7 +312,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                 ) : (
                   <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" noValidate data-form aria-labelledby="contact-form-heading">
                     <h3 id="contact-form-heading" className="text-lg font-bold bn">
-                      {isBn ? "বার্তা পাঠান" : "Send a Message"}
+                      {isBn ? "প্রজেক্টের বিবরণ দিন" : "Tell me about your project"}
                     </h3>
 
                     {Object.keys(errors).length > 0 && (
@@ -334,7 +355,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <FormField id="contact-phone" label={isBn ? "ফোন" : "Phone"} hint={isBn ? "ঐচ্ছিক" : "Optional"} error={errors.phone}>
+                      <FormField id="contact-phone" label={isBn ? "ফোন / হোয়াটসঅ্যাপ" : "Phone / WhatsApp"} hint={isBn ? "ঐচ্ছিক" : "Optional"} error={errors.phone}>
                         <TextField
                           id="contact-phone"
                           type="tel"
@@ -346,31 +367,74 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                           inputMode="tel"
                         />
                       </FormField>
-                      <FormField id="contact-subject" label={isBn ? "বিষয়" : "Subject"} required error={errors.subject}>
+                      <FormField id="contact-project-type" label={isBn ? "প্রজেক্টের ধরন" : "Project Type"} required error={errors.projectType}>
                         <SelectField
-                          id="contact-subject"
-                          value={form.subject}
-                          onChange={(e) => updateField("subject", e.target.value)}
-                          placeholder={isBn ? "বিষয় বেছে নিন" : "Select subject"}
-                          invalid={!!errors.subject}
+                          id="contact-project-type"
+                          value={form.projectType}
+                          onChange={(e) => updateField("projectType", e.target.value)}
+                          placeholder={isBn ? "বেছে নিন" : "Select project type"}
+                          invalid={!!errors.projectType}
                         >
-                          <option value="web_dev">{isBn ? "ওয়েব ডেভেলপমেন্ট" : "Web Development"}</option>
-                          <option value="tutoring">{isBn ? "টিউশন / পড়াশোনা" : "Tutoring"}</option>
-                          <option value="blood">{isBn ? "রক্তদান সংক্রান্ত" : "Blood Donation"}</option>
-                          <option value="collaboration">{isBn ? "সহযোগিতা" : "Collaboration"}</option>
-                          <option value="general">{isBn ? "সাধারণ জিজ্ঞাসা" : "General Inquiry"}</option>
+                          <option value="business-website">{isBn ? "বিজনেস ওয়েবসাইট" : "Business Website"}</option>
+                          <option value="landing-page">{isBn ? "ল্যান্ডিং পেজ" : "Landing Page"}</option>
+                          <option value="ecommerce">{isBn ? "ই-কমার্স সাইট" : "E-Commerce Website"}</option>
+                          <option value="web-application">{isBn ? "ওয়েব অ্যাপ্লিকেশন" : "Web Application"}</option>
+                          <option value="portfolio">{isBn ? "পোর্টফোলিও ওয়েবসাইট" : "Portfolio Website"}</option>
+                          <option value="other">{isBn ? "অন্য কিছু / এখনো নিশ্চিত নই" : "Something else / not sure yet"}</option>
                         </SelectField>
                       </FormField>
                     </div>
 
-                    <FormField id="contact-message" label={isBn ? "বার্তা" : "Message"} required error={errors.message}>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField id="contact-budget" label={isBn ? "বাজেট" : "Budget"} required error={errors.budget}>
+                        <SelectField
+                          id="contact-budget"
+                          value={form.budget}
+                          onChange={(e) => updateField("budget", e.target.value)}
+                          placeholder={isBn ? "বেছে নিন" : "Select budget"}
+                          invalid={!!errors.budget}
+                        >
+                          <option value="৳5,000–10,000">{isBn ? "৳৫,০০০ – ৳১০,০০০" : "৳5,000 – ৳10,000"}</option>
+                          <option value="৳10,000–25,000">{isBn ? "৳১০,০০০ – ৳২৫,০০০" : "৳10,000 – ৳25,000"}</option>
+                          <option value="৳25,000–50,000">{isBn ? "৳২৫,০০০ – ৳৫০,০০০" : "৳25,000 – ৳50,000"}</option>
+                          <option value="৳50,000+">{isBn ? "৳৫০,০০০+" : "৳50,000+"}</option>
+                          <option value="Not sure yet">{isBn ? "এখনো নিশ্চিত নই — আলোচনা করতে চাই" : "Not sure yet — let's discuss"}</option>
+                        </SelectField>
+                      </FormField>
+                      <FormField id="contact-timeline" label={isBn ? "সময়রেখা" : "Timeline"} required error={errors.timeline}>
+                        <SelectField
+                          id="contact-timeline"
+                          value={form.timeline}
+                          onChange={(e) => updateField("timeline", e.target.value)}
+                          placeholder={isBn ? "বেছে নিন" : "Select timeline"}
+                          invalid={!!errors.timeline}
+                        >
+                          <option value="ASAP (~1 week)">{isBn ? "যত দ্রুত সম্ভব (১ সপ্তাহ)" : "ASAP (~1 week)"}</option>
+                          <option value="2-3 weeks">{isBn ? "২–৩ সপ্তাহ" : "2–3 weeks"}</option>
+                          <option value="About a month">{isBn ? "প্রায় এক মাস" : "About a month"}</option>
+                          <option value="Flexible">{isBn ? "নমনীয় — গুণগত মান আগে" : "Flexible — quality first"}</option>
+                        </SelectField>
+                      </FormField>
+                    </div>
+
+                    <FormField
+                      id="contact-requirements"
+                      label={isBn ? "প্রজেক্টের বিবরণ" : "Project Requirements"}
+                      hint={isBn ? "কী দরকার, কাদের জন্য, রেফারেন্স সাইট — যা জানেন তা লিখুন" : "What you need, who it's for, reference sites — whatever you know"}
+                      required
+                      error={errors.requirements}
+                    >
                       <TextAreaField
-                        id="contact-message"
-                        value={form.message}
-                        onChange={(e) => updateField("message", e.target.value)}
-                        placeholder={isBn ? "বিস্তারিত লিখুন..." : "Write your message..."}
-                        rows={4}
-                        invalid={!!errors.message}
+                        id="contact-requirements"
+                        value={form.requirements}
+                        onChange={(e) => updateField("requirements", e.target.value)}
+                        placeholder={
+                          isBn
+                            ? "যেমন: আমার একটি ক্যাটালগ ওয়েবসাইট দরকার — ৫টি পেজ, যোগাযোগ ফর্ম, বাংলা-ইংরেজি দুই ভাষায়..."
+                            : "e.g. I need a catalog website — 5 pages, a contact form, bilingual..."
+                        }
+                        rows={5}
+                        invalid={!!errors.requirements}
                       />
                     </FormField>
 
@@ -381,7 +445,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                       </div>
                     )}
 
-                    <Button type="submit" variant="gradient" busy={isSubmitting} className="w-full min-h-[46px]" aria-label={isBn ? "বার্তা পাঠান" : "Send message"}>
+                    <Button type="submit" variant="gradient" busy={isSubmitting} className="w-full min-h-[46px]" aria-label={isBn ? "প্রজেক্ট রিকোয়েস্ট পাঠান" : "Send project request"}>
                       {isSubmitting ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -390,7 +454,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
                       ) : (
                         <>
                           <Send className="h-4 w-4" aria-hidden="true" />
-                          {isBn ? "বার্তা পাঠান" : "Send Message"}
+                          {isBn ? "প্রজেক্ট রিকোয়েস্ট পাঠান" : "Send Project Request"}
                         </>
                       )}
                     </Button>

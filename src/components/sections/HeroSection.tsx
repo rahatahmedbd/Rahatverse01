@@ -4,12 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ProfileImage } from "./ProfileImage";
+import { HeroProjectPreview } from "./HeroProjectPreview";
 import { Parallax3DContainer } from "@/components/interactive";
 import { FadeInUp, FadeInDown } from "@/components/animations/FadeIn";
 import { ParticleBackground } from "@/components/animations/ParticleBackground";
 import { ScrollIndicator } from "@/components/animations/ScrollProgress";
-import { Sparkles, Zap, Eye, MessageCircle, Star, Award, Heart, Code, Users, ShoppingCart, Briefcase, GraduationCap, Droplets, Trophy, Mail, ArrowRight } from "lucide-react";
+import { Sparkles, Zap, Eye, MessageCircle, Star, Award, Heart, Code, Users, ShoppingCart, Briefcase, GraduationCap, Droplets, Trophy, Mail, ArrowRight, Rocket } from "lucide-react";
 import { Counter } from "@/components/animations/Counter";
 import Link from "next/link";
 import type { HeroConfig, HeroCTA } from "@/types/hero";
@@ -34,6 +34,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Droplets,
   Trophy,
   Mail,
+  Rocket,
 };
 
 function getIcon(name: string) {
@@ -122,7 +123,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
           {/* LEFT — Intro, Name, Description, CTAs */}
-          <div className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
+          <div className="order-1 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
             <FadeInDown delay={prefersReducedMotion ? 0 : 0.4}>
               <Badge variant="gradient" className="mb-4 text-xs font-medium sm:mb-6 sm:text-sm">
                 <Sparkles className="mr-1 h-3 w-3 shrink-0" aria-hidden="true" />
@@ -134,8 +135,16 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
               <h1 className="bn text-display-xl font-bold tracking-[-0.02em]">
                 <span className="text-gradient-name hero-name-shine" data-fx>{isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}</span>
               </h1>
+              {/* Clear client-facing headline — what a visitor can hire me for */}
+              <p className="mt-2 text-lg font-bold tracking-[-0.01em] text-foreground sm:text-xl lg:text-2xl">
+                <span className="text-gradient bn">
+                  {isBn
+                    ? "আধুনিক ওয়েবসাইট ও ওয়েব অ্যাপ্লিকেশন তৈরি করি"
+                    : "I build modern websites & web applications"}
+                </span>
+              </p>
               <p className="mt-1 text-[15px] font-medium tracking-[-0.01em] text-muted-foreground sm:text-lg lg:text-xl">
-                {isBn ? "Rahat Ahmed" : "রাহাত আহমেদ"}
+                {isBn ? "ওয়েব ডেভেলপার — RahatVerse-এর স্রষ্টা" : "Web Developer — creator of RahatVerse"}
               </p>
             </FadeInUp>
 
@@ -154,8 +163,8 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
             <FadeInUp delay={prefersReducedMotion ? 0 : 0.8}>
               <p className="mx-auto mt-4 max-w-[30ch] text-pretty text-[14.5px] leading-[1.75] text-muted-foreground bn sm:max-w-xl lg:mx-0 lg:max-w-[42ch] xl:max-w-[48ch] sm:text-[15.5px] lg:text-lead">
                 {isBn
-                  ? "সুনামগঞ্জ, সিলেট, বাংলাদেশের একজন শিক্ষার্থী ও ওয়েব ডেভেলপার এবং রাহাতভার্সের স্রষ্টা — শিক্ষা, সমাজসেবা ও প্রযুক্তির জন্য আধুনিক ডিজিটাল অভিজ্ঞতা তৈরি করি।"
-                  : "A student and web developer from Sunamganj, Sylhet, Bangladesh, and the creator of RahatVerse — I build modern digital experiences for education, social service and technology."}
+                  ? "ব্যবসা, স্টার্টআপ ও ব্যক্তিগত ব্র্যান্ডের জন্য দ্রুত, রেসপনসিভ ও SEO-রেডি ওয়েবসাইট — Next.js, React ও TypeScript দিয়ে তৈরি। আইডিয়া থেকে লঞ্চ পর্যন্ত পুরো যাত্রায় আমি পাশে থাকি।"
+                  : "Fast, responsive and SEO-ready websites for businesses, startups and personal brands — built with Next.js, React and TypeScript. From idea to launch, I handle the whole journey."}
               </p>
             </FadeInUp>
 
@@ -249,24 +258,16 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
             </FadeInUp>
           </div>
 
-          {/* RIGHT — Profile Image */}
+          {/* RIGHT — Project preview (prominent) with the developer photo as a
+              small secondary chip. Clients see the work first, the face second. */}
           <motion.div
-            className="order-1 flex justify-center lg:order-2 lg:justify-end xl:justify-center"
+            className="order-2 flex justify-center lg:order-2 lg:justify-end xl:justify-center"
             initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.92 }}
             animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.7, ease: "easeOut" }}
           >
-            <Parallax3DContainer intensity={prefersReducedMotion ? 0 : 10} className="inline-block">
-              <ProfileImage
-                size="lg"
-                src={aboutConfig?.profileImage.url || undefined}
-                publicId={aboutConfig?.profileImage.publicId}
-                alt={isBn ? aboutConfig?.profileImage.altBn : aboutConfig?.profileImage.altEn}
-                frame={aboutConfig?.profileImage.frame}
-                showStatus={aboutConfig?.profileImage.showStatus}
-                statusLabel={isBn ? aboutConfig?.profileImage.statusLabelBn : aboutConfig?.profileImage.statusLabelEn}
-                animatedCaption={isBn ? config.typewriter.bn : config.typewriter.en}
-              />
+            <Parallax3DContainer intensity={prefersReducedMotion ? 0 : 6} className="inline-block w-full max-w-[520px]">
+              <HeroProjectPreview locale={locale} aboutConfig={aboutConfig} />
             </Parallax3DContainer>
           </motion.div>
         </div>
@@ -274,7 +275,9 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
         {/* Stats — horizontal scrollable row on mobile */}
         <FadeInUp delay={prefersReducedMotion ? 0 : 1.15}>
           <div
-            className="mt-10 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch] sm:mt-12 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:pb-0 sm:snap-none lg:mt-14"
+            className={`mt-10 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch] sm:mt-12 sm:grid sm:gap-4 sm:overflow-visible sm:pb-0 sm:snap-none lg:mt-14 ${
+              config.counters.length >= 4 ? "sm:grid-cols-4" : "sm:grid-cols-3"
+            }`}
             role="list"
             aria-label={isBn ? "পরিসংখ্যান" : "Statistics"}
           >

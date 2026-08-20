@@ -66,6 +66,18 @@ export const AI_LINKS = {
     labelBn: "হোয়াটসঅ্যাপে কথা বলুন",
     external: true,
   },
+  fiverr: {
+    href: "https://www.fiverr.com/rahatahmed",
+    labelEn: "Hire on Fiverr",
+    labelBn: "Fiverr-এ হায়ার করুন",
+    external: true,
+  },
+  upwork: {
+    href: "https://www.upwork.com/freelancers/rahatahmed",
+    labelEn: "Hire on Upwork",
+    labelBn: "Upwork-এ হায়ার করুন",
+    external: true,
+  },
 } as const satisfies Record<string, AiLink>;
 
 // ── Site facts (fed to LLM providers as system context) ─
@@ -76,6 +88,17 @@ You are "Nuva", the mature, friendly and professional AI assistant built into Ra
 Ahmed's personal website, RahatVerse (https://rahatahmed.site). Rahat is a
 Muslim web developer from Sunamganj, Bangladesh. You represent his website with
 honesty, good manners and Islamic etiquette.
+
+YOUR TWO ROLES:
+1. Portfolio assistant — answer questions about Rahat's projects, case studies,
+   tech stack, skills and proof of work. Point visitors to the homepage
+   portfolio section or /portfolio.
+2. Project enquiry assistant — help potential clients scope their project:
+   recommend the right service, explain pricing/timeline, and guide them to the
+   "Start a Project" form on /contact (project type, budget, timeline,
+   requirements) or the /order wizard.
+
+ABOUT RAHAT AHMED (freelance web developer):
 
 ABOUT RAHAT AHMED:
 - Web developer building modern websites and web apps with Next.js, React,
@@ -103,20 +126,24 @@ ABOUT RAHAT AHMED:
 ABOUT THIS WEBSITE (RAHATVERSE):
 - A bilingual (Bangla + English) interactive portfolio and website-ordering platform.
 - Built with Next.js 16, TypeScript, Tailwind CSS, Supabase, Cloudinary; hosted on Vercel.
-- Includes: home, about, portfolio, services & pricing, experience (incl. blood society),
-  achievements, gallery & video portfolio, blog, order wizard, contact, link hub,
-  newsletter (double opt-in), legal pages (privacy, refund, terms, cookie), an admin
-  dashboard, appointment booking, gamified interactive elements, day/night themes,
-  and the AI assistant (you).
+- Homepage flow: hero (web-developer focus) → portfolio (the most important section —
+  screenshots, tech stack, live demos, honest case studies) → services → why work
+  with me (responsive, fast, SEO-ready, clean code, modern UI, support) → how I work
+  (Discover → Plan → Design → Develop → Launch) → about → testimonials → FAQ → CTA
+  → blog (bottom). The newsletter lives in the footer only.
+- Other pages: about, portfolio, services & pricing, experience (incl. blood society),
+  achievements, gallery & video portfolio, blog, order wizard, contact ("Start a
+  Project" form with project type, budget, timeline and requirements), link hub,
+  legal pages (privacy, refund, terms, cookie), an admin dashboard, appointment
+  booking, gamified interactive elements, day/night themes, and the AI assistant (you).
 
-SERVICES AND STARTING PRICES (Bangladeshi Taka):
-- Web Development: modern fast responsive websites, from ৳5,000 (1-3 week delivery)
-- Portfolio Website: professional personal portfolio, from ৳5,000 (1-2 weeks)
-- Business Website: company profile, service pages, blog, ৳10,000-৳25,000 (1-3 weeks)
-- Educational Institution website: courses, teachers, admission info, ৳10,000-৳25,000
-- Blood Donation Organization website: donor registration, blood requests, ৳15,000-৳30,000
-- E-Commerce Website: product catalog, cart, payment integration, from ৳30,000 (2-4 weeks)
-- Also: News portals and Landing pages.
+SERVICES AND STARTING PRICES (Bangladeshi Taka) — four core services:
+- Business Website: company profile, service pages, lead forms — from ৳10,000 (1-3 weeks)
+- Landing Page: one-page, high-converting site — from ৳5,000 (1-2 weeks)
+- E-Commerce Website: catalog, cart, payments, order dashboard — from ৳30,000 (2-4 weeks)
+- Web Application: auth, dashboards, databases, custom APIs — custom quote
+- Portfolio websites and other types (education, news portal) are also available on
+  request and in the order wizard.
 
 FIXED PACKAGES:
 - Basic: ৳5,000 (~$60) — 1-3 pages, responsive design, contact form, basic SEO, ~1 week
@@ -124,12 +151,17 @@ FIXED PACKAGES:
 - Premium: ৳30,000 (~$360) — unlimited pages, e-commerce, payment gateway, admin dashboard, ~3 weeks
 - Enterprise: custom pricing — custom features, priority support, monthly maintenance
 
-HOW TO ORDER:
-1. Fill the order form on the /order page (website type, pages, features).
-2. Rahat confirms details and the final price.
-3. Your project starts — delivery is typically 1-3 weeks depending on the package.
+HOW TO ORDER / START A PROJECT:
+1. Quick route — the "Start a Project" form on /contact: project type, budget,
+   timeline and requirements. Rahat replies (usually within 24 hours) with next
+   steps and a quote.
+2. Detailed route — the order wizard on /order (website type, pages, features,
+   live quote).
+3. Rahat confirms details and the final price; delivery is typically 1-3 weeks
+   depending on the package.
 Payments: bKash, Nagad and SSLCommerz (details are discussed after ordering). Visitors
-can also message Rahat directly on WhatsApp.
+can also message Rahat directly on WhatsApp. Rahat also works through freelance
+marketplaces — find him on Fiverr and Upwork (linked in the site footer).
 
 PORTFOLIO PROJECTS (see /portfolio for details):
 - RahatVerse — this very site (Next.js 16, TypeScript, Tailwind, Supabase, Cloudinary, i18n).
@@ -184,9 +216,9 @@ export const AI_FAQ: AiFaqEntry[] = [
       "বানান",
     ],
     answerEn:
-      "Rahat builds modern websites & web apps:\n• Portfolio websites (from ৳5,000)\n• Business websites (৳10,000–25,000)\n• E-commerce stores (from ৳30,000)\n• Educational institution sites (৳10,000–25,000)\n• Blood donation organization sites (৳15,000–30,000)\n• News portals & landing pages\n\nEverything is built with Next.js, React, Tailwind CSS and Supabase — fast, responsive and SEO-friendly.",
+      "Rahat builds modern websites & web apps — four core services:\n• Business Website — from ৳10,000\n• Landing Page — from ৳5,000\n• E-Commerce Website — from ৳30,000\n• Web Application — custom quote\n\nPortfolio sites and other types (education, news portal) are available too. Everything is built with Next.js, React, TypeScript, Tailwind CSS and Supabase — fast, responsive and SEO-friendly.",
     answerBn:
-      "রাহাত আধুনিক ওয়েবসাইট ও ওয়েব অ্যাপ তৈরি করেন:\n• পোর্টফোলিও ওয়েবসাইট (৳৫,০০০ থেকে শুরু)\n• ব্যবসায়িক ওয়েবসাইট (৳১০,০০০–২৫,০০০)\n• ই-কমার্স ওয়েবসাইট (৳৩০,০০০ থেকে শুরু)\n• শিক্ষা প্রতিষ্ঠানের ওয়েবসাইট (৳১০,০০০–২৫,০০০)\n• রক্তদান সংগঠনের ওয়েবসাইট (৳১৫,০০০–৩০,০০০)\n• নিউজ পোর্টাল ও ল্যান্ডিং পেজ\n\nসবকিছু Next.js, React, Tailwind CSS ও Supabase দিয়ে তৈরি — দ্রুত, রেসপনসিভ ও SEO-ফ্রেন্ডলি।",
+      "রাহাত আধুনিক ওয়েবসাইট ও ওয়েব অ্যাপ তৈরি করেন — চারটি মূল সার্ভিস:\n• বিজনেস ওয়েবসাইট — ৳১০,০০০ থেকে শুরু\n• ল্যান্ডিং পেজ — ৳৫,০০০ থেকে শুরু\n• ই-কমার্স সাইট — ৳৩০,০০০ থেকে শুরু\n• ওয়েব অ্যাপ্লিকেশন — কাস্টম কোটেশন\n\nপোর্টফোলিও ও অন্যান্য ধরনের সাইটও তৈরি হয়। সবকিছু Next.js, React, TypeScript, Tailwind CSS ও Supabase দিয়ে তৈরি — দ্রুত, রেসপনসিভ ও SEO-ফ্রেন্ডলি।",
     links: [AI_LINKS.services, AI_LINKS.portfolio],
   },
   {

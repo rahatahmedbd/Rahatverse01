@@ -12,37 +12,37 @@ export const DEFAULT_HERO_CONFIG: HeroConfig = {
     durationMs: 3500,
   },
   typewriter: {
-    bn: ["ওয়েব ডেভেলপার", "শিক্ষার্থী", "গৃহশিক্ষক", "রক্তদাতা", "BNCC ক্যাডেট"],
-    en: ["Web Developer", "Student", "Teacher", "Blood Donor", "BNCC Cadet"],
+    bn: ["ওয়েব ডেভেলপার", "Next.js ডেভেলপার", "রিঅ্যাক্ট ডেভেলপার", "ফ্রিল্যান্সার"],
+    en: ["Web Developer", "Next.js Developer", "React Developer", "Freelancer"],
   },
   badges: [
     { id: "badge-1", labelBn: "ওয়েব ডেভেলপার", labelEn: "Web Developer" },
-    { id: "badge-2", labelBn: "রক্তদাতা", labelEn: "Blood Donor" },
-    { id: "badge-3", labelBn: "BNCC ক্যাডেট", labelEn: "BNCC Cadet" },
+    { id: "badge-2", labelBn: "Next.js • React • TypeScript", labelEn: "Next.js • React • TypeScript" },
+    { id: "badge-3", labelBn: "ফ্রিল্যান্স কাজের জন্য উন্মুক্ত", labelEn: "Available for Freelance Work" },
   ],
   counters: [
-    { id: "c-1", labelBn: "অর্জন", labelEn: "Achievements", value: 9, suffix: "" },
-    { id: "c-2", labelBn: "১ম স্থান", labelEn: "1st Places", value: 5, suffix: "×" },
-    { id: "c-3", labelBn: "রক্তদান", labelEn: "Blood Donations", value: 4, suffix: "" },
-    { id: "c-4", labelBn: "GPA 5.00", labelEn: "GPA 5.00", value: 2, suffix: "×" },
+    { id: "c-1", labelBn: "প্রজেক্ট", labelEn: "Projects", value: 3, suffix: "+" },
+    { id: "c-2", labelBn: "টেকনোলজি", labelEn: "Technologies", value: 8, suffix: "+" },
+    { id: "c-3", labelBn: "জাতীয় পুরস্কার", labelEn: "National Awards", value: 5, suffix: "×" },
+    { id: "c-4", labelBn: "রেসপন্স টাইম", labelEn: "Response Time", value: 24, suffix: "h" },
   ],
-  // Phase 6 conversion funnel: primary = order (no friction), secondary = proof.
-  // The Contact CTA remains reachable via bottom-nav, navbar utilities and
-  // final CTA bands — it is no longer a competing third hero button.
+  // Client-focused conversion funnel: primary = start a project (contact form
+  // with project type, budget & timeline), secondary = proof (portfolio).
+  // The order wizard remains reachable via the navbar, services and CTA band.
   ctas: [
     {
-      id: "cta-order",
-      labelBn: "ওয়েবসাইট অর্ডার করুন",
-      labelEn: "Order a Website",
-      href: "/order",
+      id: "cta-start-project",
+      labelBn: "প্রজেক্ট শুরু করুন",
+      labelEn: "Start a Project",
+      href: "/contact",
       variant: "gradient",
-      icon: "Zap",
+      icon: "Rocket",
       pulse: true,
     },
     {
       id: "cta-portfolio",
-      labelBn: "কাজ ও প্রমাণ দেখুন",
-      labelEn: "View Work & Proof",
+      labelBn: "কাজ দেখুন",
+      labelEn: "View Work",
       href: "/portfolio",
       variant: "glass",
       icon: "Eye",

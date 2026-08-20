@@ -97,6 +97,8 @@ function LiveSitePreview({
   title: string;
   isBn: boolean;
 }) {
+  const [loaded, setLoaded] = useState(false);
+  const [stage, setStage] = useState<"proxy" | "direct">("proxy");
   let domain = liveUrl;
   try {
     domain = new URL(liveUrl).hostname.replace(/^www\./, "");
@@ -104,25 +106,56 @@ function LiveSitePreview({
     /* keep raw */
   }
 
+  // Stage 1 — same-origin proxy snapshot (works even when the target site
+  // sets X-Frame-Options; on production the server fetches the real HTML).
+  // Stage 2 — if the proxy signals a fetch failure (its fallback page carries
+  // data-preview-fallback), retry with the site URL directly so the visitor's
+  // own browser can render it when framing is allowed.
+  const proxySrc = `/api/site-preview?url=${encodeURIComponent(embedUrl)}`;
+  const frameSrc = stage === "proxy" ? proxySrc : embedUrl;
+
+  const handleFrameLoad = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
+    if (stage === "proxy") {
+      try {
+        const doc = e.currentTarget.contentDocument;
+        if (doc?.body?.hasAttribute("data-preview-fallback")) {
+          setStage("direct"); // server couldn't fetch — let the browser try
+          return;
+        }
+      } catch {
+        /* cross-origin surprise — treat as loaded */
+      }
+    }
+    setLoaded(true);
+  };
+
   return (
     <div className="relative h-52 w-full overflow-hidden bg-card">
-      {/* Framed backdrop (visible while the iframe loads or if framing is blocked) */}
+      {/* Backdrop — visible while loading or if the proxy is unreachable */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/10 via-card to-blue-500/[0.07]" aria-hidden="true">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
-          <Globe className="h-6 w-6 text-primary" />
+          <Globe className="h-6 w-6 animate-pulse text-primary" />
         </div>
         <span className="font-mono text-xs font-semibold text-muted-foreground">{domain}</span>
+        <span className="text-[10px] text-muted-foreground/70">
+          {isBn ? "লাইভ প্রিভিউ লোড হচ্ছে…" : "Loading live preview…"}
+        </span>
       </div>
 
-      {/* The real website, live */}
+      {/* The real website — same-origin snapshot via /api/site-preview,
+          falling back to a direct embed when the proxy can't fetch */}
       <iframe
-        src={embedUrl}
+        src={frameSrc}
         title={`${title} — ${isBn ? "লাইভ প্রিভিউ" : "live preview"}`}
         loading="lazy"
         scrolling="no"
         tabIndex={-1}
         aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 top-8 h-[calc(100%-2rem)] w-full border-0 bg-background"
+        onLoad={handleFrameLoad}
+        className={cn(
+          "absolute inset-x-0 bottom-0 top-8 h-[calc(100%-2rem)] w-full border-0 bg-background transition-opacity duration-500",
+          loaded ? "opacity-100" : "opacity-0"
+        )}
       />
 
       {/* Browser chrome — drawn above the iframe */}
@@ -135,6 +168,13 @@ function LiveSitePreview({
         <span className="flex min-w-0 items-center gap-1 rounded bg-background/60 px-2 py-0.5 text-[10px] text-muted-foreground">
           <Lock className="h-2.5 w-2.5 shrink-0 text-emerald-400/80" />
           <span className="truncate font-mono">{domain}</span>
+        </span>
+        <span className="ml-auto hidden items-center gap-1 text-[9px] font-medium uppercase tracking-wider text-emerald-400/80 sm:flex">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          </span>
+          {isBn ? "লাইভ" : "Live"}
         </span>
       </div>
 

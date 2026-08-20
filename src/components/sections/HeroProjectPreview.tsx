@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Lock, CheckCircle2, Code2 } from "lucide-react";
 import type { AboutConfig } from "@/types/about";
 import { trackEvent } from "@/lib/analytics/tracker";
+import { RAHAT_PORTRAIT_FIT, RAHAT_PROFILE_PHOTO } from "@/lib/profile";
 
 interface HeroProjectPreviewProps {
   locale?: string;
@@ -19,12 +20,12 @@ export function HeroProjectPreview({ locale = "bn", aboutConfig }: HeroProjectPr
   const isBn = locale === "bn";
   const prefersReducedMotion = Boolean(useReducedMotion());
 
-  const photoUrl = aboutConfig?.profileImage?.url || "";
+  const photoUrl = aboutConfig?.profileImage?.url || RAHAT_PROFILE_PHOTO;
 
   const techChips = ["Next.js", "React", "TypeScript", "Tailwind CSS"];
 
   return (
-    <div className="relative mx-auto w-full max-w-[560px]" data-testid="hero-project-preview">
+    <div className="relative mx-auto w-full max-w-[560px] px-2 pt-8 pb-8 sm:px-6" data-testid="hero-project-preview">
       {/* Subtle ambient glow behind the window */}
       <div
         className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-primary/[0.08] via-transparent to-blue-500/[0.06] blur-2xl"
@@ -87,21 +88,12 @@ export function HeroProjectPreview({ locale = "bn", aboutConfig }: HeroProjectPr
 
         {/* Bottom strip — status + the developer (secondary) */}
         <div className="flex items-center gap-3 border-t border-white/[0.07] bg-card/70 px-4 py-3">
-          {photoUrl ? (
-            <span
-              className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/40"
-              aria-hidden="true"
-            >
-              <Image src={photoUrl} alt="" fill sizes="44px" className="object-cover" />
-            </span>
-          ) : (
-            <span
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary ring-2 ring-primary/40"
-              aria-hidden="true"
-            >
-              RA
-            </span>
-          )}
+          <span
+            className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/40"
+            aria-hidden="true"
+          >
+            <Image src={photoUrl} alt="" fill sizes="44px" className={RAHAT_PORTRAIT_FIT} />
+          </span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] font-semibold leading-tight bn">
               {isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}

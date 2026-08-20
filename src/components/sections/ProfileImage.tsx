@@ -7,6 +7,7 @@ import { CloudinaryImage } from "@/components/ui/cloudinary-image";
 import { TypingAnimation } from "@/components/interactive/TypingAnimation";
 import { Sparkles, Camera } from "lucide-react";
 import { IMAGE_IDS } from "@/lib/cloudinary/utils";
+import { RAHAT_PORTRAIT_FIT, RAHAT_PROFILE_PHOTO } from "@/lib/profile";
 import type { AboutFrameStyle } from "@/types/about";
 
 // ── Profile Image with configurable glowing frame ───────
@@ -78,16 +79,18 @@ export function ProfileImage({
   const [imgError, setImgError] = React.useState(false);
   const prefersReducedMotion = Boolean(useReducedMotion());
   const isLg = size === "lg";
+  // Portrait (3:4) for md/lg so the standing photo is not cropped into a
+  // square that cuts the head and legs. Small stays circular for avatars.
   const sizeMap = {
     sm: "h-24 w-24",
-    md: "h-36 w-36",
-    lg: "h-40 w-40 xs:h-44 xs:w-44 sm:h-52 sm:w-52 lg:h-56 lg:w-56 xl:h-60 xl:w-60",
+    md: "h-44 w-36 sm:h-52 sm:w-40",
+    lg: "h-52 w-40 xs:h-56 xs:w-44 sm:h-64 sm:w-48 lg:h-72 lg:w-56 xl:h-80 xl:w-60",
   };
 
   const ringSizeMap = {
     sm: "h-28 w-28",
-    md: "h-40 w-40",
-    lg: "h-48 w-48 xs:h-52 xs:w-52 sm:h-60 sm:w-60 lg:h-64 lg:w-64 xl:h-68 xl:w-68",
+    md: "h-48 w-40 sm:h-56 sm:w-44",
+    lg: "h-60 w-48 xs:h-64 xs:w-52 sm:h-72 sm:w-56 lg:h-80 lg:w-64 xl:h-80 xl:w-64",
   };
 
   const radiusMap = {
@@ -98,8 +101,10 @@ export function ProfileImage({
 
   const styles = frameStyles[frame];
   const resolvedPublicId = publicId || IMAGE_IDS.PROFILE;
-  const useCloudinary = !src || src.includes("rahatahmedbd.github.io") || imgError;
+  const resolvedSrc = src || RAHAT_PROFILE_PHOTO;
+  const useCloudinary = resolvedSrc.includes("rahatahmedbd.github.io") || imgError;
   const radius = radiusMap[size];
+  const portraitRatio = size === "sm" ? "1 / 1" : "3 / 4";
 
   return (
     <div
@@ -154,16 +159,16 @@ export function ProfileImage({
             "shadow-2xl",
             styles.shadow
           )}
-          style={{ aspectRatio: "1 / 1" }}
+          style={{ aspectRatio: portraitRatio }}
         >
           <div className={cn("relative h-full w-full overflow-hidden bg-card", radius)}>
             {useCloudinary ? (
               <CloudinaryImage
                 publicId={resolvedPublicId}
                 alt={alt}
-                width={isLg ? 240 : size === "md" ? 144 : 96}
-                height={isLg ? 240 : size === "md" ? 144 : 96}
-                className="h-full w-full object-cover"
+                width={isLg ? 240 : size === "md" ? 160 : 96}
+                height={isLg ? 320 : size === "md" ? 208 : 96}
+                className={cn("h-full w-full", RAHAT_PORTRAIT_FIT)}
                 priority
                 fallbackType="profile"
               />
@@ -171,13 +176,13 @@ export function ProfileImage({
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={src}
+                  src={resolvedSrc}
                   alt={alt}
-                  className="h-full w-full object-cover"
+                  className={cn("h-full w-full", RAHAT_PORTRAIT_FIT)}
                   loading="eager"
                   decoding="async"
-                  width={isLg ? 240 : 144}
-                  height={isLg ? 240 : 144}
+                  width={isLg ? 240 : 160}
+                  height={isLg ? 320 : 208}
                   onError={() => setImgError(true)}
                 />
                 <div
@@ -209,7 +214,7 @@ export function ProfileImage({
               )}
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            <span className="bn truncate max-w-[10rem]">{statusLabel}</span>
+            <span className="bn max-w-[12rem] whitespace-normal leading-tight">{statusLabel}</span>
           </motion.div>
         )}
       </motion.div>

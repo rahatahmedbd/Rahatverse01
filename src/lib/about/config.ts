@@ -8,6 +8,7 @@ import type {
   AchievementIconName,
   AchievementRarity,
 } from "@/types/about";
+import { RAHAT_PROFILE_PHOTO } from "@/lib/profile";
 
 // ── Default About Config ───────────────────────────────
 // These values preserve the original public content when Supabase is not
@@ -320,7 +321,7 @@ const defaultAchievements: AboutAchievement[] = [
 export const DEFAULT_ABOUT_CONFIG: AboutConfig = {
   visible: true,
   profileImage: {
-    url: "/images/legacy/rahat-profile.jpg",
+    url: RAHAT_PROFILE_PHOTO,
     publicId: "rahatverse/profile/1786125213546",
     altBn: "রাহাত আহমেদের প্রোফাইল ছবি",
     altEn: "Rahat Ahmed profile photo",
@@ -635,4 +636,3 @@ export function validateAboutConfig(input: unknown): AboutConfig | null {
 
   return input as unknown as AboutConfig;
 }
-

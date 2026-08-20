@@ -10,6 +10,8 @@ import { ExternalLink, Download, Loader2 } from "lucide-react";
 import { DEFAULT_LINKS_CONFIG, validateLinksConfig } from "@/lib/links/config";
 import { LinkIcon } from "@/lib/links/icons";
 import type { LinksConfig } from "@/types/links";
+import { cn } from "@/lib/utils";
+import { RAHAT_PORTRAIT_FIT, RAHAT_PROFILE_PHOTO } from "@/lib/profile";
 
 // ── Link Hub Section (DB-driven) ───────────────────────
 interface LinkHubSectionProps {
@@ -93,13 +95,15 @@ export function LinkHubSection({ locale = "bn", initialConfig }: LinkHubSectionP
         {/* Profile */}
         <FadeInUp>
           <div className="mb-8 text-center">
-            <div className="bg-brand-gradient-soft gradient-border mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary/30">
-              {profile.avatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.avatar} alt={isBn ? profile.nameBn : profile.nameEn} className="h-full w-full rounded-full object-cover" />
-              ) : (
-                <span className="text-2xl font-bold text-amber-400">{profile.initials}</span>
-              )}
+            <div className="bg-brand-gradient-soft gradient-border mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full border-2 border-primary/30">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={profile.avatar || RAHAT_PROFILE_PHOTO}
+                alt={isBn ? profile.nameBn : profile.nameEn}
+                width={96}
+                height={96}
+                className={cn("h-full w-full", RAHAT_PORTRAIT_FIT)}
+              />
             </div>
             <h3 className="text-xl font-bold bn">{isBn ? profile.nameBn : profile.nameEn}</h3>
             <p className="text-sm text-muted-foreground">{isBn ? profile.nameEn : profile.nameBn}</p>

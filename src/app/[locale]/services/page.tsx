@@ -32,8 +32,8 @@ const PROOF_LINKS: Record<string, { labelBn: string; labelEn: string }> = {
     labelEn: "Live example: the RahatVerse personal ecosystem",
   },
   "blood-organization": {
-    labelBn: "প্রমাণ: শান্তিচক্র রক্তদাতা ডিরেক্টরি (ডেভেলপমেন্ট চলছে)",
-    labelEn: "Proof: Shantichakra donor directory (in development)",
+    labelBn: "লাইভ প্রমাণ: শান্তিচক্র রক্তদাতা ডিরেক্টরি ওয়েবসাইট",
+    labelEn: "Live proof: the Shantichakra donor directory website",
   },
   "education-website": {
     labelBn: "সম্পর্কিত কনসেপ্ট: এডুকেয়ার টিউটরিং সিস্টেম",

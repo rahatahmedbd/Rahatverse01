@@ -21,7 +21,7 @@ export const DEFAULT_HERO_CONFIG: HeroConfig = {
     { id: "badge-3", labelBn: "ফ্রিল্যান্স কাজের জন্য উন্মুক্ত", labelEn: "Available for Freelance Work" },
   ],
   counters: [
-    { id: "c-1", labelBn: "প্রজেক্ট", labelEn: "Projects", value: 3, suffix: "+" },
+    { id: "c-1", labelBn: "লাইভ প্রজেক্ট", labelEn: "Live Projects", value: 4, suffix: "+" },
     { id: "c-2", labelBn: "টেকনোলজি", labelEn: "Technologies", value: 8, suffix: "+" },
     { id: "c-3", labelBn: "জাতীয় পুরস্কার", labelEn: "National Awards", value: 5, suffix: "×" },
     { id: "c-4", labelBn: "রেসপন্স টাইম", labelEn: "Response Time", value: 24, suffix: "h" },

@@ -262,8 +262,8 @@ export function BloodSocietySection({ locale = "bn", initialConfig }: BloodSocie
               className="inline-flex items-center gap-1.5 font-medium text-red-400 hover:underline"
             >
               {isBn
-                ? "যে ডিজিটাল রক্তদাতা ডিরেক্টরি তৈরি হচ্ছে"
-                : "The digital donor directory in development"}
+                ? "আমাদের লাইভ ডিজিটাল রক্তদাতা ডিরেক্টরি দেখুন"
+                : "See our live digital donor directory"}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link

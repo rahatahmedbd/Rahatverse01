@@ -60,6 +60,18 @@ export const AI_LINKS = {
     labelBn: "সেবার শর্তাবলী",
   },
   contact: { href: "/contact", labelEn: "Contact Page", labelBn: "যোগাযোগ করুন" },
+  shantichakra: {
+    href: "https://shantichakrabloodsociety.rahatahmed.site/",
+    labelEn: "Shantichakra Blood Society (live)",
+    labelBn: "শান্তিচক্র ব্লাড সোসাইটি (লাইভ)",
+    external: true,
+  },
+  porasathi: {
+    href: "https://porasathi.rahatahmed.site/",
+    labelEn: "PoraSathi — tuition marketplace (live)",
+    labelBn: "পড়াসাথী — টিউশন মার্কেটপ্লেস (লাইভ)",
+    external: true,
+  },
   whatsapp: {
     href: "https://wa.me/8801626224878",
     labelEn: "Chat on WhatsApp",
@@ -165,7 +177,15 @@ marketplaces — find him on Fiverr and Upwork (linked in the site footer).
 
 PORTFOLIO PROJECTS (see /portfolio for details):
 - RahatVerse — this very site (Next.js 16, TypeScript, Tailwind, Supabase, Cloudinary, i18n).
-- Shantichakra Blood Society — digital donor directory & emergency blood request portal.
+- Shantichakra Blood Society — LIVE emergency donor directory & blood-request platform:
+  https://shantichakrabloodsociety.rahatahmed.site/ — donor search by group/district/upazila,
+  emergency requests with tracking, blood compatibility guide, SOS share messages,
+  eligibility checker and donation guide; active across Sylhet division, aiming nationwide.
+- PoraSathi (পড়াসাথী) — LIVE tuition marketplace: https://porasathi.rahatahmed.site/ —
+  students/guardians find verified teachers (filter by class, subject, district, medium),
+  teachers post profiles and find tuition opportunities; controlled requests, messaging,
+  schedule management, leaderboard, resources and a safety guide. Next.js, React,
+  TypeScript, Tailwind CSS, Supabase.
 - EduCare — interactive tutoring & student management platform (concept stage).
 
 BLOG: articles about education, technology and social service (categories: Science,
@@ -332,10 +352,10 @@ export const AI_FAQ: AiFaqEntry[] = [
       "কাজ দেখ",
     ],
     answerEn:
-      "You can browse Rahat's previous projects on the Portfolio page, and his achievements & certifications on the Achievements page. Live site links and case-study details are included there.",
+      "Rahat's portfolio includes live, production projects: RahatVerse (this site), the Shantichakra Blood Society emergency donor directory and PoraSathi, a tuition marketplace connecting teachers and students. Case studies, tech stacks and live links are all on the Portfolio page — plus EduCare, a concept-stage tutoring platform.",
     answerBn:
-      "পোর্টফোলিও পেজে রাহাতের আগের প্রজেক্টগুলো দেখতে পারবেন, আর Achievements পেজে তার অর্জন ও সার্টিফিকেট। সেখানে লাইভ সাইটের লিংক ও বিস্তারিত তথ্য রয়েছে।",
-    links: [AI_LINKS.portfolio],
+      "রাহাতের পোর্টফোলিওতে লাইভ প্রজেক্ট রয়েছে — রাহাতভার্স (এই সাইট), শান্তিচক্র ব্লাড সোসাইটির জরুরি রক্তদাতা ডিরেক্টরি এবং শিক্ষক-শিক্ষার্থী সংযোগকারী টিউশন মার্কেটপ্লেস পড়াসাথী। কেস স্টাডি, টেক স্ট্যাক ও লাইভ লিংক পোর্টফোলিও পেজে আছে — সাথে কনসেপ্ট-পর্যায়ের এডুকেয়ার।",
+    links: [AI_LINKS.portfolio, AI_LINKS.shantichakra, AI_LINKS.porasathi],
   },
   {
     id: "technology",
@@ -498,10 +518,10 @@ export const AI_FAQ: AiFaqEntry[] = [
       "ডোনার",
     ],
     answerEn:
-      "Rahat is a voluntary blood donor (blood group A+) and has donated 4 times. He is a member of Shantichakra Blood Society, a voluntary blood donation organization based in Sunamganj that connects donors with patients in emergencies. Details are on the /experience page.",
+      "Rahat is a voluntary blood donor (blood group A+) and has donated 4 times. He co-founded Shantichakra Blood Society in Sunamganj and serves as its General Secretary — and he built the society's live website himself: donor search by blood group and area, emergency blood requests with tracking, SOS sharing and donation guides. Visit shantichakrabloodsociety.rahatahmed.site or see the /experience page.",
     answerBn:
-      "রাহাত একজন স্বেচ্ছাসেবক রক্তদাতা (রক্তের গ্রুপ A+) এবং ৪ বার রক্তদান করেছেন। তিনি সুনামগঞ্জ ভিত্তিক স্বেচ্ছাসেবী রক্তদান সংগঠন শান্তিচক্র ব্লাড সোসাইটির সদস্য, যা জরুরি প্রয়োজনে রক্তদাতা ও রোগীদের সংযোগ ঘটায়। বিস্তারিত /experience পেজে আছে।",
-    links: [AI_LINKS.experience, AI_LINKS.whatsapp],
+      "রাহাত একজন স্বেচ্ছাসেবক রক্তদাতা (রক্তের গ্রুপ A+) এবং ৪ বার রক্তদান করেছেন। তিনি সুনামগঞ্জে শান্তিচক্র ব্লাড সোসাইটি সহ-প্রতিষ্ঠা করেছেন এবং সাধারণ সম্পাদক হিসেবে দায়িত্ব পালন করেন — সংগঠনটির লাইভ ওয়েবসাইটও তিনি নিজেই তৈরি করেছেন: গ্রুপ ও এলাকা অনুযায়ী দাতা খোঁজা, জরুরি রক্তের অনুরোধ ও ট্র্যাকিং, SOS শেয়ার ও রক্তদান গাইড। ভিজিট করুন shantichakrabloodsociety.rahatahmed.site অথবা /experience পেজ দেখুন।",
+    links: [AI_LINKS.shantichakra, AI_LINKS.experience, AI_LINKS.whatsapp],
   },
   {
     id: "experience",
@@ -551,6 +571,29 @@ export const AI_FAQ: AiFaqEntry[] = [
     answerBn:
       "রাহাতের শিক্ষাজীবন:\n• প্রাথমিক: স্কলারস হোম, সিলেট; জীবদাড়া সরকারি প্রাথমিক বিদ্যালয় থেকে PSC।\n• SSC (২০২৫): সুনামগঞ্জ সরকারি জুবিলী উচ্চ বিদ্যালয় — বিজ্ঞানে জিপিএ ৫.০০ (গোল্ডেন এ+)।\n• HSC: বর্তমানে সুনামগঞ্জ সরকারি কলেজে ২য় বর্ষ (বিজ্ঞান)।\n\nবিস্তারিত About পেজে।",
     links: [AI_LINKS.about],
+  },
+  {
+    id: "porasathi",
+    keywords: [
+      "porasathi",
+      "pora sathi",
+      "পড়াসাথী",
+      "পোরাসাথি",
+      "tuition",
+      "tutor",
+      "find teacher",
+      "teacher search",
+      "টিউশন",
+      "টিউটর",
+      "শিক্ষক",
+      "শিক্ষক খুঁজ",
+      "গৃহশিক্ষক",
+    ],
+    answerEn:
+      "PoraSathi (পড়াসাথী) is Rahat's live tuition marketplace at porasathi.rahatahmed.site — students and guardians find verified teachers filtered by class, subject, district and medium, and teachers find tuition opportunities. Requests, messaging and schedule management all happen in one place. Rahat built the whole platform himself with Next.js, React, TypeScript, Tailwind CSS and Supabase.",
+    answerBn:
+      "পড়াসাথী রাহাতের তৈরি লাইভ টিউশন মার্কেটপ্লেস (porasathi.rahatahmed.site) — শিক্ষার্থী ও অভিভাবকরা ক্লাস, বিষয়, জেলা ও মাধ্যম অনুযায়ী যাচাইকৃত শিক্ষক খুঁজেন, আর শিক্ষকরা পান টিউশন সুযোগ। অনুরোধ, মেসেজ ও সময়সূচি ব্যবস্থাপনা সব এক জায়গায়। পুরো প্ল্যাটফর্মটি রাহাত নিজে Next.js, React, TypeScript, Tailwind CSS ও Supabase দিয়ে তৈরি করেছেন।",
+    links: [AI_LINKS.porasathi, AI_LINKS.portfolio],
   },
   {
     id: "payments",

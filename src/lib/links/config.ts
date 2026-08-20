@@ -7,6 +7,7 @@ import type {
   ResumeSettings,
   ToolRecommendation,
 } from "@/types/links";
+import { FREELANCE_LINKS } from "@/lib/constants";
 
 const MAX_SHORT = 260;
 
@@ -23,12 +24,15 @@ const DEFAULT_PROFILE: LinksProfile = {
   initials: "RA",
   nameBn: "রাহাত আহমেদ",
   nameEn: "Rahat Ahmed",
-  taglineBn: "শিক্ষার্থী • শিক্ষক • ওয়েব ডেভেলপার",
-  taglineEn: "Student • Teacher • Web Developer",
+  taglineBn: "ওয়েব ডেভেলপার • Next.js, React ও TypeScript",
+  taglineEn: "Web Developer • Next.js, React & TypeScript",
   avatar: "",
 };
 
 const DEFAULT_LINKS: LinkItem[] = [
+  { id: "link-fiverr", labelBn: "Fiverr", labelEn: "Fiverr", url: FREELANCE_LINKS.fiverr, icon: "Fiverr", color: "text-emerald-400", bgColor: "bg-emerald-500/10", visible: true, clicks: 0 },
+  { id: "link-upwork", labelBn: "Upwork", labelEn: "Upwork", url: FREELANCE_LINKS.upwork, icon: "Upwork", color: "text-green-400", bgColor: "bg-green-500/10", visible: true, clicks: 0 },
+  { id: "link-gh", labelBn: "গিটহাব", labelEn: "GitHub", url: FREELANCE_LINKS.github, icon: "Github", color: "text-gray-300", bgColor: "bg-gray-500/10", visible: true, clicks: 0 },
   { id: "link-fb", labelBn: "ফেসবুক", labelEn: "Facebook", url: "https://www.facebook.com/rahat.ahmed.948943", icon: "Facebook", color: "text-blue-400", bgColor: "bg-blue-500/10", visible: true, clicks: 0 },
   { id: "link-ig", labelBn: "ইনস্টাগ্রাম", labelEn: "Instagram", url: "https://www.instagram.com/rahatahm6d/", icon: "Instagram", color: "text-pink-400", bgColor: "bg-pink-500/10", visible: true, clicks: 0 },
   { id: "link-yt", labelBn: "ইউটিউব", labelEn: "YouTube", url: "https://www.youtube.com/@RahatAhmedOfficial0", icon: "Youtube", color: "text-red-400", bgColor: "bg-red-500/10", visible: true, clicks: 0 },
@@ -36,7 +40,6 @@ const DEFAULT_LINKS: LinkItem[] = [
   { id: "link-wa", labelBn: "হোয়াটসঅ্যাপ", labelEn: "WhatsApp", url: "https://wa.me/8801626224878", icon: "MessageCircle", color: "text-green-400", bgColor: "bg-green-500/10", visible: true, clicks: 0 },
   { id: "link-mail", labelBn: "ইমেইল", labelEn: "Email", url: "mailto:rahatbd20505@gmail.com", icon: "Mail", color: "text-amber-400", bgColor: "bg-amber-500/10", visible: true, clicks: 0 },
   { id: "link-phone", labelBn: "ফোন", labelEn: "Phone", url: "tel:+8801626224878", icon: "Phone", color: "text-blue-400", bgColor: "bg-blue-500/10", visible: true, clicks: 0 },
-  { id: "link-gh", labelBn: "গিটহাব", labelEn: "GitHub", url: "https://github.com/rahatahmedbd", icon: "Github", color: "text-gray-300", bgColor: "bg-gray-500/10", visible: true, clicks: 0 },
 ];
 
 const DEFAULT_TOOLS: ToolRecommendation[] = [
@@ -92,7 +95,7 @@ function isSafeUrl(value: unknown, allowEmpty = false): boolean {
     (allowEmpty || value.length > 0)
   );
 }
-const LINK_ICONS = new Set<LinkIconName>(["Facebook", "Instagram", "Youtube", "TikTok", "MessageCircle", "Mail", "Phone", "Github", "Linkedin", "Twitter", "Globe", "Link2"]);
+const LINK_ICONS = new Set<LinkIconName>(["Facebook", "Instagram", "Youtube", "TikTok", "MessageCircle", "Mail", "Phone", "Github", "Linkedin", "Twitter", "Globe", "Link2", "Fiverr", "Upwork"]);
 const TOOL_CATEGORIES = new Set(["development", "design", "productivity"]);
 
 function validateSection(value: unknown): boolean {

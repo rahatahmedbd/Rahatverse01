@@ -13,7 +13,9 @@ export type LinkIconName =
   | "Linkedin"
   | "Twitter"
   | "Globe"
-  | "Link2";
+  | "Link2"
+  | "Fiverr"
+  | "Upwork";
 
 export interface LinksSectionContent {
   badgeBn: string;

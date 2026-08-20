@@ -61,7 +61,7 @@ export function FAQSection({ locale = "bn", initialConfig }: FAQSectionProps) {
   );
 
   return (
-    <section className="py-20">
+    <section className="py-8 sm:py-10 lg:py-12">
       <div className="mx-auto max-w-3xl px-4">
         <SectionTitle
           badge={isBn ? "❓ প্রশ্নোত্তর" : "❓ FAQ"}

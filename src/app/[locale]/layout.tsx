@@ -166,7 +166,7 @@ export default async function LocaleLayout({
               <main
                 id="main-content"
                 tabIndex={-1}
-                className="relative flex-1 pt-24 pb-28 lg:pb-8 focus:outline-none"
+                className="relative flex-1 pt-20 pb-28 sm:pt-24 lg:pb-8 focus:outline-none"
                 aria-label={locale === "bn" ? "মূল বিষয়বস্তু" : "Main content"}
               >
                 <PageTransition>{children}</PageTransition>

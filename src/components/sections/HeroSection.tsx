@@ -97,7 +97,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
   return (
     <section
-      className="relative flex min-h-[calc(100svh-3.5rem)] items-center justify-center overflow-x-clip py-8 sm:py-12 lg:min-h-[86vh] lg:py-16 xl:py-20"
+      className="relative overflow-x-clip py-5 sm:py-6 lg:py-8"
       aria-label={isBn ? "হিরো সেকশন" : "Hero section"}
     >
       {/* Particle Background — adaptive quality, reduced motion handled inside component */}
@@ -121,11 +121,11 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
       {/* Content container — 320..1536+ */}
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
+        <div className="grid items-center gap-5 lg:grid-cols-2 lg:gap-8">
           {/* LEFT — Intro, Name, Description, CTAs */}
           <div className="order-1 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
             <FadeInDown delay={prefersReducedMotion ? 0 : 0.4}>
-              <Badge variant="gradient" className="mb-4 text-xs font-medium sm:mb-6 sm:text-sm">
+              <Badge variant="gradient" className="mb-3 text-xs font-medium sm:mb-4 sm:text-sm">
                 <Sparkles className="mr-1 h-3 w-3 shrink-0" aria-hidden="true" />
                 <span className="truncate">{welcomeText}</span>
               </Badge>
@@ -136,7 +136,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
                 <span className="text-gradient-name hero-name-shine" data-fx>{isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}</span>
               </h1>
               {/* Clear client-facing headline — what a visitor can hire me for */}
-              <p className="mt-2 text-lg font-bold tracking-[-0.01em] text-foreground sm:text-xl lg:text-2xl">
+              <p className="mt-1.5 text-lg font-bold tracking-[-0.01em] text-foreground sm:text-xl lg:text-2xl">
                 <span className="text-gradient bn">
                   {isBn
                     ? "আধুনিক ওয়েবসাইট ও ওয়েব অ্যাপ্লিকেশন তৈরি করি"
@@ -150,7 +150,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
             {config.badges.length > 0 && (
               <FadeInUp delay={prefersReducedMotion ? 0 : 0.65}>
-                <div className="mt-3.5 flex flex-wrap justify-center gap-1.5 sm:gap-2 lg:justify-start" role="list" aria-label={isBn ? "দক্ষতা" : "Skills"}>
+                <div className="mt-2.5 flex flex-wrap justify-center gap-1.5 sm:gap-2 lg:justify-start" role="list" aria-label={isBn ? "দক্ষতা" : "Skills"}>
                   {config.badges.map((b) => (
                     <Badge key={b.id} variant="glow" className="bn rounded-full px-3 py-1 text-xs font-medium leading-none" role="listitem">
                       {isBn ? b.labelBn : b.labelEn}
@@ -161,7 +161,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
             )}
 
             <FadeInUp delay={prefersReducedMotion ? 0 : 0.8}>
-              <p className="mx-auto mt-4 max-w-[30ch] text-pretty text-[14.5px] leading-[1.75] text-muted-foreground bn sm:max-w-xl lg:mx-0 lg:max-w-[42ch] xl:max-w-[48ch] sm:text-[15.5px] lg:text-lead">
+              <p className="mx-auto mt-3 max-w-[30ch] text-pretty text-[14.5px] leading-relaxed text-muted-foreground bn sm:max-w-xl lg:mx-0 lg:max-w-[42ch] xl:max-w-[48ch] sm:text-[15.5px] lg:text-lead">
                 {isBn
                   ? "ব্যবসা, স্টার্টআপ ও ব্যক্তিগত ব্র্যান্ডের জন্য দ্রুত, রেসপনসিভ ও SEO-রেডি ওয়েবসাইট — Next.js, React ও TypeScript দিয়ে তৈরি। আইডিয়া থেকে লঞ্চ পর্যন্ত পুরো যাত্রায় আমি পাশে থাকি।"
                   : "Fast, responsive and SEO-ready websites for businesses, startups and personal brands — built with Next.js, React and TypeScript. From idea to launch, I handle the whole journey."}
@@ -170,7 +170,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
             {/* CTA Hierarchy — exactly 2 CTAs per Phase 6, preserved */}
             <FadeInUp delay={prefersReducedMotion ? 0 : 0.95}>
-              <div className="hero-cta-group mx-auto mt-6 flex w-full max-w-[340px] flex-col items-stretch gap-3 sm:mt-7 sm:max-w-none sm:items-center lg:mx-0 lg:items-start sm:gap-4" data-testid="hero-cta">
+              <div className="hero-cta-group mx-auto mt-4 flex w-full max-w-[340px] flex-col items-stretch gap-2.5 sm:mt-5 sm:max-w-none sm:items-center lg:mx-0 lg:items-start sm:gap-3" data-testid="hero-cta">
                 {primaryCta &&
                   (() => {
                     const label = getDisplayLabel(primaryCta, isBn);
@@ -275,7 +275,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
         {/* Stats — horizontal scrollable row on mobile */}
         <FadeInUp delay={prefersReducedMotion ? 0 : 1.15}>
           <div
-            className={`mt-10 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch] sm:mt-12 sm:grid sm:gap-4 sm:overflow-visible sm:pb-0 sm:snap-none lg:mt-14 ${
+            className={`mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch] sm:mt-8 sm:grid sm:gap-3 sm:overflow-visible sm:pb-0 sm:snap-none ${
               config.counters.length >= 4 ? "sm:grid-cols-4" : "sm:grid-cols-3"
             }`}
             role="list"
@@ -285,7 +285,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
               <div
                 key={stat.id}
                 role="listitem"
-                className="glass group relative min-w-[9.5rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] px-3 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_4px_20px_rgba(0,0,0,0.14)] transition-colors duration-200 hover:border-white/[0.09] sm:min-w-0 sm:shrink sm:snap-none sm:px-4 sm:py-5"
+                className="glass group relative min-w-[9.5rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] px-3 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_4px_20px_rgba(0,0,0,0.14)] transition-colors duration-200 hover:border-white/[0.09] sm:min-w-0 sm:shrink sm:snap-none sm:px-4 sm:py-4"
               >
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-60" aria-hidden="true" />
                 <Counter to={stat.value} suffix={stat.suffix} className="text-[22px] font-bold tracking-[-0.02em] text-primary sm:text-3xl" />
@@ -298,23 +298,9 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
         </FadeInUp>
       </div>
 
-      {/* Scroll Indicator — hidden on mobile where bottom nav exists */}
-      <div className="pointer-events-none absolute bottom-8 left-1/2 hidden -translate-x-1/2 lg:flex" aria-hidden="true">
+      {/* In-flow scroll hint — no extra viewport height required */}
+      <div className="mt-5 hidden justify-center lg:flex" aria-hidden="true">
         <ScrollIndicator />
-      </div>
-      <div className="pointer-events-none absolute bottom-[7.5rem] left-1/2 hidden -translate-x-1/2 sm:flex lg:hidden" aria-hidden="true">
-        <ScrollIndicator />
-      </div>
-      <div className="absolute bottom-[7.25rem] left-1/2 -translate-x-1/2 sm:hidden" aria-hidden="true">
-        <motion.div
-          className="flex flex-col items-center gap-1.5 opacity-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ delay: 1.6, duration: 0.5 }}
-          aria-hidden="true"
-        >
-          <span className="h-6 w-px rounded-full bg-gradient-to-b from-white/20 to-transparent" />
-        </motion.div>
       </div>
     </section>
   );

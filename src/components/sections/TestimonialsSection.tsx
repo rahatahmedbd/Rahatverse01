@@ -108,7 +108,7 @@ export default function TestimonialsSection({
   const currentTestimonial = testimonials[currentIndex];
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20">
+    <section className="py-8 sm:py-10 lg:py-12">
       <div className="mx-auto max-w-5xl px-0 sm:px-4">
         <SectionTitle
           badge={isBn ? "💬 মতামত ও মূল্যায়ন" : "💬 Client Testimonials"}
@@ -125,7 +125,7 @@ export default function TestimonialsSection({
             Company Here") is permanently retired instead of rendered. */}
           <div
             data-testid="testimonials-carousel"
-            className="relative mx-auto mt-10 max-w-3xl"
+            className="relative mx-auto mt-0 max-w-3xl"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onTouchStart={() => setIsPaused(true)}

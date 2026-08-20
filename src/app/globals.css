@@ -301,7 +301,7 @@ html[lang="bn"] .heading-kicker,
   display: block;
   width: 3.5rem;
   height: 3px;
-  margin-top: 0.875rem;
+  margin-top: 0.625rem;
   border-radius: 999px;
   background-image: var(--gradient-primary);
   background-size: 300% 100%;

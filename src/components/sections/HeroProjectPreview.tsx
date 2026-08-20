@@ -24,7 +24,7 @@ export function HeroProjectPreview({ locale = "bn", aboutConfig }: HeroProjectPr
   const techChips = ["Next.js", "React", "TypeScript", "Tailwind CSS"];
 
   return (
-    <div className="relative mx-auto w-full max-w-[560px] px-2 pt-8 pb-8 sm:px-6" data-testid="hero-project-preview">
+    <div className="relative mx-auto w-full max-w-[560px] px-2 pt-2 pb-2 sm:px-5 sm:pt-6 sm:pb-6" data-testid="hero-project-preview">
       {/* Subtle ambient glow behind the window */}
       <div
         className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-primary/[0.08] via-transparent to-blue-500/[0.06] blur-2xl"

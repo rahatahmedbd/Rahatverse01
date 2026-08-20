@@ -37,7 +37,7 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
   const section = config.section;
 
   return (
-    <section className="section-atmosphere py-12 sm:py-16 lg:py-20" id="services-preview">
+    <section className="section-atmosphere py-8 sm:py-10 lg:py-12" id="services-preview">
       <Layers3 className="section-watermark -left-6 bottom-12 sm:left-[5%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionTitle
@@ -105,7 +105,7 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
         </StaggerGrid>
 
         {/* CTA — full detail lives on the services page */}
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 text-center sm:mt-12 sm:flex-row sm:gap-4">
+        <div className="mt-7 flex flex-col items-center justify-center gap-3 text-center sm:mt-8 sm:flex-row sm:gap-4">
           <Button variant="gradient" size="lg" asChild className="w-full sm:w-auto">
             <Link href={`/${locale}/contact`} className="inline-flex items-center justify-center gap-2">
               {isBn ? "প্রজেক্ট শুরু করুন" : "Start a Project"}

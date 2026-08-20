@@ -20,7 +20,7 @@ export async function ProcessSection({ locale = "bn" }: ProcessSectionProps) {
   if (steps.length === 0) return null;
 
   return (
-    <section className="section-atmosphere py-12 sm:py-16 lg:py-20" aria-labelledby="how-i-work">
+    <section className="section-atmosphere py-8 sm:py-10 lg:py-12" aria-labelledby="how-i-work">
       <Workflow className="section-watermark -left-6 top-10 sm:left-[5%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <span id="how-i-work" className="sr-only">
@@ -67,7 +67,7 @@ export async function ProcessSection({ locale = "bn" }: ProcessSectionProps) {
         </StaggerGrid>
 
         {/* Inline CTA — start the process */}
-        <div className="mt-8 text-center sm:mt-10">
+        <div className="mt-6 text-center sm:mt-8">
           <Link
             href={`/${locale}/contact`}
             className="group inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"

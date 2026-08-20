@@ -39,7 +39,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
   const clientFacingInfo = about.personalInfo.filter((card) => HOMEPAGE_INFO_IDS.has(card.id));
 
   return (
-    <section className="section-atmosphere py-12 sm:py-16 lg:py-20">
+    <section className="section-atmosphere py-8 sm:py-10 lg:py-12">
       <UserRound className="section-watermark -right-5 top-10 sm:right-[6%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionTitle
@@ -133,7 +133,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
           )}
 
           {/* Quote — compact */}
-          <div className="mt-6 sm:mt-8">
+          <div className="mt-5 sm:mt-6">
             <GlassCard className="border-l-4 border-l-primary p-6 text-center sm:p-8">
               <p className="text-base italic leading-relaxed text-muted-foreground bn sm:text-lg">
                 &ldquo;{isBn ? about.biography.quote.bn : about.biography.quote.en}&rdquo;
@@ -151,7 +151,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
             AnimationGovernor resumes it only while visible; reduced-motion
             users get a calm static rainbow ring. */}
         <FadeInUp delay={0.15}>
-          <div className="mt-8 text-center sm:mt-10">
+          <div className="mt-6 text-center sm:mt-8">
             <Link
               href={`/${locale}/about`}
               data-fx

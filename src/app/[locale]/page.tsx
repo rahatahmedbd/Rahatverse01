@@ -94,13 +94,13 @@ export default async function HomePage({ params }: HomePageProps) {
       <CinematicIntro config={heroConfig} />
       <HeroSection locale={locale} aboutConfig={aboutConfig} heroConfig={heroConfig} />
 
-      <AuroraDivider spacing="md" />
+      <AuroraDivider spacing="none" />
 
       {/* Portfolio — the homepage's most important section. Clients buy proof:
           screenshots, tech stack, live demos and honest case studies. */}
       <section
         id="portfolio"
-        className="section-atmosphere scroll-mt-24 py-12 sm:py-16 lg:py-20"
+        className="section-atmosphere scroll-mt-24 py-8 sm:py-10 lg:py-12"
         aria-labelledby="home-portfolio-heading"
       >
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -122,35 +122,35 @@ export default async function HomePage({ params }: HomePageProps) {
         </div>
       </section>
 
-      <AuroraDivider spacing="md" />
+      <AuroraDivider spacing="none" />
 
       <ServicesPreview locale={locale} />
 
-      <AuroraDivider spacing="md" />
+      <AuroraDivider spacing="none" />
 
       <WhyWorkWithMe locale={locale} />
 
-      <AuroraDivider spacing="md" />
+      <AuroraDivider spacing="none" />
 
       <ProcessSection locale={locale} />
 
-      <AuroraDivider spacing="md" />
+      <AuroraDivider spacing="none" />
 
       <AboutPreview locale={locale} config={aboutConfig} />
 
-      <AuroraDivider spacing="md" />
+      <AuroraDivider spacing="none" />
 
       {/* Testimonials — container handled inside component */}
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <TestimonialsSection locale={locale} limit={6} initialTestimonials={testimonials} />
       </div>
 
-      <AuroraDivider spacing="md" />
+      <AuroraDivider spacing="none" />
 
       {/* FAQ — client questions answered before they ask */}
       <FAQSection locale={locale} initialConfig={contentConfig} />
 
-      <AuroraDivider spacing="md" />
+      <AuroraDivider spacing="none" />
 
       <OrderCtaBand locale={locale} />
 

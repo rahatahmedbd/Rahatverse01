@@ -545,7 +545,8 @@ html[lang="bn"] .heading-kicker,
   transition: opacity 180ms ease-out;
 }
 
-/* ── Spotlight Card — warm pointer-following glow ─────── */
+/* ── Spotlight Card — silver pointer-following glow (colourless light,
+   so it never stacks with the amber brand accent) ────── */
 .spotlight-card {
   position: relative;
 }
@@ -560,7 +561,7 @@ html[lang="bn"] .heading-kicker,
   opacity: var(--spotlight-opacity, 0);
   background: radial-gradient(
     320px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
-    rgb(251 191 36 / 0.09),
+    rgb(203 213 225 / 0.14),
     transparent 65%
   );
   transition: opacity 260ms ease-out;

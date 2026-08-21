@@ -83,10 +83,10 @@ function buildSimilarLabel(isBn: boolean): string {
 
 // ── Live site preview ─────────────────────────────────
 // For deployed projects (embedUrl set) the card embeds the REAL website in a
-// lazy iframe inside a mock browser frame — no static image. A full-size link
-// overlay sits on top, so clicking anywhere on the preview opens the live
-// site in a new tab. If the site refuses framing, the framed backdrop with
-// the domain pill still reads clearly.
+// lazy iframe inside a mock browser frame — no static image. The preview is
+// deliberately non-interactive; the explicit Live Demo action below is the
+// only way to leave RahatVerse. If the site refuses framing, the framed
+// backdrop with the domain pill still reads clearly.
 function LiveSitePreview({
   embedUrl,
   liveUrl,
@@ -187,7 +187,7 @@ function LiveSitePreview({
         aria-hidden="true"
         onLoad={handleFrameLoad}
         className={cn(
-          "absolute inset-x-0 bottom-0 top-8 h-[calc(100%-2rem)] w-full border-0 bg-background transition-opacity duration-500",
+          "pointer-events-none absolute inset-x-0 bottom-0 top-8 h-[calc(100%-2rem)] w-full border-0 bg-background transition-opacity duration-500",
           loaded ? "opacity-100" : "opacity-0"
         )}
       />
@@ -209,19 +209,7 @@ function LiveSitePreview({
         </span>
       </div>
 
-      {/* Full-area click overlay — always opens the live site */}
-      <a
-        href={liveUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`${title} — ${isBn ? "লাইভ ওয়েবসাইট খুলুন" : "open the live website"}`}
-        className="group/preview absolute inset-0 z-20 flex items-end justify-center pb-4 focus-visible:outline-none"
-      >
-        <span className="pointer-events-none inline-flex translate-y-2 items-center gap-1.5 rounded-full border border-primary/40 bg-background/85 px-3 py-1.5 text-[11px] font-semibold text-primary opacity-0 shadow-lg backdrop-blur transition-all duration-300 group-hover/preview:translate-y-0 group-hover/preview:opacity-100 group-focus-visible/preview:translate-y-0 group-focus-visible/preview:opacity-100">
-          <ExternalLink className="h-3 w-3" aria-hidden="true" />
-          {isBn ? "লাইভ সাইট খুলুন" : "Open Live Site"}
-        </span>
-      </a>
+
     </div>
   );
 }
@@ -354,7 +342,7 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
   });
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       {/* Category Filter & Keyword Search */}
       <FadeInUp>
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -433,7 +421,7 @@ export function PortfolioSection({ initialConfig }: PortfolioSectionProps) {
           />
         </FadeInUp>
       ) : (
-        <StaggerContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <StaggerContainer className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filteredProjects.map((project) => {
             const titleText = isBn ? project.titleBn : project.title;
             const descText = isBn ? project.descriptionBn : project.description;

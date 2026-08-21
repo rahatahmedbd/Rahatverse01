@@ -61,7 +61,7 @@ export function FAQSection({ locale = "bn", initialConfig }: FAQSectionProps) {
   );
 
   return (
-    <section className="py-8 sm:py-10 lg:py-12">
+    <section className="py-6 sm:py-8 lg:py-10">
       <div className="mx-auto max-w-3xl px-4">
         <SectionTitle
           badge={isBn ? "❓ প্রশ্নোত্তর" : "❓ FAQ"}
@@ -72,7 +72,7 @@ export function FAQSection({ locale = "bn", initialConfig }: FAQSectionProps) {
         />
 
         {visibleCategories.length > 0 && (
-          <div className="mb-6 flex flex-wrap justify-center gap-2">
+          <div className="mb-4 flex flex-wrap justify-center gap-2">
             <button
               onClick={() => setActiveCategory("all")}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${

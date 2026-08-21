@@ -55,7 +55,7 @@ export async function BlogPreview({ locale = "bn" }: BlogPreviewProps) {
   if (posts.length === 0) return null;
 
   return (
-    <section className="section-atmosphere py-8 sm:py-10 lg:py-12" aria-labelledby="latest-writing">
+    <section className="section-atmosphere py-6 sm:py-8 lg:py-10" aria-labelledby="latest-writing">
       <span id="latest-writing" className="sr-only">
         {isBn ? "সাম্প্রতিক লেখা" : "Latest writing"}
       </span>
@@ -72,7 +72,7 @@ export async function BlogPreview({ locale = "bn" }: BlogPreviewProps) {
           locale={locale}
         />
 
-        <StaggerGrid className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+        <StaggerGrid className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           {posts.map((post) => {
             const title = isBn && post.title_bn ? post.title_bn : post.title;
             const excerpt = (isBn ? post.excerpt_bn || post.excerpt : post.excerpt) || "";
@@ -129,7 +129,7 @@ export async function BlogPreview({ locale = "bn" }: BlogPreviewProps) {
         </StaggerGrid>
 
         <FadeInUp delay={0.15}>
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center">
             <Link
               href={`/${locale}/blog`}
               className="group inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"

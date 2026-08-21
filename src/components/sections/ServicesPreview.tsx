@@ -37,7 +37,7 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
   const section = config.section;
 
   return (
-    <section className="section-atmosphere py-8 sm:py-10 lg:py-12" id="services-preview">
+    <section className="section-atmosphere py-6 sm:py-8 lg:py-10" id="services-preview">
       <Layers3 className="section-watermark -left-6 bottom-12 sm:left-[5%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionTitle
@@ -49,11 +49,11 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
         />
 
         {/* Service cards — 1 col on mobile, 2 from 640px up */}
-        <StaggerGrid className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
+        <StaggerGrid className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
           {services.map((service) => (
             <StaggerItem key={service.id}>
               <SpotlightCard className="h-full rounded-xl">
-              <GlassCard className="group flex h-full flex-col p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 sm:p-6">
+              <GlassCard className="group flex h-full flex-col p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 sm:p-5">
                 <div className="flex items-start justify-between gap-4">
                   <span className="icon-frame h-12 w-12 shrink-0 rounded-xl transition-transform duration-300 group-hover:scale-110">
                     <ServicesIcon name={service.icon} className="h-5.5 w-5.5" />
@@ -70,14 +70,14 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
                   </div>
                 </div>
 
-                <h3 className="mt-4 text-base font-bold leading-snug bn sm:text-lg">
+                <h3 className="mt-3 text-base font-bold leading-snug bn sm:text-lg">
                   {isBn ? service.titleBn : service.titleEn}
                 </h3>
                 <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground bn sm:text-sm">
                   {isBn ? service.descriptionBn : service.descriptionEn}
                 </p>
 
-                <ul className="mt-4 flex-1 space-y-2">
+                <ul className="mt-3 flex-1 space-y-2">
                   {(isBn ? service.featuresBn : service.featuresEn).map((feature, i) => (
                     <li key={i} className="flex items-start gap-2 text-[13px] leading-snug text-foreground/90 bn sm:text-sm">
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
@@ -86,7 +86,7 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
                   ))}
                 </ul>
 
-                <div className="mt-5 border-t border-border/50 pt-4">
+                <div className="mt-4 border-t border-border/50 pt-3">
                   <Link
                     href={`/${locale}/contact`}
                     className="group/link inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
@@ -105,7 +105,7 @@ export async function ServicesPreview({ locale = "bn" }: ServicesPreviewProps) {
         </StaggerGrid>
 
         {/* CTA — full detail lives on the services page */}
-        <div className="mt-7 flex flex-col items-center justify-center gap-3 text-center sm:mt-8 sm:flex-row sm:gap-4">
+        <div className="mt-5 flex flex-col items-center justify-center gap-3 text-center sm:mt-6 sm:flex-row sm:gap-4">
           <Button variant="gradient" size="lg" asChild className="w-full sm:w-auto">
             <Link href={`/${locale}/contact`} className="inline-flex items-center justify-center gap-2">
               {isBn ? "প্রজেক্ট শুরু করুন" : "Start a Project"}

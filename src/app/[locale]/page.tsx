@@ -92,7 +92,7 @@ export default async function HomePage({ params }: HomePageProps) {
     <>
       <JsonLd type="WebPage" data={getWebPageSchema(locale)} />
       <CinematicIntro config={heroConfig} />
-      <HeroSection locale={locale} aboutConfig={aboutConfig} heroConfig={heroConfig} />
+      <HeroSection locale={locale} heroConfig={heroConfig} />
 
       <AuroraDivider spacing="none" />
 
@@ -100,7 +100,7 @@ export default async function HomePage({ params }: HomePageProps) {
           screenshots, tech stack, live demos and honest case studies. */}
       <section
         id="portfolio"
-        className="section-atmosphere scroll-mt-24 py-8 sm:py-10 lg:py-12"
+        className="section-atmosphere scroll-mt-24 py-6 sm:py-8 lg:py-10"
         aria-labelledby="home-portfolio-heading"
       >
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">

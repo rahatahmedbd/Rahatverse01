@@ -40,7 +40,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
   const clientFacingInfo = about.personalInfo.filter((card) => HOMEPAGE_INFO_IDS.has(card.id));
 
   return (
-    <section className="section-atmosphere py-8 sm:py-10 lg:py-12">
+    <section className="section-atmosphere py-6 sm:py-8 lg:py-10">
       <UserRound className="section-watermark -right-5 top-10 sm:right-[6%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionTitle
@@ -59,8 +59,8 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
           {/* Professional summary + quick facts — compact two-column card */}
           <FadeInUp delay={0.1}>
             <HoverCard3D intensity={6} className="rounded-xl">
-            <GlassCard className="p-6 sm:p-8">
-              <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8">
+            <GlassCard className="p-5 sm:p-6">
+              <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-6">
                 {/* Small photo — secondary on the homepage */}
                 <div className="mx-auto flex items-center gap-3 sm:mx-0 sm:flex-col sm:gap-2">
                   <RahatPortrait
@@ -111,7 +111,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
           {clientFacingInfo.length > 0 && (
             <StaggerGrid
               columns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
-              gap="gap-3 sm:gap-4"
+              gap="gap-2 sm:gap-3"
               className="mt-4"
             >
               {clientFacingInfo.map((card) => {
@@ -136,13 +136,13 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
           )}
 
           {/* Quote — compact */}
-          <div className="mt-5 sm:mt-6">
+          <div className="mt-4 sm:mt-5">
             <HoverCard3D intensity={5} className="rounded-xl">
-            <GlassCard className="border-l-4 border-l-primary p-6 text-center sm:p-8">
+            <GlassCard className="border-l-4 border-l-primary p-5 text-center sm:p-6">
               <p className="text-base italic leading-relaxed text-muted-foreground bn sm:text-lg">
                 &ldquo;{isBn ? about.biography.quote.bn : about.biography.quote.en}&rdquo;
               </p>
-              <Badge variant="glow" className="mt-4">
+              <Badge variant="glow" className="mt-3">
                 {isBn ? about.biography.quoteBy.bn : about.biography.quoteBy.en}
               </Badge>
             </GlassCard>
@@ -151,7 +151,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
         </div>
 
         <FadeInUp delay={0.15}>
-          <div className="mt-6 text-center sm:mt-8">
+          <div className="mt-4 text-center sm:mt-6">
             <Link
               href={`/${locale}/about`}
               className="group inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border/70 bg-card/80 px-6 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"

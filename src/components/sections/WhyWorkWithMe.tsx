@@ -22,7 +22,7 @@ export async function WhyWorkWithMe({ locale = "bn" }: WhyWorkWithMeProps) {
   if (features.length === 0) return null;
 
   return (
-    <section className="section-atmosphere py-8 sm:py-10 lg:py-12" aria-labelledby="why-work-with-me">
+    <section className="section-atmosphere py-6 sm:py-8 lg:py-10" aria-labelledby="why-work-with-me">
       <ShieldCheck className="section-watermark -right-6 top-12 sm:right-[5%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <span id="why-work-with-me" className="sr-only">
@@ -40,11 +40,11 @@ export async function WhyWorkWithMe({ locale = "bn" }: WhyWorkWithMeProps) {
           locale={locale}
         />
 
-        <StaggerGrid className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+        <StaggerGrid className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {features.map((feature) => (
             <StaggerItem key={feature.id}>
               <SpotlightCard className="h-full rounded-2xl">
-              <GlassCard className="group h-full p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 sm:p-6">
+              <GlassCard className="group h-full p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 sm:p-5">
                 <div className="flex items-start gap-4">
                   <span className="icon-frame h-11 w-11 shrink-0 rounded-xl transition-transform duration-300 group-hover:scale-110 sm:h-12 sm:w-12">
                     <ServicesIcon name={feature.icon} className="h-5 w-5 sm:h-5.5 sm:w-5.5" />

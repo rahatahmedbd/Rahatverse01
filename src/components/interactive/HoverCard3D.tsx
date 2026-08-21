@@ -57,7 +57,7 @@ export function HoverCard3D({
   return (
     <div
       ref={cardRef}
-      className={cn("tilt-card rounded-xl", className)}
+      className={cn("tilt-card rounded-xl [transform-style:preserve-3d]", className)}
       onPointerMove={handlePointerMove}
       onPointerLeave={reset}
     >

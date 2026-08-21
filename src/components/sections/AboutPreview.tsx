@@ -9,6 +9,7 @@ import type { AboutConfig } from "@/types/about";
 import { UserRound, ArrowRight, MapPin, BookOpen, Code2, Rocket } from "lucide-react";
 import Link from "next/link";
 import { RahatPortrait } from "./RahatPortrait";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 
 interface AboutPreviewProps {
   locale?: string;
@@ -57,6 +58,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
         <div className="mx-auto max-w-4xl">
           {/* Professional summary + quick facts — compact two-column card */}
           <FadeInUp delay={0.1}>
+            <HoverCard3D intensity={6} className="rounded-xl">
             <GlassCard className="p-6 sm:p-8">
               <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8">
                 {/* Small photo — secondary on the homepage */}
@@ -102,6 +104,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
                 </div>
               </div>
             </GlassCard>
+            </HoverCard3D>
           </FadeInUp>
 
           {/* CMS quick facts (location / languages only on the homepage) */}
@@ -134,6 +137,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
 
           {/* Quote — compact */}
           <div className="mt-5 sm:mt-6">
+            <HoverCard3D intensity={5} className="rounded-xl">
             <GlassCard className="border-l-4 border-l-primary p-6 text-center sm:p-8">
               <p className="text-base italic leading-relaxed text-muted-foreground bn sm:text-lg">
                 &ldquo;{isBn ? about.biography.quote.bn : about.biography.quote.en}&rdquo;
@@ -142,6 +146,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
                 {isBn ? about.biography.quoteBy.bn : about.biography.quoteBy.en}
               </Badge>
             </GlassCard>
+            </HoverCard3D>
           </div>
         </div>
 

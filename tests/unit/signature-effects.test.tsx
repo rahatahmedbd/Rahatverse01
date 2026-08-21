@@ -7,6 +7,7 @@ import {
   ScrollStoryline,
   FlipCard3D,
   OrbitingRings,
+  SpotlightCard,
 } from "@/components/interactive";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 
@@ -120,6 +121,30 @@ describe("Phase I — Section Signature Effects System", () => {
       const orderBtn = screen.getByRole("button", { name: "Order Package" });
       fireEvent.click(orderBtn);
       expect(handleAction).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("SpotlightCard 3D tilt", () => {
+    it("applies tilt-card together with the spotlight surface", () => {
+      render(
+        <SpotlightCard>
+          <p>Service card</p>
+        </SpotlightCard>
+      );
+
+      const card = screen.getByTestId("spotlight-card");
+      expect(card).toHaveClass("spotlight-card");
+      expect(card).toHaveClass("tilt-card");
+    });
+
+    it("can disable the 3D tilt when a flat spotlight is enough", () => {
+      render(
+        <SpotlightCard tilt={false}>
+          <p>Flat card</p>
+        </SpotlightCard>
+      );
+
+      expect(screen.getByTestId("spotlight-card")).not.toHaveClass("tilt-card");
     });
   });
 

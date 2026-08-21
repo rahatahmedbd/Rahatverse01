@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HeroProjectPreview } from "./HeroProjectPreview";
-import { Parallax3DContainer } from "@/components/interactive";
+import { HoverCard3D, Parallax3DContainer } from "@/components/interactive";
 import { FadeInUp, FadeInDown } from "@/components/animations/FadeIn";
 import { ParticleBackground } from "@/components/animations/ParticleBackground";
 import { ScrollIndicator } from "@/components/animations/ScrollProgress";
@@ -266,7 +266,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
             animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.7, ease: "easeOut" }}
           >
-            <Parallax3DContainer intensity={prefersReducedMotion ? 0 : 6} className="inline-block w-full max-w-[520px]">
+            <Parallax3DContainer intensity={prefersReducedMotion ? 0 : 10} className="inline-block w-full max-w-[520px]">
               <HeroProjectPreview locale={locale} aboutConfig={aboutConfig} />
             </Parallax3DContainer>
           </motion.div>

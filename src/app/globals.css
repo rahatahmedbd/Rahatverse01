@@ -1075,6 +1075,22 @@ html[lang="bn"] .heading-kicker,
   to { transform: rotate(360deg); }
 }
 
+/* Gentle idle 3D rock — used on the hero project window so it has depth
+   even before the pointer arrives. Parent Parallax3DContainer still owns
+   the mouse tilt; this animation lives on an inner layer. */
+.float-3d {
+  transform-style: preserve-3d;
+  animation: float-3d 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes float-3d {
+  0%, 100% { transform: rotateX(2deg) rotateY(-2.6deg) translateY(0); }
+  50% { transform: rotateX(-1.4deg) rotateY(2.6deg) translateY(-5px); }
+}
+
+
+
 /* 3. Aurora button — a rotating conic-gradient ring around a dark core,
    for signature links (e.g. the homepage "Learn more about Rahat" CTA).
    The ring is transform-only rotation → compositor-cheap; it renders paused
@@ -1534,7 +1550,8 @@ img:not([data-nimg]) {
   .particle-canvas,
   .hero-name-shine,
   .cta-halo,
-  .btn-aurora::before {
+  .btn-aurora::before,
+  .float-3d {
     animation: none !important;
     transition: none !important;
     transform: none !important;

@@ -6,6 +6,7 @@ import { Star, Quote, ChevronLeft, ChevronRight, Pause, Play } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 
 interface Testimonial {
   id: string;
@@ -132,6 +133,7 @@ export default function TestimonialsSection({
             onTouchEnd={() => setIsPaused(false)}
           >
             {/* Main Glass Quote Card */}
+            <HoverCard3D intensity={6} className="rounded-2xl">
             <div className="relative overflow-hidden rounded-2xl">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -204,6 +206,7 @@ export default function TestimonialsSection({
                 </motion.div>
               </AnimatePresence>
             </div>
+            </HoverCard3D>
 
             {/* Carousel Navigation Controls */}
             {count > 1 && (

@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Lock, CheckCircle2, Code2 } from "lucide-react";
 import type { AboutConfig } from "@/types/about";
 import { RAHAT_PORTRAIT_FIT, RAHAT_PROFILE_PHOTO } from "@/lib/profile";
+import { cn } from "@/lib/utils";
 
 interface HeroProjectPreviewProps {
   locale?: string;
@@ -14,7 +15,8 @@ interface HeroProjectPreviewProps {
 // ── Hero visual: the WORK is the hero ──────────────────
 // A mock browser window showing a live project, with the developer's photo as
 // a small secondary chip. Clients buy outcomes — the preview leads, the face
-// supports it.
+// supports it. Idle 3D rock lives on an inner layer so it composes with the
+// parent Parallax3DContainer's pointer tilt.
 export function HeroProjectPreview({ locale = "bn", aboutConfig }: HeroProjectPreviewProps) {
   const isBn = locale === "bn";
   const prefersReducedMotion = Boolean(useReducedMotion());
@@ -35,77 +37,85 @@ export function HeroProjectPreview({ locale = "bn", aboutConfig }: HeroProjectPr
         initial={prefersReducedMotion ? undefined : { opacity: 0, y: 24, scale: 0.96 }}
         animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
         transition={{ delay: 0.35, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="glass relative overflow-hidden rounded-2xl border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.35),0_4px_16px_rgba(0,0,0,0.2)]"
+        className="relative [transform-style:preserve-3d]"
       >
-        {/* Browser chrome */}
-        <div className="flex items-center gap-3 border-b border-white/[0.07] bg-card/70 px-4 py-2.5" aria-hidden="true">
-          <div className="flex gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+        <div
+          className={cn(
+            "glass relative overflow-hidden rounded-2xl border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.35),0_4px_16px_rgba(0,0,0,0.2)]",
+            !prefersReducedMotion && "float-3d"
+          )}
+        >
+          {/* Browser chrome */}
+          <div className="flex items-center gap-3 border-b border-white/[0.07] bg-card/70 px-4 py-2.5" aria-hidden="true">
+            <div className="flex gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+            </div>
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md bg-background/60 px-2.5 py-1 text-[11px] text-muted-foreground">
+              <Lock className="h-3 w-3 shrink-0 text-emerald-400/80" />
+              <span className="truncate font-mono">rahatahmed.site</span>
+            </div>
+            <Code2 className="h-3.5 w-3.5 shrink-0 text-primary/70" />
           </div>
-          <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md bg-background/60 px-2.5 py-1 text-[11px] text-muted-foreground">
-            <Lock className="h-3 w-3 shrink-0 text-emerald-400/80" />
-            <span className="truncate font-mono">rahatahmed.site</span>
-          </div>
-          <Code2 className="h-3.5 w-3.5 shrink-0 text-primary/70" />
-        </div>
 
-        {/* Website screenshot — the actual project preview */}
-        <div className="group relative aspect-[16/10] bg-card">
-          <Image
-            src="/images/project-preview.png"
-            alt={isBn ? "আধুনিক ওয়েবসাইট প্রিভিউ — রাহাত আহমেদের প্রজেক্ট" : "Modern website preview — a project by Rahat Ahmed"}
-            fill
-            priority
-            sizes="(max-width: 1024px) 92vw, 560px"
-            className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          {/* Live badge */}
-          <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-background/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500 backdrop-blur">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          {/* Website screenshot — the actual project preview */}
+          <div className="group relative aspect-[16/10] bg-card">
+            <Image
+              src="/images/project-preview.png"
+              alt={isBn ? "আধুনিক ওয়েবসাইট প্রিভিউ — রাহাত আহমেদের প্রজেক্ট" : "Modern website preview — a project by Rahat Ahmed"}
+              fill
+              priority
+              sizes="(max-width: 1024px) 92vw, 560px"
+              className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            {/* Live badge */}
+            <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-background/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500 backdrop-blur">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              </span>
+              {isBn ? "লাইভ" : "Live"}
             </span>
-            {isBn ? "লাইভ" : "Live"}
-          </span>
-        </div>
+          </div>
 
-        {/* Bottom strip — status + the developer (secondary) */}
-        <div className="flex items-center gap-3 border-t border-white/[0.07] bg-card/70 px-4 py-3">
-          <span
-            className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/40"
-            aria-hidden="true"
-          >
-            <Image src={photoUrl} alt="" fill sizes="44px" className={RAHAT_PORTRAIT_FIT} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-semibold leading-tight bn">
-              {isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}
-            </p>
-            <p className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
-              <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-400" aria-hidden="true" />
-              {isBn ? "ওয়েব ডেভেলপার — কাজ করার জন্য প্রস্তুত" : "Web Developer — available for work"}
-            </p>
+          {/* Bottom strip — status + the developer (secondary) */}
+          <div className="flex items-center gap-3 border-t border-white/[0.07] bg-card/70 px-4 py-3">
+            <span
+              className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/40"
+              aria-hidden="true"
+            >
+              <Image src={photoUrl} alt="" fill sizes="44px" className={RAHAT_PORTRAIT_FIT} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[13px] font-semibold leading-tight bn">
+                {isBn ? "রাহাত আহমেদ" : "Rahat Ahmed"}
+              </p>
+              <p className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+                <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-400" aria-hidden="true" />
+                {isBn ? "ওয়েব ডেভেলপার — কাজ করার জন্য প্রস্তুত" : "Web Developer — available for work"}
+              </p>
+            </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Floating tech chips — gentle, reduced-motion safe */}
+      {/* Floating tech chips — gentle 3D, reduced-motion safe */}
       <motion.div
         className="pointer-events-none absolute -right-3 -top-4 hidden rounded-xl border border-white/10 bg-card/85 px-3 py-2 shadow-lg backdrop-blur sm:block md:-right-6"
-        initial={prefersReducedMotion ? undefined : { opacity: 0, y: 10 }}
+        initial={prefersReducedMotion ? undefined : { opacity: 0, y: 10, rotateX: 8 }}
         animate={
           prefersReducedMotion
             ? { opacity: 1 }
-            : { opacity: 1, y: [0, -6, 0] }
+            : { opacity: 1, y: [0, -6, 0], rotateX: [6, 0, 6] }
         }
         transition={
           prefersReducedMotion
             ? { delay: 0.6 }
             : { delay: 0.9, duration: 5, repeat: Infinity, ease: "easeInOut" }
         }
+        style={{ transformPerspective: 600 }}
         aria-hidden="true"
       >
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -121,17 +131,18 @@ export function HeroProjectPreview({ locale = "bn", aboutConfig }: HeroProjectPr
       </motion.div>
       <motion.div
         className="pointer-events-none absolute -bottom-4 -left-3 hidden rounded-xl border border-white/10 bg-card/85 px-3 py-2 shadow-lg backdrop-blur sm:block md:-left-6"
-        initial={prefersReducedMotion ? undefined : { opacity: 0, y: -10 }}
+        initial={prefersReducedMotion ? undefined : { opacity: 0, y: -10, rotateX: -8 }}
         animate={
           prefersReducedMotion
             ? { opacity: 1 }
-            : { opacity: 1, y: [0, 6, 0] }
+            : { opacity: 1, y: [0, 6, 0], rotateX: [0, -6, 0] }
         }
         transition={
           prefersReducedMotion
             ? { delay: 0.7 }
             : { delay: 1.05, duration: 6, repeat: Infinity, ease: "easeInOut" }
         }
+        style={{ transformPerspective: 600 }}
         aria-hidden="true"
       >
         <div className="flex flex-wrap gap-1">

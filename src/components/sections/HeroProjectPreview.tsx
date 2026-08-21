@@ -72,10 +72,7 @@ export function HeroProjectPreview({ locale = "bn", aboutConfig }: HeroProjectPr
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             {/* Live badge */}
             <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-background/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500 backdrop-blur">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               {isBn ? "লাইভ" : "Live"}
             </span>
           </div>

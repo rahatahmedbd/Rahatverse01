@@ -23,7 +23,6 @@ import {
   TextAreaField,
   SelectField,
 } from "@/components/ui/form";
-import { OrbitingRings } from "@/components/interactive";
 import { RahatPortrait } from "./RahatPortrait";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -214,10 +213,6 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
       className="relative py-20 overflow-hidden scroll-mt-24 scroll-pb-28 pb-28 sm:pb-20"
       aria-labelledby="contact-heading"
     >
-      <div className="pointer-events-none absolute left-10 bottom-10 -z-10 flex items-center justify-center opacity-30" aria-hidden="true">
-        <OrbitingRings size="lg" />
-      </div>
-
       <div className="mx-auto max-w-7xl px-4">
         <SectionTitle
           as="h1"
@@ -252,8 +247,7 @@ export function ContactSection({ locale = "bn" }: ContactSectionProps) {
             </FadeInLeft>
 
             <FadeInLeft>
-              <GlassCard className="relative overflow-hidden">
-                <OrbitingRings size="sm" className="absolute -right-16 -top-16 opacity-30 pointer-events-none" />
+              <GlassCard>
                 <h3 id="quick-contact-heading" className="mb-4 text-lg font-bold bn">
                   {isBn ? "দ্রুত যোগাযোগ" : "Quick Contact"}
                 </h3>

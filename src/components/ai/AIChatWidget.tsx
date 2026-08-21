@@ -148,10 +148,9 @@ function DesktopNuvaButton({
             transition={{ type: "spring", stiffness: 420, damping: 30 }}
             className="pointer-events-auto absolute bottom-[calc(100%+16px)] left-1/2 -translate-x-1/2"
           >
-            <div className="relative flex items-center gap-2 whitespace-nowrap rounded-full border border-white/12 bg-[rgba(10,22,40,0.92)] px-4 py-2.5 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08),0_0_24px_rgba(16,185,129,0.18)] backdrop-blur-[18px]">
-              <div className="pointer-events-none absolute -inset-4 -z-10 rounded-full bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-violet-500/10 blur-[16px]" />
+            <div className="relative flex items-center gap-2 whitespace-nowrap rounded-full border border-white/12 bg-[rgba(10,22,40,0.92)] px-4 py-2.5 shadow-lg backdrop-blur-[18px]">
               <span className="text-[13px] font-medium text-white">
-                {isBn ? "✨ আমাকে জিজ্ঞেস করুন" : "Meet Nuva ✨"}
+                {isBn ? "আমাকে জিজ্ঞেস করুন" : "Ask Nuva"}
               </span>
               <button
                 type="button"
@@ -176,46 +175,17 @@ function DesktopNuvaButton({
         </div>
       </div>
 
-      {/* Button wrapper with glow */}
       <div className="relative">
-        {/* Outer premium glow */}
-        <div
-          className={cn(
-            "pointer-events-none absolute -inset-6 rounded-full",
-            "bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.26),rgba(6,182,212,0.18)_36%,rgba(139,92,246,0.14)_64%,transparent_72%)]",
-            "blur-[14px] opacity-80 transition-opacity duration-500 group-hover:opacity-100",
-            !shouldReduceMotion && "animate-nuva-glow"
-          )}
-          aria-hidden="true"
-        />
         <motion.button
           type="button"
           onClick={onOpen}
           aria-label={isBn ? "Nuva AI সহকারী খুলুন" : "Open Nuva AI Assistant"}
-          whileHover={shouldReduceMotion ? undefined : { scale: 1.07 }}
-          whileTap={{ scale: 0.93 }}
+          whileHover={shouldReduceMotion ? undefined : { scale: 1.04 }}
+          whileTap={{ scale: 0.94 }}
           transition={{ type: "spring", stiffness: 420, damping: 24 }}
-          className={cn(
-            "relative flex h-[64px] w-[64px] items-center justify-center rounded-full",
-            "border border-white/20 bg-gradient-to-br from-amber-300 via-emerald-400 to-cyan-500",
-            "shadow-[0_12px_32px_rgba(16,185,129,0.4),0_6px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.65),inset_0_-1px_0_rgba(0,0,0,0.1)]",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-            "will-change-transform"
-          )}
+          className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <span
-            className="pointer-events-none absolute inset-[1px] rounded-full bg-[radial-gradient(circle_at_32%_28%,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.28)_18%,transparent_44%)]"
-            aria-hidden="true"
-          />
-          <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-70" />
-          <span className="relative flex items-center justify-center">
-            <Sparkles className="h-7 w-7 text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:rotate-[10deg] group-hover:scale-110" />
-            <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]" />
-          </span>
-          {/* Shimmer on hover */}
-          <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
-            <span className="absolute -left-1/2 top-0 h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-all duration-700 group-hover:translate-x-[220%] group-hover:opacity-100" />
-          </span>
+          <Sparkles className="h-6 w-6" aria-hidden="true" />
         </motion.button>
       </div>
     </div>
@@ -456,26 +426,21 @@ export function AIChatWidget() {
               )}
             >
               {/* Subtle gradient glow behind panel */}
-              <div
-                className="pointer-events-none absolute -inset-1 -z-10 rounded-[inherit] bg-gradient-to-br from-emerald-500/12 via-cyan-500/10 to-violet-500/10 blur-[18px] opacity-70"
-                aria-hidden="true"
-              />
+
 
               {/* Header — premium, glassmorphism */}
               <div className="relative flex items-center gap-3 border-b border-white/8 bg-gradient-to-r from-amber-500/10 via-emerald-500/8 to-cyan-500/8 px-4 py-3.5">
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent" />
-                <span className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-gradient-to-br from-amber-300 via-emerald-400 to-cyan-500 shadow-[0_6px_18px_rgba(16,185,129,0.32),inset_0_1px_0_rgba(255,255,255,0.6)]">
-                  <span className="absolute inset-[1px] rounded-full bg-[radial-gradient(circle_at_32%_28%,rgba(255,255,255,0.85),transparent_42%)]" />
-                  <Sparkles className="relative h-5 w-5 text-white drop-shadow" aria-hidden="true" />
-                  <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[rgba(10,22,40,0.92)] bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <Sparkles className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate text-[15px] font-semibold tracking-tight text-white">
                       {t.title}
                     </p>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
-                      <span className="h-1 w-1 animate-pulse rounded-full bg-emerald-400" /> AI
+                    <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-white/70">
+                      AI
                     </span>
                   </div>
                   <p className="truncate text-[11px] leading-tight text-white/60">{t.subtitle}</p>
@@ -672,11 +637,10 @@ export function AIChatWidget() {
                     disabled={isSending || !input.trim()}
                     className={cn(
                       "group flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
-                      "bg-gradient-to-br from-amber-300 via-emerald-400 to-cyan-500 text-white",
-                      "shadow-[0_6px_18px_rgba(16,185,129,0.35),inset_0_1px_0_rgba(255,255,255,0.6)]",
-                      "transition-all duration-200 hover:scale-105 hover:shadow-[0_8px_22px_rgba(16,185,129,0.45)] active:scale-95",
-                      "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:shadow-[0_6px_18px_rgba(16,185,129,0.35)]",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60"
+                      "bg-primary text-primary-foreground shadow-md",
+                      "transition-colors hover:bg-primary/90 active:scale-95",
+                      "disabled:cursor-not-allowed disabled:opacity-40",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     )}
                   >
                     {isSending ? (

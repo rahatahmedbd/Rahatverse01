@@ -476,10 +476,9 @@ html[lang="bn"] .heading-kicker,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(245, 158, 11, 0.18);
-  background: linear-gradient(145deg, rgba(245, 158, 11, 0.14), rgba(59, 130, 246, 0.055));
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
   color: var(--primary);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 24px rgba(5, 10, 21, 0.16);
 }
 
 /* ── Phase E — Motion & micro-interaction primitives ─── */
@@ -697,30 +696,11 @@ html[lang="bn"] .heading-kicker,
 }
 
 .aurora-divider::before {
-  content: "";
-  position: absolute;
-  inset: -1.25rem 8%;
-  pointer-events: none;
-  background-image: var(--gradient-divider);
-  background-size: 240% 100%;
-  background-position: 50% 50%;
-  filter: blur(18px);
-  opacity: 0.38;
+  display: none;
 }
 
 .aurora-divider::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0.35rem;
-  height: 0.35rem;
-  border-radius: 999px;
-  background: var(--gradient-start);
-  box-shadow:
-    0 0 0.8rem rgba(251, 191, 36, 0.75),
-    0 0 1.8rem rgba(139, 92, 246, 0.4);
-  transform: translate(-50%, -50%);
+  display: none;
 }
 
 /* Glassmorphism 2.0 - Dark Mode (Base) */

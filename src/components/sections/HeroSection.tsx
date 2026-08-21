@@ -177,10 +177,6 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
                     const href = primaryCta.href.startsWith("/") ? `/${locale}${primaryCta.href}` : primaryCta.href;
                     return (
                       <div className="relative w-full sm:w-auto">
-                        {/* Rotating aurora halo — AnimationGovernor pauses it off-screen */}
-                        {!prefersReducedMotion && (
-                          <span className="cta-halo pointer-events-none" data-fx aria-hidden="true" />
-                        )}
                         <Button
                           variant="gradient"
                           size="lg"
@@ -199,9 +195,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
                             }
                           >
                             <span className="flex items-center gap-2.5">
-                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/14 ring-1 ring-white/10 backdrop-blur" aria-hidden="true">
-                                <Zap className="h-3.5 w-3.5 text-white" aria-hidden="true" />
-                              </span>
+                              <Zap className="h-4 w-4 shrink-0 text-white" aria-hidden="true" />
                               <span className="text-white">{label}</span>
                             </span>
                             <ArrowRight

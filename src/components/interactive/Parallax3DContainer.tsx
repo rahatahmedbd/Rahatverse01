@@ -55,7 +55,7 @@ export function Parallax3DContainer({
       ref={containerRef}
       data-testid="parallax-3d-container"
       className={cn(
-        "relative transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform",
+        "relative [transform-style:preserve-3d] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform",
         className
       )}
       onMouseMove={handleMouseMove}

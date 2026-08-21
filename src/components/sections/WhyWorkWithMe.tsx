@@ -22,7 +22,7 @@ export async function WhyWorkWithMe({ locale = "bn" }: WhyWorkWithMeProps) {
   if (features.length === 0) return null;
 
   return (
-    <section className="section-atmosphere py-12 sm:py-16 lg:py-20" aria-labelledby="why-work-with-me">
+    <section className="section-atmosphere py-8 sm:py-10 lg:py-12" aria-labelledby="why-work-with-me">
       <ShieldCheck className="section-watermark -right-6 top-12 sm:right-[5%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <span id="why-work-with-me" className="sr-only">

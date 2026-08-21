@@ -6,6 +6,7 @@ import { Star, Quote, ChevronLeft, ChevronRight, Pause, Play } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 
 interface Testimonial {
   id: string;
@@ -108,7 +109,7 @@ export default function TestimonialsSection({
   const currentTestimonial = testimonials[currentIndex];
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20">
+    <section className="py-8 sm:py-10 lg:py-12">
       <div className="mx-auto max-w-5xl px-0 sm:px-4">
         <SectionTitle
           badge={isBn ? "💬 মতামত ও মূল্যায়ন" : "💬 Client Testimonials"}
@@ -125,13 +126,14 @@ export default function TestimonialsSection({
             Company Here") is permanently retired instead of rendered. */}
           <div
             data-testid="testimonials-carousel"
-            className="relative mx-auto mt-10 max-w-3xl"
+            className="relative mx-auto mt-0 max-w-3xl"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onTouchStart={() => setIsPaused(true)}
             onTouchEnd={() => setIsPaused(false)}
           >
             {/* Main Glass Quote Card */}
+            <HoverCard3D intensity={6} className="rounded-2xl">
             <div className="relative overflow-hidden rounded-2xl">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -204,6 +206,7 @@ export default function TestimonialsSection({
                 </motion.div>
               </AnimatePresence>
             </div>
+            </HoverCard3D>
 
             {/* Carousel Navigation Controls */}
             {count > 1 && (

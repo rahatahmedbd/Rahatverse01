@@ -149,14 +149,6 @@ export function CinematicIntro({ config }: CinematicIntroProps = {}) {
           {/* Main Logo */}
           <div className="relative flex flex-col items-center">
             <motion.div
-              className="absolute h-24 w-24 rounded-full border-2 border-amber-500/30"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: [0, 1.15, 1], opacity: [0, 0.45, 0.28] }}
-              transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
-              aria-hidden="true"
-            />
-
-            <motion.div
               className="relative flex h-24 w-24 items-center justify-center shadow-2xl shadow-primary/30"
               initial={{ scale: 0, rotate: -18 }}
               animate={{ scale: [0, 1.05, 1], rotate: 0 }}

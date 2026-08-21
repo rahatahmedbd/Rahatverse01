@@ -57,14 +57,6 @@ const frameStyles: Record<AboutFrameStyle, { rim: string; gradient: string; shad
   },
 };
 
-const conicColors: Record<AboutFrameStyle, string> = {
-  amber: "rgba(245, 158, 11, 0.6)",
-  blue: "rgba(59, 130, 246, 0.6)",
-  emerald: "rgba(16, 185, 129, 0.6)",
-  purple: "rgba(139, 92, 246, 0.6)",
-  rose: "rgba(244, 63, 94, 0.6)",
-};
-
 export function ProfileImage({
   src,
   publicId,
@@ -116,48 +108,11 @@ export function ProfileImage({
         whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
         transition={{ type: "spring", stiffness: 320, damping: 28 }}
       >
-        {/* Ambient Halo — breathes via opacity only */}
-        <motion.div
-          className={cn("absolute rounded-3xl blur-2xl", ringSizeMap[size], styles.glow)}
-          animate={prefersReducedMotion ? undefined : { opacity: [0.28, 0.5, 0.28] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          aria-hidden="true"
-        />
-
-        {/* Rotating Conic Rim Light — disabled when reduced motion */}
-        <motion.div
-          className={cn("absolute rounded-3xl", ringSizeMap[size])}
-          animate={prefersReducedMotion ? undefined : { rotate: 360 }}
-          transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
-          aria-hidden="true"
-        >
-          <div
-            className="h-full w-full rounded-3xl"
-            style={{
-              background: `conic-gradient(from 0deg, transparent 0deg, ${conicColors[frame]} 60deg, transparent 140deg, ${conicColors[frame]} 230deg, transparent 300deg, ${conicColors[frame]} 355deg, transparent 360deg)`,
-              padding: 4,
-              WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-              WebkitMaskComposite: "xor",
-              mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-              maskComposite: "exclude",
-            }}
-          />
-        </motion.div>
-
-        {/* Soft Static Ring */}
-        <div
-          className={cn("absolute rounded-3xl border", ringSizeMap[size], styles.rim, "opacity-40")}
-          aria-hidden="true"
-        />
-
-        {/* Gradient Rim + Square Image — CLS stable */}
         <div
           className={cn(
-            "relative rounded-3xl bg-gradient-to-br p-[3px]",
+            "relative rounded-3xl border bg-card p-[3px] shadow-lg",
             sizeMap[size],
-            styles.gradient,
-            "shadow-2xl",
-            styles.shadow
+            styles.rim
           )}
           style={{ aspectRatio: portraitRatio }}
         >
@@ -209,10 +164,7 @@ export function ProfileImage({
             aria-live="polite"
           >
             <span className="relative flex h-2 w-2" aria-hidden="true">
-              {!prefersReducedMotion && (
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              )}
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
             <span className="bn max-w-[12rem] whitespace-normal leading-tight">{statusLabel}</span>
           </motion.div>

@@ -5,6 +5,7 @@ import { ShoppingCart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics/tracker";
 import { RahatPortrait } from "./RahatPortrait";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 
 interface OrderCtaBandProps {
   locale?: string;
@@ -15,6 +16,7 @@ export function OrderCtaBand({ locale = "bn" }: OrderCtaBandProps) {
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12" aria-label={isBn ? "ওয়েবসাইট অর্ডার" : "Order a website"}>
+      <HoverCard3D intensity={5} className="rounded-2xl sm:rounded-3xl">
       <div className="glass-interactive relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-purple-500/10 px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:rounded-3xl sm:px-8 sm:py-10 lg:px-12 lg:py-12">
         {/* Decorative glows — restrained */}
         <div className="pointer-events-none absolute -top-20 left-1/2 h-40 w-80 -translate-x-1/2 rounded-full bg-amber-500/[0.07] blur-3xl sm:h-48 sm:w-96" aria-hidden="true" />
@@ -75,6 +77,7 @@ export function OrderCtaBand({ locale = "bn" }: OrderCtaBandProps) {
           </div>
         </div>
       </div>
+      </HoverCard3D>
     </section>
   );
 }

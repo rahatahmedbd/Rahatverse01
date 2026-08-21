@@ -82,81 +82,22 @@ function NuvaCenterButton({
       {/* ── Elevated Button Wrapper ── */}
       {/* Negative top margin makes it overlap the bar's top edge */}
       <div className="relative -mt-9 flex flex-col items-center">
-        {/* Outer glow — premium, lightweight, GPU-friendly */}
-        <div
-          className={cn(
-            "pointer-events-none absolute -inset-5 rounded-full",
-            "bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.22),rgba(6,182,212,0.16)_35%,rgba(139,92,246,0.12)_65%,transparent_72%)]",
-            "blur-[10px]",
-            !shouldReduceMotion && "animate-nuva-glow"
-          )}
-          aria-hidden="true"
-        />
-
-        {/* ── Main Nuva Button ── */}
         <motion.button
           type="button"
           aria-label={
             isBn ? "Nuva AI সহকারী খুলুন" : "Open Nuva AI Assistant"
           }
           onClick={onOpen}
-          whileTap={{ scale: 0.92 }}
-          whileHover={shouldReduceMotion ? undefined : { scale: 1.06 }}
+          whileTap={{ scale: 0.94 }}
+          whileHover={shouldReduceMotion ? undefined : { scale: 1.04 }}
           transition={{ type: "spring", stiffness: 420, damping: 22 }}
-          className={cn(
-            "group relative flex h-[64px] w-[64px] items-center justify-center rounded-full",
-            "border border-white/20 bg-gradient-to-br from-amber-300 via-emerald-400 to-cyan-500",
-            "shadow-[0_10px_28px_rgba(16,185,129,0.38),0_4px_12px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(0,0,0,0.12)]",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[rgba(10,22,40,0.75)]",
-            "will-change-transform"
-          )}
-          style={{
-            transformOrigin: "50% 50%",
-          }}
+          className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 ring-4 ring-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          {/* Inner highlight — glassmorphism depth */}
-          <span
-            className="pointer-events-none absolute inset-[1px] rounded-full bg-[radial-gradient(circle_at_32%_28%,rgba(255,255,255,0.85)_0%,rgba(255,255,255,0.28)_18%,transparent_42%)]"
-            aria-hidden="true"
-          />
-          {/* Subtle inner border glow */}
-          <span
-            className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-br from-white/25 via-transparent to-transparent opacity-70"
-            aria-hidden="true"
-          />
-
-          {/* Icon — immediately recognizable AI spark */}
-          <span className="relative flex items-center justify-center">
-            <Sparkles
-              className={cn(
-                "h-7 w-7 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.35)]",
-                "transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                "group-hover:rotate-[8deg] group-hover:scale-110"
-              )}
-              aria-hidden="true"
-            />
-            {/* Tiny status dot — online intelligence */}
-            <span
-              className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
-              aria-hidden="true"
-            />
-          </span>
-
-          {/* Shimmer sweep on hover — lightweight */}
-          <span
-            className="pointer-events-none absolute inset-0 overflow-hidden rounded-full"
-            aria-hidden="true"
-          >
-            <span className="absolute -left-1/2 top-0 h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent opacity-0 transition-all duration-700 group-hover:translate-x-[220%] group-hover:opacity-100" />
-          </span>
+          <Sparkles className="h-6 w-6" aria-hidden="true" />
         </motion.button>
 
-        {/* Label below — simple, premium */}
-        <span className="mt-1.5 flex items-center gap-1 text-[10px] font-semibold leading-none tracking-[0.02em] text-white/85">
-          <span className="text-[10px]">✨</span>
-          <span className={cn(isBn ? "bn font-medium" : "font-semibold tracking-wide")}>
-            Nuva
-          </span>
+        <span className={cn("mt-1.5 text-[10px] font-semibold leading-none text-white/85", isBn && "bn")}>
+          Nuva
         </span>
       </div>
     </div>
@@ -315,12 +256,6 @@ export function BottomNavBar() {
             "dark:shadow-[0_12px_36px_rgba(0,0,0,0.56),0_3px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.07)]"
           )}
         >
-          {/* Subtle outer glow */}
-          <div
-            className="pointer-events-none absolute -inset-3 -z-10 rounded-[36px] bg-gradient-to-r from-emerald-500/[0.08] via-cyan-500/[0.07] to-violet-500/[0.06] blur-[22px]"
-            aria-hidden="true"
-          />
-
           {/* Left */}
           <div className="flex flex-1 items-center gap-0.5">
             {leftNavItems.map((item) => {

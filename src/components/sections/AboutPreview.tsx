@@ -9,6 +9,7 @@ import type { AboutConfig } from "@/types/about";
 import { UserRound, ArrowRight, MapPin, BookOpen, Code2, Rocket } from "lucide-react";
 import Link from "next/link";
 import { RahatPortrait } from "./RahatPortrait";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 
 interface AboutPreviewProps {
   locale?: string;
@@ -39,7 +40,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
   const clientFacingInfo = about.personalInfo.filter((card) => HOMEPAGE_INFO_IDS.has(card.id));
 
   return (
-    <section className="section-atmosphere py-12 sm:py-16 lg:py-20">
+    <section className="section-atmosphere py-8 sm:py-10 lg:py-12">
       <UserRound className="section-watermark -right-5 top-10 sm:right-[6%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionTitle
@@ -57,6 +58,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
         <div className="mx-auto max-w-4xl">
           {/* Professional summary + quick facts — compact two-column card */}
           <FadeInUp delay={0.1}>
+            <HoverCard3D intensity={6} className="rounded-xl">
             <GlassCard className="p-6 sm:p-8">
               <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8">
                 {/* Small photo — secondary on the homepage */}
@@ -102,6 +104,7 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
                 </div>
               </div>
             </GlassCard>
+            </HoverCard3D>
           </FadeInUp>
 
           {/* CMS quick facts (location / languages only on the homepage) */}
@@ -133,7 +136,8 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
           )}
 
           {/* Quote — compact */}
-          <div className="mt-6 sm:mt-8">
+          <div className="mt-5 sm:mt-6">
+            <HoverCard3D intensity={5} className="rounded-xl">
             <GlassCard className="border-l-4 border-l-primary p-6 text-center sm:p-8">
               <p className="text-base italic leading-relaxed text-muted-foreground bn sm:text-lg">
                 &ldquo;{isBn ? about.biography.quote.bn : about.biography.quote.en}&rdquo;
@@ -142,40 +146,24 @@ export function AboutPreview({ locale = "bn", config }: AboutPreviewProps) {
                 {isBn ? about.biography.quoteBy.bn : about.biography.quoteBy.en}
               </Badge>
             </GlassCard>
+            </HoverCard3D>
           </div>
         </div>
 
-        {/* Entity-strong internal link — homepage preview → canonical About page.
-            Signature "aurora button": a slowly spinning rainbow ring, gradient
-            label, and a hover shine sweep. The ring renders paused and the
-            AnimationGovernor resumes it only while visible; reduced-motion
-            users get a calm static rainbow ring. */}
         <FadeInUp delay={0.15}>
-          <div className="mt-8 text-center sm:mt-10">
+          <div className="mt-6 text-center sm:mt-8">
             <Link
               href={`/${locale}/about`}
-              data-fx
-              className="btn-aurora group inline-flex transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(245,158,11,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="group inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border/70 bg-card/80 px-6 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              <span className="btn-aurora-core inline-flex min-h-[50px] items-center gap-2.5 overflow-hidden px-7 py-3 text-sm font-semibold sm:text-[15px]">
-                {/* Shine sweep across the pill on hover (transform-only) */}
-                <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-full" aria-hidden="true">
-                  <span className="absolute inset-y-0 -left-1/2 w-1/2 -translate-x-full -skew-x-12 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[280%]" />
-                </span>
-                <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"
-                  aria-hidden="true"
-                >
-                  <Rocket className="h-4 w-4" />
-                </span>
-                <span className="bn text-gradient">
-                  {isBn ? "রাহাত আহমেদ সম্পর্কে আরও জানুন" : "Learn more about Rahat Ahmed"}
-                </span>
-                <ArrowRight
-                  className="h-4 w-4 shrink-0 text-primary transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
-                  aria-hidden="true"
-                />
+              <Rocket className="h-4 w-4 text-primary" aria-hidden="true" />
+              <span className="bn">
+                {isBn ? "রাহাত আহমেদ সম্পর্কে আরও জানুন" : "Learn more about Rahat Ahmed"}
               </span>
+              <ArrowRight
+                className="h-4 w-4 text-primary transition-transform duration-200 group-hover:translate-x-1"
+                aria-hidden="true"
+              />
             </Link>
           </div>
         </FadeInUp>

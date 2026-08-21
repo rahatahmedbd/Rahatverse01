@@ -1,5 +1,6 @@
 import { SectionTitle } from "./SectionTitle";
 import { StaggerItem, StaggerGrid } from "@/components/animations/Stagger";
+import { HoverCard3D } from "@/components/interactive/HoverCard3D";
 import { Workflow } from "lucide-react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -20,7 +21,7 @@ export async function ProcessSection({ locale = "bn" }: ProcessSectionProps) {
   if (steps.length === 0) return null;
 
   return (
-    <section className="section-atmosphere py-12 sm:py-16 lg:py-20" aria-labelledby="how-i-work">
+    <section className="section-atmosphere py-8 sm:py-10 lg:py-12" aria-labelledby="how-i-work">
       <Workflow className="section-watermark -left-6 top-10 sm:left-[5%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <span id="how-i-work" className="sr-only">
@@ -42,6 +43,7 @@ export async function ProcessSection({ locale = "bn" }: ProcessSectionProps) {
         <StaggerGrid className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-5">
           {steps.map((step, index) => (
             <StaggerItem key={step.id}>
+              <HoverCard3D intensity={7} className="h-full rounded-2xl">
               <div className="group relative h-full rounded-2xl border border-border/60 bg-card/60 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
                 {/* Step number */}
                 <div className="mb-3 flex items-center gap-2.5">
@@ -62,12 +64,13 @@ export async function ProcessSection({ locale = "bn" }: ProcessSectionProps) {
                   {isBn ? step.descriptionBn : step.descriptionEn}
                 </p>
               </div>
+              </HoverCard3D>
             </StaggerItem>
           ))}
         </StaggerGrid>
 
         {/* Inline CTA — start the process */}
-        <div className="mt-8 text-center sm:mt-10">
+        <div className="mt-6 text-center sm:mt-8">
           <Link
             href={`/${locale}/contact`}
             className="group inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"

@@ -204,10 +204,7 @@ function LiveSitePreview({
           <span className="truncate font-mono">{domain}</span>
         </span>
         <span className="ml-auto hidden items-center gap-1 text-[9px] font-medium uppercase tracking-wider text-emerald-400/80 sm:flex">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          </span>
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           {isBn ? "লাইভ" : "Live"}
         </span>
       </div>

@@ -46,7 +46,7 @@ export function SectionTitle({
 
   return (
     <motion.div
-      className={cn("mb-12", alignMap[align], className)}
+      className={cn("mb-7 sm:mb-8", alignMap[align], className)}
       initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-50px" }}

@@ -55,7 +55,7 @@ export async function BlogPreview({ locale = "bn" }: BlogPreviewProps) {
   if (posts.length === 0) return null;
 
   return (
-    <section className="section-atmosphere py-12 sm:py-16 lg:py-20" aria-labelledby="latest-writing">
+    <section className="section-atmosphere py-8 sm:py-10 lg:py-12" aria-labelledby="latest-writing">
       <span id="latest-writing" className="sr-only">
         {isBn ? "সাম্প্রতিক লেখা" : "Latest writing"}
       </span>

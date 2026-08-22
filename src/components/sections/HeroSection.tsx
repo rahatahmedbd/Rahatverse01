@@ -1,60 +1,32 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { HeroProjectPreview } from "./HeroProjectPreview";
-import { HoverCard3D, Parallax3DContainer } from "@/components/interactive";
 import { FadeInUp, FadeInDown } from "@/components/animations/FadeIn";
 import { ParticleBackground } from "@/components/animations/ParticleBackground";
 import { ScrollIndicator } from "@/components/animations/ScrollProgress";
-import { Sparkles, Zap, Eye, MessageCircle, Star, Award, Heart, Code, Users, ShoppingCart, Briefcase, GraduationCap, Droplets, Trophy, Mail, ArrowRight, Rocket } from "lucide-react";
+import { Sparkles, Zap, ArrowRight } from "lucide-react";
 import { Counter } from "@/components/animations/Counter";
 import Link from "next/link";
 import type { HeroConfig, HeroCTA } from "@/types/hero";
-import type { AboutConfig } from "@/types/about";
 import { DEFAULT_HERO_CONFIG, validateHeroConfig } from "@/lib/hero/config";
 import { trackEvent } from "@/lib/analytics/tracker";
 
-// ── Icon map ───────────────────────────────────────
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Zap,
-  Eye,
-  MessageCircle,
-  Sparkles,
-  Star,
-  Award,
-  Heart,
-  Code,
-  Users,
-  ShoppingCart,
-  Briefcase,
-  GraduationCap,
-  Droplets,
-  Trophy,
-  Mail,
-  Rocket,
-};
-
-function getIcon(name: string) {
-  return ICON_MAP[name] ?? Sparkles;
-}
-
-// Phase 6: hero shows exact localized labels from the CMS — primary
-// "Order a Website" / "ওয়েবসাইট অর্ডার করুন" and secondary
-// "View Work & Proof" / "কাজ ও প্রমাণ দেখুন". No shortening.
+// The hero keeps one clear conversion path. Portfolio proof remains available
+// from the navigation and the dedicated portfolio section, without a second
+// boxed link competing with the primary action here.
 function getDisplayLabel(cta: HeroCTA, isBn: boolean): string {
   return isBn ? cta.labelBn : cta.labelEn;
 }
 
 interface HeroSectionProps {
   locale?: string;
-  aboutConfig?: AboutConfig;
   heroConfig?: HeroConfig;
 }
 
-export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSectionProps) {
+export function HeroSection({ locale = "bn", heroConfig }: HeroSectionProps) {
   const isBn = locale === "bn";
   const [config, setConfig] = useState<HeroConfig>(heroConfig ?? DEFAULT_HERO_CONFIG);
   const [isMobile, setIsMobile] = useState(false);
@@ -84,12 +56,12 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
     };
   }, [heroConfig]);
 
-  // Phase 6: only two hero CTAs — primary (order) + one secondary (proof).
-  const { primaryCta, secondaryCtas } = useMemo(() => {
-    const primary = config.ctas.find((c) => c.variant === "gradient") ?? config.ctas[0];
-    const secondaries = config.ctas.filter((c) => c.id !== primary?.id).slice(0, 1);
-    return { primaryCta: primary, secondaryCtas: secondaries };
-  }, [config.ctas]);
+  // Keep the hero focused on one next step. Visitors can still reach the
+  // portfolio from the navbar and the dedicated work section below.
+  const primaryCta = useMemo(
+    () => config.ctas.find((c) => c.variant === "gradient") ?? config.ctas[0],
+    [config.ctas]
+  );
 
   if (!config.visible) return null;
 
@@ -97,7 +69,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
   return (
     <section
-      className="relative overflow-x-clip py-5 sm:py-6 lg:py-8"
+      className="relative overflow-x-clip py-4 sm:py-5 lg:py-6"
       aria-label={isBn ? "হিরো সেকশন" : "Hero section"}
     >
       {/* Particle Background — adaptive quality, reduced motion handled inside component */}
@@ -121,9 +93,9 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
       {/* Content container — 320..1536+ */}
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-5 lg:grid-cols-2 lg:gap-8">
-          {/* LEFT — Intro, Name, Description, CTAs */}
-          <div className="order-1 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
+        <div className="mx-auto max-w-4xl">
+          {/* Intro, name, description and one clear CTA */}
+          <div className="flex flex-col items-center text-center">
             <FadeInDown delay={prefersReducedMotion ? 0 : 0.4}>
               <Badge variant="gradient" className="mb-3 text-xs font-medium sm:mb-4 sm:text-sm">
                 <Sparkles className="mr-1 h-3 w-3 shrink-0" aria-hidden="true" />
@@ -150,7 +122,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
 
             {config.badges.length > 0 && (
               <FadeInUp delay={prefersReducedMotion ? 0 : 0.65}>
-                <div className="mt-2.5 flex flex-wrap justify-center gap-1.5 sm:gap-2 lg:justify-start" role="list" aria-label={isBn ? "দক্ষতা" : "Skills"}>
+                <div className="mt-2 flex flex-wrap justify-center gap-1.5 sm:gap-2" role="list" aria-label={isBn ? "দক্ষতা" : "Skills"}>
                   {config.badges.map((b) => (
                     <Badge key={b.id} variant="glow" className="bn rounded-full px-3 py-1 text-xs font-medium leading-none" role="listitem">
                       {isBn ? b.labelBn : b.labelEn}
@@ -161,16 +133,16 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
             )}
 
             <FadeInUp delay={prefersReducedMotion ? 0 : 0.8}>
-              <p className="mx-auto mt-3 max-w-[30ch] text-pretty text-[14.5px] leading-relaxed text-muted-foreground bn sm:max-w-xl lg:mx-0 lg:max-w-[42ch] xl:max-w-[48ch] sm:text-[15.5px] lg:text-lead">
+              <p className="mx-auto mt-2.5 max-w-[34ch] text-pretty text-[14.5px] leading-relaxed text-muted-foreground bn sm:max-w-2xl sm:text-[15.5px] lg:text-lead">
                 {isBn
                   ? "ব্যবসা, স্টার্টআপ ও ব্যক্তিগত ব্র্যান্ডের জন্য দ্রুত, রেসপনসিভ ও SEO-রেডি ওয়েবসাইট — Next.js, React ও TypeScript দিয়ে তৈরি। আইডিয়া থেকে লঞ্চ পর্যন্ত পুরো যাত্রায় আমি পাশে থাকি।"
                   : "Fast, responsive and SEO-ready websites for businesses, startups and personal brands — built with Next.js, React and TypeScript. From idea to launch, I handle the whole journey."}
               </p>
             </FadeInUp>
 
-            {/* CTA Hierarchy — exactly 2 CTAs per Phase 6, preserved */}
+            {/* One focused CTA keeps the hero compact and avoids accidental navigation. */}
             <FadeInUp delay={prefersReducedMotion ? 0 : 0.95}>
-              <div className="hero-cta-group mx-auto mt-4 flex w-full max-w-[340px] flex-col items-stretch gap-2.5 sm:mt-5 sm:max-w-none sm:items-center lg:mx-0 lg:items-start sm:gap-3" data-testid="hero-cta">
+              <div className="hero-cta-group mx-auto mt-3 flex w-full max-w-[340px] flex-col items-stretch gap-2.5 sm:mt-4 sm:max-w-none sm:items-center sm:gap-3" data-testid="hero-cta">
                 {primaryCta &&
                   (() => {
                     const label = getDisplayLabel(primaryCta, isBn);
@@ -207,69 +179,15 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
                       </div>
                     );
                   })()}
-
-                {secondaryCtas.length > 0 && (
-                  <div className="flex w-full items-stretch gap-3 sm:w-auto sm:gap-4">
-                    {secondaryCtas.map((cta) => {
-                      const isViewProjects = cta.id === "cta-portfolio" || cta.href.includes("portfolio");
-                      const variant = isViewProjects ? ("glass" as const) : ("outline" as const);
-                      const Icon = getIcon(cta.icon);
-                      const label = getDisplayLabel(cta, isBn);
-                      const href = cta.href.startsWith("/") ? `/${locale}${cta.href}` : cta.href;
-                      const VisualIcon = isViewProjects ? Eye : MessageCircle;
-                      const UseIcon = ICON_MAP[cta.icon] ? Icon : VisualIcon;
-                      return (
-                        <Button
-                          key={cta.id}
-                          variant={variant}
-                          size="lg"
-                          asChild
-                          className="group flex-1 justify-center gap-2 rounded-xl px-4 text-[13.5px] font-semibold tracking-[-0.01em] sm:flex-initial sm:min-w-[148px] sm:px-6 sm:text-[14px] min-h-[44px]"
-                          aria-label={label}
-                        >
-                          <Link
-                            href={href}
-                            onClick={() =>
-                              trackEvent("cta_click", {
-                                category: "conversion",
-                                label: cta.id,
-                                metadata: { cta_id: cta.id, location: "hero", locale },
-                              })
-                            }
-                          >
-                            <UseIcon
-                              className="h-4 w-4 shrink-0 opacity-90 transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
-                              aria-hidden="true"
-                            />
-                            <span className="truncate">{label}</span>
-                          </Link>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
             </FadeInUp>
           </div>
-
-          {/* RIGHT — Project preview (prominent) with the developer photo as a
-              small secondary chip. Clients see the work first, the face second. */}
-          <motion.div
-            className="order-2 flex justify-center lg:order-2 lg:justify-end xl:justify-center"
-            initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.92 }}
-            animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.7, ease: "easeOut" }}
-          >
-            <Parallax3DContainer intensity={prefersReducedMotion ? 0 : 10} className="inline-block w-full max-w-[520px]">
-              <HeroProjectPreview locale={locale} aboutConfig={aboutConfig} />
-            </Parallax3DContainer>
-          </motion.div>
         </div>
 
         {/* Stats — horizontal scrollable row on mobile */}
         <FadeInUp delay={prefersReducedMotion ? 0 : 1.15}>
           <div
-            className={`mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch] sm:mt-8 sm:grid sm:gap-3 sm:overflow-visible sm:pb-0 sm:snap-none ${
+            className={`mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch] sm:mt-6 sm:grid sm:gap-3 sm:overflow-visible sm:pb-0 sm:snap-none ${
               config.counters.length >= 4 ? "sm:grid-cols-4" : "sm:grid-cols-3"
             }`}
             role="list"
@@ -293,7 +211,7 @@ export function HeroSection({ locale = "bn", aboutConfig, heroConfig }: HeroSect
       </div>
 
       {/* In-flow scroll hint — no extra viewport height required */}
-      <div className="mt-5 hidden justify-center lg:flex" aria-hidden="true">
+      <div className="mt-3 hidden justify-center lg:flex" aria-hidden="true">
         <ScrollIndicator />
       </div>
     </section>

@@ -23,8 +23,9 @@ export interface PortfolioProject {
   image: string;
   /**
    * When set, the card renders a live iframe preview of this URL instead of a
-   * static image — used for real, deployed projects that permit framing.
-   * Clicking the preview always opens `liveUrl` in a new tab.
+   * static image — used for real, deployed projects that permit framing. The
+   * preview itself is non-interactive; the card's explicit Live Demo action
+   * is the only control that opens `liveUrl`.
    */
   embedUrl?: string;
   tags: string[];

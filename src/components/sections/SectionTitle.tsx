@@ -46,7 +46,7 @@ export function SectionTitle({
 
   return (
     <motion.div
-      className={cn("mb-7 sm:mb-8", alignMap[align], className)}
+      className={cn("mb-5 sm:mb-6", alignMap[align], className)}
       initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-50px" }}
@@ -54,7 +54,7 @@ export function SectionTitle({
     >
       {badge && (
         <motion.span
-          className="gradient-badge gradient-border heading-kicker mb-3 inline-block rounded-full border border-transparent px-3 py-1"
+          className="gradient-badge gradient-border heading-kicker mb-2 inline-block rounded-full border border-transparent px-3 py-1"
           initial={{ opacity: 0, scale: 0.85, y: 6 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
@@ -90,7 +90,7 @@ export function SectionTitle({
 
       {displaySubtitle && (
         <motion.p
-          className={cn("mt-3 text-lead text-muted-foreground", locale === "bn" && "bn")}
+          className={cn("mt-2 text-lead text-muted-foreground", locale === "bn" && "bn")}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}

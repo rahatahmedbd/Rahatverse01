@@ -109,7 +109,7 @@ export default function TestimonialsSection({
   const currentTestimonial = testimonials[currentIndex];
 
   return (
-    <section className="py-8 sm:py-10 lg:py-12">
+    <section className="py-6 sm:py-8 lg:py-10">
       <div className="mx-auto max-w-5xl px-0 sm:px-4">
         <SectionTitle
           badge={isBn ? "💬 মতামত ও মূল্যায়ন" : "💬 Client Testimonials"}
@@ -143,10 +143,10 @@ export default function TestimonialsSection({
                   exit={{ opacity: 0, x: -40 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
                 >
-                  <div className="glass-interactive relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-card/60 p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
+                  <div className="glass-interactive relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-card/60 p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
                     <Quote className="pointer-events-none absolute -bottom-6 -right-6 h-44 w-44 text-primary/5 rotate-12" />
 
-                    <div className="mb-6 flex items-center justify-between">
+                    <div className="mb-4 flex items-center justify-between">
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                         <Quote className="h-6 w-6" />
                       </div>
@@ -166,7 +166,7 @@ export default function TestimonialsSection({
                       </div>
                     </div>
 
-                    <p className="relative z-10 mb-8 text-base sm:text-lg italic text-foreground/95 bn leading-relaxed">
+                    <p className="relative z-10 mb-6 text-base sm:text-lg italic text-foreground/95 bn leading-relaxed">
                       &ldquo;{currentTestimonial.content}&rdquo;
                     </p>
 
@@ -210,7 +210,7 @@ export default function TestimonialsSection({
 
             {/* Carousel Navigation Controls */}
             {count > 1 && (
-              <div className="mt-6 flex items-center justify-between">
+              <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {testimonials.map((_, idx) => (
                     <button

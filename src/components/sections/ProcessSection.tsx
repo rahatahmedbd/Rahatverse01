@@ -21,7 +21,7 @@ export async function ProcessSection({ locale = "bn" }: ProcessSectionProps) {
   if (steps.length === 0) return null;
 
   return (
-    <section className="section-atmosphere py-8 sm:py-10 lg:py-12" aria-labelledby="how-i-work">
+    <section className="section-atmosphere py-6 sm:py-8 lg:py-10" aria-labelledby="how-i-work">
       <Workflow className="section-watermark -left-6 top-10 sm:left-[5%]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <span id="how-i-work" className="sr-only">
@@ -40,11 +40,11 @@ export async function ProcessSection({ locale = "bn" }: ProcessSectionProps) {
         />
 
         {/* Timeline — vertical connector on mobile, horizontal flow on desktop */}
-        <StaggerGrid className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-5">
+        <StaggerGrid className="relative grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-5">
           {steps.map((step, index) => (
             <StaggerItem key={step.id}>
               <HoverCard3D intensity={7} className="h-full rounded-2xl">
-              <div className="group relative h-full rounded-2xl border border-border/60 bg-card/60 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
+              <div className="group relative h-full rounded-2xl border border-border/60 bg-card/60 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
                 {/* Step number */}
                 <div className="mb-3 flex items-center gap-2.5">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-amber-600 text-sm font-extrabold text-white shadow-md shadow-primary/25">
@@ -70,7 +70,7 @@ export async function ProcessSection({ locale = "bn" }: ProcessSectionProps) {
         </StaggerGrid>
 
         {/* Inline CTA — start the process */}
-        <div className="mt-6 text-center sm:mt-8">
+        <div className="mt-4 text-center sm:mt-6">
           <Link
             href={`/${locale}/contact`}
             className="group inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"

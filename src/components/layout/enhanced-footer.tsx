@@ -88,11 +88,11 @@ export async function EnhancedFooter({ locale }: EnhancedFooterProps) {
   ];
 
   return (
-    <footer className="relative mt-12 border-t border-border/50 bg-gradient-to-b from-transparent to-card/30 pb-20 sm:pb-0 lg:mt-16">
+    <footer className="relative mt-8 border-t border-border/50 bg-gradient-to-b from-transparent to-card/30 pb-20 sm:pb-0 lg:mt-10">
       <GlowEffect color="amber" size="lg" className="top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20" />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
-        <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-5">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+        <div className="grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-3 sm:space-y-4 lg:col-span-1">
             <Link href={`/${currentLocale}`} className="inline-flex items-center gap-2.5">
               <RahatPortrait
@@ -181,7 +181,7 @@ export async function EnhancedFooter({ locale }: EnhancedFooterProps) {
           </div>
         </div>
 
-        <div className="mt-8 border-t border-border/40 pt-6 sm:mt-10">
+        <div className="mt-6 border-t border-border/40 pt-4 sm:mt-8">
           <div className="flex flex-col items-center justify-between gap-3 text-center sm:gap-4 md:flex-row md:text-left">
             <p className="text-xs text-muted-foreground sm:text-sm">{copyrightText}</p>
             <div className="flex items-center gap-3">

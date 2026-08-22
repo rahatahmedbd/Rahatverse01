@@ -25,22 +25,26 @@ import {
   Sparkles,
   HelpCircle,
   Phone,
-  User,
-  Layers,
   ShieldCheck,
   Info,
   Mail,
+  MessageCircle,
+  Zap,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics/tracker";
 import { DEFAULT_ORDERS_CONFIG, validateOrdersConfig } from "@/lib/orders/config";
 import { calculateLiveQuote, formatQuoteAmount } from "@/lib/orders/quote";
 import { DEFAULT_SERVICES_CONFIG, validateServicesConfig } from "@/lib/services/config";
+import { DEFAULT_CONTACT_CONFIG } from "@/lib/contact/config";
 import type { OrdersConfig } from "@/types/orders";
 import type { ServicesConfig } from "@/types/services";
 
-// ── Order Wizard — Question based ─────────────────────
-// Each step is a question; user just selects options to order.
-// Fixes: Next now validates + scrolls to the unfilled question at the top.
+// ── Order Wizard — Simple 3-step flow ─────────────────
+// Goal: anyone can place an order in ~1 minute with minimal taps.
+//   1) কী বানাবেন  — package + website type (auto-advances when both chosen)
+//   2) প্রজেক্ট     — pages + optional description, extras tucked away
+//   3) যোগাযোগ ও অর্ডার — name/phone/email + compact summary + submit
+// A WhatsApp shortcut is always available for people who prefer to skip forms.
 
 interface OrderWizardProps {
   locale?: string;
@@ -78,6 +82,9 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
 
   const [config, setConfig] = useState<OrdersConfig>(DEFAULT_ORDERS_CONFIG);
   const [servicesConfig, setServicesConfig] = useState<ServicesConfig>(DEFAULT_SERVICES_CONFIG);
+  const [whatsappUrl, setWhatsappUrl] = useState(
+    DEFAULT_CONTACT_CONFIG.quickLinks.whatsappUrl
+  );
 
   const visiblePackages = config.packages.filter((p) => p.visible);
   const visibleWebsiteTypes = config.websiteTypes.filter((t) => t.visible);
@@ -121,13 +128,15 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
 
     async function loadPricingConfig() {
       try {
-        const [ordersResponse, servicesResponse] = await Promise.all([
+        const [ordersResponse, servicesResponse, contactResponse] = await Promise.all([
           fetch("/api/orders-config", { cache: "no-store", signal: controller.signal }),
           fetch("/api/services-config", { cache: "no-store", signal: controller.signal }),
+          fetch("/api/contact-config", { cache: "no-store", signal: controller.signal }),
         ]);
-        const [ordersJson, servicesJson] = await Promise.all([
+        const [ordersJson, servicesJson, contactJson] = await Promise.all([
           ordersResponse.ok ? ordersResponse.json() : null,
           servicesResponse.ok ? servicesResponse.json() : null,
+          contactResponse.ok ? contactResponse.json() : null,
         ]);
         if (controller.signal.aborted) return;
 
@@ -139,6 +148,14 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
         ) ?? DEFAULT_SERVICES_CONFIG;
         setConfig(orders);
         setServicesConfig(services);
+
+        const contactRaw = (contactJson as { data?: unknown } | null)?.data as
+          | { quickLinks?: { whatsappUrl?: unknown } }
+          | null;
+        const wa = contactRaw?.quickLinks?.whatsappUrl;
+        if (typeof wa === "string" && /^(https?|whatsapp):\/\//i.test(wa)) {
+          setWhatsappUrl(wa);
+        }
 
         const allowedPackages = orders.packages.filter((pkg) => pkg.visible);
         const requestedPackage = allowedPackages.find(
@@ -196,22 +213,19 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
         target.matches("input, textarea, select") ||
         target.matches("button[role=\"radio\"], button[role=\"checkbox\"]");
       if (!isField) return;
-      // Give the browser / visualViewport a moment to settle before scrolling.
       window.setTimeout(() => {
         try {
           target.scrollIntoView({ behavior: "smooth", block: "center" });
         } catch {}
-        // Extra nudge for devices where the bottom nav overlaps content.
         const rect = target.getBoundingClientRect();
         const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-        const bottomOverlap = 96; // bottom nav + safe area
+        const bottomOverlap = 96;
         if (rect.bottom > viewportHeight - bottomOverlap) {
           window.scrollBy({ top: rect.bottom - (viewportHeight - bottomOverlap) + 16, behavior: "smooth" });
         }
       }, 280);
     };
     container.addEventListener("focusin", onFocusIn);
-    // Also react to visualViewport resize (keyboard open/close)
     const vv = window.visualViewport;
     const onResize = () => {
       const active = document.activeElement as HTMLElement | null;
@@ -234,7 +248,6 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
       delete next[field];
       return next;
     });
-    // Phase 6: service/package selection intent (privacy-safe)
     if (field === "packageType" && typeof value === "string" && value) {
       trackEvent("service_select", {
         category: "conversion",
@@ -277,29 +290,21 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     return formatQuoteAmount(pricing.priceBdt, "BDT", locale);
   };
 
-  // ── 5 question steps ──
+  // ── 3 simple steps ──
   const steps = [
-    { icon: Package, title: isBn ? "প্যাকেজ" : "Package", q: isBn ? "প্রশ্ন ১" : "Q1" },
-    { icon: Layers, title: isBn ? "ধরন" : "Type", q: isBn ? "প্রশ্ন ২" : "Q2" },
-    { icon: FileText, title: isBn ? "প্রজেক্ট" : "Project", q: isBn ? "প্রশ্ন ৩" : "Q3" },
-    { icon: User, title: isBn ? "যোগাযোগ" : "Contact", q: isBn ? "প্রশ্ন ৪" : "Q4" },
-    { icon: CheckCircle2, title: isBn ? "রিভিউ" : "Review", q: isBn ? "প্রশ্ন ৫" : "Q5" },
+    { icon: Package, title: isBn ? "কী বানাবেন" : "What to build" },
+    { icon: FileText, title: isBn ? "প্রজেক্ট" : "Project" },
+    { icon: CheckCircle2, title: isBn ? "যোগাযোগ ও অর্ডার" : "Contact & order" },
   ];
 
-  // ── Validation per step ──
+  // ── Validation per step (only what is truly required) ──
   const validateStep = (current: number): Partial<Record<keyof OrderData, string>> => {
     const errs: Partial<Record<keyof OrderData, string>> = {};
     if (current === 0) {
       if (!data.packageType) errs.packageType = isBn ? "একটি প্যাকেজ বাছাই করুন" : "Please choose a package";
-    }
-    if (current === 1) {
       if (!data.websiteType) errs.websiteType = isBn ? "ওয়েবসাইটের ধরন বাছাই করুন" : "Please choose a website type";
     }
     if (current === 2) {
-      if (!data.description.trim())
-        errs.description = isBn ? "প্রজেক্ট সম্পর্কে একটু লিখুন" : "Please describe your project";
-    }
-    if (current === 3) {
       if (!data.clientName.trim())
         errs.clientName = isBn ? "আপনার নাম লিখুন" : "Please enter your name";
       if (!data.clientEmail.trim()) {
@@ -319,14 +324,12 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
   const scrollToFirstError = (errs: Partial<Record<keyof OrderData, string>>) => {
     const firstKey = Object.keys(errs)[0] as keyof OrderData | undefined;
     if (!firstKey) return;
-    // Try by field id, then by question wrapper
     const el =
       document.getElementById(firstKey) ||
       document.getElementById(`q-${firstKey}`) ||
       document.querySelector(`[data-field="${firstKey}"]`);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
-      // Ensure the field is not hidden behind sticky header / bottom nav.
       window.setTimeout(() => {
         const rect = el.getBoundingClientRect();
         const headerOffset = 80;
@@ -337,7 +340,6 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           window.scrollBy({ top: rect.bottom - (window.innerHeight - bottomNavOffset) + 12, behavior: "smooth" });
         }
       }, 360);
-      // focus inner input if exists (accessibility: focus first invalid)
       const focusable = el.querySelector<HTMLElement>("input, textarea, select, button");
       if (focusable) {
         setTimeout(() => {
@@ -348,22 +350,13 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           }
         }, 380);
       } else if (el instanceof HTMLElement) {
-        // if chip group, focus first chip
         const chip = el.querySelector<HTMLElement>('button[role="radio"], button[role="checkbox"]');
         chip?.focus();
       }
     }
   };
 
-  const handleNext = () => {
-    const errs = validateStep(step);
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      // ensure error rendered then scroll
-      requestAnimationFrame(() => setTimeout(() => scrollToFirstError(errs), 60));
-      return;
-    }
-    setErrors({});
+  const goNext = () => {
     const completedStep = step + 1; // 1-based for analytics
     trackEvent("order_step_complete", {
       category: "conversion",
@@ -373,23 +366,48 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     setStep((s) => Math.min(s + 1, steps.length - 1));
   };
 
+  const handleNext = () => {
+    const errs = validateStep(step);
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      requestAnimationFrame(() => setTimeout(() => scrollToFirstError(errs), 60));
+      return;
+    }
+    setErrors({});
+    goNext();
+  };
+
+  // Auto-advance once both quick taps on step 1 are done — zero "Next" clicks.
+  const selectPackage = (value: string) => {
+    updateData("packageType", value);
+    if (step === 0 && value && data.websiteType) {
+      window.setTimeout(() => goNext(), 320);
+    }
+  };
+  const selectWebsiteType = (value: string) => {
+    updateData("websiteType", value);
+    if (step === 0 && value && data.packageType) {
+      window.setTimeout(() => goNext(), 320);
+    }
+  };
+
   const handleBack = () => {
     setErrors({});
     setStep((s) => Math.max(s - 1, 0));
   };
 
   const handleSubmit = async () => {
-    if (submitLockRef.current) return; // Phase 8: prevent duplicate submissions
-    // validate all required steps together
+    if (submitLockRef.current) return;
     const allErrs: Partial<Record<keyof OrderData, string>> = {
       ...validateStep(0),
       ...validateStep(1),
       ...validateStep(2),
-      ...validateStep(3),
     };
     if (Object.keys(allErrs).length > 0) {
       setErrors(allErrs);
-      const stepWithError = [0, 1, 2, 3].find((s) => Object.keys(validateStep(s)).some((k) => k in allErrs));
+      const stepWithError = [0, 1, 2].find((s) =>
+        Object.keys(validateStep(s)).some((k) => k in allErrs)
+      );
       if (stepWithError !== undefined) setStep(stepWithError);
       setTimeout(() => scrollToFirstError(allErrs), 120);
       return;
@@ -455,6 +473,22 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
     }
   };
 
+  // WhatsApp quick-order: prefills a message so anyone can order without the form.
+  const waPackageLabel = visiblePackages.find((p) => p.value === data.packageType)?.[isBn ? "labelBn" : "labelEn"] ?? "";
+  const waTypeLabel = visibleWebsiteTypes.find((t) => t.value === data.websiteType)?.[isBn ? "labelBn" : "labelEn"] ?? "";
+  const waMessage = isBn
+    ? `আসসালামু আলাইকুম! আমি একটি ওয়েবসাইট অর্ডার করতে চাই।\nপ্যাকেজ: ${waPackageLabel}\nটাইপ: ${waTypeLabel}\nপেজ: ${data.numPages}টি`
+    : `Hi! I'd like to order a website.\nPackage: ${waPackageLabel}\nType: ${waTypeLabel}\nPages: ${data.numPages}`;
+  const whatsappHref = `${whatsappUrl}${whatsappUrl.includes("?") ? "&" : "?"}text=${encodeURIComponent(waMessage)}`;
+
+  const handleWhatsappClick = () => {
+    trackEvent("whatsapp_click", {
+      category: "conversion",
+      label: "order_wizard_quick_order",
+      metadata: { location: "order_wizard", locale },
+    });
+  };
+
   if (isSubmitted) {
     return (
       <section className="py-20">
@@ -474,7 +508,6 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 {isBn ? "অর্ডারটি নিরাপদে গ্রহণ করা হয়েছে" : "Your order was received securely"}
               </Badge>
 
-              {/* Phase 6: clear next-steps, communication & payment reassurance */}
               <div className="mt-8 space-y-4 text-left">
                 <div className="rounded-xl border border-border/60 bg-card/40 p-4">
                   <h3 className="flex items-center gap-2 text-sm font-semibold bn">
@@ -482,11 +515,11 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                     {isBn ? "এরপর কী হবে?" : "What happens next?"}
                   </h3>
                   <ol className="mt-3 space-y-2 text-sm text-muted-foreground bn list-decimal list-inside leading-relaxed">
-                    <li>{isBn ? "আমরা আপনার প্রয়োজনগুলো পর্যালোচনা করব।" : "We’ll review your requirements carefully."}</li>
+                    <li>{isBn ? "আমরা আপনার প্রয়োজনগুলো পর্যালোচনা করব।" : "We'll review your requirements carefully."}</li>
                     <li>
                       {isBn
                         ? "আপনার বেছে নেওয়া মাধ্যমে — ইমেইল, ফোন বা হোয়াটসঅ্যাপ — যোগাযোগ করে বিস্তারিত চূড়ান্ত করব।"
-                        : "We’ll contact you through your selected method — email, phone or WhatsApp — to finalize the details."}
+                        : "We'll contact you through your selected method — email, phone or WhatsApp — to finalize the details."}
                     </li>
                     <li>
                       {isBn
@@ -517,7 +550,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   </div>
                   <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-background px-3 py-1.5 text-xs">
                     <Phone className="h-3.5 w-3.5 text-primary" />
-                    <span className="font-medium">{isBn ? "প্রয়োজনে ফোন/হোয়াটসঅ্যাপে যোগাযোগ" : "We’ll reach you by phone/WhatsApp if needed"}</span>
+                    <span className="font-medium">{isBn ? "প্রয়োজনে ফোন/হোয়াটসঅ্যাপে যোগাযোগ" : "We'll reach you by phone/WhatsApp if needed"}</span>
                   </div>
                 </div>
               </div>
@@ -544,7 +577,10 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           <span className="bn">
             {isBn ? `ধাপ ${step + 1} / ${steps.length}` : `Step ${step + 1} / ${steps.length}`}
           </span>
-          <span className="bn">{isBn ? "শুধু অপশন সিলেক্ট করুন" : "Just select an option"}</span>
+          <span className="bn inline-flex items-center gap-1">
+            <Zap className="h-3 w-3 text-primary" />
+            {isBn ? "মাত্র ৩টি সহজ ধাপ" : "Just 3 easy steps"}
+          </span>
         </div>
         <div className="mb-6 h-2 overflow-hidden rounded-full bg-border/50">
           <div
@@ -553,7 +589,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
           />
         </div>
 
-        {/* Step Indicator — question style */}
+        {/* Step Indicator */}
         <div className="mb-8 flex items-center justify-center gap-1.5 sm:gap-2">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center">
@@ -562,7 +598,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 onClick={() => i < step && setStep(i)}
                 disabled={i > step}
                 aria-current={i === step ? "step" : undefined}
-                aria-label={`${s.q} - ${s.title}`}
+                aria-label={s.title}
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
                   i === step
                     ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105"
@@ -579,25 +615,24 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             </div>
           ))}
         </div>
-        {/* labels under dots */}
-        <div className="mb-8 hidden sm:flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
+        <div className="mb-8 flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center">
               <span
-                className={`w-10 text-center leading-tight ${i === step ? "text-primary font-semibold" : i < step ? "text-primary/70" : ""} ${i < steps.length - 1 ? "mr-2" : ""}`}
+                className={`whitespace-nowrap leading-tight ${i === step ? "text-primary font-semibold" : i < step ? "text-primary/70" : ""}`}
               >
                 {s.title}
               </span>
-              {i < steps.length - 1 && <span className="w-10" />}
+              {i < steps.length - 1 && <span className="mx-3 text-border">•</span>}
             </div>
           ))}
         </div>
 
         {/* Step Content */}
         <GlassCard>
-          {/* Q1: Package Selection */}
+          {/* STEP 1: Package + Website Type */}
           {step === 0 && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div
                 id="q-packageType"
                 data-field="packageType"
@@ -609,12 +644,12 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   </span>
                   <div className="flex-1">
                     <h3 className="text-[15px] font-bold bn flex items-center gap-1.5">
-                      {isBn ? "আপনি কোন প্যাকেজটি নিতে চান?" : "Which package would you like?"}
+                      {isBn ? "কোন প্যাকেজটি নিতে চান?" : "Which package would you like?"}
                       <span className="text-destructive">*</span>
                       <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
                     </h3>
                     <p className="mt-1 text-xs text-muted-foreground bn">
-                      {isBn ? "শুধু একটি অপশন ট্যাপ করুন — দাম সহ দেখানো আছে" : "Just tap one option — price shown"}
+                      {isBn ? "একটি ট্যাপ করুন — দাম সহ দেখানো আছে" : "Tap one — price shown"}
                     </p>
                   </div>
                 </div>
@@ -629,7 +664,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                       };
                     })}
                     value={data.packageType}
-                    onChange={(v) => updateData("packageType", v)}
+                    onChange={selectPackage}
                     columns={2}
                     invalid={!!errors.packageType}
                   />
@@ -648,15 +683,6 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 )}
               </div>
 
-              <p className="text-center text-xs text-muted-foreground bn">
-                {isBn ? "পরবর্তী ধাপে ওয়েবসাইটের ধরন বাছাই করবেন" : "Next, choose the website type"}
-              </p>
-            </div>
-          )}
-
-          {/* Q2: Website Type */}
-          {step === 1 && (
-            <div className="space-y-4">
               <div
                 id="q-websiteType"
                 data-field="websiteType"
@@ -672,7 +698,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                       <span className="text-destructive">*</span>
                     </h3>
                     <p className="mt-1 text-xs text-muted-foreground bn">
-                      {isBn ? "একটি অপশন সিলেক্ট করুন — বাকি সব আমরা সামলে নেব" : "Select one option — we'll handle the rest"}
+                      {isBn ? "একটি ট্যাপ করুন — বাকি সব আমরা সামলে নেব" : "Tap one — we'll handle the rest"}
                     </p>
                   </div>
                 </div>
@@ -684,7 +710,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                       label: isBn ? t.labelBn : t.labelEn,
                     }))}
                     value={data.websiteType}
-                    onChange={(v) => updateData("websiteType", v)}
+                    onChange={selectWebsiteType}
                     columns={2}
                     invalid={!!errors.websiteType}
                   />
@@ -696,11 +722,17 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                   </p>
                 )}
               </div>
+
+              <p className="text-center text-xs text-muted-foreground bn">
+                {isBn
+                  ? "দুটোই বেছে নিলে স্বয়ংক্রিয়ভাবে পরের ধাপে চলে যাবেন"
+                  : "Choosing both will automatically take you to the next step"}
+              </p>
             </div>
           )}
 
-          {/* Q3: Project Details — question cards */}
-          {step === 2 && (
+          {/* STEP 2: Project details */}
+          {step === 1 && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-border/60 bg-card/30 p-4 sm:p-5">
                 <div className="mb-3 flex items-start gap-3">
@@ -729,22 +761,17 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 )}
               </div>
 
-              <div
-                id="q-description"
-                data-field="description"
-                className={`rounded-2xl border p-4 sm:p-5 ${errors.description ? "border-destructive/60 bg-destructive/5" : "border-border/60 bg-card/30"}`}
-              >
+              <div id="q-description" data-field="description" className="rounded-2xl border border-border/60 bg-card/30 p-4 sm:p-5">
                 <div className="mb-3 flex items-start gap-3">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                     4
                   </span>
                   <div className="flex-1">
                     <h3 className="text-[15px] font-bold bn flex items-center gap-1.5">
-                      {isBn ? "আপনার প্রজেক্ট সম্পর্কে সংক্ষেপে বলুন" : "Briefly describe your project"}
-                      <span className="text-destructive">*</span>
+                      {isBn ? "প্রজেক্ট সম্পর্কে একটু বলুন (ঐচ্ছিক)" : "Tell us about your project (optional)"}
                     </h3>
                     <p className="mt-1 text-xs text-muted-foreground bn">
-                      {isBn ? "যেমন: কী ধরনের ব্যবসা, কী কী লাগবে" : "e.g. business type, goals, examples"}
+                      {isBn ? "এক লাইনই যথেষ্ট — না লিখলেও সমস্যা নেই" : "One line is enough — you can skip this"}
                     </p>
                   </div>
                 </div>
@@ -759,64 +786,57 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                         : "e.g. I need a restaurant website with menu, ordering and location..."
                     }
                     rows={4}
-                    invalid={!!errors.description}
                   />
                 </div>
-                {errors.description && (
-                  <p role="alert" className="mt-2 flex items-center gap-1.5 text-xs font-medium text-destructive">
-                    <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
-                    {errors.description}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                {visibleBudgetRanges.length > 0 && (
-                  <div className="rounded-2xl border border-border/60 bg-card/30 p-4">
-                    <h4 className="mb-2 text-sm font-semibold bn">
-                      {isBn ? "আপনার বাজেট কত?" : "What's your budget?"}
-                    </h4>
-                    <SelectField
-                      id="budgetRange"
-                      value={data.budgetRange}
-                      onChange={(e) => updateData("budgetRange", e.target.value)}
-                      placeholder={isBn ? "একটি বেছে নিন" : "Select one"}
-                    >
-                      {visibleBudgetRanges.map((b) => (
-                        <option key={b.value} value={b.value}>
-                          {b.label}
-                        </option>
-                      ))}
-                    </SelectField>
-                  </div>
-                )}
-
-                {visibleTimelines.length > 0 && (
-                  <div className="rounded-2xl border border-border/60 bg-card/30 p-4">
-                    <h4 className="mb-2 text-sm font-semibold bn">
-                      {isBn ? "কত দিনের মধ্যে লাগবে?" : "When do you need it?"}
-                    </h4>
-                    <SelectField
-                      id="timeline"
-                      value={data.timeline}
-                      onChange={(e) => updateData("timeline", e.target.value)}
-                      placeholder={isBn ? "একটি বেছে নিন" : "Select one"}
-                    >
-                      {visibleTimelines.map((t) => (
-                        <option key={t.value} value={t.value}>
-                          {isBn ? t.labelBn : t.labelEn}
-                        </option>
-                      ))}
-                    </SelectField>
-                  </div>
-                )}
               </div>
 
               <details className="rounded-2xl border border-border/60 bg-background/30 px-4 py-3">
                 <summary className="cursor-pointer text-sm font-medium text-muted-foreground bn">
-                  {isBn ? "ডিজাইন ও ফিচার পছন্দ যোগ করুন (ঐচ্ছিক) — শুধু ট্যাপ করুন" : "Add design & features (optional) — just tap to select"}
+                  {isBn ? "আরও বিকল্প যোগ করুন (ঐচ্ছিক) — শুধু ট্যাপ করুন" : "Add more options (optional) — just tap to select"}
                 </summary>
                 <div className="mt-5 space-y-5">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {visibleBudgetRanges.length > 0 && (
+                      <div className="rounded-2xl border border-border/60 bg-card/30 p-4">
+                        <h4 className="mb-2 text-sm font-semibold bn">
+                          {isBn ? "আপনার বাজেট কত?" : "What's your budget?"}
+                        </h4>
+                        <SelectField
+                          id="budgetRange"
+                          value={data.budgetRange}
+                          onChange={(e) => updateData("budgetRange", e.target.value)}
+                          placeholder={isBn ? "একটি বেছে নিন" : "Select one"}
+                        >
+                          {visibleBudgetRanges.map((b) => (
+                            <option key={b.value} value={b.value}>
+                              {b.label}
+                            </option>
+                          ))}
+                        </SelectField>
+                      </div>
+                    )}
+
+                    {visibleTimelines.length > 0 && (
+                      <div className="rounded-2xl border border-border/60 bg-card/30 p-4">
+                        <h4 className="mb-2 text-sm font-semibold bn">
+                          {isBn ? "কত দিনের মধ্যে লাগবে?" : "When do you need it?"}
+                        </h4>
+                        <SelectField
+                          id="timeline"
+                          value={data.timeline}
+                          onChange={(e) => updateData("timeline", e.target.value)}
+                          placeholder={isBn ? "একটি বেছে নিন" : "Select one"}
+                        >
+                          {visibleTimelines.map((t) => (
+                            <option key={t.value} value={t.value}>
+                              {isBn ? t.labelBn : t.labelEn}
+                            </option>
+                          ))}
+                        </SelectField>
+                      </div>
+                    )}
+                  </div>
+
                   {visibleDesignStyles.length > 0 && (
                     <div>
                       <p className="mb-2 text-sm font-medium bn">
@@ -908,15 +928,15 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             </div>
           )}
 
-          {/* Q4: Contact */}
-          {step === 3 && (
+          {/* STEP 3: Contact + summary + submit */}
+          {step === 2 && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-3">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
                 <p className="text-sm bn">
                   {isBn
-                    ? "শেষ প্রশ্ন — কীভাবে যোগাযোগ করব? শুধু নিচের ৩টি ঘর পূরণ করুন।"
-                    : "Last question — how to reach you? Just fill the 3 required fields."}
+                    ? "শেষ ধাপ — শুধু নাম, ফোন ও ইমেইল দিন, তারপর অর্ডার জমা দিন"
+                    : "Last step — just add your name, phone and email, then submit"}
                 </p>
               </div>
 
@@ -940,27 +960,8 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                         value={data.clientName}
                         onChange={(e) => updateData("clientName", e.target.value)}
                         placeholder={isBn ? "আপনার নাম" : "Your name"}
+                        autoComplete="name"
                         invalid={!!errors.clientName}
-                      />
-                    </div>
-                  </FormField>
-                  <FormField id="clientCompany" label={isBn ? "কোম্পানি (ঐচ্ছিক)" : "Company (optional)"}>
-                    <TextField
-                      id="clientCompany"
-                      value={data.clientCompany}
-                      onChange={(e) => updateData("clientCompany", e.target.value)}
-                      placeholder={isBn ? "কোম্পানির নাম" : "Company name"}
-                    />
-                  </FormField>
-                  <FormField id="clientEmail" label={isBn ? "ইমেইল" : "Email"} required error={errors.clientEmail}>
-                    <div id="clientEmail">
-                      <TextField
-                        id="clientEmail-input"
-                        type="email"
-                        value={data.clientEmail}
-                        onChange={(e) => updateData("clientEmail", e.target.value)}
-                        placeholder="email@example.com"
-                        invalid={!!errors.clientEmail}
                       />
                     </div>
                   </FormField>
@@ -972,9 +973,32 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                         value={data.clientPhone}
                         onChange={(e) => updateData("clientPhone", e.target.value)}
                         placeholder="+880 1XXX-XXXXXX"
+                        autoComplete="tel"
                         invalid={!!errors.clientPhone}
                       />
                     </div>
+                  </FormField>
+                  <FormField id="clientEmail" label={isBn ? "ইমেইল" : "Email"} required error={errors.clientEmail}>
+                    <div id="clientEmail">
+                      <TextField
+                        id="clientEmail-input"
+                        type="email"
+                        value={data.clientEmail}
+                        onChange={(e) => updateData("clientEmail", e.target.value)}
+                        placeholder="email@example.com"
+                        autoComplete="email"
+                        invalid={!!errors.clientEmail}
+                      />
+                    </div>
+                  </FormField>
+                  <FormField id="clientCompany" label={isBn ? "কোম্পানি (ঐচ্ছিক)" : "Company (optional)"}>
+                    <TextField
+                      id="clientCompany"
+                      value={data.clientCompany}
+                      onChange={(e) => updateData("clientCompany", e.target.value)}
+                      placeholder={isBn ? "কোম্পানির নাম" : "Company name"}
+                      autoComplete="organization"
+                    />
                   </FormField>
                   <FormField
                     id="clientWhatsapp"
@@ -988,108 +1012,58 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                       value={data.clientWhatsapp}
                       onChange={(e) => updateData("clientWhatsapp", e.target.value)}
                       placeholder="+880 1XXX-XXXXXX"
+                      autoComplete="tel"
                     />
                   </FormField>
                 </div>
                 {(errors.clientName || errors.clientEmail || errors.clientPhone) && (
                   <p className="mt-3 text-xs text-destructive bn">
-                    {isBn ? "লাল চিহ্নিত ঘরগুলো পূরণ করুন, তারপর পরবর্তীতে যান" : "Please fill the highlighted fields, then continue"}
+                    {isBn ? "লাল চিহ্নিত ঘরগুলো পূরণ করুন, তারপর অর্ডার জমা দিন" : "Please fill the highlighted fields, then submit"}
                   </p>
                 )}
               </div>
-            </div>
-          )}
 
-          {/* Q5: Review */}
-          {step === 4 && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                <h3 className="text-[15px] font-bold bn">
-                  {isBn ? "৫. সব তথ্য একবার দেখে নিন" : "Q5. Please review your answers"}
+              {/* Compact summary */}
+              <div className="rounded-2xl border border-border/60 bg-card/30 p-4 sm:p-5">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-bold bn">
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  {isBn ? "আপনার অর্ডার এক নজরে" : "Your order at a glance"}
                 </h3>
-              </div>
-
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "প্যাকেজ" : "Package"}</span>
-                  <span className="font-medium">
-                    {visiblePackages.find((p) => p.value === data.packageType)?.[isBn ? "labelBn" : "labelEn"] ||
-                      data.packageType.charAt(0).toUpperCase() + data.packageType.slice(1)}
-                  </span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "ওয়েবসাইট টাইপ" : "Website Type"}</span>
-                  <span className="font-medium bn">
-                    {visibleWebsiteTypes.find((t) => t.value === data.websiteType)?.[isBn ? "labelBn" : "labelEn"] ||
-                      data.websiteType}
-                  </span>
-                </div>
-                {data.designStyle && (
-                  <div className="flex justify-between border-b border-border/50 pb-2">
-                    <span className="text-muted-foreground bn">{isBn ? "ডিজাইন স্টাইল" : "Design Style"}</span>
-                    <span className="font-medium bn">
-                      {visibleDesignStyles.find((d) => d.value === data.designStyle)?.[isBn ? "labelBn" : "labelEn"] ||
-                        data.designStyle}
+                <div className="grid gap-2 text-sm sm:grid-cols-2">
+                  <div className="flex items-center justify-between gap-2 rounded-lg bg-background/60 px-3 py-2">
+                    <span className="text-muted-foreground bn">{isBn ? "প্যাকেজ" : "Package"}</span>
+                    <span className="font-medium text-right">
+                      {visiblePackages.find((p) => p.value === data.packageType)?.[isBn ? "labelBn" : "labelEn"] || "—"}
                     </span>
                   </div>
-                )}
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "পেজ" : "Pages"}</span>
-                  <span className="font-medium">
-                    {data.numPages} {isBn ? "পেজ" : "pages"}
-                  </span>
+                  <div className="flex items-center justify-between gap-2 rounded-lg bg-background/60 px-3 py-2">
+                    <span className="text-muted-foreground bn">{isBn ? "টাইপ" : "Type"}</span>
+                    <span className="font-medium text-right">
+                      {visibleWebsiteTypes.find((t) => t.value === data.websiteType)?.[isBn ? "labelBn" : "labelEn"] || "—"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 rounded-lg bg-background/60 px-3 py-2">
+                    <span className="text-muted-foreground bn">{isBn ? "পেজ" : "Pages"}</span>
+                    <span className="font-medium">
+                      {data.numPages} {isBn ? "পেজ" : "pages"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 rounded-lg bg-background/60 px-3 py-2">
+                    <span className="text-muted-foreground bn">{isBn ? "ফিচার" : "Features"}</span>
+                    <span className="font-medium">
+                      {data.features.length > 0 ? (isBn ? `${data.features.length}টি` : `${data.features.length}`) : "—"}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "নাম" : "Name"}</span>
-                  <span className="font-medium">{data.clientName}</span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "ইমেইল" : "Email"}</span>
-                  <span className="font-medium">{data.clientEmail}</span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "ফোন" : "Phone"}</span>
-                  <span className="font-medium">{data.clientPhone}</span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "বাজেট" : "Budget"}</span>
-                  <span className="font-medium">
-                    {visibleBudgetRanges.find((range) => range.value === data.budgetRange)?.label || "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "টাইমলাইন" : "Timeline"}</span>
-                  <span className="font-medium">
-                    {visibleTimelines.find((t) => t.value === data.timeline)?.[isBn ? "labelBn" : "labelEn"] || "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-muted-foreground bn">{isBn ? "ফিচার" : "Features"}</span>
-                  <span className="font-medium">
-                    {data.features.length > 0 ? (isBn ? `${data.features.length}টি` : `${data.features.length}`) : "—"}
-                  </span>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setStep(0)}>
+                    {isBn ? "প্যাকেজ/টাইপ ঠিক করুন" : "Edit package/type"}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setStep(1)}>
+                    {isBn ? "প্রজেক্ট ঠিক করুন" : "Edit project"}
+                  </Button>
                 </div>
               </div>
-
-              {data.features.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {visibleAddons
-                    .filter((f) => data.features.includes(f.value))
-                    .map((f) => (
-                      <Badge key={f.value} variant="outline">
-                        {isBn ? f.labelBn : f.labelEn}
-                      </Badge>
-                    ))}
-                </div>
-              )}
-
-              {data.description && (
-                <div>
-                  <p className="mb-1 text-sm font-medium text-muted-foreground bn">{isBn ? "বিবরণ" : "Description"}</p>
-                  <p className="rounded-lg bg-background p-3 text-sm bn border border-border/50">{data.description}</p>
-                </div>
-              )}
 
               <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
                 <Sparkles className="h-4 w-4 shrink-0 text-primary" />
@@ -1100,14 +1074,13 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 </span>
               </div>
 
-              {/* Phase 6: reassurance immediately before final submit */}
               <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4">
                 <div className="flex items-start gap-3">
                   <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-500 mt-0.5" />
                   <div className="space-y-1.5 text-sm leading-relaxed bn">
                     <p className="font-semibold text-foreground">
                       {isBn
-                        ? "এখন কোনো পেমেন্টের প্রয়োজন নেই — এই অনুরোধ জমা দিলে ফ্রি পরামর্শ ও আপনার প্রজেক্টের জন্য কাস্টম কোটের প্রক্রিয়া শুরু হবে।"
+                        ? "এখন কোনো পেমেন্টের প্রয়োজন নেই — এই অনুরোধ জমা দিলে ফ্রি পরামর্শ ও কাস্টম কোটের প্রক্রিয়া শুরু হবে।"
                         : "No payment required now — submitting this request starts a free consultation and custom project quote."}
                     </p>
                     <p className="text-muted-foreground">
@@ -1117,21 +1090,6 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                     </p>
                   </div>
                 </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" onClick={() => setStep(0)}>
-                  {isBn ? "প্যাকেজ ঠিক করুন" : "Edit package"}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setStep(1)}>
-                  {isBn ? "ধরন ঠিক করুন" : "Edit type"}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setStep(2)}>
-                  {isBn ? "প্রজেক্ট ঠিক করুন" : "Edit project"}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setStep(3)}>
-                  {isBn ? "যোগাযোগ ঠিক করুন" : "Edit contact"}
-                </Button>
               </div>
             </div>
           )}
@@ -1144,7 +1102,7 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
             </p>
           )}
 
-          {/* Navigation Buttons — Phase 8: a11y, 44px tap, busy state */}
+          {/* Navigation Buttons */}
           <div className="mt-8 flex items-center justify-between gap-3">
             <Button variant="ghost" onClick={handleBack} disabled={step === 0} className="min-h-[44px]">
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -1171,6 +1129,20 @@ export function OrderWizard({ locale = "bn" }: OrderWizardProps) {
                 )}
               </Button>
             )}
+          </div>
+
+          {/* WhatsApp quick order — always available */}
+          <div className="mt-5 border-t border-border/50 pt-5">
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleWhatsappClick}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-500 transition-colors hover:bg-green-500/15 min-h-[44px]"
+            >
+              <MessageCircle className="h-4 w-4" aria-hidden="true" />
+              {isBn ? "ফর্ম পূরণ করতে চান না? হোয়াটসঅ্যাপে সরাসরি অর্ডার করুন" : "Prefer to skip the form? Order directly on WhatsApp"}
+            </a>
           </div>
         </GlassCard>
       </div>
